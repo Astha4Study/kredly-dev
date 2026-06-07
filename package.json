@@ -13,7 +13,6 @@
   "dependencies": {
     "@rsbuild/plugin-babel": "^1.1.2",
     "@tanstack/react-router": "^1.170.7",
-    "babel-plugin-react-compiler": "^1.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.16.0",
@@ -32,6 +31,7 @@
     "@tanstack/router-plugin": "^1.168.10",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
