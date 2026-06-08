@@ -1,13 +1,108 @@
 @import 'tailwindcss';
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
+
+/* Cal Sans Text Font Family */
+@font-face {
+  font-family: 'Cal Sans Text';
+  src: url('./assets/fonts/CalSansText-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cal Sans Text';
+  src: url('./assets/fonts/CalSansText-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cal Sans Text';
+  src: url('./assets/fonts/CalSansText-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cal Sans Text';
+  src: url('./assets/fonts/CalSansText-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cal Sans Text';
+  src: url('./assets/fonts/CalSansText-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Cal Sans UI Font Family */
+@font-face {
+  font-family: 'Cal Sans UI';
+  src: url('./assets/fonts/CalSansUI-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cal Sans UI';
+  src: url('./assets/fonts/CalSansUI-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cal Sans UI';
+  src: url('./assets/fonts/CalSansUI-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cal Sans UI';
+  src: url('./assets/fonts/CalSansUI-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cal Sans UI';
+  src: url('./assets/fonts/CalSansUI-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Cal Sans UI Variable Font */
+@font-face {
+  font-family: 'Cal Sans UI Variable';
+  src: url('./assets/fonts/CalSansUI[wght,GEOM].woff2')
+    format('woff2-variations');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: 'Inter', sans-serif;
-  --font-heading: 'Roboto', sans-serif;
+  --font-sans:
+    'Cal Sans UI', 'Cal Sans Text', system-ui, -apple-system, sans-serif;
+  --font-heading:
+    'Cal Sans UI', 'Cal Sans Text', system-ui, -apple-system, sans-serif;
+  --font-text: 'Cal Sans Text', system-ui, -apple-system, sans-serif;
+  --font-ui: 'Cal Sans UI', system-ui, -apple-system, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -52,7 +147,7 @@
 :root {
   --radius: 0rem;
   --background: oklch(1 0 0);
-  --foreground: oklch(13% 0.005 285);
+  --foreground: oklch(29% 0.006 260);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.153 0.006 107.1);
   --popover: oklch(1 0 0);
@@ -62,7 +157,7 @@
   --secondary: oklch(0.967 0.001 286.375);
   --secondary-foreground: oklch(0.21 0.006 285.885);
   --muted: oklch(0.966 0.005 106.5);
-  --muted-foreground: oklch(0.58 0.031 107.3);
+  --muted-foreground: oklch(60% 0.01 260);
   --accent: oklch(0.966 0.005 106.5);
   --accent-foreground: oklch(0.228 0.013 107.4);
   --destructive: oklch(58.305% 0.23863 28.392 / 0.671);
@@ -123,8 +218,9 @@
     @apply border-border outline-ring/50;
   }
 
+  html,
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-zinc-100/50 text-foreground font-sans;
   }
 
   h1,
