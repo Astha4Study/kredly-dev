@@ -384,6 +384,7 @@ export const LogoLoop = React.memo<LogoLoopProps>(
               'h-(--logoloop-logoHeight) w-auto block object-contain',
               '[-webkit-user-drag:none] pointer-events-none',
               '[image-rendering:-webkit-optimize-contrast]',
+              'grayscale',
               'motion-reduce:transition-none',
               scaleOnHover &&
                 'transition-transform duration-300 ease-in-out group-hover/item:scale-120',
