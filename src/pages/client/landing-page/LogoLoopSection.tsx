@@ -1,13 +1,15 @@
 import LogoLoop from '@/components/LogoLoop';
-import geminiLogo from '@/assets/svg/gemini_wordmark.svg';
+import geminiLogo from '@/assets/svg/gemini.svg';
 import rsbuild from '@/assets/svg/rsbuild.svg';
-import grokLightLogo from '@/assets/svg/Grok_wordmark_light.svg';
+import groqLogo from '@/assets/svg/Groq_wordmark_light.svg';
+import goLogo from '@/assets/svg/Go_light.svg';
 import GridBorder from '@/components/GridBorder';
 
 const techLogos = [
   { src: geminiLogo, alt: 'Gemini' },
   { src: rsbuild, alt: 'RSBuild' },
-  { src: grokLightLogo, alt: 'Grok Light' },
+  { src: groqLogo, alt: 'Groq' },
+  { src: goLogo, alt: 'Go' },
 ];
 
 export default function LogoLoopSection() {
@@ -31,7 +33,7 @@ export default function LogoLoopSection() {
                 logos={techLogos}
                 speed={50}
                 direction="left"
-                logoHeight={40}
+                logoHeight={30}
                 gap={60}
                 hoverSpeed={0}
                 fadeOut
