@@ -1,4 +1,5 @@
 import BenefitsSection from '@/pages/client/landing-page/BenefitsSection';
+import CTASection from '@/pages/client/landing-page/CTASection';
 import HeroSection from '@/pages/client/landing-page/HeroSection';
 import HowItWorksSection from '@/pages/client/landing-page/HowItWorksSection';
 import WhyTrustUsSection from '@/pages/client/landing-page/WhyTrustUsSection';
@@ -15,6 +16,7 @@ function RouteComponent() {
       <HowItWorksSection />
       <BenefitsSection />
       <WhyTrustUsSection />
+      <CTASection />
     </div>
   );
 }

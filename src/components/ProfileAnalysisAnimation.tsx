@@ -15,7 +15,23 @@ const SCAN_MESSAGES = [
   'Pilih topik untuk diuji',
 ];
 
+// Fake CV "lines" shown during scan — mimics real resume structure
+const CV_LINES = [
+  { w: '55%', h: 5, mb: 6, indent: 0, dark: true }, // Name
+  { w: '38%', h: 3, mb: 10, indent: 0, dark: false }, // Title / email
+  { w: '20%', h: 3, mb: 5, indent: 0, dark: true }, // Section header
+  { w: '90%', h: 2, mb: 3, indent: 8, dark: false },
+  { w: '80%', h: 2, mb: 3, indent: 8, dark: false },
+  { w: '65%', h: 2, mb: 8, indent: 8, dark: false },
+  { w: '22%', h: 3, mb: 5, indent: 0, dark: true }, // Section header
+  { w: '85%', h: 2, mb: 3, indent: 8, dark: false },
+  { w: '70%', h: 2, mb: 3, indent: 8, dark: false },
+];
+
 type Phase = 'scanning' | 'revealing' | 'ready' | 'selecting' | 'resetting';
+
+const CARD_HEIGHT = 200;
+const CARD_WIDTH = 320;
 
 export function ProfileAnalysisAnimation() {
   const [phase, setPhase] = useState<Phase>('scanning');
@@ -23,7 +39,7 @@ export function ProfileAnalysisAnimation() {
   const [statusIndex, setStatusIndex] = useState(0);
   const [revealedCount, setRevealedCount] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
+
   const rafRef = useRef<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -40,16 +56,14 @@ export function ProfileAnalysisAnimation() {
     setRevealedCount(0);
     setSelectedId(null);
 
-    // Use fixed 160px (h-40) as the scan height
-    const cardHeight = 160;
-    const scanDuration = 1400;
+    const scanDuration = 1600;
     const startTime = performance.now();
 
     function animateScan(now: number) {
       const elapsed = now - startTime;
       const t = Math.min(elapsed / scanDuration, 1);
       const eased = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-      setScanY(eased * cardHeight);
+      setScanY(eased * CARD_HEIGHT);
 
       if (t < 1) {
         rafRef.current = requestAnimationFrame(animateScan);
@@ -64,16 +78,16 @@ export function ProfileAnalysisAnimation() {
             timerRef.current = setTimeout(() => {
               setPhase('ready');
               autoSelect(0);
-            }, 700);
+            }, 500);
             return;
           }
           if (count === 1) setStatusIndex(2);
           count++;
           setRevealedCount(count);
-          timerRef.current = setTimeout(revealNext, 480);
+          timerRef.current = setTimeout(revealNext, 380);
         }
 
-        timerRef.current = setTimeout(revealNext, 300);
+        timerRef.current = setTimeout(revealNext, 200);
       }
     }
 
@@ -84,8 +98,8 @@ export function ProfileAnalysisAnimation() {
     if (index >= detectedTopics.length) {
       timerRef.current = setTimeout(() => {
         setPhase('resetting');
-        timerRef.current = setTimeout(startLoop, 600);
-      }, 1200);
+        timerRef.current = setTimeout(startLoop, 400);
+      }, 800);
       return;
     }
 
@@ -95,155 +109,239 @@ export function ProfileAnalysisAnimation() {
       timerRef.current = setTimeout(() => {
         setSelectedId(null);
         autoSelect(index + 1);
-      }, 1100);
-    }, 600);
+      }, 900);
+    }, 400);
   }
 
   useEffect(() => {
-    const init = setTimeout(startLoop, 600);
+    const init = setTimeout(startLoop, 300);
     return () => {
       clearTimeout(init);
       clear();
     };
   }, []);
 
+  const isScanning = phase === 'scanning' || phase === 'revealing';
+
   return (
-    // Mengisi tepat h-40 (160px) dari parent, tidak ada padding luar
-    <div className="relative h-full w-full">
+    <div
+      className="relative"
+      style={{ height: CARD_HEIGHT, width: CARD_WIDTH }}
+    >
+      {/* Stacked papers effect - background layers muncul dari atas */}
       <div
-        ref={cardRef}
-        className="relative h-full w-full overflow-hidden border border-zinc-200 bg-white px-3 py-2.5"
+        className="absolute left-10 -top-4 h-full w-full border border-zinc-200 bg-zinc-50 shadow-sm"
+        style={{ height: CARD_HEIGHT, width: CARD_WIDTH }}
+      />
+      <div
+        className="absolute left-5 -top-2 h-full w-full border border-zinc-200 bg-zinc-100 shadow-sm"
+        style={{ height: CARD_HEIGHT, width: CARD_WIDTH }}
+      />
+
+      {/* Main card - front layer */}
+      <div
+        className="relative w-full overflow-hidden border border-zinc-200 bg-white shadow-md z-10"
+        style={{ height: CARD_HEIGHT, width: CARD_WIDTH }}
       >
-        {/* Scan line */}
-        {phase === 'scanning' && (
-          <div
-            className="pointer-events-none absolute inset-x-0 z-20"
-            style={{ top: `${scanY}px` }}
-          >
-            <div className="h-px w-full bg-zinc-300" />
-          </div>
-        )}
+        {/* ── CV paper view (scanning phase) ── */}
+        <AnimatePresence>
+          {phase === 'scanning' && (
+            <motion.div
+              className="absolute inset-0 px-3 pt-3"
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {CV_LINES.map((line, i) => (
+                <div
+                  key={i}
+                  style={{
+                    marginLeft: line.indent,
+                    marginBottom: line.mb,
+                    width: line.w,
+                    height: line.h,
+                    background: line.dark ? '#d4d4d8' : '#e4e4e7',
+                    borderRadius: 1,
+                  }}
+                />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Header — sangat compact */}
-        <div className="mb-2 flex items-center gap-1.5">
-          <svg
-            className="h-3 w-3 shrink-0 text-zinc-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
-            />
-          </svg>
-          <span className="text-[9px] font-medium uppercase tracking-widest text-zinc-400">
-            CV_Resume.pdf
-          </span>
-        </div>
+        {/* ── Scan beam ── */}
+        <AnimatePresence>
+          {phase === 'scanning' && (
+            <motion.div
+              className="pointer-events-none absolute inset-x-0 z-20"
+              style={{ top: scanY }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              {/* glow above */}
+              <div
+                className="absolute inset-x-0"
+                style={{
+                  bottom: '100%',
+                  height: 20,
+                  background:
+                    'linear-gradient(to top, rgba(59,130,246,0.08), transparent)',
+                }}
+              />
+              {/* beam line */}
+              <div
+                className="h-px w-full"
+                style={{
+                  background:
+                    'linear-gradient(90deg, transparent 0%, #93c5fd 15%, #3b82f6 50%, #93c5fd 85%, transparent 100%)',
+                }}
+              />
+              {/* glow below */}
+              <div
+                className="absolute inset-x-0"
+                style={{
+                  top: '100%',
+                  height: 14,
+                  background:
+                    'linear-gradient(to bottom, rgba(59,130,246,0.06), transparent)',
+                }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Topics — py-1 agar muat 4 item di 160px */}
-        <div className="mb-2 space-y-1">
-          {detectedTopics.map((topic, i) => {
-            const visible = i < revealedCount;
-            const isSelected = selectedId === topic.id;
+        {/* ── Topic list (after scan) ── */}
+        <AnimatePresence>
+          {phase !== 'scanning' && (
+            <motion.div
+              className="absolute inset-0 flex flex-col px-3 py-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+            >
+              {/* Header text */}
+              <motion.p
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                className="mb-2 text-[9px] text-left font-medium uppercase tracking-widest text-zinc-400"
+              >
+                Pilih salah satu
+              </motion.p>
 
-            return (
-              <AnimatePresence key={topic.id}>
-                {visible && (
-                  <motion.div
-                    initial={{ opacity: 0, x: -6 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{
-                      duration: 0.3,
-                      ease: [0.25, 0.46, 0.45, 0.94],
-                    }}
-                  >
-                    <motion.div
-                      animate={
-                        isSelected
-                          ? {
-                              backgroundColor: '#18181b',
-                              borderColor: '#18181b',
-                            }
-                          : {
-                              backgroundColor: '#ffffff',
-                              borderColor: '#e4e4e7',
-                            }
-                      }
-                      transition={{ duration: 0.3 }}
-                      className="flex w-full items-center justify-between border px-2 py-1"
-                    >
-                      <motion.span
-                        animate={{ color: isSelected ? '#ffffff' : '#27272a' }}
-                        transition={{ duration: 0.3 }}
-                        className="text-[11px] font-medium"
-                      >
-                        {topic.label}
-                      </motion.span>
-                      <div className="flex items-center gap-1.5">
-                        <div className="h-px w-8 bg-zinc-100">
-                          <motion.div
-                            initial={{ width: '0%' }}
-                            animate={{ width: `${topic.confidence}%` }}
-                            transition={{
-                              duration: 0.8,
-                              delay: 0.1,
-                              ease: [0.4, 0, 0.2, 1],
-                            }}
-                            className={
-                              isSelected
-                                ? 'h-full bg-white/40'
-                                : 'h-full bg-zinc-300'
-                            }
-                          />
-                        </div>
-                        <span className="text-[9px] tabular-nums text-zinc-400">
-                          {topic.confidence}%
-                        </span>
-                        <motion.svg
-                          animate={{
-                            opacity: isSelected ? 1 : 0,
-                            x: isSelected ? 0 : -3,
+              {/* Topic list */}
+              <div className="flex flex-col gap-1.25">
+                {detectedTopics.map((topic, i) => {
+                  const visible = i < revealedCount;
+                  const isSelected = selectedId === topic.id;
+
+                  return (
+                    <AnimatePresence key={topic.id}>
+                      {visible && (
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{
+                            duration: 0.25,
+                            ease: [0.25, 0.46, 0.45, 0.94],
                           }}
-                          transition={{ duration: 0.2 }}
-                          className="h-2.5 w-2.5 text-white"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2.5}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M9 5l7 7-7 7"
-                          />
-                        </motion.svg>
-                      </div>
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            );
-          })}
-        </div>
+                          <motion.div
+                            animate={
+                              isSelected
+                                ? {
+                                    backgroundColor: '#18181b',
+                                    borderColor: '#18181b',
+                                  }
+                                : {
+                                    backgroundColor: '#ffffff',
+                                    borderColor: '#e4e4e7',
+                                  }
+                            }
+                            transition={{ duration: 0.22 }}
+                            className="flex w-full items-center justify-between border px-2.5 py-1.5"
+                          >
+                            <motion.span
+                              animate={{
+                                color: isSelected ? '#ffffff' : '#27272a',
+                              }}
+                              transition={{ duration: 0.22 }}
+                              className="text-[11px] font-medium leading-none"
+                            >
+                              {topic.label}
+                            </motion.span>
 
-        {/* Footer */}
-        <div className="flex items-center gap-1.5 border-t border-zinc-100 pt-1.5">
+                            <div className="flex items-center gap-2">
+                              {/* confidence bar */}
+                              <div className="h-px w-8 overflow-hidden bg-zinc-100">
+                                <motion.div
+                                  initial={{ width: '0%' }}
+                                  animate={{ width: `${topic.confidence}%` }}
+                                  transition={{
+                                    duration: 0.65,
+                                    delay: 0.06,
+                                    ease: [0.4, 0, 0.2, 1],
+                                  }}
+                                  className={
+                                    isSelected
+                                      ? 'h-full bg-white/35'
+                                      : 'h-full bg-zinc-300'
+                                  }
+                                />
+                              </div>
+
+                              {/* pct */}
+                              <motion.span
+                                animate={{
+                                  color: isSelected
+                                    ? 'rgba(255,255,255,0.45)'
+                                    : '#a1a1aa',
+                                }}
+                                transition={{ duration: 0.22 }}
+                                className="w-5 text-right text-[9px] tabular-nums"
+                              >
+                                {topic.confidence}%
+                              </motion.span>
+
+                              {/* arrow */}
+                              <motion.svg
+                                animate={{
+                                  opacity: isSelected ? 1 : 0,
+                                  x: isSelected ? 0 : -3,
+                                }}
+                                transition={{ duration: 0.16 }}
+                                className="h-2.5 w-2.5 shrink-0"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="white"
+                                strokeWidth={3}
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M9 5l7 7-7 7"
+                                />
+                              </motion.svg>
+                            </div>
+                          </motion.div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Status bar (bottom) ── */}
+        <div className="absolute inset-x-0 bottom-0 flex items-center gap-1.5 border-t border-zinc-100 bg-white px-3 py-1.5">
           <motion.div
-            animate={
-              phase === 'revealing' || phase === 'scanning'
-                ? { opacity: [1, 0.2, 1] }
-                : { opacity: 1 }
-            }
-            transition={
-              phase === 'revealing' || phase === 'scanning'
-                ? { duration: 0.9, repeat: Infinity }
-                : {}
-            }
-            className={`h-1 w-1 shrink-0 ${
+            animate={isScanning ? { opacity: [1, 0.25, 1] } : { opacity: 1 }}
+            transition={isScanning ? { duration: 0.8, repeat: Infinity } : {}}
+            className={`h-1.25 w-1.25 shrink-0 ${
               phase === 'ready' || phase === 'selecting'
                 ? 'bg-zinc-900'
                 : 'bg-zinc-300'
@@ -255,11 +353,11 @@ export function ProfileAnalysisAnimation() {
               initial={{ opacity: 0, y: 2 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -2 }}
-              transition={{ duration: 0.2 }}
-              className="text-[9px] uppercase tracking-widest text-zinc-400"
+              transition={{ duration: 0.16 }}
+              className="text-[8px] uppercase tracking-widest text-zinc-400"
             >
               {phase === 'selecting' && selectedId
-                ? `${detectedTopics.find((t) => t.id === selectedId)?.label} dipilih — mulai uji`
+                ? `${detectedTopics.find((t) => t.id === selectedId)?.label} dipilih`
                 : SCAN_MESSAGES[statusIndex]}
             </motion.span>
           </AnimatePresence>

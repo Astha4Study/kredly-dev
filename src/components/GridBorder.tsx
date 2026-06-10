@@ -4,17 +4,19 @@ import { useEffect, useRef, useState } from 'react';
 interface GridBorderProps {
   children: React.ReactNode;
   className?: string;
-  paddingY?: string; // default 'py-12 sm:py-16'
+  paddingY?: string;
+  mergeBelow?: boolean; // jika true: tidak ada marker & garis horizontal bawah
 }
 
 interface VerticalLineProps {
   side: 'left' | 'right';
   hasTopNeighbor: boolean;
+  hideBottom: boolean;
 }
 
 const GAP = 12;
 
-function VerticalLine({ side, hasTopNeighbor }: VerticalLineProps) {
+function VerticalLine({ side, hasTopNeighbor, hideBottom }: VerticalLineProps) {
   return (
     <div
       className={`absolute ${
@@ -26,7 +28,7 @@ function VerticalLine({ side, hasTopNeighbor }: VerticalLineProps) {
         className="absolute left-1/2 -translate-x-1/2 w-px bg-border"
         style={{
           top: hasTopNeighbor ? GAP : 0,
-          bottom: GAP,
+          bottom: hideBottom ? 0 : GAP,
         }}
       />
     </div>
@@ -37,14 +39,19 @@ export default function GridBorder({
   children,
   className,
   paddingY = 'py-6 sm:py-8',
+  mergeBelow = false,
 }: GridBorderProps) {
   const ref = useRef<HTMLDivElement>(null);
   const markerLeftRef = useRef<HTMLDivElement>(null);
   const markerRightRef = useRef<HTMLDivElement>(null);
 
   const [hasTopNeighbor, setHasTopNeighbor] = useState(false);
+  const [hasFooterBelow, setHasFooterBelow] = useState(false);
   const [hLineStyle, setHLineStyle] = useState({ left: GAP, right: GAP });
   const [outerWidth, setOuterWidth] = useState({ left: 0, right: 0 });
+
+  // hideBottom = true jika mergeBelow atau footer di bawah
+  const hideBottom = mergeBelow || hasFooterBelow;
 
   useEffect(() => {
     const el = ref.current;
@@ -81,9 +88,23 @@ export default function GridBorder({
     if (!el) return;
     const section = el.closest('section');
     if (!section) return;
+
     const prevGridBorder =
       section.previousElementSibling?.querySelector('[data-grid-border]');
     setHasTopNeighbor(Boolean(prevGridBorder));
+
+    let node: Element | null = section;
+    let foundFooter = false;
+    while (node) {
+      const next = node.nextElementSibling;
+      if (next?.tagName.toLowerCase() === 'footer') {
+        foundFooter = true;
+        break;
+      }
+      if (next) break;
+      node = node.parentElement;
+    }
+    setHasFooterBelow(foundFooter);
   }, []);
 
   const marker = (
@@ -92,51 +113,60 @@ export default function GridBorder({
 
   return (
     <div ref={ref} data-grid-border className={`relative ${className ?? ''}`}>
-      {/* Konten dengan padding vertikal bawaan */}
       <div className={paddingY}>{children}</div>
 
-      <VerticalLine side="left" hasTopNeighbor={hasTopNeighbor} />
-      <VerticalLine side="right" hasTopNeighbor={hasTopNeighbor} />
+      <VerticalLine
+        side="left"
+        hasTopNeighbor={hasTopNeighbor}
+        hideBottom={hideBottom}
+      />
+      <VerticalLine
+        side="right"
+        hasTopNeighbor={hasTopNeighbor}
+        hideBottom={hideBottom}
+      />
 
-      {/* Garis bawah DALAM (antar marker kiri–kanan) */}
-      <div className="absolute -bottom-2 sm:-bottom-4 inset-x-0 h-0 pointer-events-none">
-        <div
-          className="absolute top-1/2 -translate-y-1/2 h-px bg-border"
-          style={hLineStyle}
-        />
-      </div>
-
-      {/* Marker kiri bawah */}
+      {/* Anchor ref selalu dirender */}
       <div
         ref={markerLeftRef}
         className="absolute -bottom-2 sm:-bottom-4 -left-2 sm:-left-4 -translate-x-1/2 translate-y-1/2"
+        aria-hidden="true"
       >
-        {marker}
-        {/* Garis luar kiri */}
-        <div
-          className="absolute top-1/2 -translate-y-1/2 h-px bg-border pointer-events-none"
-          style={{
-            right: `calc(50% + ${GAP}px)`,
-            width: outerWidth.left,
-          }}
-        />
+        {!hideBottom && (
+          <>
+            {marker}
+            <div
+              className="absolute top-1/2 -translate-y-1/2 h-px bg-border pointer-events-none"
+              style={{ right: `calc(50% + ${GAP}px)`, width: outerWidth.left }}
+            />
+          </>
+        )}
       </div>
 
-      {/* Marker kanan bawah */}
       <div
         ref={markerRightRef}
         className="absolute -bottom-2 sm:-bottom-4 -right-2 sm:-right-4 translate-x-1/2 translate-y-1/2"
+        aria-hidden="true"
       >
-        {marker}
-        {/* Garis luar kanan */}
-        <div
-          className="absolute top-1/2 -translate-y-1/2 h-px bg-border pointer-events-none"
-          style={{
-            left: `calc(50% + ${GAP}px)`,
-            width: outerWidth.right,
-          }}
-        />
+        {!hideBottom && (
+          <>
+            {marker}
+            <div
+              className="absolute top-1/2 -translate-y-1/2 h-px bg-border pointer-events-none"
+              style={{ left: `calc(50% + ${GAP}px)`, width: outerWidth.right }}
+            />
+          </>
+        )}
       </div>
+
+      {!hideBottom && (
+        <div className="absolute -bottom-2 sm:-bottom-4 inset-x-0 h-0 pointer-events-none">
+          <div
+            className="absolute top-1/2 -translate-y-1/2 h-px bg-border"
+            style={hLineStyle}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -31,14 +31,12 @@ export default function HowItWorksSection() {
 
           <div className="mt-4 max-w-3xl space-y-8">
             <h2 className="text-3xl font-bold tracking-tight lg:text-5xl">
-              Buktikan kemampuanmu melalui
-              <span className="text-primary"> pengujian nyata</span>.
+              Buktikan kemampuanmu melalui pengujian nyata.
             </h2>
 
             <p className="mx-auto max-w-2xl text-muted-foreground">
-              Kredly tidak hanya membaca CV. Kami menganalisis profilmu, menguji
-              kemampuan melalui simulasi kerja nyata berbasis AI, lalu
-              menerbitkan reputasi digital yang dapat diverifikasi.
+              Dapatkan credential terverifikasi berdasarkan kemampuan yang
+              benar-benar diuji.
             </p>
           </div>
 
@@ -46,7 +44,7 @@ export default function HowItWorksSection() {
             {steps.map((step) => (
               <div
                 key={step.id}
-                className="flex flex-col items-start border border-zinc-100 bg-white p-4"
+                className="flex flex-col items-start border border-zinc-100 bg-white p-4 overflow-hidden"
               >
                 <div className="bg-primary text-primary-foreground p-0.5">
                   <span className="text-base font-bold">{step.id}</span>
@@ -61,20 +59,30 @@ export default function HowItWorksSection() {
                 </p>
 
                 {step.id === '01' && (
-                  <div className="relative mt-6 h-50 w-full overflow-hidden">
-                    <ProfileAnalysisAnimation />
+                  <div className="relative h-50 w-full">
+                    <div className="absolute left-2 top-11">
+                      <ProfileAnalysisAnimation />
+                    </div>
                   </div>
                 )}
 
                 {step.id === '02' && (
-                  <div className="relative mt-6 h-50 w-full overflow-hidden">
-                    <AssessmentAnimation />
+                  <div className="relative h-50 w-full">
+                    <div className="absolute top-4 md:top-10.5 right-0 h-full w-80">
+                      <AssessmentAnimation />
+                    </div>
                   </div>
                 )}
 
                 {step.id === '03' && (
                   <div className="relative mt-6 h-50 w-full overflow-hidden">
-                    <OrbitingCirclesAnimation />
+                    <div className="absolute inset-0 h-full">
+                      <OrbitingCirclesAnimation />
+                    </div>
+                    {/* Gradient mask top */}
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-8 bg-linear-to-b from-white to-transparent z-10" />
+                    {/* Gradient mask bottom */}
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-linear-to-t from-white to-transparent z-10" />
                   </div>
                 )}
               </div>

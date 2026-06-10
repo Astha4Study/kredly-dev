@@ -35,7 +35,11 @@ const benefits = [
 export default function BenefitsSection() {
   return (
     <section className="px-4 sm:px-6">
-      <GridBorder className="mx-auto w-full max-w-7xl" paddingY="py-6 sm:py-8">
+      <GridBorder
+        className="mx-auto w-full max-w-7xl"
+        paddingY="py-6 sm:py-8"
+        mergeBelow
+      >
         <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
           <Badge>Manfaat Menggunakan Kredly</Badge>
 
@@ -45,9 +49,8 @@ export default function BenefitsSection() {
             </h2>
 
             <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-              Tunjukkan kemampuan lebih dari sekadar CV. Kredly menguji skill
-              secara nyata, memvalidasi kompetensi melalui AI, dan membangun
-              reputasi digital yang dipercaya perusahaan.
+              Dapatkan credential terverifikasi berdasarkan kemampuan yang
+              benar-benar diuji.
             </p>
           </div>
 
@@ -56,7 +59,7 @@ export default function BenefitsSection() {
               return (
                 <div
                   key={benefit.title}
-                  className="overflow-hidden border bg-background"
+                  className="overflow-hidden border border-zinc-200 bg-background"
                 >
                   <div className="p-6">
                     <h3 className="text-lg text-left font-semibold">
