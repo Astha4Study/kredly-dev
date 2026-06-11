@@ -3,21 +3,8 @@ import { useScroll } from '@/hooks/use-scroll';
 import { Button } from '@/components/ui/button';
 import { MobileNav } from '@/components/MobileNav';
 import Logo from '@/assets/logo.png';
-
-export const navLinks = [
-  {
-    label: 'Features',
-    href: '#',
-  },
-  {
-    label: 'Pricing',
-    href: '#',
-  },
-  {
-    label: 'About',
-    href: '#',
-  },
-];
+import { navLinks } from '@/constants/navigation';
+import { Link } from '@tanstack/react-router';
 
 export function Navbar() {
   const scrolled = useScroll(10);
@@ -40,17 +27,17 @@ export function Navbar() {
           },
         )}
       >
-        <a
+        <Link
           className="rounded-md p-2 hover:bg-muted dark:hover:bg-muted/50"
-          href="#"
+          to="/"
         >
           <img src={Logo} alt="Kredly Logo" className="h-6" />
-        </a>
+        </Link>
         <div className="hidden items-center gap-2 md:flex">
           <div>
             {navLinks.map((link) => (
               <Button asChild key={link.label} size="sm" variant="ghost">
-                <a href={link.href}>{link.label}</a>
+                <Link to={link.href}>{link.label}</Link>
               </Button>
             ))}
           </div>

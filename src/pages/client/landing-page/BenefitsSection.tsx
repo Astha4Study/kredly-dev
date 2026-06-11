@@ -72,7 +72,7 @@ export default function BenefitsSection() {
                   </div>
 
                   <div className="border-t bg-zinc-50 p-4">
-                    <div className="flex h-43 items-center justify-center">
+                    <div className="flex h-68 items-center justify-center">
                       {benefit.visual}
                     </div>
                   </div>
