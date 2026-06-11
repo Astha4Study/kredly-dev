@@ -1,118 +1,22 @@
-// SVG Icons untuk IntegrationGrid
+import KalibrrIcon from "@/assets/svg/Kalibrr.svg?react";
+import JobStreetIcon from "@/assets/svg/JobStreet.svg?react";
+import LokerIdIcon from "@/assets/svg/LokerId.svg?react";
+import GlassDoorIcon from "@/assets/svg/GlassDoor.svg?react";
+import LinkedInIcon from "@/assets/svg/Linkedin.svg?react";
+import IndeedIcon from "@/assets/svg/Indeed.svg?react";
+import HiredIcon from "@/assets/svg/Hired.svg?react";
+import GlintsIcon from "@/assets/svg/Glints.svg?react";
+import WellFoundIcon from "@/assets/svg/WellFound.svg?react";
+
 export const IntegrationIcons = {
-  LinkedIn: () => (
-    <svg viewBox="0 0 256 256" className="w-full h-full">
-      <path
-        d="M218.123 218.127h-37.931v-59.403c0-14.165-.253-32.4-19.728-32.4-19.756 0-22.779 15.434-22.779 31.369v60.43h-37.93V95.967h36.413v16.694h.51a39.907 39.907 0 0 1 35.928-19.733c38.445 0 45.533 25.288 45.533 58.186l-.016 67.013ZM56.955 79.27c-12.157.002-22.014-9.852-22.016-22.009-.002-12.157 9.851-22.014 22.008-22.016 12.157-.003 22.014 9.851 22.016 22.008A22.013 22.013 0 0 1 56.955 79.27m18.966 138.858H37.95V95.967h37.97v122.16ZM237.033.018H18.89C8.58-.098.125 8.161-.001 18.471v219.053c.122 10.315 8.576 18.582 18.89 18.474h218.144c10.336.128 18.823-8.139 18.966-18.474V18.454c-.147-10.33-8.635-18.588-18.966-18.453"
-        fill="#0A66C2"
-      />
-    </svg>
-  ),
-  Indeed: () => (
-    <svg viewBox="0 0 40 40" className="w-full h-full">
-      <rect width="40" height="40" rx="8" fill="#2164F3" />
-      <text
-        x="20"
-        y="24"
-        textAnchor="middle"
-        fontSize="9"
-        fontWeight="700"
-        fill="#fff"
-        fontFamily="sans-serif"
-      >
-        indeed
-      </text>
-    </svg>
-  ),
-  Glints: () => (
-    <svg viewBox="0 0 40 40" className="w-full h-full">
-      <rect width="40" height="40" rx="8" fill="#F0483E" />
-      <text
-        x="20"
-        y="26"
-        textAnchor="middle"
-        fontSize="10"
-        fontWeight="800"
-        fill="#fff"
-        fontFamily="sans-serif"
-      >
-        glints
-      </text>
-    </svg>
-  ),
-  JobStreet: () => (
-    <svg viewBox="0 0 40 40" className="w-full h-full">
-      <rect width="40" height="40" rx="8" fill="#FF6820" />
-      <text
-        x="20"
-        y="21"
-        textAnchor="middle"
-        fontSize="8"
-        fontWeight="800"
-        fill="#fff"
-        fontFamily="sans-serif"
-      >
-        job
-      </text>
-      <text
-        x="20"
-        y="31"
-        textAnchor="middle"
-        fontSize="8"
-        fontWeight="800"
-        fill="#fff"
-        fontFamily="sans-serif"
-      >
-        street
-      </text>
-    </svg>
-  ),
-  Kalibrr: () => (
-    <svg viewBox="0 0 40 40" className="w-full h-full">
-      <rect width="40" height="40" rx="8" fill="#5B4EE7" />
-      <text
-        x="20"
-        y="25"
-        textAnchor="middle"
-        fontSize="8"
-        fontWeight="700"
-        fill="#fff"
-        fontFamily="sans-serif"
-      >
-        kalibrr
-      </text>
-    </svg>
-  ),
-  LokerID: () => (
-    <svg viewBox="0 0 40 40" className="w-full h-full">
-      <rect width="40" height="40" rx="8" fill="#00B14F" />
-      <text
-        x="20"
-        y="21"
-        textAnchor="middle"
-        fontSize="8"
-        fontWeight="800"
-        fill="#fff"
-        fontFamily="sans-serif"
-      >
-        loker
-      </text>
-      <text
-        x="20"
-        y="31"
-        textAnchor="middle"
-        fontSize="7"
-        fontWeight="500"
-        fill="#fff"
-        fontFamily="sans-serif"
-        opacity="0.85"
-      >
-        .id
-      </text>
-    </svg>
-  ),
+  LinkedIn: () => <LinkedInIcon className="w-14 h-14" />,
+  Indeed: () => <IndeedIcon className="w-full h-full" />,
+  Glints: () => <GlintsIcon className="w-full h-full" />,
+  JobStreet: () => <JobStreetIcon className="w-full h-full" />,
+  Kalibrr: () => <KalibrrIcon className="w-full h-full" />,
+  LokerID: () => <LokerIdIcon className="w-14 h-14" />,
   Toptal: () => (
-    <svg viewBox="0 0 54 76" className="w-full h-full">
+    <svg viewBox="0 0 54 76" className="w-14 h-14">
       <path
         d="M22.3,49c-0.2,0.1-0.4,0.1-0.7,0c-0.2-0.1-0.4-0.2-0.8-0.6l-4.4-4.4c-0.4-0.4-0.5-0.6-0.6-0.8 c-0.1-0.2-0.1-0.4,0-0.7c0.1-0.2,0.2-0.4,0.6-0.8l14-13.9c0.4-0.4,0.6-0.5,0.8-0.6c0.2-0.1,0.4-0.1,0.7,0c0.2,0.1,0.4,0.2,0.8,0.6 l4.4,4.4c0.4,0.4,0.5,0.6,0.6,0.8c0.1,0.2,0.1,0.4,0,0.7c-0.1,0.2-0.2,0.4-0.6,0.8l-14,13.9C22.7,48.8,22.6,48.9,22.3,49 M53.7,32.8L38.6,17.7c-0.1-0.1-0.3-0.3-0.4-0.4L20.9,0l-7.6,7.6l11.1,11.2L0,43.1l15.1,15.1c0.2,0.2,0.4,0.4,0.6,0.6L32.9,76 l7.5-7.5L29.1,57.3L53.7,32.8z"
         fill="#204ECF"
@@ -127,103 +31,10 @@ export const IntegrationIcons = {
       />
     </svg>
   ),
-  Freelancer: () => (
-    <svg viewBox="0 0 40 40" className="w-full h-full">
-      <rect width="40" height="40" rx="8" fill="#29B2FE" />
-      <text
-        x="20"
-        y="21"
-        textAnchor="middle"
-        fontSize="7"
-        fontWeight="800"
-        fill="#fff"
-        fontFamily="sans-serif"
-      >
-        free
-      </text>
-      <text
-        x="20"
-        y="31"
-        textAnchor="middle"
-        fontSize="7"
-        fontWeight="800"
-        fill="#fff"
-        fontFamily="sans-serif"
-      >
-        lancer
-      </text>
-    </svg>
-  ),
-  Glassdoor: () => (
-    <svg viewBox="0 0 40 40" className="w-full h-full">
-      <rect width="40" height="40" rx="8" fill="#0CAA41" />
-      <text
-        x="20"
-        y="21"
-        textAnchor="middle"
-        fontSize="7"
-        fontWeight="700"
-        fill="#fff"
-        fontFamily="sans-serif"
-      >
-        glass
-      </text>
-      <text
-        x="20"
-        y="31"
-        textAnchor="middle"
-        fontSize="7"
-        fontWeight="700"
-        fill="#fff"
-        fontFamily="sans-serif"
-      >
-        door
-      </text>
-    </svg>
-  ),
-  Hired: () => (
-    <svg viewBox="0 0 40 40" className="w-full h-full">
-      <rect width="40" height="40" rx="8" fill="#FF4754" />
-      <text
-        x="20"
-        y="25"
-        textAnchor="middle"
-        fontSize="9"
-        fontWeight="700"
-        fill="#fff"
-        fontFamily="sans-serif"
-      >
-        hired
-      </text>
-    </svg>
-  ),
-  RemoteWork: () => (
-    <svg viewBox="0 0 40 40" className="w-full h-full">
-      <rect width="40" height="40" rx="8" fill="#6C47FF" />
-      <text
-        x="20"
-        y="21"
-        textAnchor="middle"
-        fontSize="7"
-        fontWeight="700"
-        fill="#fff"
-        fontFamily="sans-serif"
-      >
-        remote
-      </text>
-      <text
-        x="20"
-        y="31"
-        textAnchor="middle"
-        fontSize="7"
-        fontWeight="700"
-        fill="#fff"
-        fontFamily="sans-serif"
-      >
-        work
-      </text>
-    </svg>
-  ),
+  Freelancer: () => (<svg viewBox="-0.23 0 97.266 72.333" xmlns="http://www.w3.org/2000/svg" width="2500" height="1855"><path d="M56.897 0l6.624 9.29L97.036 0M22.075 72.333l18.13-17.725-10.912-11.71M54.152 0l-9.69 8.738 16.298.608M16.482 0l3.48 7.133 19.18 1.195M26.75 36.986l14.17-26.434L-.23 8.328M28.4 38.662L41.785 53.04 56.55 38.567l4.582-26.957-17.993-.918" fill="#29b2fe"/></svg>),
+  Glassdoor: () => <GlassDoorIcon className="w-full h-full" />,
+  Hired: () => <HiredIcon className="w-full h-full" />,
+  WellFound: () => <WellFoundIcon className="w-full h-full" />,
 };
 
 export const ICON_LIST = [
@@ -238,5 +49,5 @@ export const ICON_LIST = [
   { name: 'Freelancer', Icon: IntegrationIcons.Freelancer },
   { name: 'Glassdoor', Icon: IntegrationIcons.Glassdoor },
   { name: 'Hired', Icon: IntegrationIcons.Hired },
-  { name: 'RemoteWork', Icon: IntegrationIcons.RemoteWork },
+  { name: 'WellFound', Icon: IntegrationIcons.WellFound },
 ];
