@@ -1,5 +1,8 @@
+import BenefitsSection from '@/pages/client/landing-page/BenefitsSection';
+import CTASection from '@/pages/client/landing-page/CTASection';
 import HeroSection from '@/pages/client/landing-page/HeroSection';
-import LogoLoopSection from '@/pages/client/landing-page/LogoLoopSection';
+import HowItWorksSection from '@/pages/client/landing-page/HowItWorksSection';
+import WhyTrustUsSection from '@/pages/client/landing-page/WhyTrustUsSection';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/')({
@@ -8,9 +11,12 @@ export const Route = createFileRoute('/')({
 
 function RouteComponent() {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col overflow-x-clip">
       <HeroSection />
-      <LogoLoopSection />
+      <HowItWorksSection />
+      <BenefitsSection />
+      <WhyTrustUsSection />
+      <CTASection />
     </div>
   );
 }

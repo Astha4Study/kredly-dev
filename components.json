@@ -5,7 +5,7 @@
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "src/styles/globals.css",
+    "css": "src/App.css",
     "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""
@@ -20,6 +20,7 @@
   },
   "registries": {
     "@efferd": "https://efferd.com/r/{name}.json",
-    "@react-bits": "https://reactbits.dev/r/{name}.json"
+    "@react-bits": "https://reactbits.dev/r/{name}.json",
+    "@magicui": "https://magicui.design/r/{name}"
   }
 }
