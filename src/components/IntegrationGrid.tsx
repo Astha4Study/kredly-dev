@@ -7,11 +7,11 @@ import { ICON_LIST } from './IntegrationIcons';
 const COLS = 4;
 const ROWS = 2;
 const TOTAL = COLS * ROWS;
-const ICON_PAD = 0.18;
+const ICON_PAD = 0.24;
 
-const INTERVAL_MS = 2800;
-const ANIM_DURATION = 0.7;
-const ANIM_EASE: [number, number, number, number] = [0.25, 0, 0, 1];
+const INTERVAL_MS = 2200;
+const ANIM_DURATION = 0.5;
+const ANIM_EASE: [number, number, number, number] = [0.34, 1.56, 0.64, 1];
 
 type Slot = { el: HTMLDivElement; slot: number };
 
@@ -59,6 +59,7 @@ function getIconEl(idx: number, cell: number): HTMLDivElement {
     'will-change:left,top;',
     'backface-visibility:hidden;',
     '-webkit-backface-visibility:hidden;',
+    'padding:4px;'
   ].join('');
   return clone;
 }
@@ -109,24 +110,87 @@ export function IntegrationGrid() {
       wrapper
         .querySelectorAll<HTMLElement>('.ig-static')
         .forEach((e) => e.remove());
-      for (let i = 0; i < TOTAL; i++) {
-        const col = i % COLS;
-        const row = Math.floor(i / COLS);
-        const d = document.createElement('div');
-        d.className = 'ig-static';
-        d.style.cssText = [
+
+      const GAP = 12; // jarak kosong di kiri-kanan titik plus pada garis
+
+      // Ambil warna foreground dari CSS variable
+      const foregroundColor = getComputedStyle(document.documentElement)
+        .getPropertyValue('--foreground')
+        .trim();
+
+      // Garis vertikal (antar kolom) — dibagi jadi segmen atas dan bawah per intersection
+      for (let co = 1; co < COLS; co++) {
+        for (let r = 0; r < ROWS; r++) {
+          const x = co * c;
+          const yTop = r * c;
+          const yBot = (r + 1) * c;
+
+          // Segmen dari atas cell ke junction bawah (r,r+1) dengan gap
+          // Atas: dari yTop ke junction r — dengan gap di junction r (kecuali r=0 tidak ada junction di atas)
+          const segTop = document.createElement('div');
+          segTop.className = 'ig-static';
+          const topStart = r === 0 ? yTop : yTop + GAP;
+          const topEnd = yBot - GAP;
+          if (topEnd > topStart) {
+            segTop.style.cssText = [
+              'position:absolute;z-index:1;pointer-events:none;',
+              `left:${x}px;top:${topStart}px;`,
+              `width:0;height:${topEnd - topStart}px;`,
+              `border-left:0.5px solid color-mix(in srgb, ${foregroundColor} 12%, transparent);`,
+            ].join('');
+            wrapper.appendChild(segTop);
+          }
+        }
+        // Segmen terakhir: dari junction bawah terakhir ke bawah grid
+        const lastR = ROWS - 1;
+        const segBot = document.createElement('div');
+        segBot.className = 'ig-static';
+        segBot.style.cssText = [
           'position:absolute;z-index:1;pointer-events:none;',
-          `left:${col * c}px;top:${row * c}px;`,
-          `width:${c}px;height:${c}px;`,
-          col < COLS - 1 ? 'border-right:0.5px solid rgba(0,0,0,0.1);' : '',
-          row < ROWS - 1 ? 'border-bottom:0.5px solid rgba(0,0,0,0.1);' : '',
+          `left:${co * c}px;top:${lastR * c + GAP}px;`,
+          `width:0;height:${c - GAP}px;`,
+          `border-left:0.5px solid color-mix(in srgb, ${foregroundColor} 12%, transparent);`,
         ].join('');
-        wrapper.appendChild(d);
+        wrapper.appendChild(segBot);
       }
-      for (let r = 0; r <= ROWS; r++) {
-        for (let co = 0; co <= COLS; co++) {
-          const isOuter = co === 0 || co === COLS || r === 0 || r === ROWS;
-          const opacity = isOuter ? 0.15 : 0.4;
+
+      // Garis horizontal (antar baris) — dibagi jadi segmen kiri dan kanan per intersection
+      for (let r = 1; r < ROWS; r++) {
+        for (let co = 0; co < COLS; co++) {
+          const y = r * c;
+          const xLeft = co * c;
+          const xRight = (co + 1) * c;
+
+          const segLeft = document.createElement('div');
+          segLeft.className = 'ig-static';
+          const leftStart = co === 0 ? xLeft : xLeft + GAP;
+          const leftEnd = xRight - GAP;
+          if (leftEnd > leftStart) {
+            segLeft.style.cssText = [
+              'position:absolute;z-index:1;pointer-events:none;',
+              `left:${leftStart}px;top:${y}px;`,
+              `width:${leftEnd - leftStart}px;height:0;`,
+              `border-top:0.5px solid color-mix(in srgb, ${foregroundColor} 12%, transparent);`,
+            ].join('');
+            wrapper.appendChild(segLeft);
+          }
+        }
+        // Segmen terakhir kanan
+        const lastCo = COLS - 1;
+        const segRight = document.createElement('div');
+        segRight.className = 'ig-static';
+        segRight.style.cssText = [
+          'position:absolute;z-index:1;pointer-events:none;',
+          `left:${lastCo * c + GAP}px;top:${r * c}px;`,
+          `width:${c - GAP}px;height:0;`,
+          `border-top:0.5px solid color-mix(in srgb, ${foregroundColor} 12%, transparent);`,
+        ].join('');
+        wrapper.appendChild(segRight);
+      }
+
+      // Plus markers — hanya di inner intersections (bukan tepi luar)
+      for (let r = 1; r < ROWS; r++) {
+        for (let co = 1; co < COLS; co++) {
           const p = document.createElement('div');
           p.className = 'ig-static';
           p.style.cssText = [
@@ -135,7 +199,7 @@ export function IntegrationGrid() {
             'transform:translate(-50%,-50%);',
           ].join('');
           p.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"
-            stroke="rgba(0,0,0,${opacity})" stroke-width="1.5" stroke-linecap="round">
+            stroke="color-mix(in srgb, ${foregroundColor} 40%, transparent)" stroke-width="1.5" stroke-linecap="round">
             <line x1="6" y1="0" x2="6" y2="12"/>
             <line x1="0" y1="6" x2="12" y2="6"/>
           </svg>`;
@@ -183,12 +247,17 @@ export function IntegrationGrid() {
 
       slots.forEach((s) => {
         const { x, y } = slotToXY(s.slot + 1, cell);
+        // Naikkan z-index saat animasi berlangsung
+        s.el.style.zIndex = '10';
         animate(
           s.el,
           { left: `${x}px`, top: `${y}px` },
           {
             duration: ANIM_DURATION,
             ease: ANIM_EASE,
+            onComplete: () => {
+              s.el.style.zIndex = '3'; // reset setelah selesai
+            },
           },
         );
         s.slot += 1;
@@ -327,30 +396,7 @@ export function IntegrationGrid() {
             style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
           />
         </div>
-        <div className="pointer-events-none absolute inset-0">
-          <svg className="size-full" xmlns="http://www.w3.org/2000/svg">
-            <line
-              x1="25%"
-              y1="25%"
-              x2="75%"
-              y2="75%"
-              stroke="currentColor"
-              strokeWidth="1"
-              className="text-primary/10"
-              strokeDasharray="4 4"
-            />
-            <line
-              x1="75%"
-              y1="25%"
-              x2="25%"
-              y2="75%"
-              stroke="currentColor"
-              strokeWidth="1"
-              className="text-primary/10"
-              strokeDasharray="4 4"
-            />
-          </svg>
-        </div>
+
       </div>
     </div>
   );

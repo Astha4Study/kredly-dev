@@ -8,7 +8,7 @@ export default function CTASection() {
     <section className="px-4 sm:px-6 pt-4">
       <GridBorder className="mx-auto w-full max-w-7xl">
         <div className="mx-auto bg-white border border-zinc-200 p-8 lg:p-12">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12 items-center">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12 items-center py-10">
             {/* Left Content */}
             <div className="space-y-6 max-w-lg">
               <h2 className="text-2xl font-bold tracking-tight lg:text-5xl">
@@ -32,7 +32,9 @@ export default function CTASection() {
               </div>
             </div>
             {/* Right Grid Icons */}
-            <IntegrationGrid />
+            <div className="w-full">
+              <IntegrationGrid />
+            </div>
           </div>
         </div>
       </GridBorder>

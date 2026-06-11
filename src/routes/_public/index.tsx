@@ -5,13 +5,13 @@ import HowItWorksSection from '@/pages/client/landing-page/HowItWorksSection';
 import WhyTrustUsSection from '@/pages/client/landing-page/WhyTrustUsSection';
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/_public/')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
   return (
-    <div className="flex flex-col overflow-x-clip">
+    <div className="overflow-x-clip">
       <HeroSection />
       <HowItWorksSection />
       <BenefitsSection />

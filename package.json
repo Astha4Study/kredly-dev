@@ -31,6 +31,7 @@
     "@eslint/js": "latest",
     "@rsbuild/core": "^2.0.11",
     "@rsbuild/plugin-react": "^2.0.1",
+    "@rsbuild/plugin-svgr": "^2.0.3",
     "@tailwindcss/postcss": "^4.3.0",
     "@tanstack/router-plugin": "^1.168.18",
     "@types/react": "^19.2.17",
