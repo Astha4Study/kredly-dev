@@ -91,16 +91,26 @@ export function useCVParser() {
 
       let detectedLevel: LevelType = 'Mid';
       const rawLevel = (parsedResult.level || '').toLowerCase();
-      if (rawLevel.includes('senior') || rawLevel.includes('lead') || rawLevel.includes('manager')) {
+      if (
+        rawLevel.includes('senior') ||
+        rawLevel.includes('lead') ||
+        rawLevel.includes('manager')
+      ) {
         detectedLevel = 'Senior';
-      } else if (rawLevel.includes('junior') || rawLevel.includes('entry') || rawLevel.includes('intern')) {
+      } else if (
+        rawLevel.includes('junior') ||
+        rawLevel.includes('entry') ||
+        rawLevel.includes('intern')
+      ) {
         detectedLevel = 'Junior';
       }
 
       setRole(parsedResult.role || 'Software Engineer');
       setExtractedLevel(detectedLevel);
-      
-      const rawSkills = Array.isArray(parsedResult.skills) ? parsedResult.skills : [];
+
+      const rawSkills = Array.isArray(parsedResult.skills)
+        ? parsedResult.skills
+        : [];
       setAllParsedSkills(rawSkills);
       // Select the first 5 by default
       setSkills(rawSkills.slice(0, 5));
@@ -142,12 +152,12 @@ export function useCVParser() {
   const addCustomSkill = (skillName: string) => {
     const trimmed = skillName.trim();
     if (!trimmed) return;
-    
+
     // Add to allParsedSkills if not already there
     if (!allParsedSkills.includes(trimmed)) {
       setAllParsedSkills((prev) => [...prev, trimmed]);
     }
-    
+
     // Auto select if under limit
     if (skills.length < 5 && !skills.includes(trimmed)) {
       setSkills((prev) => [...prev, trimmed]);

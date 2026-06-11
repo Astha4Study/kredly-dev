@@ -35,8 +35,8 @@ export default function UploadView({
           Unggah CV Anda
         </h2>
         <p className="text-muted-foreground text-sm max-w-md mx-auto">
-          Unggah berkas CV berformat PDF. AI kami akan membaca teks
-          dokumen dan merapikannya menjadi profil digital terstruktur.
+          Unggah berkas CV berformat PDF. AI kami akan membaca teks dokumen dan
+          merapikannya menjadi profil digital terstruktur.
         </p>
       </div>
 
@@ -52,10 +52,11 @@ export default function UploadView({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`border-2 border-dashed rounded-2xl p-10 text-center transition-all cursor-pointer ${isDragging
-          ? 'border-primary bg-primary/5'
-          : 'border-border hover:border-primary/30 bg-muted/30 hover:bg-muted/50'
-          }`}
+        className={`border-2 border-dashed rounded-2xl p-10 text-center transition-all cursor-pointer ${
+          isDragging
+            ? 'border-primary bg-primary/5'
+            : 'border-border hover:border-primary/30 bg-muted/30 hover:bg-muted/50'
+        }`}
       >
         <input
           id="cv-upload-input"

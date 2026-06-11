@@ -34,15 +34,18 @@ func main() {
 	r.Use(corsMiddleware())
 
 	// 6. Define Routes
-	r.GET("/api/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"status":      "ok",
-			"environment": cfg.Environment,
-			"groq_loaded": cfg.GroqAPIKey != "",
+	api := r.Group("/api")
+	{
+		api.GET("/health", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{
+				"status":      "ok",
+				"environment": cfg.Environment,
+				"groq_loaded": cfg.GroqAPIKey != "",
+			})
 		})
-	})
 
-	r.POST("/api/parse-cv", cvHandler.HandleParseCV)
+		api.POST("/parse-cv", cvHandler.HandleParseCV)
+	}
 
 	// 7. Start Server
 	addr := fmt.Sprintf(":%s", cfg.Port)

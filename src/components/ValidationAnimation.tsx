@@ -198,7 +198,9 @@ export function ValidationAnimation() {
               <div
                 key={i}
                 className="h-1 w-1 rounded-full"
-                style={{ backgroundColor: active ? 'hsl(var(--primary))' : '#e4e4e7' }}
+                style={{
+                  backgroundColor: active ? 'hsl(var(--primary))' : '#e4e4e7',
+                }}
               />
             ))}
           </div>

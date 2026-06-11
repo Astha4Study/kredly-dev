@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Briefcase, Wrench, ArrowRight, Plus, Pencil } from 'lucide-react';
+import { Briefcase, ArrowRight, Plus, Pencil, Check } from 'lucide-react';
 import surpriseImg from '@/assets/images/surprise.png';
 import type { UseCVParserReturn } from './useCVParser';
 import type { LevelType } from './types';
@@ -37,6 +37,20 @@ export default function ParsedResultView({
   addCustomSkill,
 }: ParsedResultViewProps) {
   const [newSkill, setNewSkill] = React.useState('');
+  const [isEditing, setIsEditing] = React.useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleEditClick = () => {
+    setIsEditing((prev) => !prev);
+  };
+
+  React.useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      const len = inputRef.current.value.length;
+      inputRef.current.setSelectionRange(len, len);
+    }
+  }, [isEditing]);
 
   const handleAddSkillSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,25 +86,57 @@ export default function ParsedResultView({
             >
               <Briefcase className="h-4 w-4 text-primary" /> Role Pekerjaan
             </Label>
-            <div className="relative flex items-center border-b">
-              <Input
-                id="role-input"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                placeholder="Contoh: Backend Engineer"
-                className="border-none my-2 text-xl!  pr-8 pl-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
-              <Pencil className="absolute right-0 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <div className="flex justify-center border-b border-gray-200">
+              <div className="flex items-center justify-center relative max-w-max">
+                {isEditing ? (
+                  <input
+                    ref={inputRef}
+                    id="role-input"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    placeholder="Contoh: Backend Engineer"
+                    onBlur={() => setIsEditing(false)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        setIsEditing(false);
+                      }
+                    }}
+                    className={`border-none my-2 text-xl! font-medium text-center p-0 bg-transparent focus:outline-none focus:ring-0 w-auto h-auto ${
+                      isEditing ? 'cursor-text' : 'cursor-default select-none'
+                    }`}
+                    style={{ width: `${Math.max(role.length || 15, 15)}ch` }}
+                  />
+                ) : (
+                  <span className="border-none my-2 text-xl! font-medium text-center p-0 bg-transparent select-none cursor-default">
+                    {role || 'Contoh: Backend Engineer'}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={handleEditClick}
+                  onMouseDown={(e) => e.preventDefault()}
+                  className="p-1 hover:bg-muted rounded-md transition-all ml-2 shrink-0 flex items-center justify-center text-muted-foreground hover:text-primary"
+                  style={{ transform: 'translateY(1px)' }}
+                  aria-label={isEditing ? 'Simpan' : 'Edit role pekerjaan'}
+                >
+                  {isEditing ? (
+                    <Check className="h-4 w-4 shrink-0 text-primary animate-in zoom-in duration-200" />
+                  ) : (
+                    <Pencil className="h-4 w-4 shrink-0 hover:scale-105 transition-transform" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 
-
           {/* Editable Skills Section (Checklist) */}
           <div className="space-y-4">
-            <Label className="text-lg text-center font-medium mx-auto max-w-md">Kami menemukan beberapa skill  yang siap kamu buktikan hari ini.
+            <Label className="text-lg text-center font-medium mx-auto max-w-md">
+              Kami menemukan beberapa skill yang siap kamu buktikan hari ini.
             </Label>
             <div className="flex gap-4 items-center justify-center">
-              <Label className="text-sm text-foreground/50 flex items-center gap-1.5">Skill mana yang mau kamu buktikan?
+              <Label className="text-sm text-foreground/50 flex items-center gap-1.5">
+                Skill mana yang mau kamu buktikan?
               </Label>
               <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                 {skills.length}/5 terpilih
@@ -106,12 +152,13 @@ export default function ParsedResultView({
                 return (
                   <label
                     key={s}
-                    className={`flex items-center gap-3 p-1.5 rounded-xl border transition-all cursor-pointer select-none text-left ${isSelected
-                      ? 'border-primary bg-primary/5 text-foreground ring-1 ring-primary'
-                      : isDisabled
-                        ? 'opacity-40 border-border bg-muted/20 cursor-not-allowed text-muted-foreground'
-                        : 'border-border hover:border-border/80 hover:bg-muted/35 text-foreground'
-                      }`}
+                    className={`flex items-center gap-3 p-1.5 rounded-xl border transition-all cursor-pointer select-none text-left ${
+                      isSelected
+                        ? 'border-primary bg-primary/5 text-foreground ring-1 ring-primary'
+                        : isDisabled
+                          ? 'opacity-40 border-border bg-muted/20 cursor-not-allowed text-muted-foreground'
+                          : 'border-border hover:border-border/80 hover:bg-muted/35 text-foreground'
+                    }`}
                   >
                     <input
                       type="checkbox"
@@ -161,7 +208,6 @@ export default function ParsedResultView({
                   <Plus className="h-4 w-4" />
                 </Button>
               </form>
-
             </div>
           </div>
         </CardContent>
@@ -171,10 +217,11 @@ export default function ParsedResultView({
       <Button
         size="lg"
         disabled={!isExamReady || skills.length === 0}
-        className={`w-full group text-base font-medium transition-all duration-500 ${isExamReady && skills.length > 0
-          ? 'opacity-100 translate-y-0 '
-          : 'opacity-0 translate-y-4'
-          }`}
+        className={`w-full group text-base font-medium transition-all duration-500 ${
+          isExamReady && skills.length > 0
+            ? 'opacity-100 translate-y-0 '
+            : 'opacity-0 translate-y-4'
+        }`}
       >
         Mulai Ujian
         <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
