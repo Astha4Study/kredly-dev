@@ -2,10 +2,10 @@
   "compilerOptions": {
     "module": "ESNext",
     "target": "ES2023",
-    "types": [],
+    "types": ["node"],
     "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
+    "declaration": false,
+    "declarationMap": false,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "moduleResolution": "bundler",
@@ -22,5 +22,10 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "server",
+    "prisma/**/*.ts",
+    "*.ts"
+  ]
 }

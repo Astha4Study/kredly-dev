@@ -1,31 +1,65 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from '@tanstack/react-router';
 import googleIcons from '@/assets/svg/google.svg';
+import { authClient } from '@/lib/auth-client';
 
 export const Route = createFileRoute('/_auth/register')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   async function handleRegister(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
     if (!email) return;
+
     setLoading(true);
     setErrorMessage('');
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setLoading(false);
+
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/otp/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          type: 'sign-up',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error();
+      }
+
+      navigate({
+        to: '/verification',
+        search: {
+          email,
+          type: 'sign-up',
+        },
+      });
+    } catch {
+      setErrorMessage('Gagal mengirim kode OTP. Silakan coba lagi.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function signUpWithGoogle() {
-    console.log('Google Sign Up');
+    await authClient.signIn.social({
+      provider: 'google',
+      callbackURL: '/app',
+    });
   }
 
   return (

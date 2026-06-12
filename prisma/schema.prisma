@@ -74,3 +74,13 @@ model Verification {
   @@index([identifier])
   @@map("verification")
 }
+
+model EmailOTP {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
