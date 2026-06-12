@@ -1,24 +1,23 @@
 {
   "compilerOptions": {
-    "lib": ["DOM", "ES2020"],
-    "jsx": "react-jsx",
-    "target": "ES2020",
-    "noEmit": true,
-    "skipLibCheck": true,
-    "useDefineForClassFields": true,
-
-    /* modules */
-    "moduleDetection": "force",
+    "module": "ESNext",
+    "target": "ES2023",
+    "types": [],
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
     "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "ignoreDeprecations": "6.0",
+    "jsx": "react-jsx",
     "verbatimModuleSyntax": true,
-    "resolveJsonModule": true,
-    "allowImportingTsExtensions": true,
-
-    /* type checking */
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-
-    /* shadcn */
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true,
     "paths": {
       "@/*": ["./src/*"]
     }

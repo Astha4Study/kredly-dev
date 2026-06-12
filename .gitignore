@@ -7,6 +7,14 @@
 node_modules
 dist/
 
+# Tanstack
+.tanstack/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
 # Profile
 .rspack-profile-*/
 
@@ -14,3 +22,5 @@ dist/
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+/generated/prisma
