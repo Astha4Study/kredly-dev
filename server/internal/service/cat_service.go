@@ -36,6 +36,7 @@ type CreateSessionReq struct {
 
 type AnswerResult struct {
 	Correct        bool    `json:"correct"`
+	CorrectAnswer  string  `json:"correct_answer"` // The correct option key (A/B/C/D)
 	Explanation    string  `json:"explanation"`
 	StopReason     string  `json:"stop_reason"`
 	ThetaNew       float64 `json:"theta_new"`
@@ -226,6 +227,7 @@ func (s *CATService) SubmitAnswer(ctx context.Context, sessionID, answer string)
 
 	var result AnswerResult
 	explanation := sess.PendingItem.Penjelasan
+	correctAnswer := sess.PendingItem.KunciJawaban
 
 	err = s.sessions.Update(sessionID, func(sess *models.Session) {
 		sess.ThetaCurrent = thetaNew
@@ -239,6 +241,7 @@ func (s *CATService) SubmitAnswer(ctx context.Context, sessionID, answer string)
 
 		result = AnswerResult{
 			Correct:        correct,
+			CorrectAnswer:  correctAnswer,
 			Explanation:    explanation,
 			StopReason:     stopReason,
 			ThetaNew:       thetaNew,

@@ -1,12 +1,6 @@
 import * as React from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
-import {
-  ArrowLeft,
-  ArrowRight,
-  Loader2,
-  AlertCircle,
-  Sparkles,
-} from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'motion/react';
@@ -245,13 +239,7 @@ export default function QuizPage() {
               selectedAnswer={selectedAnswer}
               onSelect={setSelectedAnswer}
               disabled={isLoading || isSubmitting || showResult}
-              correctAnswer={
-                feedback?.explanation
-                  ? feedback.correct
-                    ? selectedAnswer || undefined
-                    : undefined
-                  : undefined
-              } // will be shown inside feedback overlay
+              correctAnswer={feedback?.correct_answer}
               showResult={showResult}
             />
 
@@ -292,59 +280,50 @@ export default function QuizPage() {
               </motion.div>
             )}
 
-            {/* AI Feedback Overlay */}
+            {/* Result Banner */}
             <AnimatePresence>
               {showResult && feedback && (
                 <motion.div
-                  initial={{ opacity: 0, y: 30 }}
+                  initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 30 }}
-                  className="border border-foreground/10 bg-card/60 backdrop-blur-lg rounded-2xl p-6 space-y-6 shadow-2xl relative overflow-hidden"
+                  exit={{ opacity: 0, y: 16 }}
+                  className={cn(
+                    'flex items-center justify-between gap-4 rounded-2xl border px-5 py-4',
+                    feedback.correct
+                      ? 'border-emerald-500/20 bg-emerald-500/5'
+                      : 'border-rose-500/20 bg-rose-500/5',
+                  )}
                 >
-                  {/* Decorative background pulse */}
-                  <div className="absolute -right-20 -top-20 size-40 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-foreground/5 pb-4">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={cn(
-                          'flex size-10 items-center justify-center rounded-xl font-bold border text-lg',
-                          feedback.correct
-                            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                            : 'bg-rose-500/10 border-rose-500/20 text-rose-400',
-                        )}
-                      >
-                        {feedback.correct ? '✓' : '✗'}
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-base leading-tight">
-                          Jawaban Anda {feedback.correct ? 'Benar!' : 'Salah'}
-                        </h4>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Evaluasi AI instan menggunakan model Qwen3-32b
-                        </p>
-                      </div>
-                    </div>
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleFastForward}
-                      className="border-foreground/10 hover:bg-foreground/5 text-xs font-semibold"
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        'flex size-9 items-center justify-center rounded-xl font-bold border text-base',
+                        feedback.correct
+                          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                          : 'bg-rose-500/10 border-rose-500/20 text-rose-400',
+                      )}
                     >
-                      Lanjutkan ({countdown}s){' '}
-                      <ArrowRight className="ml-2 size-3" />
-                    </Button>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-xs font-bold tracking-widest text-primary uppercase">
-                      <Sparkles className="size-3" /> Penjelasan AI
+                      {feedback.correct ? '✓' : '✗'}
                     </div>
-                    <p className="text-sm leading-relaxed text-foreground/80 font-normal">
-                      {feedback.explanation}
+                    <p
+                      className={cn(
+                        'font-semibold text-sm',
+                        feedback.correct ? 'text-emerald-400' : 'text-rose-400',
+                      )}
+                    >
+                      {feedback.correct ? 'Jawaban Benar!' : 'Jawaban Salah'}
                     </p>
                   </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleFastForward}
+                    className="border-foreground/10 hover:bg-foreground/5 text-xs font-semibold shrink-0"
+                  >
+                    Lanjutkan ({countdown}s){' '}
+                    <ArrowRight className="ml-2 size-3" />
+                  </Button>
                 </motion.div>
               )}
             </AnimatePresence>

@@ -27,6 +27,7 @@ export interface NextItemResponse {
 
 export interface AnswerResponse {
   correct: boolean;
+  correct_answer: string; // The correct option key (A/B/C/D)
   explanation: string;
   theta_new: number;
   completed: boolean;

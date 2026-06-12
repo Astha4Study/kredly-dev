@@ -27,7 +27,9 @@ export default function HowItWorksSection() {
     <section className="flex items-center px-4 py-4 sm:px-6">
       <GridBorder className="mx-auto w-full max-w-7xl" paddingY="py-6 sm:py-8">
         <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
-          <Badge variant="default" className='shadow-sm'>Bagaimana Kredly Bekerja</Badge>
+          <Badge variant="default" className="shadow-sm">
+            Bagaimana Kredly Bekerja
+          </Badge>
 
           <div className="mt-4 max-w-3xl space-y-8">
             <h2 className="text-3xl font-bold tracking-tight lg:text-5xl">
