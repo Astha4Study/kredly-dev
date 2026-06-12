@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from '@tanstack/react-router';
-import googleIcons from "@/assets/svg/google.svg";
+import googleIcons from '@/assets/svg/google.svg';
 
 export const Route = createFileRoute('/_auth/login')({
   component: RouteComponent,
@@ -69,11 +69,7 @@ function RouteComponent() {
               type="button"
               onClick={signInWithGoogle}
             >
-              <img
-                src={googleIcons}
-                alt="Google"
-                className="mr-2 h-4 w-4"
-              />
+              <img src={googleIcons} alt="Google" className="mr-2 h-4 w-4" />
               Lanjutkan dengan Google
             </Button>
 
@@ -91,14 +87,9 @@ function RouteComponent() {
             </div>
 
             {/* Form */}
-            <form
-              className="space-y-4"
-              onSubmit={handleLogin}
-            >
+            <form className="space-y-4" onSubmit={handleLogin}>
               <div className="space-y-2">
-                <Label htmlFor="email">
-                  Email
-                </Label>
+                <Label htmlFor="email">Email</Label>
 
                 <Input
                   id="email"
@@ -109,20 +100,12 @@ function RouteComponent() {
                 />
               </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={loading}
-              >
-                {loading
-                  ? 'Mengirim kode...'
-                  : 'Lanjutkan'}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Mengirim kode...' : 'Lanjutkan'}
               </Button>
 
               {errorMessage && (
-                <p className="text-sm text-destructive">
-                  {errorMessage}
-                </p>
+                <p className="text-sm text-destructive">{errorMessage}</p>
               )}
             </form>
 
@@ -141,7 +124,8 @@ function RouteComponent() {
                 className="underline underline-offset-2 hover:text-foreground"
               >
                 Kebijakan Privasi
-              </a>.
+              </a>
+              .
             </p>
           </div>
         </div>

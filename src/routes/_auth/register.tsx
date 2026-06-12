@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from '@tanstack/react-router';
-import googleIcons from "@/assets/svg/google.svg";
+import googleIcons from '@/assets/svg/google.svg';
 
 export const Route = createFileRoute('/_auth/register')({
   component: RouteComponent,
@@ -57,7 +57,8 @@ function RouteComponent() {
               </h1>
 
               <p className="text-sm text-muted-foreground">
-                Buat akun untuk memulai validasi skill dan membangun kredensial profesional Anda.
+                Buat akun untuk memulai validasi skill dan membangun kredensial
+                profesional Anda.
               </p>
             </div>
 
@@ -69,11 +70,7 @@ function RouteComponent() {
               type="button"
               onClick={signUpWithGoogle}
             >
-              <img
-                src={googleIcons}
-                alt="Google"
-                className="mr-2 h-4 w-4"
-              />
+              <img src={googleIcons} alt="Google" className="mr-2 h-4 w-4" />
               Daftar dengan Google
             </Button>
 
@@ -91,14 +88,9 @@ function RouteComponent() {
             </div>
 
             {/* Form */}
-            <form
-              className="space-y-4"
-              onSubmit={handleRegister}
-            >
+            <form className="space-y-4" onSubmit={handleRegister}>
               <div className="space-y-2">
-                <Label htmlFor="email">
-                  Email
-                </Label>
+                <Label htmlFor="email">Email</Label>
 
                 <Input
                   id="email"
@@ -109,20 +101,12 @@ function RouteComponent() {
                 />
               </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={loading}
-              >
-                {loading
-                  ? 'Mengirim kode...'
-                  : 'Buat Akun'}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Mengirim kode...' : 'Buat Akun'}
               </Button>
 
               {errorMessage && (
-                <p className="text-sm text-destructive">
-                  {errorMessage}
-                </p>
+                <p className="text-sm text-destructive">{errorMessage}</p>
               )}
             </form>
 
@@ -141,7 +125,8 @@ function RouteComponent() {
                 className="underline underline-offset-2 hover:text-foreground"
               >
                 Kebijakan Privasi
-              </a>.
+              </a>
+              .
             </p>
           </div>
         </div>

@@ -8,6 +8,8 @@ import (
 	"kredly/internal/config"
 	"kredly/internal/groq"
 	"kredly/internal/handlers"
+	"kredly/internal/service"
+	"kredly/internal/store"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,7 +21,12 @@ func main() {
 	// 2. Initialize Groq API Client
 	groqClient := groq.NewClient(cfg.GroqAPIKey, cfg.GroqBaseURL)
 
-	// 3. Initialize HTTP Handlers
+	// 3. Initialize CAT system
+	sessionStore := store.NewSessionStore()
+	catService := service.NewCATService(sessionStore, groqClient)
+	sessionHandler := handlers.NewSessionHandler(catService)
+
+	// 4. Initialize HTTP Handlers
 	cvHandler := handlers.NewCVHandler(groqClient)
 
 	// Set Gin mode
@@ -27,13 +34,13 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// 4. Initialize Gin router
+	// 5. Initialize Gin router
 	r := gin.Default()
 
-	// 5. Setup CORS Middleware
+	// 6. Setup CORS Middleware
 	r.Use(corsMiddleware())
 
-	// 6. Define Routes
+	// 7. Define Routes
 	api := r.Group("/api")
 	{
 		api.GET("/health", func(c *gin.Context) {
@@ -45,6 +52,12 @@ func main() {
 		})
 
 		api.POST("/parse-cv", cvHandler.HandleParseCV)
+
+		// CAT Session endpoints
+		api.POST("/sessions", sessionHandler.HandleCreateSession)
+		api.GET("/sessions/:id/next-item", sessionHandler.HandleNextItem)
+		api.POST("/sessions/:id/answer", sessionHandler.HandleSubmitAnswer)
+		api.GET("/sessions/:id/result", sessionHandler.HandleGetResult)
 	}
 
 	// 7. Start Server

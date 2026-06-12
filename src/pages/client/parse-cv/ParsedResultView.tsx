@@ -3,10 +3,20 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Briefcase, ArrowRight, Plus, Pencil, Check } from 'lucide-react';
+import {
+  Briefcase,
+  ArrowRight,
+  Plus,
+  Pencil,
+  Check,
+  Loader2,
+  AlertCircle,
+} from 'lucide-react';
 import surpriseImg from '@/assets/images/surprise.png';
 import type { UseCVParserReturn } from './useCVParser';
 import type { LevelType } from './types';
+import { useNavigate } from '@tanstack/react-router';
+import { sessionService } from '@/services/sessionService';
 
 const HEADLINES: Record<LevelType, string> = {
   Senior: 'Waw, kami terkejut!',
@@ -38,7 +48,33 @@ export default function ParsedResultView({
 }: ParsedResultViewProps) {
   const [newSkill, setNewSkill] = React.useState('');
   const [isEditing, setIsEditing] = React.useState(false);
+  const [isCreatingSession, setIsCreatingSession] = React.useState(false);
+  const [sessionError, setSessionError] = React.useState<string | null>(null);
+  const navigate = useNavigate();
   const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleStartExam = async () => {
+    setIsCreatingSession(true);
+    setSessionError(null);
+    try {
+      const response = await sessionService.createSession({
+        role: role,
+        level: extractedLevel,
+        skills: skills,
+        cv_summary: `${role}, level ${extractedLevel}, skills: ${skills.join(', ')}`,
+      });
+      navigate({
+        to: '/quiz/$sessionId',
+        params: { sessionId: response.session_id },
+      } as any);
+    } catch (err) {
+      setSessionError(
+        err instanceof Error ? err.message : 'Gagal membuat sesi ujian',
+      );
+    } finally {
+      setIsCreatingSession(false);
+    }
+  };
 
   const handleEditClick = () => {
     setIsEditing((prev) => !prev);
@@ -213,18 +249,36 @@ export default function ParsedResultView({
         </CardContent>
       </Card>
 
+      {/* Session error message banner */}
+      {sessionError && (
+        <div className="flex items-center gap-3 p-4 border border-rose-500/20 bg-rose-500/5 rounded-xl text-rose-300 text-sm w-full">
+          <AlertCircle className="size-4 shrink-0" />
+          <span>{sessionError}</span>
+        </div>
+      )}
+
       {/* Bottom Button */}
       <Button
         size="lg"
-        disabled={!isExamReady || skills.length === 0}
-        className={`w-full group text-base font-medium transition-all duration-500 ${
+        onClick={handleStartExam}
+        disabled={!isExamReady || skills.length === 0 || isCreatingSession}
+        className={`w-full group text-base font-medium transition-all duration-500 cursor-pointer ${
           isExamReady && skills.length > 0
             ? 'opacity-100 translate-y-0 '
             : 'opacity-0 translate-y-4'
         }`}
       >
-        Mulai Ujian
-        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+        {isCreatingSession ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            Menyiapkan ujian...
+          </>
+        ) : (
+          <>
+            Mulai Ujian
+            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </>
+        )}
       </Button>
     </div>
   );

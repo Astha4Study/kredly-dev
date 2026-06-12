@@ -1,12 +1,12 @@
-import KalibrrIcon from "@/assets/svg/Kalibrr.svg?react";
-import JobStreetIcon from "@/assets/svg/JobStreet.svg?react";
-import LokerIdIcon from "@/assets/svg/LokerId.svg?react";
-import GlassDoorIcon from "@/assets/svg/GlassDoor.svg?react";
-import LinkedInIcon from "@/assets/svg/Linkedin.svg?react";
-import IndeedIcon from "@/assets/svg/Indeed.svg?react";
-import HiredIcon from "@/assets/svg/Hired.svg?react";
-import GlintsIcon from "@/assets/svg/Glints.svg?react";
-import WellFoundIcon from "@/assets/svg/WellFound.svg?react";
+import KalibrrIcon from '@/assets/svg/Kalibrr.svg?react';
+import JobStreetIcon from '@/assets/svg/JobStreet.svg?react';
+import LokerIdIcon from '@/assets/svg/LokerId.svg?react';
+import GlassDoorIcon from '@/assets/svg/GlassDoor.svg?react';
+import LinkedInIcon from '@/assets/svg/Linkedin.svg?react';
+import IndeedIcon from '@/assets/svg/Indeed.svg?react';
+import HiredIcon from '@/assets/svg/Hired.svg?react';
+import GlintsIcon from '@/assets/svg/Glints.svg?react';
+import WellFoundIcon from '@/assets/svg/WellFound.svg?react';
 
 export const IntegrationIcons = {
   LinkedIn: () => <LinkedInIcon className="w-14 h-14" />,
@@ -31,7 +31,19 @@ export const IntegrationIcons = {
       />
     </svg>
   ),
-  Freelancer: () => (<svg viewBox="-0.23 0 97.266 72.333" xmlns="http://www.w3.org/2000/svg" width="2500" height="1855"><path d="M56.897 0l6.624 9.29L97.036 0M22.075 72.333l18.13-17.725-10.912-11.71M54.152 0l-9.69 8.738 16.298.608M16.482 0l3.48 7.133 19.18 1.195M26.75 36.986l14.17-26.434L-.23 8.328M28.4 38.662L41.785 53.04 56.55 38.567l4.582-26.957-17.993-.918" fill="#29b2fe"/></svg>),
+  Freelancer: () => (
+    <svg
+      viewBox="-0.23 0 97.266 72.333"
+      xmlns="http://www.w3.org/2000/svg"
+      width="2500"
+      height="1855"
+    >
+      <path
+        d="M56.897 0l6.624 9.29L97.036 0M22.075 72.333l18.13-17.725-10.912-11.71M54.152 0l-9.69 8.738 16.298.608M16.482 0l3.48 7.133 19.18 1.195M26.75 36.986l14.17-26.434L-.23 8.328M28.4 38.662L41.785 53.04 56.55 38.567l4.582-26.957-17.993-.918"
+        fill="#29b2fe"
+      />
+    </svg>
+  ),
   Glassdoor: () => <GlassDoorIcon className="w-full h-full" />,
   Hired: () => <HiredIcon className="w-full h-full" />,
   WellFound: () => <WellFoundIcon className="w-full h-full" />,
