@@ -7,6 +7,14 @@
 node_modules
 dist/
 
+# Tanstack
+.tanstack/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
 # Profile
 .rspack-profile-*/
 
@@ -17,3 +25,5 @@ dist/
 server/.env
 .agents/tasks/
 .agents/skills/
+
+/generated/prisma

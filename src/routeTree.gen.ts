@@ -17,6 +17,7 @@ import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as ResultSessionIdRouteImport } from './routes/result.$sessionId'
 import { Route as QuizSessionIdRouteImport } from './routes/quiz.$sessionId'
+import { Route as AuthVerificationRouteImport } from './routes/_auth/verification'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AppAppRouteImport } from './routes/_app/app'
@@ -59,6 +60,11 @@ const QuizSessionIdRoute = QuizSessionIdRouteImport.update({
   path: '/quiz/$sessionId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthVerificationRoute = AuthVerificationRouteImport.update({
+  id: '/verification',
+  path: '/verification',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppAppRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
+  '/verification': typeof AuthVerificationRoute
   '/quiz/$sessionId': typeof QuizSessionIdRoute
   '/result/$sessionId': typeof ResultSessionIdRoute
   '/features/': typeof PublicFeaturesIndexRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppAppRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
+  '/verification': typeof AuthVerificationRoute
   '/quiz/$sessionId': typeof QuizSessionIdRoute
   '/result/$sessionId': typeof ResultSessionIdRoute
   '/features': typeof PublicFeaturesIndexRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/_app/app': typeof AppAppRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
+  '/_auth/verification': typeof AuthVerificationRoute
   '/quiz/$sessionId': typeof QuizSessionIdRoute
   '/result/$sessionId': typeof ResultSessionIdRoute
   '/_public/': typeof PublicIndexRoute
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/login'
     | '/register'
+    | '/verification'
     | '/quiz/$sessionId'
     | '/result/$sessionId'
     | '/features/'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/login'
     | '/register'
+    | '/verification'
     | '/quiz/$sessionId'
     | '/result/$sessionId'
     | '/features'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/_app/app'
     | '/_auth/login'
     | '/_auth/register'
+    | '/_auth/verification'
     | '/quiz/$sessionId'
     | '/result/$sessionId'
     | '/_public/'
@@ -224,6 +236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuizSessionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth/verification': {
+      id: '/_auth/verification'
+      path: '/verification'
+      fullPath: '/verification'
+      preLoaderRoute: typeof AuthVerificationRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
     '/_auth/register': {
       id: '/_auth/register'
       path: '/register'
@@ -270,11 +289,13 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 interface AuthRouteRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
+  AuthVerificationRoute: typeof AuthVerificationRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
+  AuthVerificationRoute: AuthVerificationRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
