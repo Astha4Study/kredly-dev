@@ -1,9 +1,9 @@
-import { Router } from 'express';
+import { Router, type Request, type Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { resend } from '../lib/resend';
 import { auth } from '../auth/auth';
 
-const router = Router();
+const router: Router = Router();
 
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();

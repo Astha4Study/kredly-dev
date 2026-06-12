@@ -9,7 +9,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+    origin: process.env.VITE_CLIENT_URL || 'http://localhost:3000',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -32,7 +32,7 @@ app.get('/health', (_, res) => {
   });
 });
 
-const PORT = Number(process.env.AUTH_PORT ?? 3001);
+const PORT = Number(process.env.AUTH_SERVER_PORT ?? 3001);
 
 app.listen(PORT, () => {
   console.log(`Auth server running on http://localhost:${PORT}`);

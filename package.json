@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "build": "rsbuild build",
+    "build:server": "tsc --project tsconfig.server.json",
     "dev": "rsbuild",
-    "dev:server": "tsx server/index.ts",
+    "dev:server": "tsx watch --tsconfig tsconfig.server.json server/index.ts",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "preview": "rsbuild preview"
+    "preview": "rsbuild preview",
+    "typecheck": "tsc --noEmit && tsc --project tsconfig.server.json --noEmit"
   },
   "dependencies": {
     "@prisma/client": "~6.19.3",

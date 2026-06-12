@@ -7,17 +7,18 @@ export const auth = betterAuth({
     provider: 'mongodb',
   }),
 
-  baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
-  trustedOrigins: [
-    process.env.BETTER_AUTH_URL || 'http://localhost:3000',
-    process.env.VITE_AUTH_URL || 'http://localhost:3001',
-  ],
+  // Base URL for better-auth API endpoints
+  baseURL: `${process.env.AUTH_SERVER_URL || 'http://localhost:3001'}/api/auth`,
+
+  // Allowed origins for CORS
+  trustedOrigins: [process.env.VITE_CLIENT_URL || 'http://localhost:3000'],
 
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      redirectURI: `${process.env.VITE_AUTH_URL || 'http://localhost:3001'}/api/auth/callback/google`,
+      // OAuth callback endpoint on auth server
+      redirectURI: `${process.env.AUTH_SERVER_URL || 'http://localhost:3001'}/api/auth/callback/google`,
     },
   },
 });

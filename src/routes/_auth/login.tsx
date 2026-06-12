@@ -26,7 +26,8 @@ function RouteComponent() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/otp/send', {
+      const authServerUrl = import.meta.env.VITE_AUTH_SERVER_URL || 'http://localhost:3001';
+      const response = await fetch(`${authServerUrl}/api/auth/otp/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -56,9 +57,12 @@ function RouteComponent() {
   }
 
   async function signInWithGoogle() {
+    // Ambil redirect URL dari sessionStorage atau default ke /app
+    const redirectTo = sessionStorage.getItem('redirectAfterLogin') || '/app';
+
     await authClient.signIn.social({
       provider: 'google',
-      callbackURL: '/app',
+      callbackURL: redirectTo,
     });
   }
 
