@@ -87,9 +87,9 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppAppRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
-  '/features/': typeof PublicFeaturesIndexRoute
   '/quiz/$sessionId': typeof QuizSessionIdRoute
   '/result/$sessionId': typeof ResultSessionIdRoute
+  '/features/': typeof PublicFeaturesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
@@ -120,39 +120,40 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-  | '/'
-  | '/parseCV'
-  | '/test'
-  | '/app'
-  | '/login'
-  | '/register'
-  | '/features/'
-  | '/quiz/$sessionId'
-  | '/result/$sessionId'
+    | '/'
+    | '/parseCV'
+    | '/test'
+    | '/app'
+    | '/login'
+    | '/register'
+    | '/quiz/$sessionId'
+    | '/result/$sessionId'
+    | '/features/'
   fileRoutesByTo: FileRoutesByTo
   to:
-  | '/'
-  | '/parseCV'
-  | '/test' | '/app'
-  | '/login'
-  | '/register'
-  | '/quiz/$sessionId'
-  | '/result/$sessionId'
-  | '/features'
+    | '/'
+    | '/parseCV'
+    | '/test'
+    | '/app'
+    | '/login'
+    | '/register'
+    | '/quiz/$sessionId'
+    | '/result/$sessionId'
+    | '/features'
   id:
-  | '__root__'
-  | '/_app'
-  | '/_auth'
-  | '/_public'
-  | '/parseCV'
-  | '/test'
-  | '/_app/app'
-  | '/_auth/login'
-  | '/_auth/register'
-  | '/quiz/$sessionId'
-  | '/result/$sessionId'
-  | '/_public/'
-  | '/_public/features/'
+    | '__root__'
+    | '/_app'
+    | '/_auth'
+    | '/_public'
+    | '/parseCV'
+    | '/test'
+    | '/_app/app'
+    | '/_auth/login'
+    | '/_auth/register'
+    | '/quiz/$sessionId'
+    | '/result/$sessionId'
+    | '/_public/'
+    | '/_public/features/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
