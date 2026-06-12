@@ -14,3 +14,6 @@ dist/
 .vscode/*
 !.vscode/extensions.json
 .idea
+server/.env
+.agents/tasks/
+.agents/skills/
