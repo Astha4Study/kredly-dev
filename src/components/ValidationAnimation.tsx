@@ -1,286 +1,340 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
-import { BadgeCheck } from 'lucide-react';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { Check, X } from 'lucide-react';
 
 type Phase =
-  | 'idle'
-  | 'header'
-  | 'cv-bar'
-  | 'cv-strike'
-  | 'sim-bar'
-  | 'task-bar'
-  | 'footer'
-  | 'stamp'
-  | 'hold';
+  | 'idle' | 'scanning' | 'header' | 'identity' | 'cv-bar'
+  | 'cv-strike' | 'interview-bar' | 'interview-check' | 'sim-bar' | 'sim-check'
+  | 'task-bar' | 'task-check' | 'footer' | 'stamp' | 'hold';
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+interface Profile {
+  field: string;
+  sub: string;
+  id: string;
+  cv: number;
+  interview: number;
+  sim: number;
+  task: number;
+}
+
+const PROFILES: Profile[] = [
+  { field: 'Rekayasa Perangkat Lunak', sub: 'Teknologi Informasi', id: '2025-RPL-0847', cv: 42, interview: 68, sim: 84, task: 91 },
+  { field: 'Biologi Molekuler', sub: 'Ilmu Hayati', id: '2025-BIO-1203', cv: 38, interview: 65, sim: 79, task: 88 },
+  { field: 'Analisis Data', sub: 'Matematika Terapan', id: '2025-DAT-0562', cv: 50, interview: 72, sim: 86, task: 93 },
+  { field: 'Desain Arsitektur', sub: 'Teknik Sipil', id: '2025-ARS-0391', cv: 35, interview: 63, sim: 76, task: 89 },
+  { field: 'Psikologi Klinis', sub: 'Ilmu Kesehatan', id: '2025-PSI-0774', cv: 44, interview: 70, sim: 81, task: 90 },
+  { field: 'Astrofisika', sub: 'Fisika Terapan', id: '2025-FIS-0318', cv: 40, interview: 67, sim: 83, task: 92 },
+  { field: 'Gizi Klinik', sub: 'Ilmu Kesehatan', id: '2025-GZI-0655', cv: 47, interview: 71, sim: 78, task: 87 },
+  { field: 'Elektronika Industri', sub: 'Teknik Elektro', id: '2025-ELK-0429', cv: 36, interview: 64, sim: 80, task: 88 },
+];
+
+function SkillRow({
+  label, width, barClass, pctClass = '',
+  showPct, showCheck, checkOk, strikeThrough,
+}: {
+  label: string; width: number; barClass: string;
+  pctClass?: string; showPct: boolean;
+  showCheck: boolean; checkOk: boolean; strikeThrough: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className={`w-[70px] shrink-0 text-[8.5px] transition-colors duration-300 ${strikeThrough ? 'text-muted-foreground/30 line-through' : 'text-muted-foreground'}`}>
+        {label}
+      </span>
+
+      <div className="h-[2px] flex-1 overflow-hidden bg-muted">
+        <motion.div
+          className={`h-full ${barClass}`}
+          initial={{ width: '0%' }}
+          animate={{ width: `${width}%` }}
+          transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+        />
+      </div>
+
+      <motion.span
+        animate={{ opacity: showPct ? 1 : 0 }}
+        transition={{ duration: 0.3, delay: 0.65 }}
+        className={`w-7 text-right font-mono text-[8px] ${pctClass || 'text-muted-foreground'}`}
+      >
+        {width}%
+      </motion.span>
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: showCheck ? 1 : 0, scale: showCheck ? 1 : 0.5 }}
+        transition={{ duration: 0.25, type: 'spring', stiffness: 300 }}
+        className="w-3 shrink-0 flex items-center justify-center"
+      >
+        {checkOk ? (
+          <Check className="size-3 text-primary" />
+        ) : (
+          <X className="size-3 text-muted-foreground/40" />
+        )}
+      </motion.div>
+    </div>
+  );
+}
 
 export function ValidationAnimation() {
   const [phase, setPhase] = useState<Phase>('idle');
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [profile, setProfile] = useState<Profile>(PROFILES[0]);
+  const [cvW, setCvW] = useState(0);
+  const [interviewW, setInterviewW] = useState(0);
+  const [simW, setSimW] = useState(0);
+  const [taskW, setTaskW] = useState(0);
+  const indexRef = useRef(0);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  // CV bar width — animates up to 45% then stays while strikethrough happens
-  const [cvBarW, setCvBarW] = useState(0);
-  const [simBarW, setSimBarW] = useState(0);
-  const [taskBarW, setTaskBarW] = useState(0);
+  const add = (fn: () => void, ms: number) =>
+    timersRef.current.push(setTimeout(fn, ms));
 
-  function clear() {
-    if (timerRef.current) clearTimeout(timerRef.current);
-  }
+  const startLoop = () => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
 
-  function after(ms: number, fn: () => void) {
-    clear();
-    timerRef.current = setTimeout(fn, ms);
-  }
-
-  function startLoop() {
-    setCvBarW(0);
-    setSimBarW(0);
-    setTaskBarW(0);
+    const p = PROFILES[indexRef.current % PROFILES.length];
+    indexRef.current++;
+    setProfile(p);
     setPhase('idle');
+    setCvW(0); setInterviewW(0); setSimW(0); setTaskW(0);
 
-    after(300, () => {
-      setPhase('header');
-      after(900, () => {
-        setPhase('cv-bar');
-        setCvBarW(45);
-        after(700, () => {
-          setPhase('cv-strike');
-          after(600, () => {
-            setPhase('sim-bar');
-            setSimBarW(82);
-            after(700, () => {
-              setPhase('task-bar');
-              setTaskBarW(91);
-              after(700, () => {
-                setPhase('footer');
-                after(500, () => {
-                  setPhase('stamp');
-                  after(300, () => {
-                    setPhase('hold');
-                    after(3000, startLoop);
-                  });
-                });
-              });
-            });
-          });
-        });
-      });
-    });
-  }
+    add(() => setPhase('scanning'), 300);
+    add(() => setPhase('header'), 500);
+    add(() => setPhase('identity'), 1800);
+    add(() => { setPhase('cv-bar'); setCvW(p.cv); }, 2400);
+    add(() => setPhase('cv-strike'), 3200);
+    add(() => { setPhase('interview-bar'); setInterviewW(p.interview); }, 3300);
+    add(() => setPhase('interview-check'), 3900);
+    add(() => { setPhase('sim-bar'); setSimW(p.sim); }, 4000);
+    add(() => setPhase('sim-check'), 4600);
+    add(() => { setPhase('task-bar'); setTaskW(p.task); }, 4700);
+    add(() => setPhase('task-check'), 5300);
+    add(() => setPhase('footer'), 5600);
+    add(() => setPhase('stamp'), 6000);
+    add(() => setPhase('hold'), 6300);
+    add(() => startLoop(), 9700);
+  };
 
   useEffect(() => {
-    const init = setTimeout(startLoop, 400);
-    return () => {
-      clearTimeout(init);
-      clear();
-    };
+    const t = setTimeout(startLoop, 400);
+    return () => { clearTimeout(t); timersRef.current.forEach(clearTimeout); };
   }, []);
 
-  const headerVisible = phase !== 'idle';
-  const cvStrike = [
-    'cv-strike',
-    'sim-bar',
-    'task-bar',
-    'footer',
-    'stamp',
-    'hold',
-  ].includes(phase);
-  const simVisible = [
-    'sim-bar',
-    'task-bar',
-    'footer',
-    'stamp',
-    'hold',
-  ].includes(phase);
-  const taskVisible = ['task-bar', 'footer', 'stamp', 'hold'].includes(phase);
-  const footerVisible = ['footer', 'stamp', 'hold'].includes(phase);
-  const stampVisible = ['stamp', 'hold'].includes(phase);
+  const after = (p: Phase, phases: Phase[]) => phases.includes(p);
+
+  const scanning = phase === 'scanning';
+  const headerVis = phase !== 'idle';
+  const identityVis = after(phase, ['identity', 'cv-bar', 'cv-strike', 'interview-bar', 'interview-check', 'sim-bar', 'sim-check', 'task-bar', 'task-check', 'footer', 'stamp', 'hold']);
+  const cvBarVis = after(phase, ['cv-bar', 'cv-strike', 'interview-bar', 'interview-check', 'sim-bar', 'sim-check', 'task-bar', 'task-check', 'footer', 'stamp', 'hold']);
+  const cvStrike = after(phase, ['cv-strike', 'interview-bar', 'interview-check', 'sim-bar', 'sim-check', 'task-bar', 'task-check', 'footer', 'stamp', 'hold']);
+  const interviewVis = after(phase, ['interview-bar', 'interview-check', 'sim-bar', 'sim-check', 'task-bar', 'task-check', 'footer', 'stamp', 'hold']);
+  const interviewCheck = after(phase, ['interview-check', 'sim-bar', 'sim-check', 'task-bar', 'task-check', 'footer', 'stamp', 'hold']);
+  const simVis = after(phase, ['sim-bar', 'sim-check', 'task-bar', 'task-check', 'footer', 'stamp', 'hold']);
+  const simCheck = after(phase, ['sim-check', 'task-bar', 'task-check', 'footer', 'stamp', 'hold']);
+  const taskVis = after(phase, ['task-bar', 'task-check', 'footer', 'stamp', 'hold']);
+  const taskCheck = after(phase, ['task-check', 'footer', 'stamp', 'hold']);
+  const footerVis = after(phase, ['footer', 'stamp', 'hold']);
+  const stampVis = after(phase, ['stamp', 'hold']);
 
   return (
-    <div className="relative h-full w-full overflow-hidden border border-zinc-200 bg-white">
-      {/* Top accent line */}
-      <motion.div
-        className="absolute inset-x-0 top-0 h-0.5 origin-left bg-primary"
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: headerVisible ? 1 : 0 }}
-        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-      />
+    <div className="relative flex h-full w-full flex-col overflow-hidden border border-border bg-card">
 
-      <div className="px-3 py-2.5">
-        {/* Header */}
-        <div className="mb-3 flex items-start gap-2.5">
-          {/* Badge icon */}
-          <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded border border-primary/20 bg-primary/5">
-            <BadgeCheck className="h-4 w-4 text-primary" />
-          </div>
+      {/* Scan line - berbeda dari CredentialAnimation (dari bawah ke atas) */}
+      <AnimatePresence>
+        {scanning && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: headerVisible ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
+            className="pointer-events-none absolute inset-x-0 z-10 h-px bg-primary/50"
+            initial={{ bottom: 0, opacity: 0.6 }}
+            animate={{ bottom: '100%', opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.5, ease: 'linear' }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Inner border */}
+      <div className="absolute inset-[7px] border border-border/50 pointer-events-none z-0" />
+
+      {/* Header */}
+      <div className="relative z-10 flex shrink-0 items-center justify-between border-b border-border/60 px-3.5 py-2.5">
+        <div className="flex items-center gap-2">
+          <div className="flex h-[18px] w-[18px] items-center justify-center bg-foreground">
+            <span className="text-[9px] font-bold text-background">K</span>
+          </div>
+          <div>
+            <div className="text-[10px] font-semibold leading-tight text-foreground tracking-tight">Kredly</div>
+            <div className="font-mono text-[7.5px] uppercase tracking-widest text-muted-foreground">Skill Validation</div>
+          </div>
+        </div>
+        <motion.div
+          animate={{ opacity: headerVis ? 1 : 0 }}
+          transition={{ duration: 0.35 }}
+          className="text-right font-mono text-[7.5px] uppercase tracking-widest text-muted-foreground leading-[1.5]"
+        >
+          Validasi<br />Kompetensi
+        </motion.div>
+      </div>
+
+      {/* Body */}
+      <div className="relative z-10 flex flex-1 flex-col overflow-hidden px-3.5 py-3">
+
+        {/* Identity */}
+        <div className="mb-3">
+          <motion.p
+            animate={{ opacity: identityVis ? 1 : 0, y: identityVis ? 0 : 5 }}
+            transition={{ duration: 0.4 }}
+            className="mb-1 font-mono text-[8px] uppercase tracking-widest text-muted-foreground"
           >
-            <p className="text-[9px] font-medium text-left uppercase tracking-widest text-zinc-400">
-              Sertifikat Kompetensi
-            </p>
-            <p className="text-[11px] font-medium text-left text-zinc-800">
-              Rekayasa Perangkat Lunak
-            </p>
-          </motion.div>
+            Sertifikat Kompetensi
+          </motion.p>
+          <motion.p
+            key={profile.field}
+            animate={{ opacity: identityVis ? 1 : 0, y: identityVis ? 0 : 6 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="text-[18px] font-medium leading-tight tracking-tight text-foreground"
+          >
+            {profile.field}
+          </motion.p>
+          <motion.p
+            key={profile.sub}
+            animate={{ opacity: identityVis ? 1 : 0, y: identityVis ? 0 : 5 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="mt-1 text-[9px] text-muted-foreground"
+          >
+            {profile.sub}
+          </motion.p>
         </div>
 
-        {/* Skill rows */}
-        <div className="mb-2 mt-6 space-y-2">
-          {/* CV klaim — always mounted, bar animates */}
+        <motion.div
+          animate={{ opacity: identityVis ? 1 : 0 }}
+          transition={{ duration: 0.3 }}
+          className="h-px bg-border/60 mb-3"
+        />
+
+        {/* Rows */}
+        <div className="flex flex-col gap-1.5">
           <SkillRow
             label="CV klaim"
-            barWidth={cvBarW}
-            barClass="bg-primary/30"
+            width={cvW}
+            barClass="bg-muted-foreground/20"
+            showPct={cvBarVis}
             showCheck={cvStrike}
-            checkMark="✕"
+            checkOk={false}
             strikeThrough={cvStrike}
           />
 
-          {/* Uji simulasi */}
           <AnimatePresence>
-            {simVisible && (
+            {interviewVis && (
               <motion.div
-                initial={{ opacity: 0, x: -4 }}
+                initial={{ opacity: 0, x: -5 }}
                 animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
               >
                 <SkillRow
-                  label="Uji simulasi"
-                  barWidth={simBarW}
-                  barClass="bg-primary/75"
-                  showCheck={taskVisible}
-                  checkMark="✓"
+                  label="Wawancara"
+                  width={interviewW}
+                  barClass="bg-primary/40"
+                  showPct={interviewVis}
+                  showCheck={interviewCheck}
+                  checkOk={true}
                   strikeThrough={false}
                 />
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Tugas nyata */}
           <AnimatePresence>
-            {taskVisible && (
+            {simVis && (
               <motion.div
-                initial={{ opacity: 0, x: -4 }}
+                initial={{ opacity: 0, x: -5 }}
                 animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <SkillRow
+                  label="Simulasi"
+                  width={simW}
+                  barClass="bg-primary/60"
+                  showPct={simVis}
+                  showCheck={simCheck}
+                  checkOk={true}
+                  strikeThrough={false}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {taskVis && (
+              <motion.div
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
               >
                 <SkillRow
                   label="Tugas nyata"
-                  barWidth={taskBarW}
+                  width={taskW}
                   barClass="bg-primary"
-                  showCheck={footerVisible}
-                  checkMark="✓"
+                  pctClass="text-primary"
+                  showPct={taskVis}
+                  showCheck={taskCheck}
+                  checkOk={true}
                   strikeThrough={false}
                 />
               </motion.div>
             )}
           </AnimatePresence>
         </div>
+      </div>
 
-        {/* Footer */}
+      {/* Stamp - berbeda: posisi kiri bawah vs kanan bawah di CredentialAnimation */}
+      <AnimatePresence>
+        {stampVis && (
+          <motion.div
+            initial={{ scale: 1.4, rotate: 8, opacity: 0 }}
+            animate={{ scale: 1, rotate: 4, opacity: 1 }}
+            exit={{ scale: 1.4, rotate: 8, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 220, damping: 18 }}
+            className="absolute bottom-9 left-4 z-20 flex h-[52px] w-[52px] flex-col items-center justify-center gap-0.5 rounded-full border-[1.5px] border-primary"
+          >
+            <Check className="size-4 text-primary" />
+            <span className="font-mono text-[6px] font-semibold uppercase tracking-widest text-primary">Valid</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Footer */}
+      <div className="relative z-10 flex shrink-0 items-end justify-between border-t border-border/60 px-3.5 py-2.5">
         <motion.div
-          className="flex items-center justify-between border-t border-zinc-100 pt-1.5"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: footerVisible ? 1 : 0 }}
-          transition={{ duration: 0.3 }}
+          animate={{ opacity: footerVis ? 1 : 0 }}
+          transition={{ duration: 0.4 }}
         >
-          <span className="text-[9px] tabular-nums tracking-widest text-zinc-400">
-            ID · 2024-RPL-0847
-          </span>
-          <div className="flex gap-1">
-            {[false, false, true].map((active, i) => (
-              <div
+          <div className="mb-1 h-px w-14 bg-border" />
+          <p className="text-[9px] font-medium leading-tight text-foreground">Kredly AI</p>
+          <p className="text-[8px] text-muted-foreground">Validation System</p>
+        </motion.div>
+        <motion.div
+          animate={{ opacity: footerVis ? 1 : 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="text-right"
+        >
+          <p className="font-mono text-[8px] text-muted-foreground/40">{profile.id}</p>
+          <div className="mt-1 flex justify-end gap-1">
+            {[false, true, false].map((active, i) => (
+              <motion.div
                 key={i}
                 className="h-1 w-1 rounded-full"
-                style={{
-                  backgroundColor: active ? 'hsl(var(--primary))' : '#e4e4e7',
+                animate={{
+                  background: active && stampVis ? 'hsl(var(--primary))' : 'hsl(var(--muted))',
                 }}
+                transition={{ duration: 0.3 }}
               />
             ))}
           </div>
         </motion.div>
       </div>
-
-      {/* Stamp */}
-      <AnimatePresence>
-        {stampVisible && (
-          <motion.div
-            initial={{ scale: 1.6, rotate: -8, opacity: 0 }}
-            animate={{ scale: 1, rotate: -2, opacity: 1 }}
-            exit={{ scale: 1.6, rotate: -8, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 18 }}
-            className="absolute right-3 top-2.5 flex h-10 w-10 flex-col items-center justify-center gap-0 rounded-full border-[1.5px] border-zinc-900 bg-white"
-          >
-            <span className="text-[5.5px] font-semibold uppercase tracking-[0.12em] text-zinc-900 leading-tight">
-              Tervalidasi
-            </span>
-            <span className="text-[13px] leading-tight text-zinc-900">✓</span>
-            <span className="text-[5px] uppercase tracking-widest text-zinc-900 leading-tight">
-              Verified
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// ─── SkillRow ─────────────────────────────────────────────────────────────────
-
-function SkillRow({
-  label,
-  barWidth,
-  barClass,
-  showCheck,
-  checkMark,
-  strikeThrough,
-}: {
-  label: string;
-  barWidth: number;
-  barClass: string;
-  showCheck: boolean;
-  checkMark: string;
-  strikeThrough: boolean;
-}) {
-  return (
-    <div className="flex items-center gap-1.5">
-      <div className="relative flex w-13 shrink-0 items-center">
-        <span className="text-[9px] text-zinc-500">{label}</span>
-
-        {strikeThrough && (
-          <motion.div
-            initial={{ width: '0%' }}
-            animate={{ width: '100%' }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="absolute left-0 top-1/2 h-px bg-zinc-400"
-            style={{ transform: 'translateY(-50%)' }}
-          />
-        )}
-      </div>
-
-      <div className="h-1 flex-1 overflow-hidden rounded-full bg-zinc-100">
-        <motion.div
-          className={`h-full rounded-full ${barClass}`}
-          initial={{ width: '0%' }}
-          animate={{ width: `${barWidth}%` }}
-          transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-        />
-      </div>
-
-      <motion.span
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: showCheck ? 1 : 0, scale: showCheck ? 1 : 0.5 }}
-        transition={{ duration: 0.2, type: 'spring', stiffness: 300 }}
-        className="w-3 shrink-0 text-center text-[9px] font-medium text-zinc-700"
-      >
-        {checkMark}
-      </motion.span>
     </div>
   );
 }

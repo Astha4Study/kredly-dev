@@ -125,7 +125,7 @@ export function ProfileAnalysisAnimation() {
 
   return (
     <div
-      className="relative"
+      className="relative shadow-sm"
       style={{ height: CARD_HEIGHT, width: CARD_WIDTH }}
     >
       {/* Stacked papers effect - background layers muncul dari atas */}
