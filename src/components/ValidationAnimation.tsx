@@ -18,14 +18,14 @@ interface Profile {
 }
 
 const PROFILES: Profile[] = [
-  { field: 'Rekayasa Perangkat Lunak', sub: 'Teknologi Informasi',  id: '2025-RPL-0847', cv: 42, interview: 68, sim: 84, task: 91 },
-  { field: 'Biologi Molekuler',        sub: 'Ilmu Hayati',          id: '2025-BIO-1203', cv: 38, interview: 65, sim: 79, task: 88 },
-  { field: 'Analisis Data',            sub: 'Matematika Terapan',   id: '2025-DAT-0562', cv: 50, interview: 72, sim: 86, task: 93 },
-  { field: 'Desain Arsitektur',        sub: 'Teknik Sipil',         id: '2025-ARS-0391', cv: 35, interview: 63, sim: 76, task: 89 },
-  { field: 'Psikologi Klinis',         sub: 'Ilmu Kesehatan',       id: '2025-PSI-0774', cv: 44, interview: 70, sim: 81, task: 90 },
-  { field: 'Astrofisika',              sub: 'Fisika Terapan',       id: '2025-FIS-0318', cv: 40, interview: 67, sim: 83, task: 92 },
-  { field: 'Gizi Klinik',              sub: 'Ilmu Kesehatan',       id: '2025-GZI-0655', cv: 47, interview: 71, sim: 78, task: 87 },
-  { field: 'Elektronika Industri',     sub: 'Teknik Elektro',       id: '2025-ELK-0429', cv: 36, interview: 64, sim: 80, task: 88 },
+  { field: 'Rekayasa Perangkat Lunak', sub: 'Teknologi Informasi', id: '2025-RPL-0847', cv: 42, interview: 68, sim: 84, task: 91 },
+  { field: 'Biologi Molekuler', sub: 'Ilmu Hayati', id: '2025-BIO-1203', cv: 38, interview: 65, sim: 79, task: 88 },
+  { field: 'Analisis Data', sub: 'Matematika Terapan', id: '2025-DAT-0562', cv: 50, interview: 72, sim: 86, task: 93 },
+  { field: 'Desain Arsitektur', sub: 'Teknik Sipil', id: '2025-ARS-0391', cv: 35, interview: 63, sim: 76, task: 89 },
+  { field: 'Psikologi Klinis', sub: 'Ilmu Kesehatan', id: '2025-PSI-0774', cv: 44, interview: 70, sim: 81, task: 90 },
+  { field: 'Astrofisika', sub: 'Fisika Terapan', id: '2025-FIS-0318', cv: 40, interview: 67, sim: 83, task: 92 },
+  { field: 'Gizi Klinik', sub: 'Ilmu Kesehatan', id: '2025-GZI-0655', cv: 47, interview: 71, sim: 78, task: 87 },
+  { field: 'Elektronika Industri', sub: 'Teknik Elektro', id: '2025-ELK-0429', cv: 36, interview: 64, sim: 80, task: 88 },
 ];
 
 function SkillRow({
@@ -326,7 +326,9 @@ export function ValidationAnimation() {
               <motion.div
                 key={i}
                 className="h-1 w-1 rounded-full"
-                animate={{ background: active && stampVis ? 'hsl(var(--primary))' : 'hsl(var(--muted))' }}
+                animate={{
+                  background: active && stampVis ? 'hsl(var(--primary))' : 'hsl(var(--muted))',
+                }}
                 transition={{ duration: 0.3 }}
               />
             ))}

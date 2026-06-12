@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import GoogleIcon from '@/assets/svg/google.svg';
 import GridBorder from '@/components/GridBorder';
 import HeroCard from '../../../components/HeroCard';
+import { Link } from '@tanstack/react-router';
 
 export default function HeroSection() {
   return (
@@ -40,10 +41,22 @@ export default function HeroSection() {
                       Mulai Sekarang
                     </Button>
 
-                    <Button variant="outline" size="lg" className="w-full">
+                    <Button variant="outline" size="lg" className="w-full mb-2">
                       <img src={GoogleIcon} alt="Google" className="size-4" />
                       Lanjutkan dengan Google
                     </Button>
+
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Link to="/parseCV" className="flex-1">
+                        <Button
+                          variant="secondary"
+                          size="lg"
+                          className="w-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-sm"
+                        >
+                          AI CV Parser
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                   <div className="flex flex-wrap gap-6 sm:gap-8">
                     <div>

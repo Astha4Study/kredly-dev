@@ -10,10 +10,13 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestRouteImport } from './routes/test'
+import { Route as ParseCVRouteImport } from './routes/parseCV'
 import { Route as PublicRouteRouteImport } from './routes/_public/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as ResultSessionIdRouteImport } from './routes/result.$sessionId'
+import { Route as QuizSessionIdRouteImport } from './routes/quiz.$sessionId'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AppAppRouteImport } from './routes/_app/app'
@@ -22,6 +25,11 @@ import { Route as PublicFeaturesIndexRouteImport } from './routes/_public/featur
 const TestRoute = TestRouteImport.update({
   id: '/test',
   path: '/test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParseCVRoute = ParseCVRouteImport.update({
+  id: '/parseCV',
+  path: '/parseCV',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PublicRouteRoute = PublicRouteRouteImport.update({
@@ -40,6 +48,16 @@ const PublicIndexRoute = PublicIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PublicRouteRoute,
+} as any)
+const ResultSessionIdRoute = ResultSessionIdRouteImport.update({
+  id: '/result/$sessionId',
+  path: '/result/$sessionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuizSessionIdRoute = QuizSessionIdRouteImport.update({
+  id: '/quiz/$sessionId',
+  path: '/quiz/$sessionId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/register',
@@ -64,18 +82,24 @@ const PublicFeaturesIndexRoute = PublicFeaturesIndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
+  '/parseCV': typeof ParseCVRoute
   '/test': typeof TestRoute
   '/app': typeof AppAppRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
+  '/quiz/$sessionId': typeof QuizSessionIdRoute
+  '/result/$sessionId': typeof ResultSessionIdRoute
   '/features/': typeof PublicFeaturesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
+  '/parseCV': typeof ParseCVRoute
   '/test': typeof TestRoute
   '/app': typeof AppAppRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
+  '/quiz/$sessionId': typeof QuizSessionIdRoute
+  '/result/$sessionId': typeof ResultSessionIdRoute
   '/features': typeof PublicFeaturesIndexRoute
 }
 export interface FileRoutesById {
@@ -83,27 +107,51 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteRouteWithChildren
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_public': typeof PublicRouteRouteWithChildren
+  '/parseCV': typeof ParseCVRoute
   '/test': typeof TestRoute
   '/_app/app': typeof AppAppRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
+  '/quiz/$sessionId': typeof QuizSessionIdRoute
+  '/result/$sessionId': typeof ResultSessionIdRoute
   '/_public/': typeof PublicIndexRoute
   '/_public/features/': typeof PublicFeaturesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/test' | '/app' | '/login' | '/register' | '/features/'
+  fullPaths:
+    | '/'
+    | '/parseCV'
+    | '/test'
+    | '/app'
+    | '/login'
+    | '/register'
+    | '/quiz/$sessionId'
+    | '/result/$sessionId'
+    | '/features/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/test' | '/app' | '/login' | '/register' | '/features'
+  to:
+    | '/'
+    | '/parseCV'
+    | '/test'
+    | '/app'
+    | '/login'
+    | '/register'
+    | '/quiz/$sessionId'
+    | '/result/$sessionId'
+    | '/features'
   id:
     | '__root__'
     | '/_app'
     | '/_auth'
     | '/_public'
+    | '/parseCV'
     | '/test'
     | '/_app/app'
     | '/_auth/login'
     | '/_auth/register'
+    | '/quiz/$sessionId'
+    | '/result/$sessionId'
     | '/_public/'
     | '/_public/features/'
   fileRoutesById: FileRoutesById
@@ -112,7 +160,10 @@ export interface RootRouteChildren {
   AppRouteRoute: typeof AppRouteRouteWithChildren
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   PublicRouteRoute: typeof PublicRouteRouteWithChildren
+  ParseCVRoute: typeof ParseCVRoute
   TestRoute: typeof TestRoute
+  QuizSessionIdRoute: typeof QuizSessionIdRoute
+  ResultSessionIdRoute: typeof ResultSessionIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -122,6 +173,13 @@ declare module '@tanstack/react-router' {
       path: '/test'
       fullPath: '/test'
       preLoaderRoute: typeof TestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parseCV': {
+      id: '/parseCV'
+      path: '/parseCV'
+      fullPath: '/parseCV'
+      preLoaderRoute: typeof ParseCVRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_public': {
@@ -151,6 +209,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof PublicIndexRouteImport
       parentRoute: typeof PublicRouteRoute
+    }
+    '/result/$sessionId': {
+      id: '/result/$sessionId'
+      path: '/result/$sessionId'
+      fullPath: '/result/$sessionId'
+      preLoaderRoute: typeof ResultSessionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quiz/$sessionId': {
+      id: '/quiz/$sessionId'
+      path: '/quiz/$sessionId'
+      fullPath: '/quiz/$sessionId'
+      preLoaderRoute: typeof QuizSessionIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_auth/register': {
       id: '/_auth/register'
@@ -227,7 +299,10 @@ const rootRouteChildren: RootRouteChildren = {
   AppRouteRoute: AppRouteRouteWithChildren,
   AuthRouteRoute: AuthRouteRouteWithChildren,
   PublicRouteRoute: PublicRouteRouteWithChildren,
+  ParseCVRoute: ParseCVRoute,
   TestRoute: TestRoute,
+  QuizSessionIdRoute: QuizSessionIdRoute,
+  ResultSessionIdRoute: ResultSessionIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

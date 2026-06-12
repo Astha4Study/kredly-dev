@@ -59,7 +59,7 @@ function getIconEl(idx: number, cell: number): HTMLDivElement {
     'will-change:left,top;',
     'backface-visibility:hidden;',
     '-webkit-backface-visibility:hidden;',
-    'padding:4px;'
+    'padding:4px;',
   ].join('');
   return clone;
 }
@@ -396,7 +396,6 @@ export function IntegrationGrid() {
             style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
           />
         </div>
-
       </div>
     </div>
   );
