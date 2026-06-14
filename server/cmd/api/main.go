@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"kredly/internal/config"
 	"kredly/internal/database" // Tambahan import database
@@ -58,7 +59,16 @@ func main() {
 	r.Use(corsMiddleware())
 
 	// 8. Define Routes
-	api := r.Group("/api")
+	// Detect jika deploy di Vercel, gunakan base path "/", jika tidak gunakan "/api"
+	basePath := "/api"
+	if os.Getenv("VERCEL") == "1" || os.Getenv("VERCEL_ENV") != "" {
+		basePath = "/"
+		log.Println("Running on Vercel, using base path: /")
+	} else {
+		log.Printf("Running locally, using base path: %s", basePath)
+	}
+
+	api := r.Group(basePath)
 	{
 		api.GET("/health", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
