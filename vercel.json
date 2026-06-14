@@ -3,9 +3,6 @@
   "experimentalServices": {
     "api": {
       "entrypoint": "server/cmd/api/main.go",
-      "routing": {
-        "paths": ["/api", "/api/*"]
-      },
       "routePrefix": "/api"
     },
     "web": {
