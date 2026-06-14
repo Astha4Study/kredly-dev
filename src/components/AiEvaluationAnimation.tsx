@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
 import { Check, Sparkles, ScanLine } from 'lucide-react';
@@ -121,7 +122,7 @@ function ScanOverlay({ active }: { active: boolean }) {
           transition={{ duration: 0.2 }}
         >
           {/* tinted overlay */}
-          <div className="absolute inset-0 bg-primary/[0.03]" />
+          <div className="absolute inset-0 bg-primary/3" />
           {/* moving scan line */}
           <motion.div
             className="absolute left-0 right-0 h-px bg-primary/40"
@@ -156,7 +157,7 @@ function HighlightedAnswer({ text, active }: { text: string; active: boolean }) 
             duration: 0.35,
             ease: 'easeOut',
           }}
-          className="rounded-[2px]"
+          className="rounded-xs"
         >
           {word}{' '}
         </motion.span>
@@ -328,8 +329,8 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
                   transition={{ duration: 0.28 }}
                   className="flex items-center gap-2.5"
                 >
-                  <span className="w-[72px] shrink-0 text-[10px] text-zinc-600">{c.label}</span>
-                  <div className="flex-1 h-[3px] bg-zinc-100 overflow-hidden">
+                  <span className="w-18 shrink-0 text-[10px] text-zinc-600">{c.label}</span>
+                  <div className="flex-1 h-0.75 bg-zinc-100 overflow-hidden">
                     <motion.div
                       className="h-full bg-primary"
                       initial={{ width: 0 }}
@@ -372,7 +373,7 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
           <motion.div
             animate={{ opacity: isFeedback ? 1 : 0 }}
             transition={{ duration: 0.25 }}
-            className="flex-1 border border-primary/15 bg-primary/[0.04] px-3 py-2"
+            className="flex-1 border border-primary/15 bg-primary/4 px-3 py-2"
           >
             <div className="flex items-center gap-1 mb-1.5">
               <Sparkles className="h-2.5 w-2.5 text-primary/70" />
@@ -386,7 +387,7 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
                 <motion.span
                   animate={{ opacity: [1, 0, 1] }}
                   transition={{ duration: 0.6, repeat: Infinity }}
-                  className="ml-px inline-block h-[10px] w-px bg-primary align-middle"
+                  className="ml-px inline-block h-2.5 w-px bg-primary align-middle"
                 />
               )}
             </p>
@@ -411,7 +412,7 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
                     : '#f4f4f5',
               }}
               transition={{ duration: 0.3 }}
-              className="h-[3px] w-4"
+              className="h-0.75 w-4"
             />
           ))}
         </div>

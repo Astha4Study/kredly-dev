@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { motion } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
 import { Check, X } from 'lucide-react';
@@ -105,8 +106,14 @@ const CARDS: Card[] = [
   },
 ];
 
-// Stack visual constants
-const CARD_HEIGHT = 360;
+const CARD_H = 340;
+const CARD_W = 896; // max-w-4xl = 56rem = 896px
+
+// How many cards visible in the stack behind the front
+const STACK_DEPTH = 2;
+// Per-layer visual offset
+const LAYER_Y = 10;    // px gap between each stacked card (peeking from bottom)
+const LAYER_SCALE = 0.034; // scale reduction per layer
 
 // ─── Pilgan ───────────────────────────────────────────────────────────────────
 
@@ -135,17 +142,17 @@ function PilganContent({ card, preview = false }: { card: PilganCard; preview?: 
 
   return (
     <div className="flex flex-col w-full h-full">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-[8px] font-semibold uppercase tracking-[0.16em] text-zinc-400">
+      <div className="flex items-center gap-2 mb-3.5">
+        <span className="text-[7.5px] font-semibold uppercase tracking-[0.16em] text-zinc-400">
           Pilihan Ganda
         </span>
         <div className="h-px flex-1 bg-zinc-100" />
-        <span className="text-[8px] font-medium tabular-nums text-zinc-300">
+        <span className="text-[7.5px] font-medium tabular-nums text-zinc-300">
           {card.soal}/{card.total}
         </span>
       </div>
 
-      <p className="text-[11px] font-medium leading-[1.6] text-zinc-700 mb-4">
+      <p className="text-[11px] font-medium leading-[1.6] text-zinc-700 mb-3.5 line-clamp-2">
         {card.question}
       </p>
 
@@ -169,7 +176,7 @@ function PilganContent({ card, preview = false }: { card: PilganCard; preview?: 
                 borderColor: { duration: 0.18 },
                 x: isWrong ? { duration: 0.26, times: [0, 0.3, 0.7, 1] } : { duration: 0.18 },
               }}
-              className="flex items-center gap-2.5 border px-3 py-2.5"
+              className="flex items-center gap-2.5 border px-3 py-2"
             >
               <motion.div
                 animate={{
@@ -216,7 +223,7 @@ function EssayContent({ card, preview = false }: { card: EssayCard; preview?: bo
 
   useEffect(() => {
     if (preview) {
-      setDisplayed(card.answer.slice(0, 52) + '…');
+      setDisplayed(card.answer.slice(0, 60) + '…');
       setDone(false);
       return;
     }
@@ -237,28 +244,28 @@ function EssayContent({ card, preview = false }: { card: EssayCard; preview?: bo
 
   return (
     <div className="flex flex-col w-full h-full">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-[8px] font-semibold uppercase tracking-[0.16em] text-zinc-400">
+      <div className="flex items-center gap-2 mb-3.5">
+        <span className="text-[7.5px] font-semibold uppercase tracking-[0.16em] text-zinc-400">
           Esai
         </span>
         <div className="h-px flex-1 bg-zinc-100" />
-        <span className="text-[8px] font-medium tabular-nums text-zinc-300">
+        <span className="text-[7.5px] font-medium tabular-nums text-zinc-300">
           {card.soal}/{card.total}
         </span>
       </div>
 
-      <p className="text-[11px] font-medium leading-[1.6] text-zinc-700 mb-4">
+      <p className="text-[11px] font-medium leading-[1.6] text-zinc-700 mb-3.5 line-clamp-2">
         {card.question}
       </p>
 
       <div className="flex-1 overflow-hidden border border-zinc-200 bg-zinc-50 px-3 py-2.5">
-        <p className="text-[10px] leading-[1.72] text-zinc-600">
+        <p className="text-[10px] leading-[1.75] text-zinc-600">
           {displayed}
           {!done && !preview && (
             <motion.span
               animate={{ opacity: [1, 0, 1] }}
               transition={{ duration: 0.6, repeat: Infinity }}
-              className="ml-px inline-block h-[10px] w-px translate-y-px bg-zinc-500"
+              className="ml-px inline-block h-2.75 w-px translate-y-px bg-zinc-500"
             />
           )}
           {done && (
@@ -266,7 +273,7 @@ function EssayContent({ card, preview = false }: { card: EssayCard; preview?: bo
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.25 }}
-              className="ml-1 inline-flex items-center gap-0.5 text-[8px] uppercase tracking-widest text-zinc-400"
+              className="ml-1 inline-flex items-center gap-0.5 text-[7.5px] uppercase tracking-widest text-zinc-400"
             >
               <Check className="h-2.5 w-2.5" strokeWidth={2.5} />
               selesai
@@ -289,33 +296,25 @@ function Footer({ soal, total }: { soal: number; total: number }) {
         {Array.from({ length: total }).map((_, i) => (
           <div
             key={i}
-            className="h-[2.5px] w-4 transition-colors duration-300"
+            className="h-0.5 w-3.5 transition-colors duration-300"
             style={{ backgroundColor: i < soal ? '#18181b' : '#e4e4e7' }}
           />
         ))}
       </div>
-      <span className="text-[8px] tabular-nums font-medium text-zinc-400">
+      <span className="text-[7.5px] tabular-nums font-medium text-zinc-400">
         {soal} / {total}
       </span>
     </div>
   );
 }
 
-// ─── Card shell ───────────────────────────────────────────────────────────────
+// ─── Card face ────────────────────────────────────────────────────────────────
 
-function CardShell({
-  card,
-  preview = false,
-  dimmed = false,
-}: {
-  card: Card;
-  preview?: boolean;
-  dimmed?: boolean;
-}) {
+function CardFace({ card, preview = false }: { card: Card; preview?: boolean }) {
   return (
     <div
-      className="bg-white border border-zinc-200 px-4 py-4 w-full overflow-hidden transition-opacity"
-      style={{ height: CARD_HEIGHT, opacity: dimmed ? 0.4 : 1 }}
+      className="bg-white border border-zinc-200 px-4 py-4 w-full overflow-hidden"
+      style={{ height: CARD_H, width: CARD_W }}
     >
       {card.type === 'pilgan' ? (
         <PilganContent card={card} preview={preview} />
@@ -329,75 +328,100 @@ function CardShell({
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export function AssessmentInteractiveAnimation() {
-  const [index, setIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [frontIndex, setFrontIndex] = useState(0);
+  const [exiting, setExiting] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     function schedule() {
       timerRef.current = setTimeout(() => {
-        setIsTransitioning(true);
+        setExiting(true);
         timerRef.current = setTimeout(() => {
-          setIndex((p) => (p + 1) % CARDS.length);
-          setIsTransitioning(false);
+          setFrontIndex((p) => (p + 1) % CARDS.length);
+          setExiting(false);
           schedule();
-        }, 600);
+        }, 700);
       }, 5000);
     }
     schedule();
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, []);
 
-  const currentCard = CARDS[index];
-  const nextCard = CARDS[(index + 1) % CARDS.length];
-  const afterNextCard = CARDS[(index + 2) % CARDS.length];
+  const SLOTS = STACK_DEPTH + 2; // render 1 extra for the entering card from back
+
+  function slotProps(slot: number) {
+    if (!exiting) {
+      // idle state
+      if (slot >= STACK_DEPTH + 1) {
+        // hidden slot - card waiting to enter from back
+        const y = (STACK_DEPTH + 1) * LAYER_Y;
+        const scale = 1 - (STACK_DEPTH + 1) * LAYER_SCALE;
+        const opacity = 0;
+        const zIndex = 0;
+        return { y, scale, opacity, zIndex };
+      }
+      const y = slot * LAYER_Y;
+      const scale = 1 - slot * LAYER_SCALE;
+      const opacity = slot === 0 ? 1 : slot === 1 ? 0.85 : 0.6;
+      const zIndex = (STACK_DEPTH + 1 - slot) * 10;
+      return { y, scale, opacity, zIndex };
+    } else {
+      // exiting state
+      if (slot === 0) {
+        // front card slides down and out
+        const y = CARD_H + 80;
+        const scale = 0.88;
+        const opacity = 0;
+        const zIndex = 40; // stay on top while exiting
+        return { y, scale, opacity, zIndex };
+      } else {
+        // all other cards advance by one position
+        const targetSlot = slot - 1;
+        const y = targetSlot * LAYER_Y;
+        const scale = 1 - targetSlot * LAYER_SCALE;
+        const opacity = targetSlot === 0 ? 1 : targetSlot === 1 ? 0.85 : targetSlot === 2 ? 0.6 : 0.4;
+        const zIndex = (STACK_DEPTH + 1 - targetSlot) * 10;
+        return { y, scale, opacity, zIndex };
+      }
+    }
+  }
+
+  const ease = [0.25, 0.46, 0.45, 0.94] as const;
+  const exitEase = [0.4, 0.0, 0.2, 1.0] as const;
+  const DUR = 0.7;
 
   return (
-    <div className="relative flex justify-center w-full px-4">
-      <div className="relative top-8 max-w-4xl w-full" style={{ height: CARD_HEIGHT + 40 }}>
-        {/* Stack card 2 - furthest back */}
-        <motion.div
-          className="absolute inset-x-0 pointer-events-none"
-          animate={{
-            y: isTransitioning ? -8 : -16,
-            scale: isTransitioning ? 0.97 : 0.94,
-          }}
-          transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-          style={{ zIndex: 1, top: CARD_HEIGHT }}
-        >
-          <CardShell card={afterNextCard} preview dimmed />
-        </motion.div>
+    <div className="flex justify-center w-full px-4">
+      <div
+        className="relative top-12 overflow-visible max-w-4xl w-full"
+        style={{
+          height: CARD_H + STACK_DEPTH * LAYER_Y + 8,
+        }}
+      >
+        {Array.from({ length: SLOTS }).map((_, slot) => {
+          const cardIndex = (frontIndex + slot) % CARDS.length;
+          const card = CARDS[cardIndex];
+          const { y, scale, opacity, zIndex } = slotProps(slot);
 
-        {/* Stack card 1 - middle */}
-        <motion.div
-          className="absolute inset-x-0 shadow-sm"
-          animate={{
-            y: isTransitioning ? -16 : -8,
-            scale: isTransitioning ? 1 : 0.97,
-            zIndex: isTransitioning ? 3 : 2,
-          }}
-          transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-          style={{ top: CARD_HEIGHT }}
-        >
-          <CardShell card={nextCard} preview={!isTransitioning} />
-        </motion.div>
-
-        {/* Main card - front, slides down */}
-        <motion.div
-          key={index}
-          className="absolute inset-x-0 top-0 overflow-hidden shadow-sm"
-          animate={{
-            y: isTransitioning ? CARD_HEIGHT + 60 : 0,
-            opacity: isTransitioning ? 0 : 1,
-            scale: isTransitioning ? 0.95 : 1,
-          }}
-          transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-          style={{ zIndex: 3 }}
-        >
-          <CardShell card={currentCard} />
-        </motion.div>
+          return (
+            <motion.div
+              key={`${frontIndex}-${slot}`}
+              className="absolute top-0 left-0 right-0 origin-top"
+              style={{ zIndex }}
+              animate={{ y, scale, opacity }}
+              transition={{
+                duration: DUR,
+                ease: slot === 0 && exiting ? exitEase : ease,
+              }}
+            >
+              <div
+                className="shadow-sm"
+              >
+                <CardFace card={card} preview={slot !== 0 && !exiting} />
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );

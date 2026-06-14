@@ -6,7 +6,7 @@ import { ArrowRight } from 'lucide-react';
 
 export default function HeroSection() {
   return (
-    <section className="relative flex items-center px-4 sm:px-6">
+    <section className="relative flex items-center -mt-4 px-4 sm:px-6 md:mt-0">
       <GridBorder className="w-full mx-auto max-w-7xl">
         <div className="relative w-full p-1 sm:p-2">
           <div className="border border-zinc-200 bg-white">
@@ -22,27 +22,28 @@ export default function HeroSection() {
                 }}
               />
               {/* LEFT */}
-              <div className="max-w-xl z-10">
-                <div className="space-y-6">
+              <div className="z-10 max-w-xl">
+                <div className="space-y-6 text-center py-4 md:py-0 md:text-left">
                   <div className="inline-flex items-center border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
                     AI-Powered Skill Verification Platform
                   </div>
 
-                  <h1 className="text-2xl sm:text-3xl font-bold leading-tight sm:leading-13 tracking-tight text-foreground md:text-4xl lg:text-5xl">
+                  <h1 className="text-3xl font-bold md:leading-13 tracking-tight text-foreground sm:text-3xl md:text-4xl lg:text-5xl">
                     Buktikan kemampuanmu dengan{' '}
                     <span className="text-primary">
                       reputasi digital terverifikasi
                     </span>
                   </h1>
 
-                  <p className="max-w-lg text-sm sm:text-base leading-relaxed text-muted-foreground">
+                  <p className="mx-auto max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base md:mx-0">
                     CV menunjukkan pengalaman. Kredly membuktikan kemampuan
                     melalui assessment berbasis AI dan live sandbox yang
                     menghasilkan kredensial digital yang dapat dipercaya.
                   </p>
 
-                  <div className="flex flex-col sm:flex-row items-center gap-6">
-                    <Button size="lg" className="text-white px-8">
+                  {/* CTA */}
+                  <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center md:justify-start">
+                    <Button size="lg" className="px-8 text-white">
                       <Link
                         to="/login"
                         className="flex items-center justify-center gap-2"
@@ -53,34 +54,35 @@ export default function HeroSection() {
 
                     <Link
                       to="/about"
-                      className="group inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                      className="group inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                     >
                       Lihat Cara Kerja
                       <ArrowRight
                         size={14}
-                        className="transition-all duration-300 group-hover:translate-x-1"
+                        className="transition-transform duration-300 group-hover:translate-x-1"
                       />
                     </Link>
                   </div>
 
-                  <div className="flex flex-wrap gap-6 sm:gap-8 pt-2">
+                  {/* Stats */}
+                  <div className="flex flex-wrap justify-center gap-6 pt-2 sm:gap-8 md:justify-start">
                     <div>
-                      <p className="text-xl sm:text-2xl font-bold">10K+</p>
-                      <p className="text-xs sm:text-sm text-muted-foreground">
+                      <p className="text-xl font-bold sm:text-2xl">10K+</p>
+                      <p className="text-xs text-muted-foreground sm:text-sm">
                         Assessment
                       </p>
                     </div>
 
                     <div>
-                      <p className="text-xl sm:text-2xl font-bold">500+</p>
-                      <p className="text-xs sm:text-sm text-muted-foreground">
+                      <p className="text-xl font-bold sm:text-2xl">500+</p>
+                      <p className="text-xs text-muted-foreground sm:text-sm">
                         Kredensial
                       </p>
                     </div>
 
                     <div>
-                      <p className="text-xl sm:text-2xl font-bold">99.9%</p>
-                      <p className="text-xs sm:text-sm text-muted-foreground">
+                      <p className="text-xl font-bold sm:text-2xl">99.9%</p>
+                      <p className="text-xs text-muted-foreground sm:text-sm">
                         Terverifikasi
                       </p>
                     </div>
@@ -89,7 +91,9 @@ export default function HeroSection() {
               </div>
 
               {/* RIGHT - Animated Card Component */}
-              <HeroCard />
+              <div className='hidden md:block'>
+                <HeroCard />
+              </div>
             </div>
           </div>
         </div>

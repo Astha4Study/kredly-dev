@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
 
@@ -403,8 +404,8 @@ export default function HeroCard() {
   };
 
   return (
-    <div className="relative flex min-h-105 items-center justify-center">
-      <div className="absolute -right-19 top-1/2 w-[120%] -translate-y-1/2 overflow-hidden border border-foreground/10 bg-background">
+    <div className="relative flex min-h-105 h-full items-center justify-center">
+      <div className="absolute -right-20 top-1/2 w-[120%] -translate-y-1/2 overflow-hidden border border-foreground/10 bg-background">
         <AnimatePresence mode="wait">
           <motion.div
             key={current.id}
