@@ -1,14 +1,27 @@
 {
-  "extends": "./tsconfig.base.json",
   "compilerOptions": {
+    "lib": ["DOM", "ES2020"],
     "jsx": "react-jsx",
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
-    "paths": {
-      "@/*": ["./src/*"]
-    },
+    "target": "ES2020",
     "noEmit": true,
-    "allowImportingTsExtensions": true
+    "skipLibCheck": true,
+    "useDefineForClassFields": true,
+
+    /* modules */
+    "moduleDetection": "force",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+
+    /* type checking */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    /* shadcn */
+    "paths": {
+      "@/*": ["./src/*"],
+    },
   },
-  "include": ["src/**/*", "src/**/*.tsx", "src/**/*.ts"],
-  "exclude": ["node_modules", "server", "dist"]
+  "include": ["src"],
 }
