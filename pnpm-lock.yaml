@@ -13,7 +13,7 @@ importers:
     dependencies:
       '@rsbuild/plugin-babel':
         specifier: ^1.2.1
-        version: 1.2.1(@rsbuild/core@2.0.12)
+        version: 1.2.1(@rsbuild/core@2.0.14)
       '@tanstack/react-router':
         specifier: ^1.170.15
         version: 1.170.15(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -62,19 +62,19 @@ importers:
         version: 10.0.1(eslint@10.5.0(jiti@2.7.0))
       '@rsbuild/core':
         specifier: ^2.0.11
-        version: 2.0.12
+        version: 2.0.14
       '@rsbuild/plugin-react':
         specifier: ^2.0.1
-        version: 2.0.1(@rsbuild/core@2.0.12)(@rspack/core@2.0.8(@swc/helpers@0.5.23))
+        version: 2.0.1(@rsbuild/core@2.0.14)(@rspack/core@2.0.8(@swc/helpers@0.5.23))
       '@rsbuild/plugin-svgr':
         specifier: ^2.0.3
-        version: 2.0.3(@rsbuild/core@2.0.12)(@rspack/core@2.0.8(@swc/helpers@0.5.23))(typescript@6.0.3)
+        version: 2.0.3(@rsbuild/core@2.0.14)(@rspack/core@2.0.8(@swc/helpers@0.5.23))(typescript@6.0.3)
       '@tailwindcss/postcss':
         specifier: ^4.3.0
         version: 4.3.1
       '@tanstack/router-plugin':
         specifier: ^1.168.18
-        version: 1.168.18(@rsbuild/core@2.0.12)(@tanstack/react-router@1.170.15(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
+        version: 1.168.18(@rsbuild/core@2.0.14)(@tanstack/react-router@1.170.15(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
       '@types/react':
         specifier: ^19.2.17
         version: 19.2.17
@@ -1107,8 +1107,8 @@ packages:
   '@radix-ui/rect@1.1.2':
     resolution: {integrity: sha512-xnXE7wG13PI+cxieVssYXlQJuYVRhH9NBoxt3KNwzghDIA69GMm7d4wXRouHIYjE+KvS6U/MsMO73NdS2MH9ZA==}
 
-  '@rsbuild/core@2.0.12':
-    resolution: {integrity: sha512-6f0M9TO4pAeM/VAshg9PajYK4IbfUB21Xun2kT0q3/SbBQ607KzkQZ6fmReuKUKCLbo26tGnbgg5P77eDDcfaA==}
+  '@rsbuild/core@2.0.14':
+    resolution: {integrity: sha512-SSPer6vM+v82CV6JXIOzyyT++A1ECgsVvvUuveD5rfGxX/W58vWGnB+zWcYbMfYOjTntD+9ve6QGGh6kBjPx6A==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -4294,14 +4294,14 @@ snapshots:
 
   '@radix-ui/rect@1.1.2': {}
 
-  '@rsbuild/core@2.0.12':
+  '@rsbuild/core@2.0.14':
     dependencies:
       '@rspack/core': 2.0.8(@swc/helpers@0.5.23)
       '@swc/helpers': 0.5.23
     transitivePeerDependencies:
       - '@module-federation/runtime-tools'
 
-  '@rsbuild/plugin-babel@1.2.1(@rsbuild/core@2.0.12)':
+  '@rsbuild/plugin-babel@1.2.1(@rsbuild/core@2.0.14)':
     dependencies:
       '@babel/core': 7.29.7
       '@babel/plugin-proposal-decorators': 7.29.7(@babel/core@7.29.7)
@@ -4310,29 +4310,29 @@ snapshots:
       '@types/babel__core': 7.20.5
       reduce-configs: 1.1.2
     optionalDependencies:
-      '@rsbuild/core': 2.0.12
+      '@rsbuild/core': 2.0.14
     transitivePeerDependencies:
       - supports-color
 
-  '@rsbuild/plugin-react@2.0.1(@rsbuild/core@2.0.12)(@rspack/core@2.0.8(@swc/helpers@0.5.23))':
+  '@rsbuild/plugin-react@2.0.1(@rsbuild/core@2.0.14)(@rspack/core@2.0.8(@swc/helpers@0.5.23))':
     dependencies:
       '@rspack/plugin-react-refresh': 2.0.0(@rspack/core@2.0.8(@swc/helpers@0.5.23))(react-refresh@0.18.0)
       react-refresh: 0.18.0
     optionalDependencies:
-      '@rsbuild/core': 2.0.12
+      '@rsbuild/core': 2.0.14
     transitivePeerDependencies:
       - '@rspack/core'
 
-  '@rsbuild/plugin-svgr@2.0.3(@rsbuild/core@2.0.12)(@rspack/core@2.0.8(@swc/helpers@0.5.23))(typescript@6.0.3)':
+  '@rsbuild/plugin-svgr@2.0.3(@rsbuild/core@2.0.14)(@rspack/core@2.0.8(@swc/helpers@0.5.23))(typescript@6.0.3)':
     dependencies:
-      '@rsbuild/plugin-react': 2.0.1(@rsbuild/core@2.0.12)(@rspack/core@2.0.8(@swc/helpers@0.5.23))
+      '@rsbuild/plugin-react': 2.0.1(@rsbuild/core@2.0.14)(@rspack/core@2.0.8(@swc/helpers@0.5.23))
       '@svgr/core': 8.1.0(typescript@6.0.3)
       '@svgr/plugin-jsx': 8.1.0(@svgr/core@8.1.0(typescript@6.0.3))
       '@svgr/plugin-svgo': 8.1.0(@svgr/core@8.1.0(typescript@6.0.3))(typescript@6.0.3)
       deepmerge: 4.3.1
       loader-utils: 3.3.1
     optionalDependencies:
-      '@rsbuild/core': 2.0.12
+      '@rsbuild/core': 2.0.14
     transitivePeerDependencies:
       - '@rspack/core'
       - supports-color
@@ -4591,7 +4591,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@tanstack/router-plugin@1.168.18(@rsbuild/core@2.0.12)(@tanstack/react-router@1.170.15(react-dom@19.2.7(react@19.2.7))(react@19.2.7))':
+  '@tanstack/router-plugin@1.168.18(@rsbuild/core@2.0.14)(@tanstack/react-router@1.170.15(react-dom@19.2.7(react@19.2.7))(react@19.2.7))':
     dependencies:
       '@babel/core': 7.29.7
       '@babel/template': 7.29.7
@@ -4603,7 +4603,7 @@ snapshots:
       unplugin: 3.0.0
       zod: 4.4.3
     optionalDependencies:
-      '@rsbuild/core': 2.0.12
+      '@rsbuild/core': 2.0.14
       '@tanstack/react-router': 1.170.15(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     transitivePeerDependencies:
       - supports-color
