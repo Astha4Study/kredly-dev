@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from '@tanstack/react-router';
 import googleIcons from '@/assets/svg/google.svg';
-import { authClient } from '@/lib/auth-client';
+import { useAuth } from '@/contexts';
 
 export const Route = createFileRoute('/_auth/register')({
   component: RouteComponent,
@@ -13,6 +13,7 @@ export const Route = createFileRoute('/_auth/register')({
 
 function RouteComponent() {
   const navigate = useNavigate();
+  const { signInWithGoogle, signInWithEmailOTP } = useAuth();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -26,42 +27,28 @@ function RouteComponent() {
     setErrorMessage('');
 
     try {
-      const authServerUrl = import.meta.env.VITE_AUTH_SERVER_URL || 'http://localhost:3001';
-      const response = await fetch(`${authServerUrl}/api/auth/otp/send`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          type: 'sign-up',
-        }),
-      });
+      const result = await signInWithEmailOTP(email, 'sign-up');
 
-      if (!response.ok) {
-        throw new Error();
+      if (result.success) {
+        navigate({
+          to: '/verification',
+          search: {
+            email,
+            type: 'sign-up',
+          },
+        });
+      } else {
+        setErrorMessage(result.message);
       }
-
-      navigate({
-        to: '/verification',
-        search: {
-          email,
-          type: 'sign-up',
-        },
-      });
-    } catch {
+    } catch (error) {
       setErrorMessage('Gagal mengirim kode OTP. Silakan coba lagi.');
     } finally {
       setLoading(false);
     }
   }
 
-  async function signUpWithGoogle() {
-    await authClient.signIn.social({
-      provider: 'google',
-      callbackURL: '/app',
-    });
-  }
+  // Google sign up sama dengan sign in, backend akan handle otomatis
+  const signUpWithGoogle = signInWithGoogle;
 
   return (
     <main className="grid min-h-screen lg:grid-cols-2 md:p-4">
