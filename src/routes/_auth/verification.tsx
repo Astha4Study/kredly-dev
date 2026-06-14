@@ -10,7 +10,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from '@/components/ui/input-otp';
-import { authClient } from '@/lib/auth-client';
+import { useAuth } from '@/contexts';
 
 export const Route = createFileRoute('/_auth/verification')({
   component: RouteComponent,
@@ -22,6 +22,7 @@ export const Route = createFileRoute('/_auth/verification')({
 
 function RouteComponent() {
   const navigate = useNavigate();
+  const { verifyEmailOTP, signInWithEmailOTP } = useAuth();
   const { email, type } = useSearch({
     from: '/_auth/verification',
   });
@@ -36,33 +37,18 @@ function RouteComponent() {
     setErrorMessage('');
 
     try {
-      const authServerUrl = import.meta.env.PUBLIC_AUTH_SERVER_URL || 'http://localhost:3001';
-      const response = await fetch(`${authServerUrl}/api/auth/otp/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          email,
-          otp,
-          type,
-        }),
-      });
+      const result = await verifyEmailOTP(
+        email,
+        otp,
+        type as 'sign-in' | 'sign-up',
+      );
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message);
+      if (result.success) {
+        // Redirect ke dashboard setelah berhasil verifikasi
+        navigate({ to: '/dashboard' });
+      } else {
+        setErrorMessage(result.message);
       }
-
-      // Ambil redirect URL dari sessionStorage atau default ke /app
-      const redirectTo = sessionStorage.getItem('redirectAfterLogin') || '/app';
-      sessionStorage.removeItem('redirectAfterLogin');
-
-      navigate({
-        to: redirectTo as any,
-      });
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : 'Kode OTP tidak valid',
@@ -77,24 +63,17 @@ function RouteComponent() {
     setErrorMessage('');
 
     try {
-      const authServerUrl = import.meta.env.PUBLIC_AUTH_SERVER_URL || 'http://localhost:3001';
-      const response = await fetch(`${authServerUrl}/api/auth/otp/send`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          type,
-        }),
-      });
+      const result = await signInWithEmailOTP(
+        email,
+        type as 'sign-in' | 'sign-up',
+      );
 
-      if (!response.ok) {
-        throw new Error();
+      if (result.success) {
+        setErrorMessage('Kode OTP baru telah dikirim ke email Anda.');
+      } else {
+        setErrorMessage(result.message);
       }
-
-      setErrorMessage('Kode OTP baru telah dikirim ke email Anda.');
-    } catch {
+    } catch (error) {
       setErrorMessage('Gagal mengirim kode OTP.');
     } finally {
       setLoading(false);
