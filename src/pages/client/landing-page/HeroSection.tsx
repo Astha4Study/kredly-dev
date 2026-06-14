@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/button';
-import GoogleIcon from '@/assets/svg/google.svg';
 import GridBorder from '@/components/GridBorder';
 import HeroCard from '../../../components/HeroCard';
 import { Link } from '@tanstack/react-router';
+import { ArrowRight } from 'lucide-react';
 
 export default function HeroSection() {
   return (
@@ -24,41 +24,46 @@ export default function HeroSection() {
               {/* LEFT */}
               <div className="max-w-xl z-10">
                 <div className="space-y-6">
+                  <div className="inline-flex items-center border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
+                    AI-Powered Skill Verification Platform
+                  </div>
+
                   <h1 className="text-2xl sm:text-3xl font-bold leading-tight sm:leading-13 tracking-tight text-foreground md:text-4xl lg:text-5xl">
-                    Ubah CV menjadi{' '}
-                    <span className="text-primary">reputasi digital </span> yang
-                    terpercaya.
+                    Buktikan kemampuanmu dengan{' '}
+                    <span className="text-primary">
+                      reputasi digital terverifikasi
+                    </span>
                   </h1>
 
                   <p className="max-w-lg text-sm sm:text-base leading-relaxed text-muted-foreground">
-                    CV menunjukkan pengalaman. Kredly menguji kemampuanmu
-                    melalui live sandbox berbasis AI dan mengubah hasilnya
-                    menjadi reputasi digital terverifikasi.
+                    CV menunjukkan pengalaman. Kredly membuktikan kemampuan
+                    melalui assessment berbasis AI dan live sandbox yang
+                    menghasilkan kredensial digital yang dapat dipercaya.
                   </p>
 
-                  <div className="max-w-lg space-y-3">
-                    <Button size="lg" className="w-full text-white">
-                      Mulai Sekarang
-                    </Button>
-
-                    <Button variant="outline" size="lg" className="w-full mb-2">
-                      <img src={GoogleIcon} alt="Google" className="size-4" />
-                      Lanjutkan dengan Google
-                    </Button>
-
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <Link to="/parseCV" className="flex-1">
-                        <Button
-                          variant="secondary"
-                          size="lg"
-                          className="w-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-sm"
-                        >
-                          AI CV Parser
-                        </Button>
+                  <div className="flex flex-col sm:flex-row items-center gap-6">
+                    <Button size="lg" className="text-white px-8">
+                      <Link
+                        to="/login"
+                        className="flex items-center justify-center gap-2"
+                      >
+                        Mulai Validasi Skill
                       </Link>
-                    </div>
+                    </Button>
+
+                    <Link
+                      to="/about"
+                      className="group inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Lihat Cara Kerja
+                      <ArrowRight
+                        size={14}
+                        className="transition-all duration-300 group-hover:translate-x-1"
+                      />
+                    </Link>
                   </div>
-                  <div className="flex flex-wrap gap-6 sm:gap-8">
+
+                  <div className="flex flex-wrap gap-6 sm:gap-8 pt-2">
                     <div>
                       <p className="text-xl sm:text-2xl font-bold">10K+</p>
                       <p className="text-xs sm:text-sm text-muted-foreground">
