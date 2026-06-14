@@ -36,7 +36,7 @@ function RouteComponent() {
     setErrorMessage('');
 
     try {
-      const authServerUrl = import.meta.env.VITE_AUTH_SERVER_URL || 'http://localhost:3001';
+      const authServerUrl = import.meta.env.PUBLIC_AUTH_SERVER_URL || 'http://localhost:3001';
       const response = await fetch(`${authServerUrl}/api/auth/otp/verify`, {
         method: 'POST',
         headers: {
@@ -77,7 +77,7 @@ function RouteComponent() {
     setErrorMessage('');
 
     try {
-      const authServerUrl = import.meta.env.VITE_AUTH_SERVER_URL || 'http://localhost:3001';
+      const authServerUrl = import.meta.env.PUBLIC_AUTH_SERVER_URL || 'http://localhost:3001';
       const response = await fetch(`${authServerUrl}/api/auth/otp/send`, {
         method: 'POST',
         headers: {

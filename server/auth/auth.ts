@@ -11,7 +11,7 @@ export const auth = betterAuth({
   baseURL: `${process.env.AUTH_SERVER_URL || 'http://localhost:3001'}/api/auth`,
 
   // Allowed origins for CORS
-  trustedOrigins: [process.env.VITE_CLIENT_URL || 'http://localhost:3000'],
+  trustedOrigins: [process.env.PUBLIC_CLIENT_URL || 'http://localhost:3000'],
 
   socialProviders: {
     google: {

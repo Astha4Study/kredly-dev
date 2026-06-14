@@ -26,7 +26,7 @@ function RouteComponent() {
     setErrorMessage('');
 
     try {
-      const authServerUrl = import.meta.env.VITE_AUTH_SERVER_URL || 'http://localhost:3001';
+      const authServerUrl = import.meta.env.PUBLIC_AUTH_SERVER_URL || 'http://localhost:3001';
       const response = await fetch(`${authServerUrl}/api/auth/otp/send`, {
         method: 'POST',
         headers: {
@@ -57,9 +57,12 @@ function RouteComponent() {
   }
 
   async function signUpWithGoogle() {
+    // Redirect to client app after OAuth completes
+    const clientUrl = import.meta.env.PUBLIC_CLIENT_URL || 'http://localhost:3000';
+
     await authClient.signIn.social({
       provider: 'google',
-      callbackURL: '/app',
+      callbackURL: `${clientUrl}/app`,
     });
   }
 
