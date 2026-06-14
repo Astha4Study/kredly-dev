@@ -1,31 +1,27 @@
 {
   "compilerOptions": {
-    "module": "ESNext",
-    "target": "ES2023",
-    "types": ["node"],
-    "sourceMap": true,
-    "declaration": false,
-    "declarationMap": false,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-    "moduleResolution": "bundler",
-    "strict": true,
-    "esModuleInterop": true,
-    "ignoreDeprecations": "6.0",
+    "lib": ["DOM", "ES2020"],
     "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
-    "moduleDetection": "force",
+    "target": "ES2020",
+    "noEmit": true,
     "skipLibCheck": true,
+    "useDefineForClassFields": true,
+
+    /* modules */
+    "moduleDetection": "force",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+
+    /* type checking */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    /* shadcn */
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": ["./src/*"],
+    },
   },
-  "include": [
-    "src",
-    "server",
-    "prisma/**/*.ts",
-    "*.ts"
-  ]
+  "include": ["src"],
 }
