@@ -1,32 +1,54 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from '@tanstack/react-router';
 import googleIcons from '@/assets/svg/google.svg';
+import { useAuth } from '@/contexts';
 
 export const Route = createFileRoute('/_auth/register')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const navigate = useNavigate();
+  const { signInWithGoogle, signInWithEmailOTP } = useAuth();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   async function handleRegister(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
     if (!email) return;
+
     setLoading(true);
     setErrorMessage('');
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setLoading(false);
+
+    try {
+      const result = await signInWithEmailOTP(email, 'sign-up');
+
+      if (result.success) {
+        navigate({
+          to: '/verification',
+          search: {
+            email,
+            type: 'sign-up',
+          },
+        });
+      } else {
+        setErrorMessage(result.message);
+      }
+    } catch (error) {
+      setErrorMessage('Gagal mengirim kode OTP. Silakan coba lagi.');
+    } finally {
+      setLoading(false);
+    }
   }
 
-  async function signUpWithGoogle() {
-    console.log('Google Sign Up');
-  }
+  // Google sign up sama dengan sign in, backend akan handle otomatis
+  const signUpWithGoogle = signInWithGoogle;
 
   return (
     <main className="grid min-h-screen lg:grid-cols-2 md:p-4">

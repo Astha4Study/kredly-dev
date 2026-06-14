@@ -1,31 +1,50 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from '@tanstack/react-router';
 import googleIcons from '@/assets/svg/google.svg';
+import { useAuth } from '@/contexts';
 
 export const Route = createFileRoute('/_auth/login')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const navigate = useNavigate();
+  const { signInWithGoogle, signInWithEmailOTP } = useAuth();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
     if (!email) return;
+
     setLoading(true);
     setErrorMessage('');
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setLoading(false);
-  }
 
-  async function signInWithGoogle() {
-    console.log('Google Login');
+    try {
+      const result = await signInWithEmailOTP(email, 'sign-in');
+
+      if (result.success) {
+        navigate({
+          to: '/verification',
+          search: {
+            email,
+            type: 'sign-in',
+          },
+        });
+      } else {
+        setErrorMessage(result.message);
+      }
+    } catch (error) {
+      setErrorMessage('Gagal mengirim kode OTP. Silakan coba lagi.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
