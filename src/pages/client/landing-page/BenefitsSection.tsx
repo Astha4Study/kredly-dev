@@ -8,6 +8,7 @@ import { AiEvaluationAnimation } from '@/components/AiEvaluationAnimation';
 import { AssessmentInteractiveAnimation } from '@/components/AssessmentInteractiveAnimation';
 import { AccelerationCareerAnimation } from '@/components/AccelerationCareerAnimation';
 import { AnimatePresence, motion } from 'motion/react';
+import { TrendingUp } from 'lucide-react';
 
 const benefits = [
   {
@@ -60,15 +61,18 @@ export default function BenefitsSection() {
   return (
     <section className="px-4 sm:px-6">
       <GridBorder className="mx-auto w-full max-w-7xl" paddingY="py-6 sm:py-8">
-        <div className="mx-auto flex w-full flex-col items-center text-center">
-          <Badge>Manfaat Menggunakan Kredly</Badge>
+        <div className="mx-auto flex max-w-6xl flex-col items-center text-center">
+          <Badge variant="default" className="shadow-sm">
+            <TrendingUp />
+            Manfaat Menggunakan Kredly
+          </Badge>
 
-          <div className="mt-4 max-w-3xl">
-            <h2 className="text-3xl font-bold tracking-tight lg:text-5xl">
+          <div className="mt-4 max-w-3xl space-y-4 md:space-y-8">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
               Validasi kemampuan secara objektif dan nyata
             </h2>
 
-            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+            <p className="mx-auto max-w-2xl text-muted-foreground">
               Dapatkan credential terverifikasi berdasarkan kemampuan yang
               benar-benar diuji.
             </p>
@@ -140,7 +144,7 @@ export default function BenefitsSection() {
                   key={benefit.title}
                   onClick={() => setActive(index)}
                   className={cn(
-                    'relative p-6 text-left transition-all duration-500',
+                    'relative p-3 md:p-6 text-left transition-all duration-500',
                     'border-b md:border-b-0',
                     index !== benefits.length - 1 && 'md:border-r',
                     active === index
@@ -194,7 +198,7 @@ export default function BenefitsSection() {
                       opacity: active === index ? 1 : 0.7,
                     }}
                     transition={{ duration: 0.3 }}
-                    className="mt-1 text-sm text-muted-foreground"
+                    className="mt-1 text-xs md:text-sm text-muted-foreground"
                   >
                     {benefit.description}
                   </motion.p>

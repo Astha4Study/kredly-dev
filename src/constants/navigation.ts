@@ -1,14 +1,14 @@
 export const navLinks = [
   {
-    label: 'Features',
+    label: 'Fitur',
     href: '/features',
   },
   {
-    label: 'Pricing',
-    href: '#',
+    label: 'Harga',
+    href: '/pricing',
   },
   {
-    label: 'About',
-    href: '#',
+    label: 'Tentang Kami',
+    href: '/about-us',
   },
 ];

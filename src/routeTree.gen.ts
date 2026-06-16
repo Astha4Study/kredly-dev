@@ -24,6 +24,7 @@ import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppAppRouteRouteImport } from './routes/_app/app/route'
 import { Route as PublicFeaturesIndexRouteImport } from './routes/_public/features/index'
+import { Route as PublicAboutUsIndexRouteImport } from './routes/_public/about-us/index'
 import { Route as AppAppIndexRouteImport } from './routes/_app/app/index'
 import { Route as AppAppParseCvIndexRouteImport } from './routes/_app/app/parse-cv/index'
 
@@ -99,6 +100,11 @@ const PublicFeaturesIndexRoute = PublicFeaturesIndexRouteImport.update({
   path: '/features/',
   getParentRoute: () => PublicRouteRoute,
 } as any)
+const PublicAboutUsIndexRoute = PublicAboutUsIndexRouteImport.update({
+  id: '/about-us/',
+  path: '/about-us/',
+  getParentRoute: () => PublicRouteRoute,
+} as any)
 const AppAppIndexRoute = AppAppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/quiz/$sessionId': typeof QuizSessionIdRoute
   '/result/$sessionId': typeof ResultSessionIdRoute
   '/app/': typeof AppAppIndexRoute
+  '/about-us/': typeof PublicAboutUsIndexRoute
   '/features/': typeof PublicFeaturesIndexRoute
   '/app/parse-cv/': typeof AppAppParseCvIndexRoute
 }
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/quiz/$sessionId': typeof QuizSessionIdRoute
   '/result/$sessionId': typeof ResultSessionIdRoute
   '/app': typeof AppAppIndexRoute
+  '/about-us': typeof PublicAboutUsIndexRoute
   '/features': typeof PublicFeaturesIndexRoute
   '/app/parse-cv': typeof AppAppParseCvIndexRoute
 }
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/result/$sessionId': typeof ResultSessionIdRoute
   '/_public/': typeof PublicIndexRoute
   '/_app/app/': typeof AppAppIndexRoute
+  '/_public/about-us/': typeof PublicAboutUsIndexRoute
   '/_public/features/': typeof PublicFeaturesIndexRoute
   '/_app/app/parse-cv/': typeof AppAppParseCvIndexRoute
 }
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/quiz/$sessionId'
     | '/result/$sessionId'
     | '/app/'
+    | '/about-us/'
     | '/features/'
     | '/app/parse-cv/'
   fileRoutesByTo: FileRoutesByTo
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/quiz/$sessionId'
     | '/result/$sessionId'
     | '/app'
+    | '/about-us'
     | '/features'
     | '/app/parse-cv'
   id:
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/result/$sessionId'
     | '/_public/'
     | '/_app/app/'
+    | '/_public/about-us/'
     | '/_public/features/'
     | '/_app/app/parse-cv/'
   fileRoutesById: FileRoutesById
@@ -331,6 +343,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicFeaturesIndexRouteImport
       parentRoute: typeof PublicRouteRoute
     }
+    '/_public/about-us/': {
+      id: '/_public/about-us/'
+      path: '/about-us'
+      fullPath: '/about-us/'
+      preLoaderRoute: typeof PublicAboutUsIndexRouteImport
+      parentRoute: typeof PublicRouteRoute
+    }
     '/_app/app/': {
       id: '/_app/app/'
       path: '/'
@@ -396,11 +415,13 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
 
 interface PublicRouteRouteChildren {
   PublicIndexRoute: typeof PublicIndexRoute
+  PublicAboutUsIndexRoute: typeof PublicAboutUsIndexRoute
   PublicFeaturesIndexRoute: typeof PublicFeaturesIndexRoute
 }
 
 const PublicRouteRouteChildren: PublicRouteRouteChildren = {
   PublicIndexRoute: PublicIndexRoute,
+  PublicAboutUsIndexRoute: PublicAboutUsIndexRoute,
   PublicFeaturesIndexRoute: PublicFeaturesIndexRoute,
 }
 

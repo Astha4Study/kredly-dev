@@ -3,6 +3,7 @@ import GridBorder from '@/components/GridBorder';
 import HeroCard from '../../../components/HeroCard';
 import { Link } from '@tanstack/react-router';
 import { ArrowRight } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export default function HeroSection() {
   return (
@@ -24,22 +25,24 @@ export default function HeroSection() {
               {/* LEFT */}
               <div className="z-10 max-w-xl">
                 <div className="space-y-6 text-center py-4 md:py-0 md:text-left">
-                  <div className="inline-flex items-center border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
+                  <Badge variant="default">
                     AI-Powered Skill Verification Platform
+                  </Badge>
+
+                  <div className="max-w-sm sm:max-w-md md:max-w-xl lg:max-w-2xl xl:max-w-3xl">
+                    <h1 className="text-2xl sm:text-3xl font-bold xl:leading-13 tracking-tight text-foreground md:text-4xl lg:text-5xl">
+                      Buktikan kemampuanmu dengan{' '}
+                      <span className="text-primary">
+                        reputasi digital terverifikasi
+                      </span>
+                    </h1>
+
+                    <p className="mt-4 max-w-xs sm:max-w-md md:max-w-lg text-xs leading-relaxed text-muted-foreground sm:text-base">
+                      CV menunjukkan pengalaman. Kredly membuktikan kemampuan
+                      melalui assessment berbasis AI dan live sandbox yang
+                      menghasilkan kredensial digital yang dapat dipercaya.
+                    </p>
                   </div>
-
-                  <h1 className="text-3xl font-bold md:leading-13 tracking-tight text-foreground sm:text-3xl md:text-4xl lg:text-5xl">
-                    Buktikan kemampuanmu dengan{' '}
-                    <span className="text-primary">
-                      reputasi digital terverifikasi
-                    </span>
-                  </h1>
-
-                  <p className="mx-auto max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base md:mx-0">
-                    CV menunjukkan pengalaman. Kredly membuktikan kemampuan
-                    melalui assessment berbasis AI dan live sandbox yang
-                    menghasilkan kredensial digital yang dapat dipercaya.
-                  </p>
 
                   {/* CTA */}
                   <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center md:justify-start">
@@ -91,7 +94,7 @@ export default function HeroSection() {
               </div>
 
               {/* RIGHT - Animated Card Component */}
-              <div className='hidden md:block'>
+              <div className="relative">
                 <HeroCard />
               </div>
             </div>

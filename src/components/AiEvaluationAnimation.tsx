@@ -140,7 +140,7 @@ function ScanOverlay({ active }: { active: boolean }) {
 function HighlightedAnswer({ text, active }: { text: string; active: boolean }) {
   const words = text.split(' ');
   return (
-    <p className="text-[10px] leading-[1.75] text-zinc-600">
+    <p className="text-[9px] sm:text-[10px] leading-[1.75] text-zinc-600">
       {words.map((word, i) => (
         <motion.span
           key={i}
@@ -232,23 +232,23 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
   return (
     <div className="flex flex-col gap-0">
       {/* ── Header bar ── */}
-      <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-2.5">
+      <div className="flex items-center justify-between border-b border-zinc-100 px-3 sm:px-4 py-2 sm:py-2.5">
         {/* left: soal badge + status */}
-        <div className="flex items-center gap-2.5">
-          <div className="flex items-center justify-center h-5 w-5 border border-zinc-200 bg-zinc-50">
-            <span className="text-[8px] font-bold tabular-nums text-zinc-500">
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          <div className="flex items-center justify-center h-4 w-4 sm:h-5 sm:w-5 border border-zinc-200 bg-zinc-50">
+            <span className="text-[7px] sm:text-[8px] font-bold tabular-nums text-zinc-500">
               {String(card.soal).padStart(2, '0')}
             </span>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1 sm:gap-1.5">
             <motion.div
               animate={{ rotate: phase === 'scanning' ? 360 : 0, opacity: phase === 'complete' ? 0.4 : 1 }}
               transition={{ duration: 1.6, repeat: phase === 'scanning' ? Infinity : 0, ease: 'linear' }}
             >
               {phase === 'scanning' ? (
-                <ScanLine className="h-3 w-3 text-primary" />
+                <ScanLine className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary" />
               ) : (
-                <Sparkles className="h-3 w-3 text-primary" />
+                <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary" />
               )}
             </motion.div>
             <motion.span
@@ -256,7 +256,7 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
               initial={{ opacity: 0, y: 3 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2 }}
-              className="text-[8px] font-medium uppercase tracking-[0.14em] text-zinc-400"
+              className="text-[7px] sm:text-[8px] font-medium uppercase tracking-[0.14em] text-zinc-400"
             >
               {phase === 'idle' && 'Menunggu'}
               {phase === 'scanning' && 'Memindai dokumen'}
@@ -277,8 +277,8 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
               animate={{ opacity: 1, scale: 1 }}
               className="flex items-center gap-1"
             >
-              <Check className="h-3 w-3 text-emerald-500" strokeWidth={2.5} />
-              <span className="text-[8px] font-semibold uppercase tracking-wide text-emerald-600">
+              <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-emerald-500" strokeWidth={2.5} />
+              <span className="text-[7px] sm:text-[8px] font-semibold uppercase tracking-wide text-emerald-600">
                 Dinilai
               </span>
             </motion.div>
@@ -287,23 +287,23 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
       </div>
 
       {/* ── Body ── */}
-      <div className="px-4 pt-3 pb-3 flex flex-col gap-3">
+      <div className="px-3 sm:px-4 pt-2.5 sm:pt-3 pb-2.5 sm:pb-3 flex flex-col gap-2.5 sm:gap-3">
         {/* Question */}
         <div>
-          <p className="text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-400 mb-1.5">
+          <p className="text-[7px] sm:text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-400 mb-1 sm:mb-1.5">
             Pertanyaan
           </p>
-          <p className="text-[11px] font-medium leading-relaxed text-zinc-700">
+          <p className="text-[10px] sm:text-[11px] font-medium leading-relaxed text-zinc-700">
             {card.question}
           </p>
         </div>
 
         {/* Answer block — scan + highlight overlay */}
         <div>
-          <p className="text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-400 mb-1.5">
+          <p className="text-[7px] sm:text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-400 mb-1 sm:mb-1.5">
             Jawaban Peserta
           </p>
-          <div className="relative border border-zinc-200 bg-zinc-50 px-3 py-2.5">
+          <div className="relative border border-zinc-200 bg-zinc-50 px-2.5 sm:px-3 py-2 sm:py-2.5">
             <ScanOverlay active={phase === 'scanning'} />
             <HighlightedAnswer text={card.answer} active={isReading} />
           </div>
@@ -314,10 +314,10 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
           animate={{ opacity: isAnalyzing ? 1 : 0, y: isAnalyzing ? 0 : 4 }}
           transition={{ duration: 0.3 }}
         >
-          <p className="text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-400 mb-2">
+          <p className="text-[7px] sm:text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-400 mb-1.5 sm:mb-2">
             Kriteria Penilaian
           </p>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5 sm:gap-2">
             {card.criteria.map((c, i) => {
               const shown = shownCriteria > i;
               const pct = (c.score / c.maxScore) * 100;
@@ -327,9 +327,9 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
                   initial={{ opacity: 0, x: -6 }}
                   animate={{ opacity: shown ? 1 : 0.2, x: 0 }}
                   transition={{ duration: 0.28 }}
-                  className="flex items-center gap-2.5"
+                  className="flex items-center gap-2 sm:gap-2.5"
                 >
-                  <span className="w-18 shrink-0 text-[10px] text-zinc-600">{c.label}</span>
+                  <span className="w-16 sm:w-18 shrink-0 text-[9px] sm:text-[10px] text-zinc-600">{c.label}</span>
                   <div className="flex-1 h-0.75 bg-zinc-100 overflow-hidden">
                     <motion.div
                       className="h-full bg-primary"
@@ -341,7 +341,7 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
                   <motion.span
                     animate={{ opacity: shown ? 1 : 0 }}
                     transition={{ delay: 0.45 }}
-                    className="w-9 shrink-0 text-right text-[10px] font-mono text-zinc-600"
+                    className="w-8 sm:w-9 shrink-0 text-right text-[9px] sm:text-[10px] font-mono text-zinc-600"
                   >
                     {c.score}/{c.maxScore}
                   </motion.span>
@@ -355,39 +355,39 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
         <motion.div
           animate={{ opacity: isScoring ? 1 : 0, y: isScoring ? 0 : 6 }}
           transition={{ duration: 0.35 }}
-          className="flex gap-2.5 border-t border-zinc-100 pt-3"
+          className="flex gap-2 sm:gap-2.5 border-t border-zinc-100 pt-2.5 sm:pt-3"
         >
           {/* Score pill */}
-          <div className="flex flex-col items-center justify-center border border-zinc-200 bg-zinc-50 px-4 py-2 shrink-0">
+          <div className="flex flex-col items-center justify-center border border-zinc-200 bg-zinc-50 px-3 sm:px-4 py-1.5 sm:py-2 shrink-0">
             <motion.span
               animate={{ scale: isScoring ? [1, 1.12, 1] : 1 }}
               transition={{ duration: 0.35, delay: 0.1 }}
-              className="text-[24px] font-bold leading-none text-primary tabular-nums"
+              className="text-[20px] sm:text-[24px] font-bold leading-none text-primary tabular-nums"
             >
               {card.finalScore}
             </motion.span>
-            <span className="mt-0.5 text-[8px] uppercase tracking-wide text-zinc-400">/100</span>
+            <span className="mt-0.5 text-[7px] sm:text-[8px] uppercase tracking-wide text-zinc-400">/100</span>
           </div>
 
           {/* AI Feedback */}
           <motion.div
             animate={{ opacity: isFeedback ? 1 : 0 }}
             transition={{ duration: 0.25 }}
-            className="flex-1 border border-primary/15 bg-primary/4 px-3 py-2"
+            className="flex-1 border border-primary/15 bg-primary/4 px-2.5 sm:px-3 py-1.5 sm:py-2"
           >
-            <div className="flex items-center gap-1 mb-1.5">
-              <Sparkles className="h-2.5 w-2.5 text-primary/70" />
-              <span className="text-[8px] font-semibold uppercase tracking-[0.12em] text-primary/60">
+            <div className="flex items-center gap-1 mb-1 sm:mb-1.5">
+              <Sparkles className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-primary/70" />
+              <span className="text-[7px] sm:text-[8px] font-semibold uppercase tracking-[0.12em] text-primary/60">
                 AI Feedback
               </span>
             </div>
-            <p className="text-[10px] leading-relaxed text-zinc-700">
+            <p className="text-[9px] sm:text-[10px] leading-relaxed text-zinc-700">
               {displayedFeedback}
               {isFeedback && !isComplete && (
                 <motion.span
                   animate={{ opacity: [1, 0, 1] }}
                   transition={{ duration: 0.6, repeat: Infinity }}
-                  className="ml-px inline-block h-2.5 w-px bg-primary align-middle"
+                  className="ml-px inline-block h-2 sm:h-2.5 w-px bg-primary align-middle"
                 />
               )}
             </p>
@@ -396,8 +396,8 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
       </div>
 
       {/* ── Footer progress ── */}
-      <div className="border-t border-zinc-100 px-4 py-2 flex items-center justify-between">
-        <div className="flex gap-1">
+      <div className="border-t border-zinc-100 px-3 sm:px-4 py-1.5 sm:py-2 flex items-center justify-between">
+        <div className="flex gap-0.5 sm:gap-1">
           {Array.from({ length: card.total }).map((_, i) => (
             <motion.div
               key={i}
@@ -412,11 +412,11 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
                     : '#f4f4f5',
               }}
               transition={{ duration: 0.3 }}
-              className="h-0.75 w-4"
+              className="h-0.75 w-3 sm:w-4"
             />
           ))}
         </div>
-        <span className="text-[7.5px] font-medium tabular-nums text-zinc-400">
+        <span className="text-[7px] sm:text-[7.5px] font-medium tabular-nums text-zinc-400">
           {card.soal} / {card.total}
         </span>
       </div>
@@ -449,20 +449,20 @@ export function AiEvaluationAnimation() {
   const card = CARDS[index];
 
   return (
-    <div className="relative top-3 w-full px-4">
+    <div className="relative top-5 sm:top-3 w-full px-3 sm:px-6">
       <div className="relative max-w-4xl mx-auto">
         {/* Left stack - 2 cards */}
         <div
           className="absolute top-0 left-0 w-full h-full border border-zinc-200/40 bg-white/60 pointer-events-none"
           style={{
-            transform: 'translate(-24px, 8px)',
+            transform: 'translate(-16px, 6px)',
             zIndex: -2,
           }}
         />
         <div
           className="absolute top-0 left-0 w-full h-full border border-zinc-200/50 bg-white/80 pointer-events-none"
           style={{
-            transform: 'translate(-12px, 4px)',
+            transform: 'translate(-8px, 3px)',
             zIndex: -1,
           }}
         />
@@ -488,14 +488,14 @@ export function AiEvaluationAnimation() {
         <div
           className="absolute top-0 right-0 w-full h-full border border-zinc-200/50 bg-white/80 pointer-events-none"
           style={{
-            transform: 'translate(12px, 4px)',
+            transform: 'translate(8px, 3px)',
             zIndex: -1,
           }}
         />
         <div
           className="absolute top-0 right-0 w-full h-full border border-zinc-200/40 bg-white/60 pointer-events-none"
           style={{
-            transform: 'translate(24px, 8px)',
+            transform: 'translate(16px, 6px)',
             zIndex: -2,
           }}
         />

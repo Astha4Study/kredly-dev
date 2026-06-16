@@ -107,12 +107,16 @@ const CARDS: Card[] = [
 ];
 
 const CARD_H = 340;
-const CARD_W = 896; // max-w-4xl = 56rem = 896px
+
+// Responsive heights for different breakpoints
+const CARD_H_MOBILE = 280; // for screens < 640px
+const CARD_H_TABLET = 320; // for screens 640px - 1024px
 
 // How many cards visible in the stack behind the front
 const STACK_DEPTH = 2;
 // Per-layer visual offset
 const LAYER_Y = 10;    // px gap between each stacked card (peeking from bottom)
+const LAYER_Y_MOBILE = 6; // smaller gap for mobile
 const LAYER_SCALE = 0.034; // scale reduction per layer
 
 // ─── Pilgan ───────────────────────────────────────────────────────────────────
@@ -142,21 +146,21 @@ function PilganContent({ card, preview = false }: { card: PilganCard; preview?: 
 
   return (
     <div className="flex flex-col w-full h-full">
-      <div className="flex items-center gap-2 mb-3.5">
-        <span className="text-[7.5px] font-semibold uppercase tracking-[0.16em] text-zinc-400">
+      <div className="flex items-center gap-2 mb-2 sm:mb-3.5">
+        <span className="text-[7px] sm:text-[7.5px] font-semibold uppercase tracking-[0.16em] text-zinc-400">
           Pilihan Ganda
         </span>
         <div className="h-px flex-1 bg-zinc-100" />
-        <span className="text-[7.5px] font-medium tabular-nums text-zinc-300">
+        <span className="text-[7px] sm:text-[7.5px] font-medium tabular-nums text-zinc-300">
           {card.soal}/{card.total}
         </span>
       </div>
 
-      <p className="text-[11px] font-medium leading-[1.6] text-zinc-700 mb-3.5 line-clamp-2">
+      <p className="text-[10px] sm:text-[11px] font-medium leading-[1.6] text-zinc-700 mb-2 sm:mb-3.5 line-clamp-2">
         {card.question}
       </p>
 
-      <div className="flex flex-col gap-2 flex-1">
+      <div className="flex flex-col gap-1.5 sm:gap-2 flex-1">
         {card.options.map((opt, i) => {
           const isSel = !preview && selectedIndex === i;
           const isWrong = !preview && wrongIdx === i;
@@ -176,7 +180,7 @@ function PilganContent({ card, preview = false }: { card: PilganCard; preview?: 
                 borderColor: { duration: 0.18 },
                 x: isWrong ? { duration: 0.26, times: [0, 0.3, 0.7, 1] } : { duration: 0.18 },
               }}
-              className="flex items-center gap-2.5 border px-3 py-2"
+              className="flex items-center gap-2 sm:gap-2.5 border px-2.5 sm:px-3 py-1.5 sm:py-2"
             >
               <motion.div
                 animate={{
@@ -184,25 +188,25 @@ function PilganContent({ card, preview = false }: { card: PilganCard; preview?: 
                   backgroundColor: isSel ? '#ffffff' : 'transparent',
                 }}
                 transition={{ duration: 0.15 }}
-                className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border-2"
+                className="flex h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 items-center justify-center rounded-full border-2"
               >
-                {isSel && <div className="h-2 w-2 rounded-full bg-zinc-900" />}
-                {isWrong && <div className="h-2 w-2 rounded-full bg-red-400" />}
+                {isSel && <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-zinc-900" />}
+                {isWrong && <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-red-400" />}
               </motion.div>
 
               <motion.span
                 animate={{ color: isWrong ? '#ef4444' : isSel ? '#ffffff' : '#52525b' }}
                 transition={{ duration: 0.15 }}
-                className="text-[10px] flex-1 leading-relaxed"
+                className="text-[9px] sm:text-[10px] flex-1 leading-relaxed"
               >
                 {opt}
               </motion.span>
 
               {isSel && i === card.correctIndex && (
-                <Check className="h-3.5 w-3.5 shrink-0 text-white" strokeWidth={2.5} />
+                <Check className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 text-white" strokeWidth={2.5} />
               )}
               {isWrong && (
-                <X className="h-3.5 w-3.5 shrink-0 text-red-400" strokeWidth={2.5} />
+                <X className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 text-red-400" strokeWidth={2.5} />
               )}
             </motion.div>
           );
@@ -244,28 +248,28 @@ function EssayContent({ card, preview = false }: { card: EssayCard; preview?: bo
 
   return (
     <div className="flex flex-col w-full h-full">
-      <div className="flex items-center gap-2 mb-3.5">
-        <span className="text-[7.5px] font-semibold uppercase tracking-[0.16em] text-zinc-400">
+      <div className="flex items-center gap-2 mb-2 sm:mb-3.5">
+        <span className="text-[7px] sm:text-[7.5px] font-semibold uppercase tracking-[0.16em] text-zinc-400">
           Esai
         </span>
         <div className="h-px flex-1 bg-zinc-100" />
-        <span className="text-[7.5px] font-medium tabular-nums text-zinc-300">
+        <span className="text-[7px] sm:text-[7.5px] font-medium tabular-nums text-zinc-300">
           {card.soal}/{card.total}
         </span>
       </div>
 
-      <p className="text-[11px] font-medium leading-[1.6] text-zinc-700 mb-3.5 line-clamp-2">
+      <p className="text-[10px] sm:text-[11px] font-medium leading-[1.6] text-zinc-700 mb-2 sm:mb-3.5 line-clamp-2">
         {card.question}
       </p>
 
-      <div className="flex-1 overflow-hidden border border-zinc-200 bg-zinc-50 px-3 py-2.5">
-        <p className="text-[10px] leading-[1.75] text-zinc-600">
+      <div className="flex-1 overflow-hidden border border-zinc-200 bg-zinc-50 px-2.5 sm:px-3 py-2 sm:py-2.5">
+        <p className="text-[9px] sm:text-[10px] leading-[1.75] text-zinc-600">
           {displayed}
           {!done && !preview && (
             <motion.span
               animate={{ opacity: [1, 0, 1] }}
               transition={{ duration: 0.6, repeat: Infinity }}
-              className="ml-px inline-block h-2.75 w-px translate-y-px bg-zinc-500"
+              className="ml-px inline-block h-2.5 sm:h-2.75 w-px translate-y-px bg-zinc-500"
             />
           )}
           {done && (
@@ -273,9 +277,9 @@ function EssayContent({ card, preview = false }: { card: EssayCard; preview?: bo
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.25 }}
-              className="ml-1 inline-flex items-center gap-0.5 text-[7.5px] uppercase tracking-widest text-zinc-400"
+              className="ml-1 inline-flex items-center gap-0.5 text-[7px] sm:text-[7.5px] uppercase tracking-widest text-zinc-400"
             >
-              <Check className="h-2.5 w-2.5" strokeWidth={2.5} />
+              <Check className="h-2 w-2 sm:h-2.5 sm:w-2.5" strokeWidth={2.5} />
               selesai
             </motion.span>
           )}
@@ -291,17 +295,17 @@ function EssayContent({ card, preview = false }: { card: EssayCard; preview?: bo
 
 function Footer({ soal, total }: { soal: number; total: number }) {
   return (
-    <div className="mt-3 pt-2.5 border-t border-zinc-100 flex items-center justify-between shrink-0">
+    <div className="mt-2 sm:mt-3 pt-2 sm:pt-2.5 border-t border-zinc-100 flex items-center justify-between shrink-0">
       <div className="flex gap-0.5">
         {Array.from({ length: total }).map((_, i) => (
           <div
             key={i}
-            className="h-0.5 w-3.5 transition-colors duration-300"
+            className="h-0.5 w-2.5 sm:w-3.5 transition-colors duration-300"
             style={{ backgroundColor: i < soal ? '#18181b' : '#e4e4e7' }}
           />
         ))}
       </div>
-      <span className="text-[7.5px] tabular-nums font-medium text-zinc-400">
+      <span className="text-[7px] sm:text-[7.5px] tabular-nums font-medium text-zinc-400">
         {soal} / {total}
       </span>
     </div>
@@ -313,8 +317,10 @@ function Footer({ soal, total }: { soal: number; total: number }) {
 function CardFace({ card, preview = false }: { card: Card; preview?: boolean }) {
   return (
     <div
-      className="bg-white border border-zinc-200 px-4 py-4 w-full overflow-hidden"
-      style={{ height: CARD_H, width: CARD_W }}
+      className="bg-white border border-zinc-200 w-full overflow-hidden h-70 sm:h-80 lg:h-85 px-3 sm:px-4 py-3 sm:py-4"
+      style={{
+        maxWidth: '100%',
+      }}
     >
       {card.type === 'pilgan' ? (
         <PilganContent card={card} preview={preview} />
@@ -331,6 +337,29 @@ export function AssessmentInteractiveAnimation() {
   const [frontIndex, setFrontIndex] = useState(0);
   const [exiting, setExiting] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Determine card height based on screen size
+  const [cardHeight, setCardHeight] = useState(CARD_H);
+  const [layerY, setLayerY] = useState(LAYER_Y);
+
+  useEffect(() => {
+    function updateDimensions() {
+      if (window.innerWidth < 640) {
+        setCardHeight(CARD_H_MOBILE);
+        setLayerY(LAYER_Y_MOBILE);
+      } else if (window.innerWidth < 1024) {
+        setCardHeight(CARD_H_TABLET);
+        setLayerY(LAYER_Y);
+      } else {
+        setCardHeight(CARD_H);
+        setLayerY(LAYER_Y);
+      }
+    }
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
 
   useEffect(() => {
     function schedule() {
@@ -354,13 +383,13 @@ export function AssessmentInteractiveAnimation() {
       // idle state
       if (slot >= STACK_DEPTH + 1) {
         // hidden slot - card waiting to enter from back
-        const y = (STACK_DEPTH + 1) * LAYER_Y;
+        const y = (STACK_DEPTH + 1) * layerY;
         const scale = 1 - (STACK_DEPTH + 1) * LAYER_SCALE;
         const opacity = 0;
         const zIndex = 0;
         return { y, scale, opacity, zIndex };
       }
-      const y = slot * LAYER_Y;
+      const y = slot * layerY;
       const scale = 1 - slot * LAYER_SCALE;
       const opacity = slot === 0 ? 1 : slot === 1 ? 0.85 : 0.6;
       const zIndex = (STACK_DEPTH + 1 - slot) * 10;
@@ -369,7 +398,7 @@ export function AssessmentInteractiveAnimation() {
       // exiting state
       if (slot === 0) {
         // front card slides down and out
-        const y = CARD_H + 80;
+        const y = cardHeight + 80;
         const scale = 0.88;
         const opacity = 0;
         const zIndex = 40; // stay on top while exiting
@@ -377,7 +406,7 @@ export function AssessmentInteractiveAnimation() {
       } else {
         // all other cards advance by one position
         const targetSlot = slot - 1;
-        const y = targetSlot * LAYER_Y;
+        const y = targetSlot * layerY;
         const scale = 1 - targetSlot * LAYER_SCALE;
         const opacity = targetSlot === 0 ? 1 : targetSlot === 1 ? 0.85 : targetSlot === 2 ? 0.6 : 0.4;
         const zIndex = (STACK_DEPTH + 1 - targetSlot) * 10;
@@ -391,11 +420,11 @@ export function AssessmentInteractiveAnimation() {
   const DUR = 0.7;
 
   return (
-    <div className="flex justify-center w-full px-4">
+    <div className="flex justify-center w-full px-4 sm:px-6">
       <div
-        className="relative top-12 overflow-visible max-w-4xl w-full"
+        className="relative top-6 sm:top-8 lg:top-12 overflow-visible max-w-4xl w-full mx-auto"
         style={{
-          height: CARD_H + STACK_DEPTH * LAYER_Y + 8,
+          height: cardHeight + STACK_DEPTH * layerY + 8,
         }}
       >
         {Array.from({ length: SLOTS }).map((_, slot) => {
@@ -414,9 +443,7 @@ export function AssessmentInteractiveAnimation() {
                 ease: slot === 0 && exiting ? exitEase : ease,
               }}
             >
-              <div
-                className="shadow-sm"
-              >
+              <div className="shadow-sm">
                 <CardFace card={card} preview={slot !== 0 && !exiting} />
               </div>
             </motion.div>

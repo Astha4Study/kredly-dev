@@ -74,7 +74,20 @@ const PROFILE: TrustProfile = {
 
 const TODAY = (() => {
   const d = new Date();
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
   return `${d.getFullYear()}-${months[d.getMonth()]}-${String(d.getDate()).padStart(2, '0')}`;
 })();
 
@@ -112,16 +125,16 @@ function MetricPill({
   return (
     <div
       className={[
-        'relative flex flex-col items-center gap-1 px-4 py-2 border-2 overflow-hidden bg-muted/30',
+        'relative flex flex-col items-center gap-0.5 sm:gap-1 px-2 sm:px-4 py-1.5 sm:py-2 border-2 overflow-hidden bg-muted/30',
         active ? 'border-border' : 'border-border/60',
       ].join(' ')}
     >
-      <span className="font-mono text-[8px] uppercase tracking-[0.15em] text-muted-foreground">
+      <span className="font-mono text-[7px] sm:text-[8px] uppercase tracking-[0.15em] text-muted-foreground">
         {label}
       </span>
       <span
         className={[
-          'font-mono text-[15px] font-bold leading-none',
+          'font-mono text-[13px] sm:text-[15px] font-bold leading-none',
           primary ? 'text-primary' : 'text-foreground',
         ].join(' ')}
       >
@@ -160,29 +173,43 @@ function JobCard({
   return (
     <motion.div
       initial={{ opacity: 0, y: 10, scale: 0.95 }}
-      animate={visible ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 10, scale: 0.95 }}
-      transition={{ duration: 0.5, delay: visible ? delay : 0, ease: [0.4, 0, 0.2, 1] }}
+      animate={
+        visible
+          ? { opacity: 1, y: 0, scale: 1 }
+          : { opacity: 0, y: 10, scale: 0.95 }
+      }
+      transition={{
+        duration: 0.5,
+        delay: visible ? delay : 0,
+        ease: [0.4, 0, 0.2, 1],
+      }}
       className="border border-border/40 rounded-md bg-background overflow-hidden hover:border-border transition-colors"
     >
-      <div className="p-2.5">
+      <div className="p-2 sm:p-2.5">
         <div className="flex items-start justify-between gap-2">
           {/* Platform Badge */}
-          <div
-            className="w-9 h-9 rounded-md flex items-center justify-center text-white font-bold text-[9px] shrink-0 p-1"
-          >
-            <img src={platform.logo} alt={platform.label} className="w-full h-full object-contain" />
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-md flex items-center justify-center text-white font-bold text-[9px] shrink-0 p-1">
+            <img
+              src={platform.logo}
+              alt={platform.label}
+              className="w-full h-full object-contain"
+            />
           </div>
 
           {/* Job Info */}
           <div className="flex-1 min-w-0">
-            <h4 className="text-[11px] font-semibold text-foreground truncate leading-tight">{job.title}</h4>
-            <p className="text-[9px] text-muted-foreground mt-0.5">{job.company}</p>
+            <h4 className="text-[10px] sm:text-[11px] font-semibold text-foreground truncate leading-tight">
+              {job.title}
+            </h4>
+            <p className="text-[8px] sm:text-[9px] text-muted-foreground mt-0.5">
+              {job.company}
+            </p>
             <div className="flex items-center gap-1.5 mt-1.5">
-              <span className="text-[8px] font-medium text-muted-foreground">
+              <span className="text-[7px] sm:text-[8px] font-medium text-muted-foreground">
                 {platform.label}
               </span>
               <div className="h-0.5 w-0.5 rounded-full bg-border" />
-              <span className="text-[8px] font-mono font-semibold text-primary">
+              <span className="text-[7px] sm:text-[8px] font-mono font-semibold text-primary">
                 {job.match}%
               </span>
             </div>
@@ -216,7 +243,11 @@ function JobCard({
             className="h-full bg-primary rounded-full"
             initial={{ width: 0 }}
             animate={visible ? { width: `${job.match}%` } : { width: 0 }}
-            transition={{ duration: 0.8, delay: visible ? delay + 0.2 : 0, ease: 'easeOut' }}
+            transition={{
+              duration: 0.8,
+              delay: visible ? delay + 0.2 : 0,
+              ease: 'easeOut',
+            }}
           />
         </div>
       </div>
@@ -260,15 +291,28 @@ const PHASE_ORDER: Phase[] = [
 ];
 
 function after(current: Phase, phases: Phase[]): boolean {
-  return phases.some((p) => PHASE_ORDER.indexOf(current) >= PHASE_ORDER.indexOf(p));
+  return phases.some(
+    (p) => PHASE_ORDER.indexOf(current) >= PHASE_ORDER.indexOf(p),
+  );
 }
 
 export function AccelerationCareerAnimation() {
   const [phase, setPhase] = useState<Phase>('idle');
+  const [isMobile, setIsMobile] = useState(false);
   const profile = PROFILE;
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  const add = (fn: () => void, ms: number) => timersRef.current.push(setTimeout(fn, ms));
+  const add = (fn: () => void, ms: number) =>
+    timersRef.current.push(setTimeout(fn, ms));
+
+  useEffect(() => {
+    function updateMobile() {
+      setIsMobile(window.innerWidth < 1024);
+    }
+    updateMobile();
+    window.addEventListener('resize', updateMobile);
+    return () => window.removeEventListener('resize', updateMobile);
+  }, []);
 
   const startLoop = () => {
     timersRef.current.forEach(clearTimeout);
@@ -316,211 +360,262 @@ export function AccelerationCareerAnimation() {
   const jobsVis = after(phase, ['jobs']);
 
   return (
-    <div className="w-full px-4">
-      <div className="flex gap-6 items-start max-w-7xl mx-auto">
-        {/* Certificate Section - Left */}
-        <div className="flex-1 min-w-0">
-          {/* Main Certificate */}
-          <div className="relative w-full border-[3px] border-border/30 bg-background overflow-hidden flex flex-col font-sans shadow-sm">
-          {/* Inner decorative borders */}
-          <div className="absolute inset-3 border-2 border-border/30 pointer-events-none z-0 rounded-sm" />
-          <div className="absolute inset-5 border border-border/20 pointer-events-none z-0" />
+    <div className="w-full px-3 sm:px-4">
+      <div
+        className="relative max-w-7xl mx-auto overflow-hidden lg:overflow-visible"
+        style={{ minHeight: '500px' }}
+      >
+        <div className="flex gap-4 sm:gap-6 items-start relative">
+          {/* Certificate Section - Left */}
+          <motion.div
+            animate={{
+              x: jobsVis && isMobile ? '-100%' : 0,
+              opacity: jobsVis && isMobile ? 0 : 1,
+            }}
+            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+            className="w-full lg:flex-1 lg:min-w-0 absolute lg:relative inset-0"
+          >
+            {/* Main Certificate */}
+            <div className="relative top-22 w-full border-2 sm:border-[3px] border-border/30 bg-background overflow-hidden flex flex-col font-sans shadow-sm">
+              {/* Inner decorative borders */}
+              <div className="absolute inset-2 sm:inset-3 border sm:border-2 border-border/30 pointer-events-none z-0 rounded-sm" />
+              <div className="absolute inset-3 sm:inset-5 border border-border/20 pointer-events-none z-0 hidden sm:block" />
 
-          {/* Scan line */}
-          <AnimatePresence>
-            {scanning && (
-              <motion.div
-                className="pointer-events-none absolute inset-x-0 z-10 h-0.5 bg-primary/80 shadow-sm shadow-primary/50"
-                initial={{ bottom: 0, opacity: 0.8 }}
-                animate={{ bottom: '100%', opacity: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1.8, ease: 'linear' }}
-              />
-            )}
-          </AnimatePresence>
+              {/* Scan line */}
+              <AnimatePresence>
+                {scanning && (
+                  <motion.div
+                    className="pointer-events-none absolute inset-x-0 z-10 h-0.5 bg-primary/80 shadow-sm shadow-primary/50"
+                    initial={{ bottom: 0, opacity: 0.8 }}
+                    animate={{ bottom: '100%', opacity: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1.8, ease: 'linear' }}
+                  />
+                )}
+              </AnimatePresence>
 
-          {/* Header */}
-          <div className="relative z-3 flex items-center justify-between px-6 py-4 border-b border-border/30 shrink-0">
-            <div className="flex items-center gap-2.5">
-              <div>
-                <div className="text-[13px] text-left font-bold text-foreground tracking-tight">
-                  Kredly
-                </div>
-                <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-muted-foreground">
-                  Trust Authority
-                </div>
-              </div>
-            </div>
-
-            <motion.div
-              animate={{ opacity: headerVis ? 1 : 0 }}
-              transition={{ duration: 0.4 }}
-              className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground text-right leading-[1.6]"
-            >
-              Recruiter<br />Confidence
-            </motion.div>
-          </div>
-
-          {/* Body */}
-          <div className="relative z-3 flex px-6 py-5 gap-6 overflow-hidden">
-            {/* Left content */}
-            <div className="flex-1 flex flex-col justify-center pr-6">
-              <motion.p
-                animate={{ opacity: presents ? 1 : 0, y: presents ? 0 : 6 }}
-                transition={{ duration: 0.4 }}
-                className="font-mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground mb-2.5"
-              >
-                Recruiter trust for
-              </motion.p>
-
-              <motion.p
-                key={profile.field}
-                animate={{ opacity: titleVis ? 1 : 0, y: titleVis ? 0 : 8 }}
-                transition={{ duration: 0.5 }}
-                className="text-[28px] leading-[1.15] tracking-tight text-foreground mb-1.5 font-serif"
-                style={{ fontWeight: 400 }}
-              >
-                {profile.field}
-              </motion.p>
-
-              <motion.p
-                key={profile.sub}
-                animate={{ opacity: domainVis ? 1 : 0, y: domainVis ? 0 : 4 }}
-                transition={{ duration: 0.4 }}
-                className="text-[11px] text-muted-foreground mb-4"
-              >
-                {profile.sub}
-              </motion.p>
-
-              {/* Metrics */}
-              <motion.div
-                animate={{ opacity: metricsVis ? 1 : 0, y: metricsVis ? 0 : 6 }}
-                transition={{ duration: 0.4 }}
-                className="grid grid-cols-3 gap-2"
-              >
-                <MetricPill label="Views" value={profile.recruiterViews} active={viewsActive} />
-                <MetricPill label="Applied" value={profile.applications} active={appsActive} />
-                <MetricPill
-                  label="Interviews"
-                  value={profile.interviews}
-                  active={interviewsActive}
-                  primary
-                />
-              </motion.div>
-            </div>
-
-            {/* Vertical divider */}
-            <div className="w-0.5 bg-border shrink-0 my-4" />
-
-            {/* Right sidebar */}
-            <div className="w-32.5 shrink-0 flex flex-col items-center justify-center gap-4 pl-4">
-              {/* Trust Score */}
-              <motion.div
-                animate={
-                  sealVis
-                    ? { opacity: 1, scale: 1, rotate: 0 }
-                    : { opacity: 0, scale: 1.3, rotate: 10 }
-                }
-                transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-                className={[
-                  'relative w-17.5 h-17.5 rounded-full border-2 flex flex-col items-center justify-center gap-1 shrink-0',
-                  verified
-                    ? 'border-primary text-primary bg-primary/10'
-                    : 'border-foreground text-foreground bg-muted/30',
-                ].join(' ')}
-              >
-                <div className="absolute inset-1.5 rounded-full border-[1.5px] border-dashed border-current/30" />
-                <TrustIcon className="relative z-1 w-5 h-5" />
-                <span className="relative z-1 font-mono text-[11px] font-bold">
-                  {profile.trustScore}%
-                </span>
-              </motion.div>
-
-              {/* Meta info */}
-              <motion.div
-                animate={{ opacity: footerVis ? 1 : 0 }}
-                transition={{ duration: 0.4 }}
-                className="flex flex-col gap-2 w-full"
-              >
-                {[
-                  { key: 'Issued', val: TODAY, mono: true },
-                  { key: 'Status', val: verified ? 'Active' : 'Pending', mono: false },
-                  { key: 'Expires', val: '2027-06-14', mono: true },
-                ].map(({ key, val, mono }) => (
-                  <div key={key} className="flex flex-col gap-0.5">
-                    <span className="font-mono text-[7px] uppercase tracking-[0.12em] text-muted-foreground">
-                      {key}
-                    </span>
-                    <span
-                      className={[
-                        'text-[10px] font-semibold text-foreground',
-                        mono ? 'font-mono' : '',
-                      ].join(' ')}
-                    >
-                      {val}
-                    </span>
+              {/* Header */}
+              <div className="relative z-3 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-border/30 shrink-0">
+                <div className="flex items-center gap-2 sm:gap-2.5">
+                  <div>
+                    <div className="text-[11px] sm:text-[13px] text-left font-bold text-foreground tracking-tight">
+                      Kredly
+                    </div>
+                    <div className="font-mono text-[7px] sm:text-[8px] uppercase tracking-[0.15em] text-muted-foreground">
+                      Trust Authority
+                    </div>
                   </div>
-                ))}
-              </motion.div>
-            </div>
-          </div>
+                </div>
 
-          {/* Footer */}
-          <div className="relative z-3 flex items-center justify-between px-6 py-4 border-t border-border/30 shrink-0">
-            <motion.div
-              animate={{ opacity: footerVis ? 1 : 0 }}
-              transition={{ duration: 0.4 }}
-              className="flex flex-col gap-1"
-            >
-              <div className="h-0.5 w-15 bg-foreground/40" />
-              <span className="text-[11px] font-bold text-foreground mt-0.5">Kredly AI</span>
-              <span className="text-[8px] text-muted-foreground">Trust Validation</span>
-            </motion.div>
-
-            <motion.div
-              animate={{ opacity: footerVis ? 1 : 0 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              className="text-right"
-            >
-              <p className="font-mono text-[8px] text-muted-foreground/60 mb-1.5">{profile.id}</p>
-              <div className="inline-flex items-center gap-1.5 font-mono text-[8px] uppercase tracking-[0.15em] font-semibold text-primary">
                 <motion.div
-                  animate={{
-                    scale: verified ? [1, 1.2, 1] : 1,
-                  }}
+                  animate={{ opacity: headerVis ? 1 : 0 }}
                   transition={{ duration: 0.4 }}
-                  className="w-1.5 h-1.5 rounded-full shrink-0 bg-primary"
-                />
-                {verified ? 'Trusted' : 'Validating'}
+                  className="font-mono text-[8px] sm:text-[9px] uppercase tracking-[0.2em] text-muted-foreground text-right leading-[1.6]"
+                >
+                  Recruiter
+                  <br />
+                  Confidence
+                </motion.div>
               </div>
-            </motion.div>
-          </div>
+
+              {/* Body */}
+              <div className="relative z-3 flex flex-col sm:flex-row px-4 sm:px-6 py-4 sm:py-5 gap-4 sm:gap-6 overflow-hidden">
+                {/* Left content */}
+                <div className="flex-1 flex flex-col justify-center sm:pr-6">
+                  <motion.p
+                    animate={{ opacity: presents ? 1 : 0, y: presents ? 0 : 6 }}
+                    transition={{ duration: 0.4 }}
+                    className="font-mono text-[8px] sm:text-[9px] uppercase tracking-[0.18em] text-muted-foreground mb-2 sm:mb-2.5"
+                  >
+                    Recruiter trust for
+                  </motion.p>
+
+                  <motion.p
+                    key={profile.field}
+                    animate={{ opacity: titleVis ? 1 : 0, y: titleVis ? 0 : 8 }}
+                    transition={{ duration: 0.5 }}
+                    className="text-[20px] sm:text-[28px] leading-[1.15] tracking-tight text-foreground mb-1 sm:mb-1.5 font-serif"
+                    style={{ fontWeight: 400 }}
+                  >
+                    {profile.field}
+                  </motion.p>
+
+                  <motion.p
+                    key={profile.sub}
+                    animate={{
+                      opacity: domainVis ? 1 : 0,
+                      y: domainVis ? 0 : 4,
+                    }}
+                    transition={{ duration: 0.4 }}
+                    className="text-[10px] sm:text-[11px] text-muted-foreground mb-3 sm:mb-4"
+                  >
+                    {profile.sub}
+                  </motion.p>
+
+                  {/* Metrics */}
+                  <motion.div
+                    animate={{
+                      opacity: metricsVis ? 1 : 0,
+                      y: metricsVis ? 0 : 6,
+                    }}
+                    transition={{ duration: 0.4 }}
+                    className="grid grid-cols-3 gap-1.5 sm:gap-2"
+                  >
+                    <MetricPill
+                      label="Views"
+                      value={profile.recruiterViews}
+                      active={viewsActive}
+                    />
+                    <MetricPill
+                      label="Applied"
+                      value={profile.applications}
+                      active={appsActive}
+                    />
+                    <MetricPill
+                      label="Interviews"
+                      value={profile.interviews}
+                      active={interviewsActive}
+                      primary
+                    />
+                  </motion.div>
+                </div>
+
+                {/* Vertical divider */}
+                <div className="w-full sm:w-0.5 h-0.5 sm:h-auto bg-border shrink-0 sm:my-4" />
+
+                {/* Right sidebar */}
+                <div className="w-full sm:w-32.5 shrink-0 flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-4 sm:gap-4 sm:pl-4">
+                  {/* Trust Score */}
+                  <motion.div
+                    animate={
+                      sealVis
+                        ? { opacity: 1, scale: 1, rotate: 0 }
+                        : { opacity: 0, scale: 1.3, rotate: 10 }
+                    }
+                    transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                    className={[
+                      'relative w-16 h-16 sm:w-17.5 sm:h-17.5 rounded-full border-2 flex flex-col items-center justify-center gap-0.5 sm:gap-1 shrink-0',
+                      verified
+                        ? 'border-primary text-primary bg-primary/10'
+                        : 'border-foreground text-foreground bg-muted/30',
+                    ].join(' ')}
+                  >
+                    <div className="absolute inset-1.5 rounded-full border-[1.5px] border-dashed border-current/30" />
+                    <TrustIcon className="relative z-1 w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="relative z-1 font-mono text-[10px] sm:text-[11px] font-bold">
+                      {profile.trustScore}%
+                    </span>
+                  </motion.div>
+
+                  {/* Meta info */}
+                  <motion.div
+                    animate={{ opacity: footerVis ? 1 : 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="flex flex-col sm:flex-col gap-3 sm:gap-2 w-full"
+                  >
+                    {[
+                      { key: 'Issued', val: TODAY, mono: true },
+                      {
+                        key: 'Status',
+                        val: verified ? 'Active' : 'Pending',
+                        mono: false,
+                      },
+                      { key: 'Expires', val: '2027-06-14', mono: true },
+                    ].map(({ key, val, mono }) => (
+                      <div
+                        key={key}
+                        className="flex flex-row sm:flex-col gap-1 sm:gap-0.5 items-baseline sm:items-start"
+                      >
+                        <span className="font-mono text-[7px] uppercase tracking-[0.12em] text-muted-foreground">
+                          {key}:
+                        </span>
+                        <span
+                          className={[
+                            'text-[9px] sm:text-[10px] font-semibold text-foreground',
+                            mono ? 'font-mono' : '',
+                          ].join(' ')}
+                        >
+                          {val}
+                        </span>
+                      </div>
+                    ))}
+                  </motion.div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="relative z-3 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-t border-border/30 shrink-0">
+                <motion.div
+                  animate={{ opacity: footerVis ? 1 : 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="flex flex-col gap-0.5 sm:gap-1"
+                >
+                  <div className="h-0.5 w-12 sm:w-15 bg-foreground/40" />
+                  <span className="text-[10px] sm:text-[11px] font-bold text-foreground mt-0.5">
+                    Kredly AI
+                  </span>
+                  <span className="text-[7px] sm:text-[8px] text-muted-foreground">
+                    Trust Validation
+                  </span>
+                </motion.div>
+
+                <motion.div
+                  animate={{ opacity: footerVis ? 1 : 0 }}
+                  transition={{ duration: 0.4, delay: 0.1 }}
+                  className="text-right"
+                >
+                  <p className="font-mono text-[7px] sm:text-[8px] text-muted-foreground/60 mb-1 sm:mb-1.5">
+                    {profile.id}
+                  </p>
+                  <div className="inline-flex items-center gap-1 sm:gap-1.5 font-mono text-[7px] sm:text-[8px] uppercase tracking-[0.15em] font-semibold text-primary">
+                    <motion.div
+                      animate={{
+                        scale: verified ? [1, 1.2, 1] : 1,
+                      }}
+                      transition={{ duration: 0.4 }}
+                      className="w-1.5 h-1.5 rounded-full shrink-0 bg-primary"
+                    />
+                    {verified ? 'Trusted' : 'Validating'}
+                  </div>
+                </motion.div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Job Cards Section - Right */}
+          <motion.div
+            initial={{ x: '100%', opacity: 0 }}
+            animate={{
+              x: jobsVis ? 0 : '100%',
+              opacity: jobsVis ? 1 : 0,
+            }}
+            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+            className="absolute top-22 left-0 right-0 lg:relative lg:w-80 lg:shrink-0 lg:opacity-100 lg:translate-x-0"
+          >
+            <div className="h-full flex flex-col bg-background px-3 sm:px-0 py-2 sm:py-0">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <h3 className="text-xs sm:text-sm font-semibold text-foreground">
+                  Lowongan Cocok
+                </h3>
+                <span className="text-[10px] sm:text-xs text-muted-foreground">
+                  {profile.jobs.length} posisi
+                </span>
+              </div>
+
+              <div className="flex flex-col gap-2 sm:gap-3">
+                {profile.jobs.map((job, index) => (
+                  <JobCard
+                    key={`${profile.id}-job-${index}`}
+                    job={job}
+                    visible={jobsVis}
+                    delay={index * 0.15}
+                  />
+                ))}
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
-
-      {/* Job Cards Section - Right */}
-      <motion.div
-        animate={{ opacity: jobsVis ? 1 : 0, x: jobsVis ? 0 : 20 }}
-        transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-        className="w-80 shrink-0"
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-foreground">Lowongan Cocok</h3>
-          <span className="text-xs text-muted-foreground">{profile.jobs.length} posisi</span>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          {profile.jobs.map((job, index) => (
-            <JobCard
-              key={`${profile.id}-job-${index}`}
-              job={job}
-              visible={jobsVis}
-              delay={index * 0.15}
-            />
-          ))}
-        </div>
-      </motion.div>
     </div>
-  </div>
   );
 }

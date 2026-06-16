@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import {
   InputOTP,
   InputOTPGroup,
+  InputOTPSeparator,
   InputOTPSlot,
 } from '@/components/ui/input-otp';
 import { useAuth } from '@/contexts';
@@ -73,7 +74,7 @@ function RouteComponent() {
       } else {
         setErrorMessage(result.message);
       }
-    } catch (error) {
+    } catch {
       setErrorMessage('Gagal mengirim kode OTP.');
     } finally {
       setLoading(false);
@@ -83,6 +84,16 @@ function RouteComponent() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-white px-8 py-12">
       <div className="w-full max-w-sm">
+        <div
+          className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, #e4e4e7 1px, transparent 1px),
+              linear-gradient(to bottom, #e4e4e7 1px, transparent 1px)
+            `,
+            backgroundSize: '40px 40px',
+          }}
+        />
         <div className="space-y-6">
           {/* Header */}
           <div className="space-y-2 text-center">
@@ -94,21 +105,41 @@ function RouteComponent() {
             </p>
           </div>
 
-          {/* OTP Input */}
-          <div className="flex flex-col items-center space-y-4">
+          <div className="mt-10 flex flex-col items-center space-y-6">
             <InputOTP
               maxLength={6}
               value={otp}
               onChange={setOtp}
               onComplete={handleVerify}
             >
-              <InputOTPGroup>
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-                <InputOTPSlot index={3} />
-                <InputOTPSlot index={4} />
-                <InputOTPSlot index={5} />
+              <InputOTPGroup className="gap-2">
+                <InputOTPSlot
+                  index={0}
+                  className="h-12 w-12 border-zinc-300 text-lg font-semibold"
+                />
+                <InputOTPSlot
+                  index={1}
+                  className="h-12 w-12 border-zinc-300 text-lg font-semibold"
+                />
+                <InputOTPSlot
+                  index={2}
+                  className="h-12 w-12 border-zinc-300 text-lg font-semibold"
+                />
+              </InputOTPGroup>
+              <InputOTPSeparator />
+              <InputOTPGroup className="gap-2">
+                <InputOTPSlot
+                  index={3}
+                  className="h-12 w-12 border-zinc-300 text-lg font-semibold"
+                />
+                <InputOTPSlot
+                  index={4}
+                  className="h-12 w-12 border-zinc-300 text-lg font-semibold"
+                />
+                <InputOTPSlot
+                  index={5}
+                  className="h-12 w-12 border-zinc-300 text-lg font-semibold"
+                />
               </InputOTPGroup>
             </InputOTP>
 

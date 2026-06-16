@@ -100,7 +100,7 @@ function ScorePill({
   return (
     <div
       className={[
-        'relative flex flex-col items-center gap-1 px-4 py-2 border-2 overflow-hidden bg-muted/30',
+        'relative flex flex-col items-center gap-0.5 sm:gap-1 px-2 sm:px-4 py-1.5 sm:py-2 border-2 overflow-hidden bg-muted/30',
         struck
           ? 'opacity-40 border-border/40'
           : active
@@ -108,12 +108,12 @@ function ScorePill({
             : 'border-border/60',
       ].join(' ')}
     >
-      <span className="font-mono text-[8px] uppercase tracking-[0.15em] text-muted-foreground">
+      <span className="font-mono text-[7px] sm:text-[8px] uppercase tracking-[0.15em] text-muted-foreground">
         {label}
       </span>
       <span
         className={[
-          'font-mono text-[15px] font-bold leading-none',
+          'font-mono text-[13px] sm:text-[15px] font-bold leading-none',
           struck
             ? 'line-through text-muted-foreground'
             : primary
@@ -236,51 +236,51 @@ export function SertificationValidationAnimation() {
   const verified = after(phase, ['verified']);
 
   return (
-    <div className="absolute top-5 w-full max-w-4xl mx-auto">
-      {/* Layer 4 - furthest back */}
+    <div className="absolute top-3 sm:top-5 w-full max-w-4xl mx-auto px-4 sm:px-0">
+      {/* Layer 4 */}
       <div
-        className="absolute top-0 right-0 w-full h-full border-[3px] border-border/10 bg-background shadow-sm pointer-events-none"
+        className="absolute inset-0 border-2 sm:border-[3px] border-border/10 bg-background shadow-sm pointer-events-none hidden sm:block"
         style={{
-          transform: 'translate(48px, -32px)',
+          transform: 'translate(32px, -24px)',
           zIndex: -4,
         }}
       />
 
       {/* Layer 3 */}
       <div
-        className="absolute top-0 right-0 w-full h-full border-[3px] border-border/15 bg-background shadow-sm pointer-events-none"
+        className="absolute inset-0 border-2 sm:border-[3px] border-border/15 bg-background shadow-sm pointer-events-none hidden sm:block"
         style={{
-          transform: 'translate(36px, -24px)',
+          transform: 'translate(24px, -18px)',
           zIndex: -3,
         }}
       />
 
       {/* Layer 2 */}
       <div
-        className="absolute top-0 right-0 w-full h-full border-[3px] border-border/20 bg-background shadow-sm pointer-events-none"
+        className="absolute inset-0 border-2 sm:border-[3px] border-border/20 bg-background shadow-sm pointer-events-none"
         style={{
-          transform: 'translate(24px, -16px)',
+          transform: 'translate(16px, -12px)',
           zIndex: -2,
         }}
       />
 
       {/* Layer 1 */}
       <div
-        className="absolute top-0 right-0 w-full h-full border-[3px] border-border/25 bg-background shadow-sm pointer-events-none"
+        className="absolute inset-0 border-2 sm:border-[3px] border-border/25 bg-background shadow-sm pointer-events-none"
         style={{
-          transform: 'translate(12px, -8px)',
+          transform: 'translate(8px, -6px)',
           zIndex: -1,
         }}
       />
 
       {/* Main */}
       <div
-        className="relative w-full border-[3px] border-border/30 bg-background overflow-hidden flex flex-col font-sans shadow-sm"
+        className="relative w-full border-2 sm:border-[3px] border-border/30 bg-background overflow-hidden flex flex-col font-sans shadow-sm"
         style={{ zIndex: 1 }}
       >
         {/* Inner decorative borders - more visible */}
-        <div className="absolute inset-3 border-2 border-border/30 pointer-events-none z-0 rounded-sm" />
-        <div className="absolute inset-5 border border-border/20 pointer-events-none z-0" />
+        <div className="absolute inset-2 sm:inset-3 border sm:border-2 border-border/30 pointer-events-none z-0 rounded-sm" />
+        <div className="absolute inset-3 sm:inset-5 border border-border/20 pointer-events-none z-0 hidden sm:block" />
 
         {/* Scan line */}
         <AnimatePresence>
@@ -296,13 +296,13 @@ export function SertificationValidationAnimation() {
         </AnimatePresence>
 
         {/* Header */}
-        <div className="relative z-3 flex items-center justify-between px-6 py-4 border-b border-border/30 shrink-0">
-          <div className="flex items-center gap-2.5">
+        <div className="relative z-3 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-border/30 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <div>
-              <div className="text-[13px] text-left font-bold text-foreground tracking-tight">
+              <div className="text-[11px] sm:text-[13px] text-left font-bold text-foreground tracking-tight">
                 Kredly
               </div>
-              <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-muted-foreground">
+              <div className="font-mono text-[7px] sm:text-[8px] uppercase tracking-[0.15em] text-muted-foreground">
                 Certification Authority
               </div>
             </div>
@@ -311,7 +311,7 @@ export function SertificationValidationAnimation() {
           <motion.div
             animate={{ opacity: headerVis ? 1 : 0 }}
             transition={{ duration: 0.4 }}
-            className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground text-right leading-[1.6]"
+            className="font-mono text-[8px] sm:text-[9px] uppercase tracking-[0.2em] text-muted-foreground text-right leading-[1.6]"
           >
             Certificate of
             <br />
@@ -320,13 +320,13 @@ export function SertificationValidationAnimation() {
         </div>
 
         {/* Body */}
-        <div className="relative z-3 flex px-6 py-5 gap-6 overflow-hidden">
+        <div className="relative z-3 flex flex-col sm:flex-row px-4 sm:px-6 py-4 sm:py-5 gap-4 sm:gap-6 overflow-hidden">
           {/* Left content */}
-          <div className="flex-1 flex flex-col justify-center pr-6">
+          <div className="flex-1 flex flex-col justify-center sm:pr-6">
             <motion.p
               animate={{ opacity: presents ? 1 : 0, y: presents ? 0 : 6 }}
               transition={{ duration: 0.4 }}
-              className="font-mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground mb-2.5"
+              className="font-mono text-[8px] sm:text-[9px] uppercase tracking-[0.18em] text-muted-foreground mb-2 sm:mb-2.5"
             >
               This certifies that
             </motion.p>
@@ -335,7 +335,7 @@ export function SertificationValidationAnimation() {
               key={profile.field}
               animate={{ opacity: titleVis ? 1 : 0, y: titleVis ? 0 : 8 }}
               transition={{ duration: 0.5 }}
-              className="text-[28px] leading-[1.15] tracking-tight text-foreground mb-1.5 font-serif"
+              className="text-[20px] sm:text-[28px] leading-[1.15] tracking-tight text-foreground mb-1 sm:mb-1.5 font-serif"
               style={{ fontWeight: 400 }}
             >
               {profile.field}
@@ -345,7 +345,7 @@ export function SertificationValidationAnimation() {
               key={profile.sub}
               animate={{ opacity: domainVis ? 1 : 0, y: domainVis ? 0 : 4 }}
               transition={{ duration: 0.4 }}
-              className="text-[11px] text-muted-foreground mb-4"
+              className="text-[10px] sm:text-[11px] text-muted-foreground mb-3 sm:mb-4"
             >
               {profile.sub}
             </motion.p>
@@ -354,7 +354,7 @@ export function SertificationValidationAnimation() {
             <motion.div
               animate={{ opacity: pillsVis ? 1 : 0, y: pillsVis ? 0 : 6 }}
               transition={{ duration: 0.4 }}
-              className="grid grid-cols-4 gap-2"
+              className="grid grid-cols-4 gap-1.5 sm:gap-2"
             >
               <ScorePill
                 label="CV"
@@ -385,10 +385,10 @@ export function SertificationValidationAnimation() {
           </div>
 
           {/* Vertical divider */}
-          <div className="w-0.5 bg-border shrink-0 my-4" />
+          <div className="w-full sm:w-0.5 h-0.5 sm:h-auto bg-border shrink-0 sm:my-4" />
 
           {/* Right sidebar */}
-          <div className="w-32.5 shrink-0 flex flex-col items-center justify-center gap-4 pl-4">
+          <div className="w-full sm:w-32.5 shrink-0 flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-4 sm:gap-4 sm:pl-4">
             {/* Seal */}
             <motion.div
               animate={
@@ -398,15 +398,15 @@ export function SertificationValidationAnimation() {
               }
               transition={{ type: 'spring', stiffness: 200, damping: 20 }}
               className={[
-                'relative w-17.5 h-17.5 rounded-full border-2 flex flex-col items-center justify-center gap-1 shrink-0',
+                'relative w-16 h-16 sm:w-17.5 sm:h-17.5 rounded-full border-2 flex flex-col items-center justify-center gap-0.5 sm:gap-1 shrink-0',
                 verified
                   ? 'border-primary text-primary bg-primary/10'
                   : 'border-foreground text-foreground bg-muted/30',
               ].join(' ')}
             >
               <div className="absolute inset-1.5 rounded-full border-[1.5px] border-dashed border-current/30" />
-              <ShieldCheck className="relative z-1 w-5 h-5" />
-              <span className="relative z-1 font-mono text-[7px] font-bold uppercase tracking-[0.15em]">
+              <ShieldCheck className="relative z-1 w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="relative z-1 font-mono text-[6px] sm:text-[7px] font-bold uppercase tracking-[0.15em]">
                 {verified ? 'Verified' : 'Pending'}
               </span>
             </motion.div>
@@ -415,20 +415,23 @@ export function SertificationValidationAnimation() {
             <motion.div
               animate={{ opacity: footerVis ? 1 : 0 }}
               transition={{ duration: 0.4 }}
-              className="flex flex-col gap-2 w-full"
+              className="flex flex-col sm:flex-col gap-3 sm:gap-2 w-full"
             >
               {[
                 { key: 'Issued', val: TODAY, mono: true },
                 { key: 'Level', val: profile.level, mono: false },
                 { key: 'Expires', val: '2027-06-14', mono: true },
               ].map(({ key, val, mono }) => (
-                <div key={key} className="flex flex-col gap-0.5">
+                <div
+                  key={key}
+                  className="flex flex-row sm:flex-col gap-1 sm:gap-0.5 items-baseline sm:items-start"
+                >
                   <span className="font-mono text-[7px] uppercase tracking-[0.12em] text-muted-foreground">
-                    {key}
+                    {key}:
                   </span>
                   <span
                     className={[
-                      'text-[10px] font-semibold text-foreground',
+                      'text-[9px] sm:text-[10px] font-semibold text-foreground',
                       mono ? 'font-mono' : '',
                     ].join(' ')}
                   >
@@ -441,17 +444,17 @@ export function SertificationValidationAnimation() {
         </div>
 
         {/* Footer */}
-        <div className="relative z-3 flex items-center justify-between px-6 py-4 border-t border-border/30 shrink-0">
+        <div className="relative z-3 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-t border-border/30 shrink-0">
           <motion.div
             animate={{ opacity: footerVis ? 1 : 0 }}
             transition={{ duration: 0.4 }}
-            className="flex flex-col gap-1"
+            className="flex flex-col gap-0.5 sm:gap-1"
           >
-            <div className="h-0.5 w-15 bg-foreground/40" />
-            <span className="text-[11px] font-bold text-foreground mt-0.5">
+            <div className="h-0.5 w-12 sm:w-15 bg-foreground/40" />
+            <span className="text-[10px] sm:text-[11px] font-bold text-foreground mt-0.5">
               Kredly AI
             </span>
-            <span className="text-[8px] text-muted-foreground">
+            <span className="text-[7px] sm:text-[8px] text-muted-foreground">
               Validation Authority
             </span>
           </motion.div>
@@ -461,10 +464,10 @@ export function SertificationValidationAnimation() {
             transition={{ duration: 0.4, delay: 0.1 }}
             className="text-right"
           >
-            <p className="font-mono text-[8px] text-muted-foreground/60 mb-1.5">
+            <p className="font-mono text-[7px] sm:text-[8px] text-muted-foreground/60 mb-1 sm:mb-1.5">
               {profile.id}
             </p>
-            <div className="inline-flex items-center gap-1.5 font-mono text-[8px] uppercase tracking-[0.15em] font-semibold text-primary">
+            <div className="inline-flex items-center gap-1 sm:gap-1.5 font-mono text-[7px] sm:text-[8px] uppercase tracking-[0.15em] font-semibold text-primary">
               <motion.div
                 animate={{
                   scale: verified ? [1, 1.2, 1] : 1,
