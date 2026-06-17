@@ -16,13 +16,20 @@ import (
 // ==========================================
 
 type User struct {
-	ID            string    `bson:"_id" json:"id"`
-	Name          string    `bson:"name" json:"name"`
-	Email         string    `bson:"email" json:"email"`
-	EmailVerified bool      `bson:"emailVerified" json:"emailVerified"`
-	Image         *string   `bson:"image,omitempty" json:"image,omitempty"`
-	CreatedAt     time.Time `bson:"createdAt" json:"createdAt"`
-	UpdatedAt     time.Time `bson:"updatedAt" json:"updatedAt"`
+	ID            string     `bson:"_id" json:"id"`
+	Name          string     `bson:"name" json:"name"`
+	Email         string     `bson:"email" json:"email"`
+	EmailVerified bool       `bson:"emailVerified" json:"emailVerified"`
+	Image         *string    `bson:"image,omitempty" json:"image,omitempty"`
+	CreatedAt     time.Time  `bson:"createdAt" json:"createdAt"`
+	UpdatedAt     time.Time  `bson:"updatedAt" json:"updatedAt"`
+
+	// CV parsed fields
+	CVRole        *string    `bson:"cvRole,omitempty" json:"cvRole,omitempty"`
+	CVLevel       *string    `bson:"cvLevel,omitempty" json:"cvLevel,omitempty"`
+	CVSkills      []string   `bson:"cvSkills,omitempty" json:"cvSkills,omitempty"`
+	CVSummary     *string    `bson:"cvSummary,omitempty" json:"cvSummary,omitempty"`
+	CVParsedAt    *time.Time `bson:"cvParsedAt,omitempty" json:"cvParsedAt,omitempty"`
 
 	// Relasi diabaikan di level database, hanya untuk JSON response jika diperlukan
 	Sessions []Session `bson:"-" json:"sessions,omitempty"`

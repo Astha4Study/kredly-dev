@@ -34,6 +34,7 @@ type ParsedResultViewProps = Pick<
   | 'setRole'
   | 'toggleSkill'
   | 'addCustomSkill'
+  | 'resetParser'
 >;
 
 export default function ParsedResultView({
@@ -45,6 +46,7 @@ export default function ParsedResultView({
   setRole,
   toggleSkill,
   addCustomSkill,
+  resetParser,
 }: ParsedResultViewProps) {
   const [newSkill, setNewSkill] = React.useState('');
   const [isEditing, setIsEditing] = React.useState(false);
@@ -257,29 +259,40 @@ export default function ParsedResultView({
         </div>
       )}
 
-      {/* Bottom Button */}
-      <Button
-        size="lg"
-        onClick={handleStartExam}
-        disabled={!isExamReady || skills.length === 0 || isCreatingSession}
-        className={`w-full group text-base font-medium transition-all duration-500 cursor-pointer ${
-          isExamReady && skills.length > 0
-            ? 'opacity-100 translate-y-0 '
-            : 'opacity-0 translate-y-4'
-        }`}
-      >
-        {isCreatingSession ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            Menyiapkan ujian...
-          </>
-        ) : (
-          <>
-            Mulai Ujian
-            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </>
-        )}
-      </Button>
+      {/* Bottom Buttons */}
+      <div className={`w-full flex flex-col sm:flex-row gap-3 transition-all duration-500 ${
+        isExamReady && skills.length > 0
+          ? 'opacity-100 translate-y-0'
+          : 'opacity-0 translate-y-4'
+      }`}>
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={resetParser}
+          disabled={isCreatingSession}
+          className="w-full sm:w-1/3 text-base font-medium cursor-pointer border-border hover:bg-muted text-muted-foreground hover:text-foreground"
+        >
+          Upload Ulang CV
+        </Button>
+        <Button
+          size="lg"
+          onClick={handleStartExam}
+          disabled={!isExamReady || skills.length === 0 || isCreatingSession}
+          className="flex-1 group text-base font-medium cursor-pointer"
+        >
+          {isCreatingSession ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Menyiapkan ujian...
+            </>
+          ) : (
+            <>
+              Mulai Ujian
+              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 }

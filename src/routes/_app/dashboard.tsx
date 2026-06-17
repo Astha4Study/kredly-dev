@@ -128,7 +128,9 @@ function DashboardPage() {
                 <CardDescription>Take skill assessments</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button className="w-full">Start Assessment</Button>
+                <a href="/parsecv">
+                  <Button className="w-full">Start Assessment</Button>
+                </a>
               </CardContent>
             </Card>
 

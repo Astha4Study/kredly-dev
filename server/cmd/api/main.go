@@ -35,7 +35,7 @@ func main() {
 	groqClient := groq.NewClient(cfg.GroqAPIKey, cfg.GroqBaseURL)
 
 	// 3. Initialize CAT system
-	sessionStore := store.NewSessionStore()
+	sessionStore := store.NewSessionStore(database.DB)
 	catService := service.NewCATService(sessionStore, groqClient)
 	sessionHandler := handlers.NewSessionHandler(catService)
 
@@ -78,7 +78,7 @@ func main() {
 			})
 		})
 
-		api.POST("/parse-cv", cvHandler.HandleParseCV)
+		api.POST("/parse-cv", middleware.AuthMiddleware(cfg, authService), cvHandler.HandleParseCV)
 
 		// CAT Session endpoints
 		api.POST("/sessions", sessionHandler.HandleCreateSession)

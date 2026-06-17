@@ -77,6 +77,7 @@ export default function CVParserPage() {
             setRole={parserState.setRole}
             toggleSkill={parserState.toggleSkill}
             addCustomSkill={parserState.addCustomSkill}
+            resetParser={parserState.resetParser}
           />
         )}
       </div>

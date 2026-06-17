@@ -8,6 +8,10 @@ export interface User {
   name: string;
   emailVerified: boolean;
   image?: string;
+  cvRole?: string;
+  cvLevel?: string;
+  cvSkills?: string[];
+  cvSummary?: string;
 }
 
 export interface AuthContextType {

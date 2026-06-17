@@ -84,7 +84,9 @@ func (s *CATService) CreateSession(req CreateSessionReq) (*models.Session, error
 		CreatedAt:       time.Now(),
 	}
 
-	s.sessions.Set(sess)
+	if err := s.sessions.Set(sess); err != nil {
+		return nil, fmt.Errorf("failed to save session to database: %w", err)
+	}
 
 	// Async prefetch first batch of questions
 	go s.triggerBackgroundPrefetch(sess.ID)

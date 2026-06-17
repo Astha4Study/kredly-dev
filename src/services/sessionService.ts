@@ -6,7 +6,7 @@ import type {
   ResultResponse,
 } from '../pages/client/cat/types';
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = '/api';
 
 export const sessionService = {
   async createSession(data: CreateSessionPayload): Promise<SessionResponse> {
