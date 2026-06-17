@@ -3,6 +3,8 @@ import GridBorder from '@/components/GridBorder';
 import { OrbitingCirclesAnimation } from '@/components/OrbitingCirclesAnimation';
 import { ProfileAnalysisAnimation } from '@/components/ProfileAnalysisAnimation';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { Workflow } from 'lucide-react';
 
 const steps = [
   {
@@ -28,11 +30,12 @@ export default function HowItWorksSection() {
       <GridBorder className="mx-auto w-full max-w-7xl" paddingY="py-6 sm:py-8">
         <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
           <Badge variant="default" className="shadow-sm">
+            <Workflow />
             Bagaimana Kredly Bekerja
           </Badge>
 
-          <div className="mt-4 max-w-3xl space-y-8">
-            <h2 className="text-3xl font-bold tracking-tight lg:text-5xl">
+          <div className="mt-4 max-w-3xl space-y-4 md:space-y-8">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
               Buktikan kemampuanmu melalui pengujian nyata.
             </h2>
 
@@ -42,11 +45,15 @@ export default function HowItWorksSection() {
             </p>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {steps.map((step) => (
+          <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {steps.map((step, index) => (
               <div
                 key={step.id}
-                className="flex flex-col items-start border border-zinc-100 bg-white p-4 overflow-hidden shadow-sm"
+                className={cn(
+                  'flex flex-col items-start border border-zinc-100 bg-white p-4 overflow-hidden shadow-sm',
+                  index === 2 &&
+                  'md:col-span-2 md:mx-auto md:max-w-md xl:col-span-1 xl:mx-0 xl:max-w-none',
+                )}
               >
                 <div className="bg-primary text-primary-foreground p-0.5">
                   <span className="text-base font-bold">{step.id}</span>

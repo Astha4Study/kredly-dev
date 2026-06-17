@@ -20,9 +20,11 @@ import { Route as QuizSessionIdRouteImport } from './routes/quiz.$sessionId'
 import { Route as AuthVerificationRouteImport } from './routes/_auth/verification'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
+import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppAppRouteRouteImport } from './routes/_app/app/route'
 import { Route as PublicFeaturesIndexRouteImport } from './routes/_public/features/index'
+import { Route as PublicAboutUsIndexRouteImport } from './routes/_public/about-us/index'
 import { Route as AppAppIndexRouteImport } from './routes/_app/app/index'
 import { Route as AppAppParseCvIndexRouteImport } from './routes/_app/app/parse-cv/index'
 
@@ -78,6 +80,11 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const AppDashboardRoute = AppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppSplatRoute = AppSplatRouteImport.update({
   id: '/$',
   path: '/$',
@@ -91,6 +98,11 @@ const AppAppRouteRoute = AppAppRouteRouteImport.update({
 const PublicFeaturesIndexRoute = PublicFeaturesIndexRouteImport.update({
   id: '/features/',
   path: '/features/',
+  getParentRoute: () => PublicRouteRoute,
+} as any)
+const PublicAboutUsIndexRoute = PublicAboutUsIndexRouteImport.update({
+  id: '/about-us/',
+  path: '/about-us/',
   getParentRoute: () => PublicRouteRoute,
 } as any)
 const AppAppIndexRoute = AppAppIndexRouteImport.update({
@@ -110,12 +122,14 @@ export interface FileRoutesByFullPath {
   '/test': typeof TestRoute
   '/app': typeof AppAppRouteRouteWithChildren
   '/$': typeof AppSplatRoute
+  '/dashboard': typeof AppDashboardRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/verification': typeof AuthVerificationRoute
   '/quiz/$sessionId': typeof QuizSessionIdRoute
   '/result/$sessionId': typeof ResultSessionIdRoute
   '/app/': typeof AppAppIndexRoute
+  '/about-us/': typeof PublicAboutUsIndexRoute
   '/features/': typeof PublicFeaturesIndexRoute
   '/app/parse-cv/': typeof AppAppParseCvIndexRoute
 }
@@ -124,12 +138,14 @@ export interface FileRoutesByTo {
   '/parseCV': typeof ParseCVRoute
   '/test': typeof TestRoute
   '/$': typeof AppSplatRoute
+  '/dashboard': typeof AppDashboardRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/verification': typeof AuthVerificationRoute
   '/quiz/$sessionId': typeof QuizSessionIdRoute
   '/result/$sessionId': typeof ResultSessionIdRoute
   '/app': typeof AppAppIndexRoute
+  '/about-us': typeof PublicAboutUsIndexRoute
   '/features': typeof PublicFeaturesIndexRoute
   '/app/parse-cv': typeof AppAppParseCvIndexRoute
 }
@@ -142,6 +158,7 @@ export interface FileRoutesById {
   '/test': typeof TestRoute
   '/_app/app': typeof AppAppRouteRouteWithChildren
   '/_app/$': typeof AppSplatRoute
+  '/_app/dashboard': typeof AppDashboardRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_auth/verification': typeof AuthVerificationRoute
@@ -149,6 +166,7 @@ export interface FileRoutesById {
   '/result/$sessionId': typeof ResultSessionIdRoute
   '/_public/': typeof PublicIndexRoute
   '/_app/app/': typeof AppAppIndexRoute
+  '/_public/about-us/': typeof PublicAboutUsIndexRoute
   '/_public/features/': typeof PublicFeaturesIndexRoute
   '/_app/app/parse-cv/': typeof AppAppParseCvIndexRoute
 }
@@ -160,12 +178,14 @@ export interface FileRouteTypes {
     | '/test'
     | '/app'
     | '/$'
+    | '/dashboard'
     | '/login'
     | '/register'
     | '/verification'
     | '/quiz/$sessionId'
     | '/result/$sessionId'
     | '/app/'
+    | '/about-us/'
     | '/features/'
     | '/app/parse-cv/'
   fileRoutesByTo: FileRoutesByTo
@@ -174,12 +194,14 @@ export interface FileRouteTypes {
     | '/parseCV'
     | '/test'
     | '/$'
+    | '/dashboard'
     | '/login'
     | '/register'
     | '/verification'
     | '/quiz/$sessionId'
     | '/result/$sessionId'
     | '/app'
+    | '/about-us'
     | '/features'
     | '/app/parse-cv'
   id:
@@ -191,6 +213,7 @@ export interface FileRouteTypes {
     | '/test'
     | '/_app/app'
     | '/_app/$'
+    | '/_app/dashboard'
     | '/_auth/login'
     | '/_auth/register'
     | '/_auth/verification'
@@ -198,6 +221,7 @@ export interface FileRouteTypes {
     | '/result/$sessionId'
     | '/_public/'
     | '/_app/app/'
+    | '/_public/about-us/'
     | '/_public/features/'
     | '/_app/app/parse-cv/'
   fileRoutesById: FileRoutesById
@@ -291,6 +315,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/$': {
       id: '/_app/$'
       path: '/$'
@@ -310,6 +341,13 @@ declare module '@tanstack/react-router' {
       path: '/features'
       fullPath: '/features/'
       preLoaderRoute: typeof PublicFeaturesIndexRouteImport
+      parentRoute: typeof PublicRouteRoute
+    }
+    '/_public/about-us/': {
+      id: '/_public/about-us/'
+      path: '/about-us'
+      fullPath: '/about-us/'
+      preLoaderRoute: typeof PublicAboutUsIndexRouteImport
       parentRoute: typeof PublicRouteRoute
     }
     '/_app/app/': {
@@ -346,11 +384,13 @@ const AppAppRouteRouteWithChildren = AppAppRouteRoute._addFileChildren(
 interface AppRouteRouteChildren {
   AppAppRouteRoute: typeof AppAppRouteRouteWithChildren
   AppSplatRoute: typeof AppSplatRoute
+  AppDashboardRoute: typeof AppDashboardRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAppRouteRoute: AppAppRouteRouteWithChildren,
   AppSplatRoute: AppSplatRoute,
+  AppDashboardRoute: AppDashboardRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
@@ -375,11 +415,13 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
 
 interface PublicRouteRouteChildren {
   PublicIndexRoute: typeof PublicIndexRoute
+  PublicAboutUsIndexRoute: typeof PublicAboutUsIndexRoute
   PublicFeaturesIndexRoute: typeof PublicFeaturesIndexRoute
 }
 
 const PublicRouteRouteChildren: PublicRouteRouteChildren = {
   PublicIndexRoute: PublicIndexRoute,
+  PublicAboutUsIndexRoute: PublicAboutUsIndexRoute,
   PublicFeaturesIndexRoute: PublicFeaturesIndexRoute,
 }
 

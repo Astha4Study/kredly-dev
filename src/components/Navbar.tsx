@@ -27,10 +27,7 @@ export function Navbar() {
           },
         )}
       >
-        <Link
-          className="rounded-md p-2 hover:bg-muted dark:hover:bg-muted/50"
-          to="/"
-        >
+        <Link to="/">
           <img src={Logo} alt="Kredly Logo" className="h-6" />
         </Link>
         <div className="hidden items-center gap-2 md:flex">
@@ -41,10 +38,13 @@ export function Navbar() {
               </Button>
             ))}
           </div>
-          <Button size="sm" variant="outline">
-            Sign In
+          <Button asChild size="sm" variant="outline">
+            <Link to="/login">Masuk</Link>
           </Button>
-          <Button size="sm">Get Started</Button>
+
+          <Button asChild size="sm">
+            <Link to="/register">Daftar Gratis</Link>
+          </Button>
         </div>
         <MobileNav />
       </nav>
