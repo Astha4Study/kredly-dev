@@ -47,7 +47,10 @@ func main() {
 	// 5. Initialize Onboarding system
 	onboardingHandler := handlers.NewOnboardingHandler()
 
-	// 6. Initialize HTTP Handlers
+	// 6. Initialize Profile system
+	profileHandler := handlers.NewProfileHandler()
+
+	// 7. Initialize HTTP Handlers
 	cvHandler := handlers.NewCVHandler(groqClient)
 
 	// Set Gin mode
@@ -119,6 +122,9 @@ func main() {
 		{
 			onboarding.POST("/complete", onboardingHandler.HandleCompleteOnboarding)
 		}
+
+		// Profile endpoints - Protected
+		api.GET("/profile", middleware.AuthMiddleware(cfg, authService), profileHandler.HandleGetProfile)
 	}
 
 	// 9. Start Server
