@@ -3,6 +3,12 @@ import { pluginReact } from '@rsbuild/plugin-react';
 import { tanstackRouter } from '@tanstack/router-plugin/rspack';
 import { pluginBabel } from '@rsbuild/plugin-babel';
 import { pluginSvgr } from '@rsbuild/plugin-svgr';
+import { config } from 'dotenv';
+import { resolve } from 'path';
+
+config({ path: resolve(__dirname, 'server/.env') });
+
+const apiUrl = process.env.API_URL || 'http://localhost:8080';
 
 // Docs: https://rsbuild.rs/config/
 export default defineConfig({
@@ -30,7 +36,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: apiUrl,
+        changeOrigin: true,
       },
     },
   },

@@ -1,260 +1,193 @@
-import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
+import AsideProfile from '@/components/AsideProfile';
 import { useAuth } from '@/contexts';
-import { useEffect, useState } from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute('/_app/app/')({
   component: RouteComponent,
 });
 
-interface UserProfile {
-  id: string;
-  userId: string;
-  cvFileName: string;
-  cvFilePath: string;
-  experience: string;
-  isStudent: boolean;
-  degree?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 function RouteComponent() {
   const { user } = useAuth();
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [profileLoading, setProfileLoading] = useState(true);
 
-  useEffect(() => {
-    // Fetch UserProfile for debugging
-    async function fetchProfile() {
-      try {
-        console.log('Fetching profile...');
-        const response = await fetch('/api/profile', {
-          credentials: 'include',
-        });
-        console.log('Profile response status:', response.status);
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Profile data:', data);
-          setUserProfile(data.profile);
-        } else {
-          const errorData = await response.json();
-          console.error('Profile fetch error:', errorData);
-        }
-      } catch (error) {
-        console.error('Failed to fetch profile:', error);
-      } finally {
-        setProfileLoading(false);
-      }
-    }
-
-    fetchProfile();
-  }, []);
+  const credentials = [
+    {
+      title: 'React Fundamentals',
+      date: '15 Juni 2026',
+      score: 88,
+      category: 'Frontend Development',
+    },
+    {
+      title: 'JavaScript ES6',
+      date: '10 Juni 2026',
+      score: 82,
+      category: 'Programming Languages',
+    },
+  ];
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="space-y-6">
-        {/* Welcome Section */}
-        <div>
-          <h2 className="text-3xl font-bold text-gray-900">
-            Welcome back, {user?.name || 'User'}!
-          </h2>
-          <p className="text-gray-600 mt-2">Here's your dashboard overview</p>
-        </div>
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="flex items-start gap-4">
+        <div className="min-w-0 flex-1">
+          <div className="border-b border-border px-1 pb-5">
+            <h1 className="text-xl font-semibold text-foreground">
+              Selamat datang kembali, {user?.name?.split(' ')[0]}
+            </h1>
 
-        {/* User Info Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Profile Information</CardTitle>
-            <CardDescription>
-              Your account details and verification status
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-gray-500">
-                  Name
-                </label>
-                <p className="text-base text-gray-900 mt-1">
-                  {user?.name || 'Not set'}
-                </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Lanjutkan asesmen Anda dan bangun kredensial yang dapat
+              diverifikasi.
+            </p>
+          </div>
+          <div className="overflow-hidden rounded-xl border border-border bg-background">
+            {/* Hero Stats */}
+            <section className="border-b border-border">
+              <div className="grid grid-cols-3">
+                {[
+                  {
+                    value: '2',
+                    label: 'Kredensial',
+                    description: 'Terverifikasi blockchain',
+                  },
+                  {
+                    value: '85%',
+                    label: 'Rata-rata skor',
+                    description: 'Dari seluruh asesmen',
+                  },
+                  {
+                    value: '1',
+                    label: 'Sedang berjalan',
+                    description: 'Asesmen aktif',
+                  },
+                ].map((item, index) => (
+                  <div
+                    key={item.label}
+                    className={`p-6 ${
+                      index !== 2 ? 'border-r border-border' : ''
+                    }`}
+                  >
+                    <p className="text-sm text-muted-foreground">
+                      {item.label}
+                    </p>
+
+                    <p className="mt-2 text-4xl font-bold">{item.value}</p>
+
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {item.description}
+                    </p>
+                  </div>
+                ))}
               </div>
+            </section>
 
-              <div>
-                <label className="text-sm font-medium text-gray-500">
-                  Email
-                </label>
-                <p className="text-base text-gray-900 mt-1">
-                  {user?.email || 'Not set'}
-                </p>
-              </div>
+            {/* Assessment */}
+            <section className="border-b border-border">
+              <div className="p-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Asesmen sedang berjalan
+                    </p>
 
-              <div>
-                <label className="text-sm font-medium text-gray-500">
-                  Email Verified
-                </label>
-                <p className="mt-1">
-                  {user?.emailVerified ? (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      ✓ Verified
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                      Not Verified
-                    </span>
-                  )}
-                </p>
-              </div>
+                    <h2 className="mt-1 text-xl font-semibold">
+                      React Advanced
+                    </h2>
+                  </div>
 
-              <div>
-                <label className="text-sm font-medium text-gray-500">
-                  User ID
-                </label>
-                <p className="text-base text-gray-900 mt-1 font-mono">
-                  {user?.id || 'Not set'}
-                </p>
-              </div>
-            </div>
-
-            {user?.image && (
-              <div>
-                <label className="text-sm font-medium text-gray-500">
-                  Profile Picture
-                </label>
-                <div className="mt-2">
-                  <img
-                    src={user.image}
-                    alt="Profile"
-                    className="h-16 w-16 rounded-full object-cover"
-                  />
+                  <div className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                    45%
+                  </div>
                 </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Assessments</CardTitle>
-                <CardDescription>Take skill assessments</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link to="/test-overview">
-                  <Button className="w-full">Start Assessment</Button>
+                <div className="mt-5">
+                  <div className="mb-2 flex justify-between text-xs text-muted-foreground">
+                    <span>9 dari 20 soal</span>
+                    <span>15 menit tersisa</span>
+                  </div>
+
+                  <div className="h-2 rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-primary"
+                      style={{ width: '45%' }}
+                    />
+                  </div>
+                </div>
+
+                <Link to="/app/assessments">
+                  <Button className="mt-5">Lanjutkan asesmen</Button>
                 </Link>
-              </CardContent>
-            </Card>
+              </div>
+            </section>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Credentials</CardTitle>
-              <CardDescription>View your credentials</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full" variant="outline">
-                View Credentials
-              </Button>
-            </CardContent>
-          </Card>
+            {/* Credentials */}
+            <section>
+              <div className="flex items-center justify-between border-b border-border p-6">
+                <div>
+                  <h2 className="text-lg font-semibold">Kredensial terbaru</h2>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Profile</CardTitle>
-              <CardDescription>Update your profile</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full" variant="outline">
-                Edit Profile
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-          {/* Debug Section - UserProfile Data */}
-          <Card className="border-yellow-200 bg-yellow-50/50">
-            <CardHeader>
-              <CardTitle className="text-yellow-900">
-                Debug: UserProfile Data
-              </CardTitle>
-              <CardDescription>
-                Database UserProfile information (for debugging)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {profileLoading ? (
-                <p className="text-sm text-muted-foreground">
-                  Loading profile...
-                </p>
-              ) : userProfile ? (
-                <div className="space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">
-                        CV Filename
-                      </label>
-                      <p className="text-base text-gray-900 mt-1">
-                        {userProfile.cvFileName}
-                      </p>
-                    </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">
-                      Experience
-                    </label>
-                    <p className="text-base text-gray-900 mt-1">
-                      {userProfile.experience}
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">
-                      Is Student
-                    </label>
-                    <p className="text-base text-gray-900 mt-1">
-                      {userProfile.isStudent ? 'Yes' : 'No'}
-                    </p>
-                  </div>
-
-                  {userProfile.degree && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">
-                        Degree
-                      </label>
-                      <p className="text-base text-gray-900 mt-1">
-                        {userProfile.degree}
-                      </p>
-                    </div>
-                  )}
+                  <p className="text-sm text-muted-foreground">
+                    Pencapaian yang telah diverifikasi
+                  </p>
                 </div>
 
-                <details className="mt-4">
-                  <summary className="text-sm font-medium text-gray-500 cursor-pointer hover:text-gray-700">
-                    Show Raw JSON
-                  </summary>
-                  <pre className="mt-2 text-xs overflow-auto bg-white p-3 rounded border">
-                    {JSON.stringify(userProfile, null, 2)}
-                  </pre>
-                </details>
+                <Link to="/app/credentials">
+                  <Button variant="ghost">Lihat semua</Button>
+                </Link>
               </div>
-            ) : (
-              <p className="text-sm text-red-600">
-                ⚠️ No UserProfile found in database
-              </p>
-            )}
-          </CardContent>
-        </Card>
+
+              <div className="divide-y divide-border">
+                {credentials.map((cred) => (
+                  <div
+                    key={cred.title}
+                    className="p-6 transition-colors hover:bg-muted/40"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          {cred.category}
+                        </p>
+
+                        <h3 className="mt-1 text-base font-semibold">
+                          {cred.title}
+                        </h3>
+
+                        <p className="mt-3 text-xs text-muted-foreground">
+                          {cred.date}
+                        </p>
+                      </div>
+
+                      <div className="text-right">
+                        <p className="text-3xl font-bold">{cred.score}</p>
+
+                        <p className="text-xs text-muted-foreground">
+                          skor akhir
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                      <svg
+                        className="h-3.5 w-3.5"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Blockchain verified
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+        </div>
+        <div className="hidden shrink-0 md:block">
+          <AsideProfile />
+        </div>
       </div>
     </main>
   );

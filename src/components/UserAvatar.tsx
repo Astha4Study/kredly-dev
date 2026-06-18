@@ -11,9 +11,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Settings, LogOut } from 'lucide-react';
+import { useState } from 'react';
 
 export default function UserAvatar() {
   const navigate = useNavigate();
+  const [imageError, setImageError] = useState(false);
   const { user, signOut } = useAuth();
 
   async function handleLogout() {
@@ -42,8 +44,15 @@ export default function UserAvatar() {
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-white/20">
           <Avatar className="size-8">
-            <AvatarImage src={user?.image} alt={user?.name || 'User'} />
-            <AvatarFallback className="bg-white/10 text-white">
+            {!imageError && user?.image ? (
+              <AvatarImage
+                src={user.image}
+                alt={user.name || 'User'}
+                onError={() => setImageError(true)}
+              />
+            ) : null}
+
+            <AvatarFallback className="bg-muted text-foreground">
               {getInitials(user?.name)}
             </AvatarFallback>
           </Avatar>

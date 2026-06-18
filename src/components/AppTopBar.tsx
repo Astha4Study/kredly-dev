@@ -19,48 +19,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useNavigate, useLocation } from '@tanstack/react-router';
-import { Link } from '@tanstack/react-router';
+import { useNavigate, Link } from '@tanstack/react-router';
+import AppTopbarItem from './AppTopbarItem';
 
 export default function AppTopBar() {
   const navigate = useNavigate();
-  const location = useLocation();
 
   // TODO: Fetch kredit dari API
   const kredit = 150;
 
   const navItems = [
     { path: '/app', label: 'Beranda', icon: Home },
-    { path: '/app/credentials', label: 'Kredensial', icon: Award },
-    { path: '/app/assessments', label: 'Asesmen', icon: FileText },
+    { path: '/app/kredensial', label: 'Kredensial', icon: Award },
+    { path: '/app/assasemen', label: 'Asesmen', icon: FileText },
   ];
-
-  const isActive = (path: string) => location.pathname === path;
-
-  const NavItem = ({
-    to,
-    icon: Icon,
-    label,
-  }: {
-    to: string;
-    icon: any;
-    label: string;
-  }) => {
-    const active = isActive(to);
-    return (
-      <Link
-        to={to}
-        className={`flex items-center gap-2 rounded-sm px-3 h-full text-sm font-medium transition-colors ${
-          active
-            ? 'bg-white text-foreground shadow-sm'
-            : 'text-muted-foreground hover:text-foreground hover:bg-white/60'
-        }`}
-      >
-        <Icon className="h-4 w-4" />
-        {label}
-      </Link>
-    );
-  };
 
   return (
     <header className="sticky top-0 z-10 border-b bg-white text-foreground">
@@ -74,7 +46,7 @@ export default function AppTopBar() {
             <div className="hidden md:flex items-center gap-2">
               <nav className="flex items-center gap-1 rounded-md border bg-muted/50 p-1 h-10">
                 {navItems.map((item) => (
-                  <NavItem
+                  <AppTopbarItem
                     key={item.path}
                     to={item.path}
                     icon={item.icon}
@@ -84,7 +56,7 @@ export default function AppTopBar() {
               </nav>
 
               <nav className="flex items-center rounded-md border bg-muted/50 p-1 h-10">
-                <NavItem to="/app/history" icon={History} label="Riwayat" />
+                <AppTopbarItem to="/app/riwayat" icon={History} label="Riwayat" />
               </nav>
             </div>
           </div>
