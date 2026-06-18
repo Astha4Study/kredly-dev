@@ -213,6 +213,23 @@ func (h *AuthHandler) HandleMe(c *gin.Context) {
 		hasCompletedOnboarding = true
 	}
 
+	var cvRole *string
+	var cvLevel *string
+	var cvSkills []string
+	var cvSummary *string
+
+	if hasCompletedOnboarding {
+		cvRole = userProfile.CVRole
+		cvLevel = userProfile.CVLevel
+		cvSkills = userProfile.CVSkills
+		cvSummary = userProfile.CVSummary
+	} else {
+		cvRole = user.CVRole
+		cvLevel = user.CVLevel
+		cvSkills = user.CVSkills
+		cvSummary = user.CVSummary
+	}
+
 	// Auto-refresh token jika mendekati expired (2 hari sebelum habis)
 	if h.authService.ShouldRefreshSession(session.ExpiresAt) {
 		newSession, err := h.authService.RefreshSession(c.Request.Context(), token, user.ID)
@@ -246,6 +263,10 @@ func (h *AuthHandler) HandleMe(c *gin.Context) {
 			"emailVerified":          user.EmailVerified,
 			"image":                  user.Image,
 			"hasCompletedOnboarding": hasCompletedOnboarding,
+			"cvRole":                 cvRole,
+			"cvLevel":                cvLevel,
+			"cvSkills":               cvSkills,
+			"cvSummary":              cvSummary,
 		},
 	})
 }

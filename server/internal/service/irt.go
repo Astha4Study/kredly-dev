@@ -6,7 +6,7 @@ import (
 )
 
 // UpdateTheta calculates the new theta (ability) estimate based on Newton-Raphson method
-func UpdateTheta(thetaOld, b float64, correct bool) float64 {
+func UpdateTheta(thetaOld, b float64, score float64) float64 {
 	p := 1.0 / (1.0 + math.Exp(-(thetaOld - b)))
 	denom := p * (1.0 - p)
 	
@@ -15,12 +15,7 @@ func UpdateTheta(thetaOld, b float64, correct bool) float64 {
 		denom = 0.01
 	}
 
-	var resp float64
-	if correct {
-		resp = 1.0
-	}
-
-	step := (resp - p) / denom
+	step := (score - p) / denom
 
 	// Limit step size to avoid extreme jumps or oscillation
 	if step > 1.5 {

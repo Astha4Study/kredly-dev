@@ -1,13 +1,19 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"os"
+	"strings"
+	"time"
 
+	"kredly/internal/database"
 	"kredly/internal/groq"
+	"kredly/internal/models"
 	"kredly/internal/pdf"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type CVHandler struct {
@@ -22,6 +28,14 @@ func NewCVHandler(groqClient *groq.Client) *CVHandler {
 
 // HandleParseCV receives a PDF file, extracts text, sends it to Groq API, and returns JSON
 func (h *CVHandler) HandleParseCV(c *gin.Context) {
+	// Get logged-in user from context (if authenticated)
+	var loggedInUser *models.User
+	if userVal, exists := c.Get("user"); exists {
+		if u, ok := userVal.(models.User); ok {
+			loggedInUser = &u
+		}
+	}
+
 	// 1. Get file from form
 	file, err := c.FormFile("cv")
 	if err != nil {
@@ -64,7 +78,8 @@ The JSON must follow this exact schema:
 {
   "role": "Candidate's primary role or title (e.g., Backend Engineer)",
   "level": "Candidate's seniority level (e.g., Junior, Mid, Senior, Lead)",
-  "skills": ["Skill 1", "Skill 2"]
+  "skills": ["Skill 1", "Skill 2"],
+  "summary": "A concise, clean, and professional summary of the candidate's profile, key experience, and education. Keep it brief (2-3 sentences max) as a single plain paragraph. Do NOT include any special characters, list bullet points, or symbols like '●' or '•'."
 }
 
 Ensure all fields are populated as accurately as possible based on the text. If a field is missing, set it to null or an empty array/string. Do not include any markdown format tags like ` + "`" + `json` + "`" + ` or any conversational intro/outro text. Return ONLY the raw JSON object.`
@@ -95,6 +110,71 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 		return
 	}
 
-	// 7. Send the JSON string response directly
-	c.Data(http.StatusOK, "application/json", []byte(resp.Choices[0].Message.Content))
+	rawContent := resp.Choices[0].Message.Content
+	cleanJSON := strings.TrimSpace(rawContent)
+
+	// Clean markdown block wrappers if present (e.g. ```json ... ```)
+	if strings.HasPrefix(cleanJSON, "```") {
+		lines := strings.Split(cleanJSON, "\n")
+		var validLines []string
+		for _, line := range lines {
+			trimmed := strings.TrimSpace(line)
+			if !strings.HasPrefix(trimmed, "```") {
+				validLines = append(validLines, line)
+			}
+		}
+		cleanJSON = strings.Join(validLines, "\n")
+	}
+	cleanJSON = strings.TrimSpace(cleanJSON)
+
+	// 7. Save parsed results to the user profile if logged in
+	if loggedInUser != nil {
+		type parsedCV struct {
+			Role    string   `json:"role"`
+			Level   string   `json:"level"`
+			Skills  []string `json:"skills"`
+			Summary string   `json:"summary"`
+		}
+
+		var parsed parsedCV
+		if err := json.Unmarshal([]byte(cleanJSON), &parsed); err == nil {
+			userColl := database.DB.Collection("user")
+			now := time.Now()
+
+			cvSummary := parsed.Summary
+			if cvSummary == "" {
+				cleanedText := text
+				cleanedText = strings.ReplaceAll(cleanedText, "●", "")
+				cleanedText = strings.ReplaceAll(cleanedText, "•", "")
+				cleanedText = strings.ReplaceAll(cleanedText, "*", "")
+				words := strings.Fields(cleanedText)
+				cleanedText = strings.Join(words, " ")
+				if len(cleanedText) > 400 {
+					cleanedText = cleanedText[:397] + "..."
+				}
+				cvSummary = cleanedText
+			}
+
+			update := bson.M{
+				"$set": bson.M{
+					"cvRole":     parsed.Role,
+					"cvLevel":    parsed.Level,
+					"cvSkills":   parsed.Skills,
+					"cvSummary":  cvSummary,
+					"cvParsedAt": now,
+					"updatedAt":  now,
+				},
+			}
+
+			_, updateErr := userColl.UpdateOne(c.Request.Context(), bson.M{"_id": loggedInUser.ID}, update)
+			if updateErr != nil {
+				// Log the error but don't fail the request since parsing succeeded
+				c.Error(updateErr)
+			}
+		}
+	}
+
+	// 8. Send the JSON string response directly
+	c.Data(http.StatusOK, "application/json", []byte(cleanJSON))
 }
+

@@ -15,9 +15,10 @@ export interface SessionResponse {
 
 export interface QuizItem {
   id: string;
+  type: 'multiple_choice' | 'essay';
   topic: string;
   pertanyaan: string;
-  pilihan: string[];
+  pilihan?: string[];
 }
 
 export interface NextItemResponse {
@@ -27,6 +28,7 @@ export interface NextItemResponse {
 
 export interface AnswerResponse {
   correct: boolean;
+  correct_answer: string; // The correct option key (A/B/C/D)
   explanation: string;
   theta_new: number;
   completed: boolean;

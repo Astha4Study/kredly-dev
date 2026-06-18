@@ -30,7 +30,7 @@ export default function HowItWorksSection() {
       <GridBorder className="mx-auto w-full max-w-7xl" paddingY="py-6 sm:py-8">
         <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
           <Badge variant="default" className="shadow-sm">
-            <Workflow /> 
+            <Workflow />
             Bagaimana Kredly Bekerja
           </Badge>
 

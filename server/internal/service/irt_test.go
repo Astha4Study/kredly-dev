@@ -8,7 +8,7 @@ import (
 func TestUpdateTheta_CorrectAnswer(t *testing.T) {
 	thetaOld := 0.0
 	b := 0.0
-	thetaNew := UpdateTheta(thetaOld, b, true)
+	thetaNew := UpdateTheta(thetaOld, b, 1.0)
 
 	if thetaNew <= thetaOld {
 		t.Errorf("expected thetaNew to increase after correct answer, got %f -> %f", thetaOld, thetaNew)
@@ -18,7 +18,7 @@ func TestUpdateTheta_CorrectAnswer(t *testing.T) {
 func TestUpdateTheta_WrongAnswer(t *testing.T) {
 	thetaOld := 0.0
 	b := 0.0
-	thetaNew := UpdateTheta(thetaOld, b, false)
+	thetaNew := UpdateTheta(thetaOld, b, 0.0)
 
 	if thetaNew >= thetaOld {
 		t.Errorf("expected thetaNew to decrease after wrong answer, got %f -> %f", thetaOld, thetaNew)
@@ -28,7 +28,7 @@ func TestUpdateTheta_WrongAnswer(t *testing.T) {
 func TestUpdateTheta_Clamp(t *testing.T) {
 	thetaOld := 3.9
 	b := -2.0
-	thetaNew := UpdateTheta(thetaOld, b, true)
+	thetaNew := UpdateTheta(thetaOld, b, 1.0)
 
 	if thetaNew > 4.0 {
 		t.Errorf("expected thetaNew to be clamped to 4.0, got %f", thetaNew)
@@ -36,7 +36,7 @@ func TestUpdateTheta_Clamp(t *testing.T) {
 
 	thetaOld = -3.9
 	b = 2.0
-	thetaNew = UpdateTheta(thetaOld, b, false)
+	thetaNew = UpdateTheta(thetaOld, b, 0.0)
 	if thetaNew < -4.0 {
 		t.Errorf("expected thetaNew to be clamped to -4.0, got %f", thetaNew)
 	}

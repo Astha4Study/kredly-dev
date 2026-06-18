@@ -73,8 +73,6 @@ export default function AnswerOptions({
         const { key, text } = parseOption(option, index);
         const isSelected = selectedAnswer === key;
         const isCorrect = correctAnswer === key;
-        const isIncorrect =
-          isSelected && correctAnswer !== undefined && correctAnswer !== key;
 
         // styling classes
         let borderClass =
@@ -85,24 +83,32 @@ export default function AnswerOptions({
         let icon: React.ReactNode = null;
 
         if (showResult) {
-          if (isCorrect) {
+          if (isSelected && isCorrect) {
+            // User picked the right answer → green
             borderClass =
               'border-emerald-500/30 bg-emerald-500/10 text-emerald-300';
             badgeClass =
               'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
             textClass = 'text-emerald-200';
             icon = <Check className="size-4 shrink-0 text-emerald-400" />;
-          } else if (isIncorrect) {
+          } else if (isSelected && !isCorrect) {
+            // User picked wrong answer → red
             borderClass = 'border-rose-500/30 bg-rose-500/10 text-rose-300';
             badgeClass = 'bg-rose-500/20 text-rose-300 border-rose-500/30';
             textClass = 'text-rose-200';
             icon = <X className="size-4 shrink-0 text-rose-400" />;
-          } else if (isSelected) {
-            borderClass = 'border-foreground/20 bg-background/50';
+          } else if (!isSelected && isCorrect) {
+            // This is the correct answer but user didn't pick it → highlight green
+            borderClass =
+              'border-emerald-500/30 bg-emerald-500/10 text-emerald-300';
             badgeClass =
-              'bg-foreground/10 text-foreground border-foreground/20';
+              'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
+            textClass = 'text-emerald-200';
+            icon = <Check className="size-4 shrink-0 text-emerald-400" />;
           }
+          // All other options stay neutral (no highlight)
         } else if (isSelected) {
+          // Normal state — user has selected but not yet submitted
           borderClass =
             'border-primary bg-primary/10 shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]';
           badgeClass = 'bg-primary text-primary-foreground border-primary';

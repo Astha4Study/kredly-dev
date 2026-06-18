@@ -21,7 +21,8 @@ const CARDS: EvaluationCard[] = [
   {
     soal: 1,
     total: 6,
-    question: 'Jelaskan pendekatan Anda ketika menghadapi konflik antar anggota tim dalam sebuah proyek.',
+    question:
+      'Jelaskan pendekatan Anda ketika menghadapi konflik antar anggota tim dalam sebuah proyek.',
     answer:
       'Saya akan mendengarkan perspektif kedua pihak secara objektif, mengidentifikasi akar masalah, dan memfasilitasi diskusi untuk mencapai solusi yang adil.',
     criteria: [
@@ -30,12 +31,14 @@ const CARDS: EvaluationCard[] = [
       { label: 'Struktur', score: 17, maxScore: 20 },
     ],
     finalScore: 90,
-    feedback: 'Jawaban menunjukkan pemahaman yang baik tentang manajemen konflik',
+    feedback:
+      'Jawaban menunjukkan pemahaman yang baik tentang manajemen konflik',
   },
   {
     soal: 2,
     total: 6,
-    question: 'Bagaimana cara Anda mengelola ekspektasi stakeholder yang tidak realistis?',
+    question:
+      'Bagaimana cara Anda mengelola ekspektasi stakeholder yang tidak realistis?',
     answer:
       'Komunikasikan dengan data dan fakta tentang batasan yang ada, tawarkan alternatif solusi yang achievable, dan tetap transparan tentang trade-off dari setiap keputusan.',
     criteria: [
@@ -49,7 +52,8 @@ const CARDS: EvaluationCard[] = [
   {
     soal: 3,
     total: 6,
-    question: 'Deskripsikan strategi Anda untuk membangun relasi profesional dengan klien baru.',
+    question:
+      'Deskripsikan strategi Anda untuk membangun relasi profesional dengan klien baru.',
     answer:
       'Memulai dengan mendengarkan kebutuhan mereka secara mendalam, memberikan value di setiap interaksi, konsisten dalam komunikasi.',
     criteria: [
@@ -107,7 +111,14 @@ const CARDS: EvaluationCard[] = [
   },
 ];
 
-type Phase = 'idle' | 'scanning' | 'reading' | 'analyzing' | 'scoring' | 'feedback' | 'complete';
+type Phase =
+  | 'idle'
+  | 'scanning'
+  | 'reading'
+  | 'analyzing'
+  | 'scoring'
+  | 'feedback'
+  | 'complete';
 
 // Scan line that sweeps over the answer block
 function ScanOverlay({ active }: { active: boolean }) {
@@ -137,7 +148,13 @@ function ScanOverlay({ active }: { active: boolean }) {
 }
 
 // Inline highlight that appears word by word — simulates AI "reading"
-function HighlightedAnswer({ text, active }: { text: string; active: boolean }) {
+function HighlightedAnswer({
+  text,
+  active,
+}: {
+  text: string;
+  active: boolean;
+}) {
   const words = text.split(' ');
   return (
     <p className="text-[9px] sm:text-[10px] leading-[1.75] text-zinc-600">
@@ -148,7 +165,11 @@ function HighlightedAnswer({ text, active }: { text: string; active: boolean }) 
           animate={
             active
               ? {
-                  backgroundColor: ['transparent', 'rgba(99,102,241,0.12)', 'transparent'],
+                  backgroundColor: [
+                    'transparent',
+                    'rgba(99,102,241,0.12)',
+                    'transparent',
+                  ],
                 }
               : { backgroundColor: 'transparent' }
           }
@@ -224,7 +245,9 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
   }, [card]);
 
   const isReading = phase === 'reading';
-  const isAnalyzing = ['analyzing', 'scoring', 'feedback', 'complete'].includes(phase);
+  const isAnalyzing = ['analyzing', 'scoring', 'feedback', 'complete'].includes(
+    phase,
+  );
   const isScoring = ['scoring', 'feedback', 'complete'].includes(phase);
   const isFeedback = ['feedback', 'complete'].includes(phase);
   const isComplete = phase === 'complete';
@@ -242,8 +265,15 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
           </div>
           <div className="flex items-center gap-1 sm:gap-1.5">
             <motion.div
-              animate={{ rotate: phase === 'scanning' ? 360 : 0, opacity: phase === 'complete' ? 0.4 : 1 }}
-              transition={{ duration: 1.6, repeat: phase === 'scanning' ? Infinity : 0, ease: 'linear' }}
+              animate={{
+                rotate: phase === 'scanning' ? 360 : 0,
+                opacity: phase === 'complete' ? 0.4 : 1,
+              }}
+              transition={{
+                duration: 1.6,
+                repeat: phase === 'scanning' ? Infinity : 0,
+                ease: 'linear',
+              }}
             >
               {phase === 'scanning' ? (
                 <ScanLine className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary" />
@@ -277,7 +307,10 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
               animate={{ opacity: 1, scale: 1 }}
               className="flex items-center gap-1"
             >
-              <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-emerald-500" strokeWidth={2.5} />
+              <Check
+                className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-emerald-500"
+                strokeWidth={2.5}
+              />
               <span className="text-[7px] sm:text-[8px] font-semibold uppercase tracking-wide text-emerald-600">
                 Dinilai
               </span>
@@ -329,7 +362,9 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
                   transition={{ duration: 0.28 }}
                   className="flex items-center gap-2 sm:gap-2.5"
                 >
-                  <span className="w-16 sm:w-18 shrink-0 text-[9px] sm:text-[10px] text-zinc-600">{c.label}</span>
+                  <span className="w-16 sm:w-18 shrink-0 text-[9px] sm:text-[10px] text-zinc-600">
+                    {c.label}
+                  </span>
                   <div className="flex-1 h-0.75 bg-zinc-100 overflow-hidden">
                     <motion.div
                       className="h-full bg-primary"
@@ -366,7 +401,9 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
             >
               {card.finalScore}
             </motion.span>
-            <span className="mt-0.5 text-[7px] sm:text-[8px] uppercase tracking-wide text-zinc-400">/100</span>
+            <span className="mt-0.5 text-[7px] sm:text-[8px] uppercase tracking-wide text-zinc-400">
+              /100
+            </span>
           </div>
 
           {/* AI Feedback */}
@@ -406,10 +443,10 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
                   i < card.soal - 1
                     ? '#6366f1'
                     : i === card.soal - 1
-                    ? isComplete
-                      ? '#6366f1'
-                      : '#d4d4d8'
-                    : '#f4f4f5',
+                      ? isComplete
+                        ? '#6366f1'
+                        : '#d4d4d8'
+                      : '#f4f4f5',
               }}
               transition={{ duration: 0.3 }}
               className="h-0.75 w-3 sm:w-4"
@@ -468,7 +505,10 @@ export function AiEvaluationAnimation() {
         />
 
         {/* Main card */}
-        <div className="relative border border-zinc-200 bg-white shadow-sm overflow-hidden" style={{ zIndex: 1 }}>
+        <div
+          className="relative border border-zinc-200 bg-white shadow-sm overflow-hidden"
+          style={{ zIndex: 1 }}
+        >
           <AnimatePresence mode="wait">
             {visible && (
               <motion.div
