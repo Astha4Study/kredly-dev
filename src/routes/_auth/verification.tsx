@@ -12,6 +12,7 @@ import {
   InputOTPSlot,
 } from '@/components/ui/input-otp';
 import { useAuth } from '@/contexts';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_auth/verification')({
   component: RouteComponent,
@@ -29,13 +30,11 @@ function RouteComponent() {
   });
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
 
   async function handleVerify() {
     if (otp.length !== 6) return;
 
     setLoading(true);
-    setErrorMessage('');
 
     try {
       const result = await verifyEmailOTP(
@@ -44,14 +43,22 @@ function RouteComponent() {
         type as 'sign-in' | 'sign-up',
       );
 
-      if (result.success) {
-        // Redirect ke dashboard setelah berhasil verifikasi
-        navigate({ to: '/dashboard' });
+      if (result.success && result.user) {
+        toast.success('Verifikasi berhasil!');
+
+        // Backend sudah mengecek table UserProfile dan return hasCompletedOnboarding
+        if (result.user.hasCompletedOnboarding) {
+          // UserProfile sudah ada, langsung ke /app dengan smooth navigation
+          navigate({ to: '/app' });
+        } else {
+          // UserProfile kosong (user baru), ke /onboarding dengan smooth navigation
+          navigate({ to: '/onboarding' });
+        }
       } else {
-        setErrorMessage(result.message);
+        toast.error(result.message || 'Kode OTP tidak valid');
       }
     } catch (error) {
-      setErrorMessage(
+      toast.error(
         error instanceof Error ? error.message : 'Kode OTP tidak valid',
       );
     } finally {
@@ -61,7 +68,6 @@ function RouteComponent() {
 
   async function handleResend() {
     setLoading(true);
-    setErrorMessage('');
 
     try {
       const result = await signInWithEmailOTP(
@@ -70,12 +76,12 @@ function RouteComponent() {
       );
 
       if (result.success) {
-        setErrorMessage('Kode OTP baru telah dikirim ke email Anda.');
+        toast.success('Kode OTP baru telah dikirim ke email Anda');
       } else {
-        setErrorMessage(result.message);
+        toast.error(result.message || 'Gagal mengirim kode OTP');
       }
     } catch {
-      setErrorMessage('Gagal mengirim kode OTP.');
+      toast.error('Gagal mengirim kode OTP');
     } finally {
       setLoading(false);
     }
@@ -150,12 +156,6 @@ function RouteComponent() {
             >
               {loading ? 'Memverifikasi...' : 'Verifikasi'}
             </Button>
-
-            {errorMessage && (
-              <p className="text-sm text-center text-muted-foreground">
-                {errorMessage}
-              </p>
-            )}
 
             {/* Resend */}
             <div className="text-center">

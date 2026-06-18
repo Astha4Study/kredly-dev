@@ -19,8 +19,8 @@ import { Route as ResultSessionIdRouteImport } from './routes/result.$sessionId'
 import { Route as QuizSessionIdRouteImport } from './routes/quiz.$sessionId'
 import { Route as AuthVerificationRouteImport } from './routes/_auth/verification'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
+import { Route as AuthOnboardingRouteImport } from './routes/_auth/onboarding'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
-import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppAppRouteRouteImport } from './routes/_app/app/route'
 import { Route as PublicFeaturesIndexRouteImport } from './routes/_public/features/index'
@@ -75,15 +75,15 @@ const AuthRegisterRoute = AuthRegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const AuthOnboardingRoute = AuthOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => AuthRouteRoute,
-} as any)
-const AppDashboardRoute = AppDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AppRouteRoute,
 } as any)
 const AppSplatRoute = AppSplatRouteImport.update({
   id: '/$',
@@ -122,8 +122,8 @@ export interface FileRoutesByFullPath {
   '/test': typeof TestRoute
   '/app': typeof AppAppRouteRouteWithChildren
   '/$': typeof AppSplatRoute
-  '/dashboard': typeof AppDashboardRoute
   '/login': typeof AuthLoginRoute
+  '/onboarding': typeof AuthOnboardingRoute
   '/register': typeof AuthRegisterRoute
   '/verification': typeof AuthVerificationRoute
   '/quiz/$sessionId': typeof QuizSessionIdRoute
@@ -138,8 +138,8 @@ export interface FileRoutesByTo {
   '/parseCV': typeof ParseCVRoute
   '/test': typeof TestRoute
   '/$': typeof AppSplatRoute
-  '/dashboard': typeof AppDashboardRoute
   '/login': typeof AuthLoginRoute
+  '/onboarding': typeof AuthOnboardingRoute
   '/register': typeof AuthRegisterRoute
   '/verification': typeof AuthVerificationRoute
   '/quiz/$sessionId': typeof QuizSessionIdRoute
@@ -158,8 +158,8 @@ export interface FileRoutesById {
   '/test': typeof TestRoute
   '/_app/app': typeof AppAppRouteRouteWithChildren
   '/_app/$': typeof AppSplatRoute
-  '/_app/dashboard': typeof AppDashboardRoute
   '/_auth/login': typeof AuthLoginRoute
+  '/_auth/onboarding': typeof AuthOnboardingRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_auth/verification': typeof AuthVerificationRoute
   '/quiz/$sessionId': typeof QuizSessionIdRoute
@@ -178,8 +178,8 @@ export interface FileRouteTypes {
     | '/test'
     | '/app'
     | '/$'
-    | '/dashboard'
     | '/login'
+    | '/onboarding'
     | '/register'
     | '/verification'
     | '/quiz/$sessionId'
@@ -194,8 +194,8 @@ export interface FileRouteTypes {
     | '/parseCV'
     | '/test'
     | '/$'
-    | '/dashboard'
     | '/login'
+    | '/onboarding'
     | '/register'
     | '/verification'
     | '/quiz/$sessionId'
@@ -213,8 +213,8 @@ export interface FileRouteTypes {
     | '/test'
     | '/_app/app'
     | '/_app/$'
-    | '/_app/dashboard'
     | '/_auth/login'
+    | '/_auth/onboarding'
     | '/_auth/register'
     | '/_auth/verification'
     | '/quiz/$sessionId'
@@ -308,19 +308,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRegisterRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_auth/onboarding': {
+      id: '/_auth/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AuthOnboardingRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
     '/_auth/login': {
       id: '/_auth/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof AuthRouteRoute
-    }
-    '/_app/dashboard': {
-      id: '/_app/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AppDashboardRouteImport
-      parentRoute: typeof AppRouteRoute
     }
     '/_app/$': {
       id: '/_app/$'
@@ -384,13 +384,11 @@ const AppAppRouteRouteWithChildren = AppAppRouteRoute._addFileChildren(
 interface AppRouteRouteChildren {
   AppAppRouteRoute: typeof AppAppRouteRouteWithChildren
   AppSplatRoute: typeof AppSplatRoute
-  AppDashboardRoute: typeof AppDashboardRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAppRouteRoute: AppAppRouteRouteWithChildren,
   AppSplatRoute: AppSplatRoute,
-  AppDashboardRoute: AppDashboardRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
@@ -399,12 +397,14 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 
 interface AuthRouteRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
+  AuthOnboardingRoute: typeof AuthOnboardingRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
   AuthVerificationRoute: typeof AuthVerificationRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
+  AuthOnboardingRoute: AuthOnboardingRoute,
   AuthRegisterRoute: AuthRegisterRoute,
   AuthVerificationRoute: AuthVerificationRoute,
 }
