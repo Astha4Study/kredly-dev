@@ -307,35 +307,15 @@ export default function QuizPage() {
               />
             )}
 
-            {/* Explanation box shown after submission */}
-            <AnimatePresence>
-              {showResult && feedback && currentItem.type !== 'essay' && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden"
-                >
-                  <Card className="border border-foreground/5 bg-foreground/5 backdrop-blur-sm mt-4">
-                    <CardContent className="p-5 space-y-3">
-                      <h4 className="text-sm font-bold text-foreground/90 uppercase tracking-wider">
-                        Penjelasan Jawaban
-                      </h4>
-                      <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                        {feedback.explanation}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             {/* Actions Bar */}
             <div className="flex items-center justify-end pt-2">
               {!showResult ? (
                 <Button
                   size="lg"
-                  disabled={!(selectedAnswer && selectedAnswer.trim() !== '') || isSubmitting}
+                  disabled={
+                    !(selectedAnswer && selectedAnswer.trim() !== '') ||
+                    isSubmitting
+                  }
                   onClick={() => handleSubmit()}
                   className="w-full md:w-auto font-medium transition-all duration-300 shadow-[0_0_20px_rgba(var(--primary-rgb),0.2)]"
                 >
@@ -351,7 +331,14 @@ export default function QuizPage() {
                   )}
                 </Button>
               ) : (
-                <div className="w-full" />
+                <Button
+                  size="lg"
+                  onClick={handleFastForward}
+                  className="w-full md:w-auto font-medium transition-all duration-300 shadow-[0_0_20px_rgba(var(--primary-rgb),0.2)]"
+                >
+                  Lanjutkan ({countdown}s){' '}
+                  <ArrowRight className="ml-2 size-4" />
+                </Button>
               )}
             </div>
 
@@ -366,66 +353,6 @@ export default function QuizPage() {
                 <span>{error}</span>
               </motion.div>
             )}
-
-            {/* Result Banner */}
-            <AnimatePresence>
-              {showResult && feedback && (
-                <motion.div
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 16 }}
-                  className={cn(
-                    'flex items-center justify-between gap-4 rounded-2xl border px-5 py-4',
-                    currentItem.type === 'essay'
-                      ? 'border-blue-500/20 bg-blue-500/5'
-                      : feedback.correct
-                        ? 'border-emerald-500/20 bg-emerald-500/5'
-                        : 'border-rose-500/20 bg-rose-500/5',
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={cn(
-                        'flex size-9 items-center justify-center rounded-xl font-bold border text-base',
-                        currentItem.type === 'essay'
-                          ? 'bg-blue-500/10 border-blue-500/20 text-blue-400'
-                          : feedback.correct
-                            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                            : 'bg-rose-500/10 border-rose-500/20 text-rose-400',
-                      )}
-                    >
-                      {currentItem.type === 'essay' ? 'i' : feedback.correct ? '✓' : '✗'}
-                    </div>
-                    <p
-                      className={cn(
-                        'font-semibold text-sm',
-                        currentItem.type === 'essay'
-                          ? 'text-blue-400'
-                          : feedback.correct
-                            ? 'text-emerald-400'
-                            : 'text-rose-400',
-                      )}
-                    >
-                      {currentItem.type === 'essay'
-                        ? 'Jawaban Essay Tersimpan'
-                        : feedback.correct
-                          ? 'Jawaban Benar!'
-                          : 'Jawaban Salah'}
-                    </p>
-                  </div>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleFastForward}
-                    className="border-foreground/10 hover:bg-foreground/5 text-xs font-semibold shrink-0"
-                  >
-                    Lanjutkan ({countdown}s){' '}
-                    <ArrowRight className="ml-2 size-3" />
-                  </Button>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         )}
       </div>
@@ -435,7 +362,9 @@ export default function QuizPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Keluar dari Ujian?</AlertDialogTitle>
             <AlertDialogDescription>
-              Apakah Anda yakin ingin keluar? Sesi ujian CAT ini akan dihentikan sementara, namun progress Anda tetap tersimpan dan tidak akan diselesaikan secara otomatis. Anda dapat melanjutkannya nanti.
+              Apakah Anda yakin ingin keluar? Sesi ujian CAT ini akan dihentikan
+              sementara, namun progress Anda tetap tersimpan dan tidak akan
+              diselesaikan secara otomatis. Anda dapat melanjutkannya nanti.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

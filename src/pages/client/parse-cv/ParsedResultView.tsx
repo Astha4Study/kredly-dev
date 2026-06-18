@@ -260,11 +260,13 @@ export default function ParsedResultView({
       )}
 
       {/* Bottom Buttons */}
-      <div className={`w-full flex flex-col sm:flex-row gap-3 transition-all duration-500 ${
-        isExamReady && skills.length > 0
-          ? 'opacity-100 translate-y-0'
-          : 'opacity-0 translate-y-4'
-      }`}>
+      <div
+        className={`w-full flex flex-col sm:flex-row gap-3 transition-all duration-500 ${
+          isExamReady && skills.length > 0
+            ? 'opacity-100 translate-y-0'
+            : 'opacity-0 translate-y-4'
+        }`}
+      >
         <Button
           variant="outline"
           size="lg"

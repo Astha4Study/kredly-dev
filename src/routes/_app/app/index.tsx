@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts';
 import { toast } from 'sonner';
@@ -179,9 +179,9 @@ function RouteComponent() {
                 <CardDescription>Take skill assessments</CardDescription>
               </CardHeader>
               <CardContent>
-                <a href="/parsecv">
+                <Link to="/test-overview">
                   <Button className="w-full">Start Assessment</Button>
-                </a>
+                </Link>
               </CardContent>
             </Card>
 
@@ -222,7 +222,9 @@ function RouteComponent() {
             </CardHeader>
             <CardContent>
               {profileLoading ? (
-                <p className="text-sm text-muted-foreground">Loading profile...</p>
+                <p className="text-sm text-muted-foreground">
+                  Loading profile...
+                </p>
               ) : userProfile ? (
                 <div className="space-y-3">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

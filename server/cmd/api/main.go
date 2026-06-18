@@ -45,7 +45,7 @@ func main() {
 	authHandler := handlers.NewAuthHandler(authService, emailService, cfg)
 
 	// 5. Initialize Onboarding system
-	onboardingHandler := handlers.NewOnboardingHandler()
+	onboardingHandler := handlers.NewOnboardingHandler(groqClient)
 
 	// 6. Initialize Profile system
 	profileHandler := handlers.NewProfileHandler()

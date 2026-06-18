@@ -52,7 +52,7 @@ export default function HowItWorksSection() {
                 className={cn(
                   'flex flex-col items-start border border-zinc-100 bg-white p-4 overflow-hidden shadow-sm',
                   index === 2 &&
-                  'md:col-span-2 md:mx-auto md:max-w-md xl:col-span-1 xl:mx-0 xl:max-w-none',
+                    'md:col-span-2 md:mx-auto md:max-w-md xl:col-span-1 xl:mx-0 xl:max-w-none',
                 )}
               >
                 <div className="bg-primary text-primary-foreground p-0.5">

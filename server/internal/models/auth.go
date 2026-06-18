@@ -86,6 +86,10 @@ type UserProfile struct {
 	Experience string    `bson:"experience" json:"experience"`             // "below-1", "1-2", "3-5", "not-working"
 	IsStudent  bool      `bson:"isStudent" json:"isStudent"`               // true/false
 	Degree     *string   `bson:"degree,omitempty" json:"degree,omitempty"` // Jurusan (opsional, jika student)
+	CVRole     *string   `bson:"cvRole,omitempty" json:"cvRole,omitempty"`
+	CVLevel    *string   `bson:"cvLevel,omitempty" json:"cvLevel,omitempty"`
+	CVSkills   []string  `bson:"cvSkills,omitempty" json:"cvSkills,omitempty"`
+	CVSummary  *string   `bson:"cvSummary,omitempty" json:"cvSummary,omitempty"`
 	CreatedAt  time.Time `bson:"createdAt" json:"createdAt"`
 	UpdatedAt  time.Time `bson:"updatedAt" json:"updatedAt"`
 

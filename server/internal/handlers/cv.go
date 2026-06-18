@@ -78,7 +78,8 @@ The JSON must follow this exact schema:
 {
   "role": "Candidate's primary role or title (e.g., Backend Engineer)",
   "level": "Candidate's seniority level (e.g., Junior, Mid, Senior, Lead)",
-  "skills": ["Skill 1", "Skill 2"]
+  "skills": ["Skill 1", "Skill 2"],
+  "summary": "A concise, clean, and professional summary of the candidate's profile, key experience, and education. Keep it brief (2-3 sentences max) as a single plain paragraph. Do NOT include any special characters, list bullet points, or symbols like '●' or '•'."
 }
 
 Ensure all fields are populated as accurately as possible based on the text. If a field is missing, set it to null or an empty array/string. Do not include any markdown format tags like ` + "`" + `json` + "`" + ` or any conversational intro/outro text. Return ONLY the raw JSON object.`
@@ -129,9 +130,10 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 	// 7. Save parsed results to the user profile if logged in
 	if loggedInUser != nil {
 		type parsedCV struct {
-			Role   string   `json:"role"`
-			Level  string   `json:"level"`
-			Skills []string `json:"skills"`
+			Role    string   `json:"role"`
+			Level   string   `json:"level"`
+			Skills  []string `json:"skills"`
+			Summary string   `json:"summary"`
 		}
 
 		var parsed parsedCV
@@ -139,12 +141,26 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 			userColl := database.DB.Collection("user")
 			now := time.Now()
 
+			cvSummary := parsed.Summary
+			if cvSummary == "" {
+				cleanedText := text
+				cleanedText = strings.ReplaceAll(cleanedText, "●", "")
+				cleanedText = strings.ReplaceAll(cleanedText, "•", "")
+				cleanedText = strings.ReplaceAll(cleanedText, "*", "")
+				words := strings.Fields(cleanedText)
+				cleanedText = strings.Join(words, " ")
+				if len(cleanedText) > 400 {
+					cleanedText = cleanedText[:397] + "..."
+				}
+				cvSummary = cleanedText
+			}
+
 			update := bson.M{
 				"$set": bson.M{
 					"cvRole":     parsed.Role,
 					"cvLevel":    parsed.Level,
 					"cvSkills":   parsed.Skills,
-					"cvSummary":  text, // Simpan full text CV sebagai referensi summary
+					"cvSummary":  cvSummary,
 					"cvParsedAt": now,
 					"updatedAt":  now,
 				},

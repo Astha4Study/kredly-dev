@@ -145,7 +145,9 @@ export function useCVParser() {
       setIsParsed(true);
 
       // Refetch user data so that the profile state gets the newly parsed CV fields
-      await refetch().catch(err => console.error("failed to refetch user info:", err));
+      await refetch().catch((err) =>
+        console.error('failed to refetch user info:', err),
+      );
 
       // Delay start exam button
       setTimeout(() => {
