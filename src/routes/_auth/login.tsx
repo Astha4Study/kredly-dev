@@ -40,7 +40,7 @@ function RouteComponent() {
       } else {
         setErrorMessage(result.message);
       }
-    } catch (error) {
+    } catch {
       setErrorMessage('Gagal mengirim kode OTP. Silakan coba lagi.');
     } finally {
       setLoading(false);

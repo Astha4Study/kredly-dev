@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
-import { useSession, authClient } from '@/lib/auth-client';
+import { useAuth } from '@/contexts';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_app/app/')({
   component: RouteComponent,
@@ -8,19 +9,17 @@ export const Route = createFileRoute('/_app/app/')({
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const { data: session, isPending } = useSession();
+  const { user, signOut } = useAuth();
 
   async function handleLogout() {
-    await authClient.signOut();
-    navigate({ to: '/login' });
-  }
-
-  if (isPending) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
+    try {
+      await signOut();
+      toast.success('Berhasil logout');
+      navigate({ to: '/login', replace: true });
+    } catch (error) {
+      console.error('Logout failed:', error);
+      toast.error('Gagal logout');
+    }
   }
 
   return (
@@ -29,7 +28,7 @@ function RouteComponent() {
         <div>
           <h1 className="text-2xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground mt-2">
-            Selamat datang, {session?.user?.email}
+            Selamat datang, {user?.name || user?.email}
           </p>
         </div>
         <Button variant="outline" onClick={handleLogout}>

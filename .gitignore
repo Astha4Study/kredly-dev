@@ -2,10 +2,19 @@
 .DS_Store
 *.local
 *.log*
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Dist
 node_modules
 dist/
+.rsbuild/
+.rspack/
 
 # Tanstack
 .tanstack/
@@ -27,3 +36,9 @@ server/.env
 .agents/skills/
 
 /generated/prisma
+
+# Package Lock (Optional)
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+

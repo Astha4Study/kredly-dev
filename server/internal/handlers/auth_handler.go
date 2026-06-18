@@ -150,11 +150,22 @@ func (h *AuthHandler) HandleGoogleCallback(c *gin.Context) {
 		true,     // HttpOnly: JavaScript (Frontend) TIDAK BISA membaca cookie ini
 	)
 
+	// Cek apakah user sudah melengkapi onboarding
+	userProfileColl := database.DB.Collection("userProfile")
+	var userProfile models.UserProfile
+	err = userProfileColl.FindOne(c.Request.Context(), bson.M{"userId": user.ID}).Decode(&userProfile)
+
 	// Get frontend URL from env, default to localhost:3000 for development
 	frontendURL := h.config.FrontendURL
 
-	// Redirect ke Dashboard Frontend
-	c.Redirect(http.StatusTemporaryRedirect, frontendURL+"/dashboard")
+	// Redirect ke onboarding jika belum selesai, atau ke /app jika sudah
+	if err != nil {
+		// UserProfile tidak ditemukan, redirect ke onboarding
+		c.Redirect(http.StatusTemporaryRedirect, frontendURL+"/onboarding")
+	} else {
+		// UserProfile ditemukan, redirect ke /app
+		c.Redirect(http.StatusTemporaryRedirect, frontendURL+"/app")
+	}
 }
 
 // 3. Get Me (Menggunakan data dari middleware/cookie validation)
@@ -175,6 +186,7 @@ func (h *AuthHandler) HandleMe(c *gin.Context) {
 
 	sessionColl := database.DB.Collection("session")
 	userColl := database.DB.Collection("user")
+	userProfileColl := database.DB.Collection("userProfile")
 
 	// Cari sesi di DB
 	var session models.ASession
@@ -190,6 +202,15 @@ func (h *AuthHandler) HandleMe(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 		return
+	}
+
+	// Cek apakah user sudah melengkapi onboarding
+	var userProfile models.UserProfile
+	hasCompletedOnboarding := false
+	err = userProfileColl.FindOne(c.Request.Context(), bson.M{"userId": user.ID}).Decode(&userProfile)
+	if err == nil {
+		// UserProfile ditemukan, berarti sudah onboarding
+		hasCompletedOnboarding = true
 	}
 
 	// Auto-refresh token jika mendekati expired (2 hari sebelum habis)
@@ -217,7 +238,16 @@ func (h *AuthHandler) HandleMe(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user": user})
+	c.JSON(http.StatusOK, gin.H{
+		"user": gin.H{
+			"id":                     user.ID,
+			"email":                  user.Email,
+			"name":                   user.Name,
+			"emailVerified":          user.EmailVerified,
+			"image":                  user.Image,
+			"hasCompletedOnboarding": hasCompletedOnboarding,
+		},
+	})
 }
 
 // 4. Logout
@@ -352,13 +382,24 @@ func (h *AuthHandler) HandleVerifyEmailOTP(c *gin.Context) {
 		true,
 	)
 
+	// Cek apakah user sudah melengkapi onboarding
+	userProfileColl := database.DB.Collection("userProfile")
+	var userProfile models.UserProfile
+	hasCompletedOnboarding := false
+	err = userProfileColl.FindOne(c.Request.Context(), bson.M{"userId": user.ID}).Decode(&userProfile)
+	if err == nil {
+		hasCompletedOnboarding = true
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "Verifikasi berhasil",
 		"user": gin.H{
-			"id":    user.ID,
-			"email": user.Email,
-			"name":  user.Name,
+			"id":                     user.ID,
+			"email":                  user.Email,
+			"name":                   user.Name,
+			"emailVerified":          user.EmailVerified,
+			"hasCompletedOnboarding": hasCompletedOnboarding,
 		},
 	})
 }

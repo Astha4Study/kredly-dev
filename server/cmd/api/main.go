@@ -44,7 +44,10 @@ func main() {
 	emailService := service.NewEmailService(cfg)
 	authHandler := handlers.NewAuthHandler(authService, emailService, cfg)
 
-	// 5. Initialize HTTP Handlers
+	// 5. Initialize Onboarding system
+	onboardingHandler := handlers.NewOnboardingHandler()
+
+	// 6. Initialize HTTP Handlers
 	cvHandler := handlers.NewCVHandler(groqClient)
 
 	// Set Gin mode
@@ -108,6 +111,13 @@ func main() {
 			// 6. Verifikasi OTP dan Login (Better Auth format: /verify/email-otp)
 			// Frontend mengirim: { "email": "user@example.com", "otp": "123456", "type": "sign-in" }
 			auth.POST("/verify/email-otp", authHandler.HandleVerifyEmailOTP)
+		}
+
+		// Onboarding endpoints - Protected
+		onboarding := api.Group("/onboarding")
+		onboarding.Use(middleware.AuthMiddleware(cfg, authService))
+		{
+			onboarding.POST("/complete", onboardingHandler.HandleCompleteOnboarding)
 		}
 	}
 

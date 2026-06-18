@@ -1,22 +1,29 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '@/contexts';
 import { useEffect } from 'react';
-import { useNavigate } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_app')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect ke login jika belum authenticated
-    if (!isLoading && !isAuthenticated) {
-      navigate({ to: '/login' });
+    if (!isLoading) {
+      // Jika tidak authenticated, redirect ke login
+      if (!isAuthenticated) {
+        navigate({ to: '/login', replace: true });
+        return;
+      }
+
+      // Jika authenticated tapi belum selesai onboarding, redirect ke onboarding
+      if (user && !user.hasCompletedOnboarding) {
+        navigate({ to: '/onboarding', replace: true });
+      }
     }
-  }, [isAuthenticated, isLoading, navigate]);
+  }, [isAuthenticated, isLoading, user, navigate]);
 
   // Show loading saat check auth
   if (isLoading) {
@@ -27,8 +34,8 @@ function RouteComponent() {
     );
   }
 
-  // Jika belum authenticated, tidak render apa-apa (akan redirect)
-  if (!isAuthenticated) {
+  // Jika tidak authenticated atau belum onboarding, tidak render apa-apa (akan redirect)
+  if (!isAuthenticated || (user && !user.hasCompletedOnboarding)) {
     return null;
   }
 

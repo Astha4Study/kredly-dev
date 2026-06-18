@@ -18,6 +18,7 @@ import (
 type User struct {
 	ID            string    `bson:"_id" json:"id"`
 	Name          string    `bson:"name" json:"name"`
+	Username      *string   `bson:"username,omitempty" json:"username,omitempty"`
 	Email         string    `bson:"email" json:"email"`
 	EmailVerified bool      `bson:"emailVerified" json:"emailVerified"`
 	Image         *string   `bson:"image,omitempty" json:"image,omitempty"`
@@ -69,6 +70,21 @@ type Verification struct {
 	UpdatedAt  *time.Time `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
 }
 
+// UserProfile menyimpan data onboarding user (CV, pengalaman, status student)
+type UserProfile struct {
+	ID         string    `bson:"_id" json:"id"`
+	UserID     string    `bson:"userId" json:"userId"` // Relasi ke User._id
+	CVFileName string    `bson:"cvFileName" json:"cvFileName"` // Nama file CV
+	CVFilePath string    `bson:"cvFilePath" json:"cvFilePath"` // Path/URL file CV di server
+	Experience string    `bson:"experience" json:"experience"` // "below-1", "1-2", "3-5", "not-working"
+	IsStudent  bool      `bson:"isStudent" json:"isStudent"`   // true/false
+	Degree     *string   `bson:"degree,omitempty" json:"degree,omitempty"` // Jurusan (opsional, jika student)
+	CreatedAt  time.Time `bson:"createdAt" json:"createdAt"`
+	UpdatedAt  time.Time `bson:"updatedAt" json:"updatedAt"`
+
+	User *User `bson:"-" json:"user,omitempty"` // Relasi untuk JSON response
+}
+
 // ==========================================
 // 2. SETUP UNIQUE INDEXES
 // ==========================================
@@ -94,6 +110,20 @@ func SetupIndexes(db *mongo.Database) error {
 		}
 	}
 
+	// 1b. Index unik untuk User (Username)
+	_, err = userCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys:    bson.D{{Key: "username", Value: 1}},
+		Options: options.Index().SetUnique(true).SetSparse(true), // sparse: true karena username bisa null
+	})
+	if err != nil {
+		if strings.Contains(err.Error(), "IndexOptionsConflict") || strings.Contains(err.Error(), "already exists") {
+			log.Println("⚠️ Index unik untuk User Username sudah ada, proses diabaikan.")
+		} else {
+			log.Printf("❌ Gagal membuat index unik untuk User Username: %v", err)
+			return err
+		}
+	}
+
 	// 2. Index unik untuk Session (Token)
 	sessionCollection := db.Collection("session")
 	_, err = sessionCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
@@ -106,6 +136,21 @@ func SetupIndexes(db *mongo.Database) error {
 			log.Println("⚠️ Index unik untuk Session Token sudah ada, proses diabaikan.")
 		} else {
 			log.Printf("❌ Gagal membuat index unik untuk Session Token: %v", err)
+			return err
+		}
+	}
+
+	// 3. Index unik untuk UserProfile (UserID) - satu user hanya punya satu profile
+	userProfileCollection := db.Collection("userProfile")
+	_, err = userProfileCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys:    bson.D{{Key: "userId", Value: 1}},
+		Options: options.Index().SetUnique(true),
+	})
+	if err != nil {
+		if strings.Contains(err.Error(), "IndexOptionsConflict") || strings.Contains(err.Error(), "already exists") {
+			log.Println("⚠️ Index unik untuk UserProfile UserID sudah ada, proses diabaikan.")
+		} else {
+			log.Printf("❌ Gagal membuat index unik untuk UserProfile UserID: %v", err)
 			return err
 		}
 	}

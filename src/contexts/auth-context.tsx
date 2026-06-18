@@ -8,6 +8,7 @@ export interface User {
   name: string;
   emailVerified: boolean;
   image?: string;
+  hasCompletedOnboarding?: boolean; // Tambahan untuk cek status onboarding
 }
 
 export interface AuthContextType {
@@ -146,6 +147,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         credentials: 'include',
       });
       setUser(null);
+
+      // Clear any localStorage data when user logs out
+      localStorage.clear();
     } catch (error) {
       console.error('Failed to sign out:', error);
     }

@@ -26,6 +26,7 @@ func AuthMiddleware(cfg *config.Config, authService *service.AuthService) gin.Ha
 
 		sessionColl := database.DB.Collection("session")
 		userColl := database.DB.Collection("user")
+		userProfileColl := database.DB.Collection("userProfile")
 
 		// Cari sesi di DB
 		var session models.ASession
@@ -45,8 +46,24 @@ func AuthMiddleware(cfg *config.Config, authService *service.AuthService) gin.Ha
 			return
 		}
 
-		// Simpan user ke context untuk digunakan di handler
-		c.Set("user", user)
+		// Cek apakah user sudah melengkapi onboarding
+		var userProfile models.UserProfile
+		hasCompletedOnboarding := false
+		err = userProfileColl.FindOne(c.Request.Context(), bson.M{"userId": user.ID}).Decode(&userProfile)
+		if err == nil {
+			hasCompletedOnboarding = true
+		}
+
+		// Simpan user dengan status onboarding ke context
+		userWithOnboarding := gin.H{
+			"id":                     user.ID,
+			"email":                  user.Email,
+			"name":                   user.Name,
+			"emailVerified":          user.EmailVerified,
+			"image":                  user.Image,
+			"hasCompletedOnboarding": hasCompletedOnboarding,
+		}
+		c.Set("user", userWithOnboarding)
 		c.Set("session", session)
 
 		// Auto-refresh token jika mendekati expired (2 hari sebelum habis)
