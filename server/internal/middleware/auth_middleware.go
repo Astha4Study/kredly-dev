@@ -54,6 +54,23 @@ func AuthMiddleware(cfg *config.Config, authService *service.AuthService) gin.Ha
 			hasCompletedOnboarding = true
 		}
 
+		var cvRole *string
+		var cvLevel *string
+		var cvSkills []string
+		var cvSummary *string
+
+		if hasCompletedOnboarding {
+			cvRole = userProfile.CVRole
+			cvLevel = userProfile.CVLevel
+			cvSkills = userProfile.CVSkills
+			cvSummary = userProfile.CVSummary
+		} else {
+			cvRole = user.CVRole
+			cvLevel = user.CVLevel
+			cvSkills = user.CVSkills
+			cvSummary = user.CVSummary
+		}
+
 		// Simpan user dengan status onboarding ke context
 		userWithOnboarding := gin.H{
 			"id":                     user.ID,
@@ -62,6 +79,10 @@ func AuthMiddleware(cfg *config.Config, authService *service.AuthService) gin.Ha
 			"emailVerified":          user.EmailVerified,
 			"image":                  user.Image,
 			"hasCompletedOnboarding": hasCompletedOnboarding,
+			"cvRole":                 cvRole,
+			"cvLevel":                cvLevel,
+			"cvSkills":               cvSkills,
+			"cvSummary":              cvSummary,
 		}
 		c.Set("user", userWithOnboarding)
 		c.Set("session", session)

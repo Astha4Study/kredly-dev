@@ -1,7 +1,9 @@
 import * as React from 'react';
 import type { LevelType, ParsedCVData } from './types';
+import { useAuth } from '@/contexts/auth-context';
 
 export function useCVParser() {
+  const { user, refetch } = useAuth();
   const [file, setFile] = React.useState<File | null>(null);
   const [isDragging, setIsDragging] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -17,6 +19,28 @@ export function useCVParser() {
   const [allParsedSkills, setAllParsedSkills] = React.useState<string[]>([]);
   const [extractedLevel, setExtractedLevel] = React.useState<LevelType>('Mid');
   const [isExamReady, setIsExamReady] = React.useState(false);
+
+  // Prefill states if user already has parsed CV in database
+  React.useEffect(() => {
+    if (user?.cvRole && user?.cvSkills && user.cvSkills.length > 0) {
+      setRole(user.cvRole);
+      setExtractedLevel((user.cvLevel as LevelType) || 'Mid');
+      setAllParsedSkills(user.cvSkills);
+      setSkills(user.cvSkills.slice(0, 5));
+      setIsParsed(true);
+      setIsExamReady(true);
+    }
+  }, [user]);
+
+  const resetParser = () => {
+    setFile(null);
+    setIsParsed(false);
+    setIsExamReady(false);
+    setRole('');
+    setSkills([]);
+    setAllParsedSkills([]);
+    setError(null);
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -73,7 +97,7 @@ export function useCVParser() {
       const formData = new FormData();
       formData.append('cv', file);
 
-      const response = await fetch('http://localhost:8080/api/parse-cv', {
+      const response = await fetch('/api/parse-cv', {
         method: 'POST',
         body: formData,
       });
@@ -119,6 +143,11 @@ export function useCVParser() {
       await new Promise((resolve) => setTimeout(resolve, 800));
 
       setIsParsed(true);
+
+      // Refetch user data so that the profile state gets the newly parsed CV fields
+      await refetch().catch((err) =>
+        console.error('failed to refetch user info:', err),
+      );
 
       // Delay start exam button
       setTimeout(() => {
@@ -184,6 +213,7 @@ export function useCVParser() {
     setRole,
     toggleSkill,
     addCustomSkill,
+    resetParser,
   };
 }
 export type UseCVParserReturn = ReturnType<typeof useCVParser>;

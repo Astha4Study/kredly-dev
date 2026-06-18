@@ -1,12 +1,6 @@
 import * as React from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
-import {
-  ArrowLeft,
-  ArrowRight,
-  Loader2,
-  AlertCircle,
-  Sparkles,
-} from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'motion/react';
@@ -17,6 +11,16 @@ import AnswerOptions from '@/components/cat/AnswerOptions';
 import ProgressBar from '@/components/cat/ProgressBar';
 import Timer from '@/components/cat/Timer';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function QuizPage() {
   const params = useParams({ strict: false });
@@ -40,6 +44,36 @@ export default function QuizPage() {
   const [timerKey, setTimerKey] = React.useState(0);
   const [countdownIntervalId, setCountdownIntervalId] =
     React.useState<ReturnType<typeof setInterval> | null>(null);
+
+  // Exit warning states
+  const [showExitWarning, setShowExitWarning] = React.useState(false);
+  const isNavigatingAway = React.useRef(false);
+
+  // Intercept browser back button
+  React.useEffect(() => {
+    window.history.pushState(null, '', window.location.href);
+
+    const handlePopState = () => {
+      if (isNavigatingAway.current) return;
+      window.history.pushState(null, '', window.location.href);
+      setShowExitWarning(true);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  const handleConfirmExit = async () => {
+    isNavigatingAway.current = true;
+    try {
+      await sessionService.abandonSession(sessionId);
+    } catch (err) {
+      console.error('Failed to abandon session:', err);
+    }
+    navigate({ to: '/parseCV' });
+  };
 
   // Fetch first question on mount
   React.useEffect(() => {
@@ -206,7 +240,7 @@ export default function QuizPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => window.history.back()}
+            onClick={() => setShowExitWarning(true)}
             className="text-muted-foreground hover:text-foreground -ml-2"
           >
             <ArrowLeft className="mr-2 size-4" /> Kembali
@@ -240,27 +274,48 @@ export default function QuizPage() {
             />
 
             {/* Answer Selections */}
-            <AnswerOptions
-              options={currentItem.pilihan}
-              selectedAnswer={selectedAnswer}
-              onSelect={setSelectedAnswer}
-              disabled={isLoading || isSubmitting || showResult}
-              correctAnswer={
-                feedback?.explanation
-                  ? feedback.correct
-                    ? selectedAnswer || undefined
-                    : undefined
-                  : undefined
-              } // will be shown inside feedback overlay
-              showResult={showResult}
-            />
+            {currentItem.type === 'essay' ? (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-3"
+              >
+                <div className="flex justify-between items-center">
+                  <label className="text-sm font-semibold text-muted-foreground">
+                    Jawaban Essay Anda:
+                  </label>
+                  <span className="text-xs text-muted-foreground/60">
+                    Tuliskan penjelasan teknis yang mendalam
+                  </span>
+                </div>
+                <textarea
+                  disabled={isLoading || isSubmitting || showResult}
+                  value={selectedAnswer || ''}
+                  onChange={(e) => setSelectedAnswer(e.target.value)}
+                  placeholder="Ketik penjelasan teknis Anda secara detail di sini..."
+                  className="w-full min-h-[160px] p-4 rounded-2xl border border-foreground/10 bg-background/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-300 resize-y text-sm leading-relaxed"
+                />
+              </motion.div>
+            ) : (
+              <AnswerOptions
+                options={currentItem.pilihan || []}
+                selectedAnswer={selectedAnswer}
+                onSelect={setSelectedAnswer}
+                disabled={isLoading || isSubmitting || showResult}
+                correctAnswer={feedback?.correct_answer}
+                showResult={showResult}
+              />
+            )}
 
             {/* Actions Bar */}
             <div className="flex items-center justify-end pt-2">
               {!showResult ? (
                 <Button
                   size="lg"
-                  disabled={!selectedAnswer || isSubmitting}
+                  disabled={
+                    !(selectedAnswer && selectedAnswer.trim() !== '') ||
+                    isSubmitting
+                  }
                   onClick={() => handleSubmit()}
                   className="w-full md:w-auto font-medium transition-all duration-300 shadow-[0_0_20px_rgba(var(--primary-rgb),0.2)]"
                 >
@@ -276,7 +331,14 @@ export default function QuizPage() {
                   )}
                 </Button>
               ) : (
-                <div className="w-full" />
+                <Button
+                  size="lg"
+                  onClick={handleFastForward}
+                  className="w-full md:w-auto font-medium transition-all duration-300 shadow-[0_0_20px_rgba(var(--primary-rgb),0.2)]"
+                >
+                  Lanjutkan ({countdown}s){' '}
+                  <ArrowRight className="ml-2 size-4" />
+                </Button>
               )}
             </div>
 
@@ -291,66 +353,30 @@ export default function QuizPage() {
                 <span>{error}</span>
               </motion.div>
             )}
-
-            {/* AI Feedback Overlay */}
-            <AnimatePresence>
-              {showResult && feedback && (
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 30 }}
-                  className="border border-foreground/10 bg-card/60 backdrop-blur-lg rounded-2xl p-6 space-y-6 shadow-2xl relative overflow-hidden"
-                >
-                  {/* Decorative background pulse */}
-                  <div className="absolute -right-20 -top-20 size-40 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-foreground/5 pb-4">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={cn(
-                          'flex size-10 items-center justify-center rounded-xl font-bold border text-lg',
-                          feedback.correct
-                            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                            : 'bg-rose-500/10 border-rose-500/20 text-rose-400',
-                        )}
-                      >
-                        {feedback.correct ? '✓' : '✗'}
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-base leading-tight">
-                          Jawaban Anda {feedback.correct ? 'Benar!' : 'Salah'}
-                        </h4>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Evaluasi AI instan menggunakan model Qwen3-32b
-                        </p>
-                      </div>
-                    </div>
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleFastForward}
-                      className="border-foreground/10 hover:bg-foreground/5 text-xs font-semibold"
-                    >
-                      Lanjutkan ({countdown}s){' '}
-                      <ArrowRight className="ml-2 size-3" />
-                    </Button>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-xs font-bold tracking-widest text-primary uppercase">
-                      <Sparkles className="size-3" /> Penjelasan AI
-                    </div>
-                    <p className="text-sm leading-relaxed text-foreground/80 font-normal">
-                      {feedback.explanation}
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         )}
       </div>
+
+      <AlertDialog open={showExitWarning} onOpenChange={setShowExitWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Keluar dari Ujian?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Apakah Anda yakin ingin keluar? Sesi ujian CAT ini akan dihentikan
+              sementara, namun progress Anda tetap tersimpan dan tidak akan
+              diselesaikan secara otomatis. Anda dapat melanjutkannya nanti.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowExitWarning(false)}>
+              Batal
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmExit}>
+              Keluar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

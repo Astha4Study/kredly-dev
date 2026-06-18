@@ -20,6 +20,7 @@ import { Route as AuthVerificationRouteImport } from './routes/_auth/verificatio
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthOnboardingRouteImport } from './routes/_auth/onboarding'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
+import { Route as AppTestOverviewRouteImport } from './routes/_app/test-overview'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppAppRouteRouteImport } from './routes/_app/app/route'
 import { Route as PublicFeaturesIndexRouteImport } from './routes/_public/features/index'
@@ -80,6 +81,11 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const AppTestOverviewRoute = AppTestOverviewRouteImport.update({
+  id: '/test-overview',
+  path: '/test-overview',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppSplatRoute = AppSplatRouteImport.update({
   id: '/$',
   path: '/$',
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/parseCV': typeof ParseCVRoute
   '/app': typeof AppAppRouteRouteWithChildren
   '/$': typeof AppSplatRoute
+  '/test-overview': typeof AppTestOverviewRoute
   '/login': typeof AuthLoginRoute
   '/onboarding': typeof AuthOnboardingRoute
   '/register': typeof AuthRegisterRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/parseCV': typeof ParseCVRoute
   '/$': typeof AppSplatRoute
+  '/test-overview': typeof AppTestOverviewRoute
   '/login': typeof AuthLoginRoute
   '/onboarding': typeof AuthOnboardingRoute
   '/register': typeof AuthRegisterRoute
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/parseCV': typeof ParseCVRoute
   '/_app/app': typeof AppAppRouteRouteWithChildren
   '/_app/$': typeof AppSplatRoute
+  '/_app/test-overview': typeof AppTestOverviewRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/onboarding': typeof AuthOnboardingRoute
   '/_auth/register': typeof AuthRegisterRoute
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
     | '/parseCV'
     | '/app'
     | '/$'
+    | '/test-overview'
     | '/login'
     | '/onboarding'
     | '/register'
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/'
     | '/parseCV'
     | '/$'
+    | '/test-overview'
     | '/login'
     | '/onboarding'
     | '/register'
@@ -213,6 +224,7 @@ export interface FileRouteTypes {
     | '/parseCV'
     | '/_app/app'
     | '/_app/$'
+    | '/_app/test-overview'
     | '/_auth/login'
     | '/_auth/onboarding'
     | '/_auth/register'
@@ -315,6 +327,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_app/test-overview': {
+      id: '/_app/test-overview'
+      path: '/test-overview'
+      fullPath: '/test-overview'
+      preLoaderRoute: typeof AppTestOverviewRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/$': {
       id: '/_app/$'
       path: '/$'
@@ -386,11 +405,13 @@ const AppAppRouteRouteWithChildren = AppAppRouteRoute._addFileChildren(
 interface AppRouteRouteChildren {
   AppAppRouteRoute: typeof AppAppRouteRouteWithChildren
   AppSplatRoute: typeof AppSplatRoute
+  AppTestOverviewRoute: typeof AppTestOverviewRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAppRouteRoute: AppAppRouteRouteWithChildren,
   AppSplatRoute: AppSplatRoute,
+  AppTestOverviewRoute: AppTestOverviewRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(

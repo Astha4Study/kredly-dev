@@ -21,6 +21,7 @@ func NewSessionHandler(catService *service.CATService) *SessionHandler {
 
 type FilteredItem struct {
 	ID         string   `json:"id"`
+	Type       string   `json:"type"`
 	Topic      string   `json:"topic"`
 	Pertanyaan string   `json:"pertanyaan"`
 	Pilihan    []string `json:"pilihan"`
@@ -83,6 +84,7 @@ func (h *SessionHandler) HandleNextItem(c *gin.Context) {
 	// Filter item to hide KunciJawaban, Penjelasan, and BEstimated from frontend
 	filtered := FilteredItem{
 		ID:         item.ID,
+		Type:       item.Type,
 		Topic:      item.Topic,
 		Pertanyaan: item.Pertanyaan,
 		Pilihan:    item.Pilihan,
@@ -148,4 +150,25 @@ func (h *SessionHandler) HandleGetResult(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, result)
+}
+
+// HandleAbandonSession POST /api/sessions/:id/abandon
+func (h *SessionHandler) HandleAbandonSession(c *gin.Context) {
+	sessionID := strings.TrimSpace(c.Param("id"))
+	if sessionID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Session ID is required"})
+		return
+	}
+
+	err := h.catService.AbandonSession(c.Request.Context(), sessionID)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "session abandoned"})
 }

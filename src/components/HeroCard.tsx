@@ -2,17 +2,22 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
 
-import manAvatar from "@/assets/images/man1.jpg";
-import manAvatar2 from "@/assets/images/man2.jpg";
-import womanAvatar from "@/assets/images/woman1.jpg";
-import womanAvatar2 from "@/assets/images/woman2.jpg";
-import womanAvatar3 from "@/assets/images/woman3.jpg";
+import manAvatar from '@/assets/images/man1.jpg';
+import manAvatar2 from '@/assets/images/man2.jpg';
+import womanAvatar from '@/assets/images/woman1.jpg';
+import womanAvatar2 from '@/assets/images/woman2.jpg';
+import womanAvatar3 from '@/assets/images/woman3.jpg';
 
 const cardContents = [
   {
     id: 1,
     layout: 'split',
-    user: { name: 'Ahmad Kurniawan', role: 'Software Engineer', avatar: 'AK', image: manAvatar },
+    user: {
+      name: 'Ahmad Kurniawan',
+      role: 'Software Engineer',
+      avatar: 'AK',
+      image: manAvatar,
+    },
     title: 'Assessment Kompetensi React',
     description: 'Evaluasi kemampuan React Hooks dan state management.',
     metrics: [
@@ -26,7 +31,12 @@ const cardContents = [
   {
     id: 2,
     layout: 'stacked',
-    user: { name: 'Siti Rahayu', role: 'Data Analyst', avatar: 'SR', image: womanAvatar },
+    user: {
+      name: 'Siti Rahayu',
+      role: 'Data Analyst',
+      avatar: 'SR',
+      image: womanAvatar,
+    },
     title: 'Analisis Statistik & Data Mining',
     description: 'Uji kemampuan analisis data kuantitatif dan prediktif.',
     metrics: [
@@ -44,7 +54,12 @@ const cardContents = [
   {
     id: 3,
     layout: 'grid',
-    user: { name: 'Budi Santoso', role: 'Financial Analyst', avatar: 'BS', image: manAvatar2 },
+    user: {
+      name: 'Budi Santoso',
+      role: 'Financial Analyst',
+      avatar: 'BS',
+      image: manAvatar2,
+    },
     title: 'Manajemen Keuangan & Investasi',
     description:
       'Evaluasi kemampuan analisis finansial dan portfolio management.',
@@ -59,7 +74,12 @@ const cardContents = [
   {
     id: 4,
     layout: 'minimal',
-    user: { name: 'Dewi Lestari', role: 'Mathematics Teacher', avatar: 'DL', image: womanAvatar2 },
+    user: {
+      name: 'Dewi Lestari',
+      role: 'Mathematics Teacher',
+      avatar: 'DL',
+      image: womanAvatar2,
+    },
     title: 'Kompetensi Matematika Lanjut',
     description: 'Uji kemampuan aljabar, kalkulus, dan matematika diskrit.',
     topics: [
@@ -74,7 +94,12 @@ const cardContents = [
   {
     id: 5,
     layout: 'card-list',
-    user: { name: 'Siti Nurhaliza', role: 'Marketing Strategist', avatar: 'RP', image: womanAvatar3 },
+    user: {
+      name: 'Siti Nurhaliza',
+      role: 'Marketing Strategist',
+      avatar: 'RP',
+      image: womanAvatar3,
+    },
     title: 'Digital Marketing & Analytics',
     description: 'Evaluasi strategi pemasaran digital dan analisis campaign.',
     achievements: [
@@ -159,7 +184,9 @@ function SplitLayout({ card }: { card: (typeof cardContents)[0] }) {
       <div className="flex flex-col gap-4 md:gap-6 md:border-r border-foreground/8 p-4 md:p-6">
         <UserRow user={card.user!} badge={card.badge} />
         <div>
-          <p className="text-sm md:text-base font-semibold leading-snug">{card.title}</p>
+          <p className="text-sm md:text-base font-semibold leading-snug">
+            {card.title}
+          </p>
           <p className="mt-1.5 text-xs leading-relaxed text-foreground/40">
             {card.description}
           </p>
@@ -217,7 +244,9 @@ function StackedLayout({ card }: { card: (typeof cardContents)[1] }) {
     <div className="flex h-full flex-col gap-4 md:gap-6 p-4 md:p-6">
       <UserRow user={card.user!} badge={card.badge} />
       <div>
-        <p className="text-sm md:text-base font-semibold leading-snug">{card.title}</p>
+        <p className="text-sm md:text-base font-semibold leading-snug">
+          {card.title}
+        </p>
         <p className="mt-1.5 text-xs leading-relaxed text-foreground/40">
           {card.description}
         </p>
@@ -231,7 +260,9 @@ function StackedLayout({ card }: { card: (typeof cardContents)[1] }) {
             transition={{ delay: i * 0.1 }}
             className="border border-foreground/8 p-3 md:p-5"
           >
-            <p className="text-3xl md:text-4xl font-semibold tabular-nums">{m.value}</p>
+            <p className="text-3xl md:text-4xl font-semibold tabular-nums">
+              {m.value}
+            </p>
             <p className="mt-2 text-[10px] uppercase tracking-wider text-foreground/35">
               {m.label}
             </p>
@@ -264,7 +295,9 @@ function GridLayout({ card }: { card: (typeof cardContents)[2] }) {
     <div className="flex h-full flex-col gap-4 md:gap-6 p-4 md:p-6">
       <UserRow user={card.user!} badge={card.badge} />
       <div>
-        <p className="text-sm md:text-base font-semibold leading-snug">{card.title}</p>
+        <p className="text-sm md:text-base font-semibold leading-snug">
+          {card.title}
+        </p>
         <p className="mt-1.5 text-xs leading-relaxed text-foreground/40">
           {card.description}
         </p>
@@ -301,7 +334,9 @@ function MinimalLayout({ card }: { card: (typeof cardContents)[3] }) {
     <div className="flex h-full flex-col gap-4 md:gap-6 p-4 md:p-6">
       <UserRow user={card.user!} badge={card.badge} />
       <div>
-        <p className="text-sm md:text-base font-semibold leading-snug">{card.title}</p>
+        <p className="text-sm md:text-base font-semibold leading-snug">
+          {card.title}
+        </p>
         <p className="mt-1.5 text-xs leading-relaxed text-foreground/40">
           {card.description}
         </p>
@@ -353,7 +388,9 @@ function CardListLayout({ card }: { card: (typeof cardContents)[4] }) {
         </div>
       </div>
       <div>
-        <p className="text-sm md:text-base font-semibold leading-snug">{card.title}</p>
+        <p className="text-sm md:text-base font-semibold leading-snug">
+          {card.title}
+        </p>
         <p className="mt-1.5 text-xs leading-relaxed text-foreground/40">
           {card.description}
         </p>
@@ -383,7 +420,9 @@ function CardListLayout({ card }: { card: (typeof cardContents)[4] }) {
           <span className="text-[10px] uppercase tracking-widest text-foreground/30">
             Hash
           </span>
-          <span className="font-mono text-xs text-foreground/40">{card.hash}</span>
+          <span className="font-mono text-xs text-foreground/40">
+            {card.hash}
+          </span>
         </div>
       </div>
     </div>

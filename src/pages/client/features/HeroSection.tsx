@@ -59,7 +59,7 @@ export default function HeroSection() {
                   assessment hingga credential yang dapat dipercaya.
                 </motion.p>
               </div>
-              <div className='absolute -top-50 -right-70 -translate-y-1/2 h-100 w-200 hidden lg:block pointer-events-none'>
+              <div className="absolute -top-50 -right-70 -translate-y-1/2 h-100 w-200 hidden lg:block pointer-events-none">
                 <OrbitingCirclesFeaturesAnimation />
               </div>
             </div>

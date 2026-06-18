@@ -105,3 +105,64 @@ Response must be a valid JSON object. Do not wrap in markdown code blocks. The J
 
 	return &evalResp, nil
 }
+
+type EssayGradeRequest struct {
+	Question     string
+	Rubric       string
+	UserResponse string
+}
+
+type EssayGradeResponse struct {
+	Score       int    `json:"score"`
+	Explanation string `json:"explanation"`
+}
+
+func (c *Client) GradeEssay(ctx context.Context, req EssayGradeRequest) (*EssayGradeResponse, error) {
+	systemPrompt := `Anda adalah penilai teknis ahli. Evaluasi jawaban kandidat terhadap pertanyaan teknis berdasarkan rubrik penilaian yang disediakan.
+Berikan nilai numerik/skor dalam rentang 0 sampai 100, di mana 100 mewakili pemahaman sempurna terhadap rubrik, dan 0 mewakili jawaban yang tidak relevan atau salah. Semakin mendekati jawaban benar, berikan skor yang semakin tinggi secara proporsional.
+Berikan penjelasan singkat (1-2 kalimat) dalam Bahasa Indonesia mengenai apa yang benar, apa yang terlewat, dan alasan di balik skor tersebut.
+
+Semua teks penjelasan HARUS ditulis dalam Bahasa Indonesia.
+
+Respons harus berupa objek JSON yang valid:
+{
+  "score": 85,
+  "explanation": "..."
+}`
+
+	userContent := fmt.Sprintf("Pertanyaan: %s\nRubric: %s\nJawaban Kandidat: %s", req.Question, req.Rubric, req.UserResponse)
+
+	chatReq := ChatCompletionRequest{
+		Messages: []Message{
+			{
+				Role:    "system",
+				Content: systemPrompt,
+			},
+			{
+				Role:    "user",
+				Content: userContent,
+			},
+		},
+		ResponseFormat: &ResponseFormat{
+			Type: "json_object",
+		},
+	}
+
+	resp, err := c.CreateChatCompletion(chatReq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to call groq for essay grading: %w", err)
+	}
+
+	if len(resp.Choices) == 0 {
+		return nil, fmt.Errorf("groq returned no choices")
+	}
+
+	content := resp.Choices[0].Message.Content
+
+	var gradeResp EssayGradeResponse
+	if err := json.Unmarshal([]byte(content), &gradeResp); err != nil {
+		return nil, fmt.Errorf("failed to parse essay grade JSON: %w (content: %s)", err, content)
+	}
+
+	return &gradeResp, nil
+}

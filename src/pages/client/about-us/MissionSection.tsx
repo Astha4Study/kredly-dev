@@ -25,7 +25,10 @@ const PILLARS = [
 export default function MissionSection() {
   return (
     <section className="px-4 pt-4 sm:px-6 ">
-      <GridBorder className="mx-auto w-full max-w-7xl" paddingY='py-16 sm:py-24'>
+      <GridBorder
+        className="mx-auto w-full max-w-7xl"
+        paddingY="py-16 sm:py-24"
+      >
         <div className="grid grid-cols-1 md:grid-cols-3">
           {PILLARS.map((pillar, index) => (
             <motion.div

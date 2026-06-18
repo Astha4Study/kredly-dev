@@ -6,7 +6,7 @@ import type {
   ResultResponse,
 } from '../pages/client/cat/types';
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = '/api';
 
 export const sessionService = {
   async createSession(data: CreateSessionPayload): Promise<SessionResponse> {
@@ -70,6 +70,21 @@ export const sessionService = {
       const errData = await response.json().catch(() => ({}));
       throw new Error(
         errData.error || `Failed to retrieve result: ${response.status}`,
+      );
+    }
+
+    return response.json();
+  },
+
+  async abandonSession(sessionId: string): Promise<{ status: string }> {
+    const response = await fetch(`${API_BASE}/sessions/${sessionId}/abandon`, {
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(
+        errData.error || `Failed to abandon session: ${response.status}`,
       );
     }
 

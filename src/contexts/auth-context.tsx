@@ -9,6 +9,10 @@ export interface User {
   emailVerified: boolean;
   image?: string;
   hasCompletedOnboarding?: boolean; // Tambahan untuk cek status onboarding
+  cvRole?: string;
+  cvLevel?: string;
+  cvSkills?: string[];
+  cvSummary?: string;
 }
 
 export interface AuthContextType {

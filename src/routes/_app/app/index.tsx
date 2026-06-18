@@ -1,4 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts';
 import { useEffect, useState } from 'react';
 import {
@@ -142,19 +143,19 @@ function RouteComponent() {
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Assessments</CardTitle>
-              <CardDescription>Take skill assessments</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <a href="/parsecv">
-                <Button className="w-full">Start Assessment</Button>
-              </a>
-            </CardContent>
-          </Card>
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Assessments</CardTitle>
+                <CardDescription>Take skill assessments</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Link to="/test-overview">
+                  <Button className="w-full">Start Assessment</Button>
+                </Link>
+              </CardContent>
+            </Card>
 
           <Card>
             <CardHeader>
@@ -181,32 +182,32 @@ function RouteComponent() {
           </Card>
         </div>
 
-        {/* Debug Section - UserProfile Data */}
-        <Card className="border-yellow-200 bg-yellow-50/50">
-          <CardHeader>
-            <CardTitle className="text-yellow-900">
-              Debug: UserProfile Data
-            </CardTitle>
-            <CardDescription>
-              Database UserProfile information (for debugging)
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {profileLoading ? (
-              <p className="text-sm text-muted-foreground">
-                Loading profile...
-              </p>
-            ) : userProfile ? (
-              <div className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">
-                      CV Filename
-                    </label>
-                    <p className="text-base text-gray-900 mt-1">
-                      {userProfile.cvFileName}
-                    </p>
-                  </div>
+          {/* Debug Section - UserProfile Data */}
+          <Card className="border-yellow-200 bg-yellow-50/50">
+            <CardHeader>
+              <CardTitle className="text-yellow-900">
+                Debug: UserProfile Data
+              </CardTitle>
+              <CardDescription>
+                Database UserProfile information (for debugging)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {profileLoading ? (
+                <p className="text-sm text-muted-foreground">
+                  Loading profile...
+                </p>
+              ) : userProfile ? (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">
+                        CV Filename
+                      </label>
+                      <p className="text-base text-gray-900 mt-1">
+                        {userProfile.cvFileName}
+                      </p>
+                    </div>
 
                   <div>
                     <label className="text-sm font-medium text-gray-500">

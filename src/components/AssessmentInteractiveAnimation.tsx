@@ -28,8 +28,14 @@ const CARDS: Card[] = [
     type: 'pilgan',
     soal: 1,
     total: 10,
-    question: 'Dalam negosiasi dengan klien, strategi terbaik untuk mencapai win-win solution adalah?',
-    options: ['Fokus pada kepentingan bersama', 'Memaksakan kehendak', 'Menghindar dari konflik', 'Kompetisi agresif'],
+    question:
+      'Dalam negosiasi dengan klien, strategi terbaik untuk mencapai win-win solution adalah?',
+    options: [
+      'Fokus pada kepentingan bersama',
+      'Memaksakan kehendak',
+      'Menghindar dari konflik',
+      'Kompetisi agresif',
+    ],
     correctIndex: 0,
     wrongIndex: 1,
   },
@@ -37,15 +43,23 @@ const CARDS: Card[] = [
     type: 'essay',
     soal: 2,
     total: 10,
-    question: 'Jelaskan pendekatan Anda ketika menghadapi konflik antar anggota tim dalam sebuah proyek.',
-    answer: 'Saya akan mendengarkan perspektif kedua pihak secara objektif, mengidentifikasi akar masalah, dan memfasilitasi diskusi untuk mencapai solusi yang adil.',
+    question:
+      'Jelaskan pendekatan Anda ketika menghadapi konflik antar anggota tim dalam sebuah proyek.',
+    answer:
+      'Saya akan mendengarkan perspektif kedua pihak secara objektif, mengidentifikasi akar masalah, dan memfasilitasi diskusi untuk mencapai solusi yang adil.',
   },
   {
     type: 'pilgan',
     soal: 3,
     total: 10,
-    question: 'Ketika deadline proyek sangat ketat namun kualitas harus dijaga, prioritas utama adalah?',
-    options: ['Mengorbankan kualitas demi deadline', 'MVP dengan fitur esensial berkualitas', 'Request perpanjangan waktu', 'Skip testing phase'],
+    question:
+      'Ketika deadline proyek sangat ketat namun kualitas harus dijaga, prioritas utama adalah?',
+    options: [
+      'Mengorbankan kualitas demi deadline',
+      'MVP dengan fitur esensial berkualitas',
+      'Request perpanjangan waktu',
+      'Skip testing phase',
+    ],
     correctIndex: 1,
     wrongIndex: 2,
   },
@@ -53,15 +67,23 @@ const CARDS: Card[] = [
     type: 'essay',
     soal: 4,
     total: 10,
-    question: 'Bagaimana cara Anda mengelola ekspektasi stakeholder yang tidak realistis?',
-    answer: 'Komunikasikan dengan data dan fakta tentang batasan yang ada, tawarkan alternatif solusi yang achievable, dan tetap transparan tentang trade-off dari setiap keputusan.',
+    question:
+      'Bagaimana cara Anda mengelola ekspektasi stakeholder yang tidak realistis?',
+    answer:
+      'Komunikasikan dengan data dan fakta tentang batasan yang ada, tawarkan alternatif solusi yang achievable, dan tetap transparan tentang trade-off dari setiap keputusan.',
   },
   {
     type: 'pilgan',
     soal: 5,
     total: 10,
-    question: 'Dalam presentasi proposal ke manajemen, elemen paling krusial adalah?',
-    options: ['Data dan metrik yang mendukung', 'Desain slide yang menarik', 'Durasi presentasi singkat', 'Storytelling emosional'],
+    question:
+      'Dalam presentasi proposal ke manajemen, elemen paling krusial adalah?',
+    options: [
+      'Data dan metrik yang mendukung',
+      'Desain slide yang menarik',
+      'Durasi presentasi singkat',
+      'Storytelling emosional',
+    ],
     correctIndex: 0,
     wrongIndex: 1,
   },
@@ -69,15 +91,23 @@ const CARDS: Card[] = [
     type: 'essay',
     soal: 6,
     total: 10,
-    question: 'Deskripsikan strategi Anda untuk membangun relasi profesional dengan klien baru.',
-    answer: 'Memulai dengan mendengarkan kebutuhan mereka secara mendalam, memberikan value di setiap interaksi, konsisten dalam komunikasi dan delivery.',
+    question:
+      'Deskripsikan strategi Anda untuk membangun relasi profesional dengan klien baru.',
+    answer:
+      'Memulai dengan mendengarkan kebutuhan mereka secara mendalam, memberikan value di setiap interaksi, konsisten dalam komunikasi dan delivery.',
   },
   {
     type: 'pilgan',
     soal: 7,
     total: 10,
-    question: 'Saat menerima feedback negatif dari atasan, respons terbaik adalah?',
-    options: ['Defensif dan menjelaskan alasan', 'Menerima dan bertanya solusi', 'Mengabaikan feedback tersebut', 'Langsung resign'],
+    question:
+      'Saat menerima feedback negatif dari atasan, respons terbaik adalah?',
+    options: [
+      'Defensif dan menjelaskan alasan',
+      'Menerima dan bertanya solusi',
+      'Mengabaikan feedback tersebut',
+      'Langsung resign',
+    ],
     correctIndex: 1,
     wrongIndex: 0,
   },
@@ -85,15 +115,23 @@ const CARDS: Card[] = [
     type: 'essay',
     soal: 8,
     total: 10,
-    question: 'Jelaskan bagaimana Anda menangani situasi di mana resource tim sangat terbatas namun target tetap tinggi.',
-    answer: 'Prioritaskan task berdasarkan impact dan urgency, optimalkan proses dengan efisiensi, dan komunikasikan constraint ke stakeholder dengan proposal realistis.',
+    question:
+      'Jelaskan bagaimana Anda menangani situasi di mana resource tim sangat terbatas namun target tetap tinggi.',
+    answer:
+      'Prioritaskan task berdasarkan impact dan urgency, optimalkan proses dengan efisiensi, dan komunikasikan constraint ke stakeholder dengan proposal realistis.',
   },
   {
     type: 'pilgan',
     soal: 9,
     total: 10,
-    question: 'Ketika tim mengalami burnout di tengah proyek penting, langkah pertama yang harus diambil adalah?',
-    options: ['Menambah jam kerja untuk kejar target', 'Evaluasi beban kerja dan redistribute', 'Ganti anggota tim yang burnout', 'Biarkan sampai selesai'],
+    question:
+      'Ketika tim mengalami burnout di tengah proyek penting, langkah pertama yang harus diambil adalah?',
+    options: [
+      'Menambah jam kerja untuk kejar target',
+      'Evaluasi beban kerja dan redistribute',
+      'Ganti anggota tim yang burnout',
+      'Biarkan sampai selesai',
+    ],
     correctIndex: 1,
     wrongIndex: 0,
   },
@@ -101,8 +139,10 @@ const CARDS: Card[] = [
     type: 'essay',
     soal: 10,
     total: 10,
-    question: 'Bagaimana Anda mengambil keputusan strategis ketika data yang tersedia terbatas dan waktu mendesak?',
-    answer: 'Kumpulkan informasi kritis dengan cepat, analisis berdasarkan pengalaman, konsultasi dengan expert jika memungkinkan, buat keputusan dengan calculated risk.',
+    question:
+      'Bagaimana Anda mengambil keputusan strategis ketika data yang tersedia terbatas dan waktu mendesak?',
+    answer:
+      'Kumpulkan informasi kritis dengan cepat, analisis berdasarkan pengalaman, konsultasi dengan expert jika memungkinkan, buat keputusan dengan calculated risk.',
   },
 ];
 
@@ -115,13 +155,19 @@ const CARD_H_TABLET = 320; // for screens 640px - 1024px
 // How many cards visible in the stack behind the front
 const STACK_DEPTH = 2;
 // Per-layer visual offset
-const LAYER_Y = 10;    // px gap between each stacked card (peeking from bottom)
+const LAYER_Y = 10; // px gap between each stacked card (peeking from bottom)
 const LAYER_Y_MOBILE = 6; // smaller gap for mobile
 const LAYER_SCALE = 0.034; // scale reduction per layer
 
 // ─── Pilgan ───────────────────────────────────────────────────────────────────
 
-function PilganContent({ card, preview = false }: { card: PilganCard; preview?: boolean }) {
+function PilganContent({
+  card,
+  preview = false,
+}: {
+  card: PilganCard;
+  preview?: boolean;
+}) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [wrongIdx, setWrongIdx] = useState<number | null>(null);
   const t = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -141,7 +187,9 @@ function PilganContent({ card, preview = false }: { card: PilganCard; preview?: 
         }, 400);
       }, 750);
     }, 350);
-    return () => { if (t.current) clearTimeout(t.current); };
+    return () => {
+      if (t.current) clearTimeout(t.current);
+    };
   }, [card, preview]);
 
   return (
@@ -170,32 +218,56 @@ function PilganContent({ card, preview = false }: { card: PilganCard; preview?: 
               key={i}
               animate={
                 isWrong
-                  ? { backgroundColor: '#fef2f2', borderColor: '#fca5a5', x: [0, 3, -2, 0] }
+                  ? {
+                      backgroundColor: '#fef2f2',
+                      borderColor: '#fca5a5',
+                      x: [0, 3, -2, 0],
+                    }
                   : isSel
-                  ? { backgroundColor: '#18181b', borderColor: '#18181b', x: 0 }
-                  : { backgroundColor: '#ffffff', borderColor: '#e4e4e7', x: 0 }
+                    ? {
+                        backgroundColor: '#18181b',
+                        borderColor: '#18181b',
+                        x: 0,
+                      }
+                    : {
+                        backgroundColor: '#ffffff',
+                        borderColor: '#e4e4e7',
+                        x: 0,
+                      }
               }
               transition={{
                 backgroundColor: { duration: 0.18 },
                 borderColor: { duration: 0.18 },
-                x: isWrong ? { duration: 0.26, times: [0, 0.3, 0.7, 1] } : { duration: 0.18 },
+                x: isWrong
+                  ? { duration: 0.26, times: [0, 0.3, 0.7, 1] }
+                  : { duration: 0.18 },
               }}
               className="flex items-center gap-2 sm:gap-2.5 border px-2.5 sm:px-3 py-1.5 sm:py-2"
             >
               <motion.div
                 animate={{
-                  borderColor: isWrong ? '#f87171' : isSel ? '#ffffff' : '#d4d4d8',
+                  borderColor: isWrong
+                    ? '#f87171'
+                    : isSel
+                      ? '#ffffff'
+                      : '#d4d4d8',
                   backgroundColor: isSel ? '#ffffff' : 'transparent',
                 }}
                 transition={{ duration: 0.15 }}
                 className="flex h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 items-center justify-center rounded-full border-2"
               >
-                {isSel && <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-zinc-900" />}
-                {isWrong && <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-red-400" />}
+                {isSel && (
+                  <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-zinc-900" />
+                )}
+                {isWrong && (
+                  <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-red-400" />
+                )}
               </motion.div>
 
               <motion.span
-                animate={{ color: isWrong ? '#ef4444' : isSel ? '#ffffff' : '#52525b' }}
+                animate={{
+                  color: isWrong ? '#ef4444' : isSel ? '#ffffff' : '#52525b',
+                }}
                 transition={{ duration: 0.15 }}
                 className="text-[9px] sm:text-[10px] flex-1 leading-relaxed"
               >
@@ -203,10 +275,16 @@ function PilganContent({ card, preview = false }: { card: PilganCard; preview?: 
               </motion.span>
 
               {isSel && i === card.correctIndex && (
-                <Check className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 text-white" strokeWidth={2.5} />
+                <Check
+                  className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 text-white"
+                  strokeWidth={2.5}
+                />
               )}
               {isWrong && (
-                <X className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 text-red-400" strokeWidth={2.5} />
+                <X
+                  className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 text-red-400"
+                  strokeWidth={2.5}
+                />
               )}
             </motion.div>
           );
@@ -220,7 +298,13 @@ function PilganContent({ card, preview = false }: { card: PilganCard; preview?: 
 
 // ─── Essay ────────────────────────────────────────────────────────────────────
 
-function EssayContent({ card, preview = false }: { card: EssayCard; preview?: boolean }) {
+function EssayContent({
+  card,
+  preview = false,
+}: {
+  card: EssayCard;
+  preview?: boolean;
+}) {
   const [displayed, setDisplayed] = useState('');
   const [done, setDone] = useState(false);
   const t = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -235,7 +319,10 @@ function EssayContent({ card, preview = false }: { card: EssayCard; preview?: bo
     setDone(false);
     let i = 0;
     function tick() {
-      if (i >= card.answer.length) { setDone(true); return; }
+      if (i >= card.answer.length) {
+        setDone(true);
+        return;
+      }
       setDisplayed(card.answer.slice(0, i + 1));
       const ch = card.answer[i];
       const delay = ch === '.' || ch === ',' ? 110 : ch === ' ' ? 22 : 16;
@@ -243,7 +330,9 @@ function EssayContent({ card, preview = false }: { card: EssayCard; preview?: bo
       t.current = setTimeout(tick, delay);
     }
     t.current = setTimeout(tick, 160);
-    return () => { if (t.current) clearTimeout(t.current); };
+    return () => {
+      if (t.current) clearTimeout(t.current);
+    };
   }, [card, preview]);
 
   return (
@@ -314,7 +403,13 @@ function Footer({ soal, total }: { soal: number; total: number }) {
 
 // ─── Card face ────────────────────────────────────────────────────────────────
 
-function CardFace({ card, preview = false }: { card: Card; preview?: boolean }) {
+function CardFace({
+  card,
+  preview = false,
+}: {
+  card: Card;
+  preview?: boolean;
+}) {
   return (
     <div
       className="bg-white border border-zinc-200 w-full overflow-hidden h-70 sm:h-80 lg:h-85 px-3 sm:px-4 py-3 sm:py-4"
@@ -373,7 +468,9 @@ export function AssessmentInteractiveAnimation() {
       }, 5000);
     }
     schedule();
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, []);
 
   const SLOTS = STACK_DEPTH + 2; // render 1 extra for the entering card from back
@@ -408,7 +505,14 @@ export function AssessmentInteractiveAnimation() {
         const targetSlot = slot - 1;
         const y = targetSlot * layerY;
         const scale = 1 - targetSlot * LAYER_SCALE;
-        const opacity = targetSlot === 0 ? 1 : targetSlot === 1 ? 0.85 : targetSlot === 2 ? 0.6 : 0.4;
+        const opacity =
+          targetSlot === 0
+            ? 1
+            : targetSlot === 1
+              ? 0.85
+              : targetSlot === 2
+                ? 0.6
+                : 0.4;
         const zIndex = (STACK_DEPTH + 1 - targetSlot) * 10;
         return { y, scale, opacity, zIndex };
       }
