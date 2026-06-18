@@ -17,6 +17,7 @@ type GenerateItemBatchRequest struct {
 }
 
 type GeneratedItem struct {
+	Type         string   `json:"type"` // "multiple_choice" atau "essay"
 	Pertanyaan   string   `json:"pertanyaan"`
 	Pilihan      []string `json:"pilihan"`
 	KunciJawaban string   `json:"kunci_jawaban"`
@@ -31,37 +32,55 @@ func (c *Client) GenerateItemBatch(ctx context.Context, req GenerateItemBatchReq
 
 	skillsStr := strings.Join(req.Skills, ", ")
 
-	difficultyDesc := "medium (b_estimated around -0.5 to 0.5)"
+	difficultyDesc := "sedang (b_estimated sekitar -0.5 hingga 0.5)"
 	if req.Theta < -1.0 {
-		difficultyDesc = "easy (b_estimated around -1.5 to -0.5)"
+		difficultyDesc = "mudah (b_estimated sekitar -1.5 hingga -0.5)"
 	} else if req.Theta >= 1.5 {
-		difficultyDesc = "expert (b_estimated around 1.5 to 2.5)"
+		difficultyDesc = "ahli (b_estimated sekitar 1.5 hingga 2.5)"
 	} else if req.Theta >= 0.5 {
-		difficultyDesc = "hard (b_estimated around 0.5 to 1.5)"
+		difficultyDesc = "sulit (b_estimated sekitar 0.5 hingga 1.5)"
 	}
 
-	systemPrompt := fmt.Sprintf(`You are an expert technical interviewer and adaptive testing engine. Your goal is to generate a batch of %d multiple-choice questions for the following candidate profile:
-- Target Role: %s
-- Key Skills: %s
-- CV Summary Context: %s
-- Target Topic: %s
-- Candidate Current Ability Level (Theta): %.2f
-- Required Question Difficulty: %s
+	systemPrompt := fmt.Sprintf(`Anda adalah seorang pewawancara teknis ahli dan mesin pengujian adaptif. Tujuan Anda adalah menghasilkan batch berisi %d soal campuran (pilihan ganda atau essay) dalam Bahasa Indonesia untuk profil kandidat berikut:
+- Peran Target: %s
+- Keahlian Utama: %s
+- Konteks Ringkasan CV: %s
+- Topik Target: %s
+- Tingkat Kemampuan Kandidat Saat Ini (Theta): %.2f
+- Tingkat Kesulitan Soal yang Diperlukan: %s
 
-For each question:
-1. Write a high-quality, practical multiple-choice question relevant to the topic and the target role.
-2. Provide exactly 4 options.
-3. Identify the correct answer (must be 'A', 'B', 'C', or 'D').
-4. Write a clear, educational explanation for the correct answer.
-5. Estimate the question's difficulty (b_estimated) on a scale from -4.0 (very easy) to +4.0 (extremely hard), which should match the required question difficulty level.
+Setiap pertanyaan, pilihan jawaban, kunci jawaban, dan penjelasan HARUS ditulis dalam Bahasa Indonesia yang baik dan profesional.
 
-Response must be a valid JSON array of question objects. Do not wrap in markdown code blocks. The JSON structure must strictly be:
+Untuk setiap soal dalam batch, Anda harus memilih secara dinamis untuk menghasilkan salah satu format berikut:
+
+1. Untuk PILIHAN GANDA ("type": "multiple_choice"):
+   - Sediakan tepat 4 pilihan jawaban dalam "pilihan".
+   - "kunci_jawaban" harus berupa 'A', 'B', 'C', atau 'D'.
+   - Tulis penjelasan yang jelas di "penjelasan".
+
+2. Untuk ESSAY ("type": "essay"):
+   - Set "pilihan" menjadi array kosong [].
+   - "kunci_jawaban" harus berisi rubrik penilaian mendetail atau daftar konsep/kata kunci teknis utama yang wajib dijawab kandidat.
+   - Berikan contoh jawaban model di "penjelasan".
+
+3. "b_estimated" harus sesuai dengan tingkat kesulitan soal yang diperlukan.
+
+Respons harus berupa array JSON objek pertanyaan yang valid. Jangan bungkus dengan markdown block. Struktur JSON harus tepat seperti ini:
 [
   {
-    "pertanyaan": "Question text...",
-    "pilihan": ["Option A", "Option B", "Option C", "Option D"],
+    "type": "multiple_choice",
+    "pertanyaan": "Pertanyaan pilihan ganda...",
+    "pilihan": ["Pilihan A", "Pilihan B", "Pilihan C", "Pilihan D"],
     "kunci_jawaban": "A",
-    "penjelasan": "Explanation...",
+    "penjelasan": "Penjelasan...",
+    "b_estimated": 0.5
+  },
+  {
+    "type": "essay",
+    "pertanyaan": "Pertanyaan essay...",
+    "pilihan": [],
+    "kunci_jawaban": "Rubrik penilaian...",
+    "penjelasan": "Contoh jawaban model...",
     "b_estimated": 0.5
   }
 ]`, req.BatchSize, req.Role, skillsStr, req.CVSummary, req.Topic, req.Theta, difficultyDesc)
@@ -75,7 +94,7 @@ Response must be a valid JSON array of question objects. Do not wrap in markdown
 			},
 			{
 				Role:    "user",
-				Content: fmt.Sprintf("Generate a batch of %d multiple-choice questions for the topic: %s", req.BatchSize, req.Topic),
+				Content: fmt.Sprintf("Hasilkan batch berisi %d soal campuran (pilihan ganda atau essay) untuk topik: %s dalam Bahasa Indonesia", req.BatchSize, req.Topic),
 			},
 		},
 		ResponseFormat: &ResponseFormat{
@@ -95,7 +114,7 @@ Response must be a valid JSON array of question objects. Do not wrap in markdown
 
 	// Parse the response
 	content := resp.Choices[0].Message.Content
-	
+
 	// Sometimes models return the array directly, sometimes wrapped in a root object.
 	// We'll handle both.
 	var items []GeneratedItem
@@ -118,9 +137,11 @@ Response must be a valid JSON array of question objects. Do not wrap in markdown
 		return nil, fmt.Errorf("no valid questions found in parsed response (content: %s)", content)
 	}
 
-	// Normalize key answers to uppercase
+	// Normalize key answers to uppercase for multiple choice questions only
 	for i := range items {
-		items[i].KunciJawaban = strings.ToUpper(strings.TrimSpace(items[i].KunciJawaban))
+		if items[i].Type == "multiple_choice" {
+			items[i].KunciJawaban = strings.ToUpper(strings.TrimSpace(items[i].KunciJawaban))
+		}
 	}
 
 	return items, nil

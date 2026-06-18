@@ -27,3 +27,4 @@ server/.env
 .agents/skills/
 
 /generated/prisma
+server/tmp_build

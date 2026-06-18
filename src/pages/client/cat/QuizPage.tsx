@@ -11,6 +11,16 @@ import AnswerOptions from '@/components/cat/AnswerOptions';
 import ProgressBar from '@/components/cat/ProgressBar';
 import Timer from '@/components/cat/Timer';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function QuizPage() {
   const params = useParams({ strict: false });
@@ -34,6 +44,36 @@ export default function QuizPage() {
   const [timerKey, setTimerKey] = React.useState(0);
   const [countdownIntervalId, setCountdownIntervalId] =
     React.useState<ReturnType<typeof setInterval> | null>(null);
+
+  // Exit warning states
+  const [showExitWarning, setShowExitWarning] = React.useState(false);
+  const isNavigatingAway = React.useRef(false);
+
+  // Intercept browser back button
+  React.useEffect(() => {
+    window.history.pushState(null, '', window.location.href);
+
+    const handlePopState = () => {
+      if (isNavigatingAway.current) return;
+      window.history.pushState(null, '', window.location.href);
+      setShowExitWarning(true);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  const handleConfirmExit = async () => {
+    isNavigatingAway.current = true;
+    try {
+      await sessionService.abandonSession(sessionId);
+    } catch (err) {
+      console.error('Failed to abandon session:', err);
+    }
+    navigate({ to: '/parseCV' });
+  };
 
   // Fetch first question on mount
   React.useEffect(() => {
@@ -200,7 +240,7 @@ export default function QuizPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => window.history.back()}
+            onClick={() => setShowExitWarning(true)}
             className="text-muted-foreground hover:text-foreground -ml-2"
           >
             <ArrowLeft className="mr-2 size-4" /> Kembali
@@ -234,21 +274,68 @@ export default function QuizPage() {
             />
 
             {/* Answer Selections */}
-            <AnswerOptions
-              options={currentItem.pilihan}
-              selectedAnswer={selectedAnswer}
-              onSelect={setSelectedAnswer}
-              disabled={isLoading || isSubmitting || showResult}
-              correctAnswer={feedback?.correct_answer}
-              showResult={showResult}
-            />
+            {currentItem.type === 'essay' ? (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-3"
+              >
+                <div className="flex justify-between items-center">
+                  <label className="text-sm font-semibold text-muted-foreground">
+                    Jawaban Essay Anda:
+                  </label>
+                  <span className="text-xs text-muted-foreground/60">
+                    Tuliskan penjelasan teknis yang mendalam
+                  </span>
+                </div>
+                <textarea
+                  disabled={isLoading || isSubmitting || showResult}
+                  value={selectedAnswer || ''}
+                  onChange={(e) => setSelectedAnswer(e.target.value)}
+                  placeholder="Ketik penjelasan teknis Anda secara detail di sini..."
+                  className="w-full min-h-[160px] p-4 rounded-2xl border border-foreground/10 bg-background/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-300 resize-y text-sm leading-relaxed"
+                />
+              </motion.div>
+            ) : (
+              <AnswerOptions
+                options={currentItem.pilihan || []}
+                selectedAnswer={selectedAnswer}
+                onSelect={setSelectedAnswer}
+                disabled={isLoading || isSubmitting || showResult}
+                correctAnswer={feedback?.correct_answer}
+                showResult={showResult}
+              />
+            )}
+
+            {/* Explanation box shown after submission */}
+            <AnimatePresence>
+              {showResult && feedback && currentItem.type !== 'essay' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  <Card className="border border-foreground/5 bg-foreground/5 backdrop-blur-sm mt-4">
+                    <CardContent className="p-5 space-y-3">
+                      <h4 className="text-sm font-bold text-foreground/90 uppercase tracking-wider">
+                        Penjelasan Jawaban
+                      </h4>
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                        {feedback.explanation}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Actions Bar */}
             <div className="flex items-center justify-end pt-2">
               {!showResult ? (
                 <Button
                   size="lg"
-                  disabled={!selectedAnswer || isSubmitting}
+                  disabled={!(selectedAnswer && selectedAnswer.trim() !== '') || isSubmitting}
                   onClick={() => handleSubmit()}
                   className="w-full md:w-auto font-medium transition-all duration-300 shadow-[0_0_20px_rgba(var(--primary-rgb),0.2)]"
                 >
@@ -289,29 +376,41 @@ export default function QuizPage() {
                   exit={{ opacity: 0, y: 16 }}
                   className={cn(
                     'flex items-center justify-between gap-4 rounded-2xl border px-5 py-4',
-                    feedback.correct
-                      ? 'border-emerald-500/20 bg-emerald-500/5'
-                      : 'border-rose-500/20 bg-rose-500/5',
+                    currentItem.type === 'essay'
+                      ? 'border-blue-500/20 bg-blue-500/5'
+                      : feedback.correct
+                        ? 'border-emerald-500/20 bg-emerald-500/5'
+                        : 'border-rose-500/20 bg-rose-500/5',
                   )}
                 >
                   <div className="flex items-center gap-3">
                     <div
                       className={cn(
                         'flex size-9 items-center justify-center rounded-xl font-bold border text-base',
-                        feedback.correct
-                          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                          : 'bg-rose-500/10 border-rose-500/20 text-rose-400',
+                        currentItem.type === 'essay'
+                          ? 'bg-blue-500/10 border-blue-500/20 text-blue-400'
+                          : feedback.correct
+                            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                            : 'bg-rose-500/10 border-rose-500/20 text-rose-400',
                       )}
                     >
-                      {feedback.correct ? '✓' : '✗'}
+                      {currentItem.type === 'essay' ? 'i' : feedback.correct ? '✓' : '✗'}
                     </div>
                     <p
                       className={cn(
                         'font-semibold text-sm',
-                        feedback.correct ? 'text-emerald-400' : 'text-rose-400',
+                        currentItem.type === 'essay'
+                          ? 'text-blue-400'
+                          : feedback.correct
+                            ? 'text-emerald-400'
+                            : 'text-rose-400',
                       )}
                     >
-                      {feedback.correct ? 'Jawaban Benar!' : 'Jawaban Salah'}
+                      {currentItem.type === 'essay'
+                        ? 'Jawaban Essay Tersimpan'
+                        : feedback.correct
+                          ? 'Jawaban Benar!'
+                          : 'Jawaban Salah'}
                     </p>
                   </div>
 
@@ -330,6 +429,25 @@ export default function QuizPage() {
           </div>
         )}
       </div>
+
+      <AlertDialog open={showExitWarning} onOpenChange={setShowExitWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Keluar dari Ujian?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Apakah Anda yakin ingin keluar? Sesi ujian CAT ini akan dihentikan sementara, namun progress Anda tetap tersimpan dan tidak akan diselesaikan secara otomatis. Anda dapat melanjutkannya nanti.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowExitWarning(false)}>
+              Batal
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmExit}>
+              Keluar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

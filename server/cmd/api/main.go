@@ -85,6 +85,7 @@ func main() {
 		api.GET("/sessions/:id/next-item", sessionHandler.HandleNextItem)
 		api.POST("/sessions/:id/answer", sessionHandler.HandleSubmitAnswer)
 		api.GET("/sessions/:id/result", sessionHandler.HandleGetResult)
+		api.POST("/sessions/:id/abandon", sessionHandler.HandleAbandonSession)
 
 		// Auth endpoints (Better Auth compatible format)
 		auth := api.Group("/auth")

@@ -30,6 +30,7 @@ type Session struct {
 
 type PendingItem struct {
 	ID           string   `bson:"id" json:"id"`
+	Type         string   `bson:"type" json:"type"`             // "multiple_choice" atau "essay"
 	Topic        string   `bson:"topic" json:"topic"`
 	Pertanyaan   string   `bson:"pertanyaan" json:"pertanyaan"` // Question text
 	Pilihan      []string `bson:"pilihan" json:"pilihan"`       // Multiple choice options
@@ -42,6 +43,7 @@ type AnswerHistory struct {
 	ItemID     string  `bson:"itemId" json:"item_id"`
 	Topic      string  `bson:"topic" json:"topic"`
 	Answer     string  `bson:"answer" json:"answer"`
+	Type       string  `bson:"type" json:"type"` // "multiple_choice" atau "essay"
 	Correct    bool    `bson:"correct" json:"correct"`
 	ThetaAfter float64 `bson:"thetaAfter" json:"theta_after"`
 	BParam     float64 `bson:"bParam" json:"b_param"`

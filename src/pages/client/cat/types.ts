@@ -15,9 +15,10 @@ export interface SessionResponse {
 
 export interface QuizItem {
   id: string;
+  type: 'multiple_choice' | 'essay';
   topic: string;
   pertanyaan: string;
-  pilihan: string[];
+  pilihan?: string[];
 }
 
 export interface NextItemResponse {

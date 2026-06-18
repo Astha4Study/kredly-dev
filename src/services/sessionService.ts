@@ -75,4 +75,19 @@ export const sessionService = {
 
     return response.json();
   },
+
+  async abandonSession(sessionId: string): Promise<{ status: string }> {
+    const response = await fetch(`${API_BASE}/sessions/${sessionId}/abandon`, {
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(
+        errData.error || `Failed to abandon session: ${response.status}`,
+      );
+    }
+
+    return response.json();
+  },
 };

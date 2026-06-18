@@ -156,8 +156,13 @@ func (s *CATService) NextItem(ctx context.Context, sessionID string) (*models.Pe
 
 	var pendingItems []*models.PendingItem
 	for _, g := range generated {
+		qType := g.Type
+		if qType == "" {
+			qType = "multiple_choice"
+		}
 		pendingItems = append(pendingItems, &models.PendingItem{
 			ID:           uuid.New().String(),
+			Type:         qType,
 			Topic:        topic,
 			Pertanyaan:   g.Pertanyaan,
 			Pilihan:      g.Pilihan,
@@ -207,16 +212,51 @@ func (s *CATService) SubmitAnswer(ctx context.Context, sessionID, answer string)
 		return nil, errors.New("no active pending question to answer")
 	}
 
-	userAns := strings.ToUpper(strings.TrimSpace(answer))
-	correctAns := strings.ToUpper(strings.TrimSpace(sess.PendingItem.KunciJawaban))
-	correct := userAns == correctAns
+	var correct bool
+	var explanation string
+	var correctAnswer string
+	var savedAnswer string
+	var score float64
 
-	thetaNew := UpdateTheta(sess.ThetaCurrent, sess.PendingItem.BEstimated, correct)
+	if sess.PendingItem.Type == "essay" {
+		gradeRes, err := s.groq.GradeEssay(ctx, groq.EssayGradeRequest{
+			Question:     sess.PendingItem.Pertanyaan,
+			Rubric:       sess.PendingItem.KunciJawaban,
+			UserResponse: answer,
+		})
+		if err != nil {
+			log.Printf("[CAT] GradeEssay failed: %v\n", err)
+			correct = true
+			score = 1.0
+			explanation = fmt.Sprintf("Evaluasi AI tertunda. Contoh Jawaban Acuan:\n%s", sess.PendingItem.Penjelasan)
+		} else {
+			score = float64(gradeRes.Score) / 100.0
+			correct = score >= 0.6
+			explanation = fmt.Sprintf("Skor Jawaban: %d/100. %s\n\n**Contoh Jawaban Acuan:**\n%s", gradeRes.Score, gradeRes.Explanation, sess.PendingItem.Penjelasan)
+		}
+		correctAnswer = "Sesuai Rubrik"
+		savedAnswer = answer
+	} else {
+		userAns := strings.ToUpper(strings.TrimSpace(answer))
+		correctAns := strings.ToUpper(strings.TrimSpace(sess.PendingItem.KunciJawaban))
+		correct = userAns == correctAns
+		if correct {
+			score = 1.0
+		} else {
+			score = 0.0
+		}
+		explanation = sess.PendingItem.Penjelasan
+		correctAnswer = sess.PendingItem.KunciJawaban
+		savedAnswer = userAns
+	}
+
+	thetaNew := UpdateTheta(sess.ThetaCurrent, sess.PendingItem.BEstimated, score)
 
 	historyItem := models.AnswerHistory{
 		ItemID:     sess.PendingItem.ID,
 		Topic:      sess.PendingItem.Topic,
-		Answer:     userAns,
+		Answer:     savedAnswer,
+		Type:       sess.PendingItem.Type,
 		Correct:    correct,
 		ThetaAfter: thetaNew,
 		BParam:     sess.PendingItem.BEstimated,
@@ -228,8 +268,6 @@ func (s *CATService) SubmitAnswer(ctx context.Context, sessionID, answer string)
 	completed := stopReason != ""
 
 	var result AnswerResult
-	explanation := sess.PendingItem.Penjelasan
-	correctAnswer := sess.PendingItem.KunciJawaban
 
 	err = s.sessions.Update(sessionID, func(sess *models.Session) {
 		sess.ThetaCurrent = thetaNew
@@ -377,8 +415,13 @@ func (s *CATService) triggerBackgroundPrefetch(sessionID string) {
 
 	var pendingItems []*models.PendingItem
 	for _, g := range generated {
+		qType := g.Type
+		if qType == "" {
+			qType = "multiple_choice"
+		}
 		pendingItems = append(pendingItems, &models.PendingItem{
 			ID:           uuid.New().String(),
+			Type:         qType,
 			Topic:        topic,
 			Pertanyaan:   g.Pertanyaan,
 			Pilihan:      g.Pilihan,
@@ -398,4 +441,12 @@ func (s *CATService) triggerBackgroundPrefetch(sessionID string) {
 	if err != nil {
 		log.Printf("[CAT] Failed to save prefetched items: %v\n", err)
 	}
+}
+
+// AbandonSession marks a session as completed with reason "abandoned"
+func (s *CATService) AbandonSession(ctx context.Context, sessionID string) error {
+	return s.sessions.Update(sessionID, func(sess *models.Session) {
+		sess.Completed = true
+		sess.StopReason = "abandoned"
+	})
 }
