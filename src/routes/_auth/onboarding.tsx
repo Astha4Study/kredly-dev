@@ -1,13 +1,13 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Upload } from 'lucide-react';
 import { useOnboardingStore } from '@/stores/onboardingStore';
 import { useAuth } from '@/contexts';
 import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
+import { StepOneOnboarding } from '@/components/StepOneOnboarding';
+import { StepTwoOnboarding } from '@/components/StepTwoOnboarding';
+import { StepThreeOnboarding } from '@/components/StepThreeOnboarding';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -82,30 +82,7 @@ function RouteComponent() {
     }
   }, [user?.id, currentUserId, reset, setUserId, setUsername, user?.email]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type === 'application/pdf') {
-      setCvFile(file);
-    }
-  };
-
-  const handleStepOneSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (fullName.trim() && username.trim()) {
-      setCurrentStep(2);
-    }
-  };
-
-  const handleStepTwoSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (cvFile) {
-      setCurrentStep(3);
-    }
-  };
-
-  const handleFinalSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleFinalSubmit = () => {
     // Tampilkan dialog konfirmasi
     setShowConfirmDialog(true);
   };
@@ -201,222 +178,38 @@ function RouteComponent() {
           )}
         </div>
 
-        {currentStep === 1 ? (
-          <>
-            <div className="mt-6 space-y-3">
-              <h1 className="text-3xl font-semibold tracking-tight">
-                Lengkapi profil Anda
-              </h1>
+        {currentStep === 1 && (
+          <StepOneOnboarding
+            fullName={fullName}
+            username={username}
+            setFullName={setFullName}
+            setUsername={setUsername}
+            onNext={() => setCurrentStep(2)}
+          />
+        )}
 
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Informasi ini akan digunakan pada credential dan profil publik
-                Anda.
-              </p>
-            </div>
+        {currentStep === 2 && (
+          <StepTwoOnboarding
+            cvFile={cvFile}
+            setCvFile={setCvFile}
+            onNext={() => setCurrentStep(3)}
+          />
+        )}
 
-            <form onSubmit={handleStepOneSubmit} className="mt-10 space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Nama Lengkap</Label>
-
-                <Input
-                  id="fullName"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Masukkan nama lengkap"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
-
-                <div className="relative">
-                  <Input
-                    id="username"
-                    value={username}
-                    onChange={(e) =>
-                      setUsername(
-                        e.target.value
-                          .toLowerCase()
-                          .replace(/\s+/g, '')
-                          .replace(/[^a-z0-9._]/g, ''),
-                      )
-                    }
-                    placeholder="username"
-                    required
-                  />
-                </div>
-
-                <div className="rounded-lg border border-dashed border-border px-3 py-3">
-                  <p className="text-xs text-muted-foreground">
-                    Public profile URL
-                  </p>
-
-                  <p className="mt-1 text-sm font-medium">
-                    kredly.com/@{username || 'username'}
-                  </p>
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full"
-                disabled={!fullName.trim() || !username.trim()}
-              >
-                Simpan dan Lanjutkan
-              </Button>
-            </form>
-          </>
-        ) : currentStep === 2 ? (
-          <>
-            <div className="mt-6 space-y-3">
-              <h1 className="text-3xl font-semibold tracking-tight">
-                Upload CV Anda
-              </h1>
-
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Upload CV Anda untuk melengkapi profil dan meningkatkan
-                kredibilitas.
-              </p>
-            </div>
-
-            <form onSubmit={handleStepTwoSubmit} className="mt-10 space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="cvFile">CV (PDF)</Label>
-
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-border bg-muted p-8">
-                    <div className="text-center">
-                      <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
-                      <p className="mt-2 text-sm font-medium">
-                        {cvFile ? cvFile.name : 'Pilih file CV'}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Format PDF, maksimal 5MB
-                      </p>
-                    </div>
-                  </div>
-
-                  <Input
-                    id="cvFile"
-                    type="file"
-                    accept=".pdf,application/pdf"
-                    onChange={handleFileChange}
-                    className="cursor-pointer"
-                  />
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full"
-                disabled={!cvFile}
-              >
-                Simpan dan Lanjutkan
-              </Button>
-            </form>
-          </>
-        ) : currentStep === 3 ? (
-          <>
-            <div className="mt-6 space-y-3">
-              <h1 className="text-3xl font-semibold tracking-tight">
-                Informasi Pengalaman
-              </h1>
-
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Bantu kami memahami latar belakang dan pengalaman Anda.
-              </p>
-            </div>
-
-            <form onSubmit={handleFinalSubmit} className="mt-10 space-y-6">
-              <div className="space-y-2">
-                <Label>Berapa lama pengalaman kerja Anda?</Label>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    type="button"
-                    variant={experience === 'below-1' ? 'default' : 'outline'}
-                    onClick={() => setExperience('below-1')}
-                  >
-                    Di bawah 1 tahun
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={experience === '1-2' ? 'default' : 'outline'}
-                    onClick={() => setExperience('1-2')}
-                  >
-                    1-2 tahun
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={experience === '3-5' ? 'default' : 'outline'}
-                    onClick={() => setExperience('3-5')}
-                  >
-                    3-5 tahun
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={
-                      experience === 'not-working' ? 'default' : 'outline'
-                    }
-                    onClick={() => setExperience('not-working')}
-                  >
-                    Belum bekerja
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Apakah Anda seorang student?</Label>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    type="button"
-                    variant={isStudent === true ? 'default' : 'outline'}
-                    onClick={() => setIsStudent(true)}
-                  >
-                    Ya
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={isStudent === false ? 'default' : 'outline'}
-                    onClick={() => setIsStudent(false)}
-                  >
-                    Tidak
-                  </Button>
-                </div>
-              </div>
-
-              {isStudent === true && (
-                <div className="space-y-2">
-                  <Label htmlFor="degree">Jurusan / Degree</Label>
-
-                  <Input
-                    id="degree"
-                    value={degree}
-                    onChange={(e) => setDegree(e.target.value)}
-                    placeholder="Contoh: Teknik Informatika"
-                    required
-                  />
-                </div>
-              )}
-
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full"
-                disabled={!isStep3Valid}
-              >
-                Selesai
-              </Button>
-            </form>
-          </>
-        ) : null}
+        {currentStep === 3 && (
+          <StepThreeOnboarding
+            experience={experience}
+            isStudent={isStudent}
+            degree={degree}
+            setExperience={setExperience}
+            setIsStudent={setIsStudent}
+            setDegree={setDegree}
+            onSubmit={handleFinalSubmit}
+            isValid={isStep3Valid}
+          />
+        )}
       </div>
 
-      {/* Confirmation Dialog */}
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>

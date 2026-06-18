@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TestRouteImport } from './routes/test'
 import { Route as ParseCVRouteImport } from './routes/parseCV'
 import { Route as PublicRouteRouteImport } from './routes/_public/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
@@ -27,12 +26,8 @@ import { Route as PublicFeaturesIndexRouteImport } from './routes/_public/featur
 import { Route as PublicAboutUsIndexRouteImport } from './routes/_public/about-us/index'
 import { Route as AppAppIndexRouteImport } from './routes/_app/app/index'
 import { Route as AppAppParseCvIndexRouteImport } from './routes/_app/app/parse-cv/index'
+import { Route as AppAppAccountSettingsIndexRouteImport } from './routes/_app/app/account-settings/index'
 
-const TestRoute = TestRouteImport.update({
-  id: '/test',
-  path: '/test',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ParseCVRoute = ParseCVRouteImport.update({
   id: '/parseCV',
   path: '/parseCV',
@@ -115,11 +110,16 @@ const AppAppParseCvIndexRoute = AppAppParseCvIndexRouteImport.update({
   path: '/parse-cv/',
   getParentRoute: () => AppAppRouteRoute,
 } as any)
+const AppAppAccountSettingsIndexRoute =
+  AppAppAccountSettingsIndexRouteImport.update({
+    id: '/account-settings/',
+    path: '/account-settings/',
+    getParentRoute: () => AppAppRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/parseCV': typeof ParseCVRoute
-  '/test': typeof TestRoute
   '/app': typeof AppAppRouteRouteWithChildren
   '/$': typeof AppSplatRoute
   '/login': typeof AuthLoginRoute
@@ -131,12 +131,12 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppAppIndexRoute
   '/about-us/': typeof PublicAboutUsIndexRoute
   '/features/': typeof PublicFeaturesIndexRoute
+  '/app/account-settings/': typeof AppAppAccountSettingsIndexRoute
   '/app/parse-cv/': typeof AppAppParseCvIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/parseCV': typeof ParseCVRoute
-  '/test': typeof TestRoute
   '/$': typeof AppSplatRoute
   '/login': typeof AuthLoginRoute
   '/onboarding': typeof AuthOnboardingRoute
@@ -147,6 +147,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppAppIndexRoute
   '/about-us': typeof PublicAboutUsIndexRoute
   '/features': typeof PublicFeaturesIndexRoute
+  '/app/account-settings': typeof AppAppAccountSettingsIndexRoute
   '/app/parse-cv': typeof AppAppParseCvIndexRoute
 }
 export interface FileRoutesById {
@@ -155,7 +156,6 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_public': typeof PublicRouteRouteWithChildren
   '/parseCV': typeof ParseCVRoute
-  '/test': typeof TestRoute
   '/_app/app': typeof AppAppRouteRouteWithChildren
   '/_app/$': typeof AppSplatRoute
   '/_auth/login': typeof AuthLoginRoute
@@ -168,6 +168,7 @@ export interface FileRoutesById {
   '/_app/app/': typeof AppAppIndexRoute
   '/_public/about-us/': typeof PublicAboutUsIndexRoute
   '/_public/features/': typeof PublicFeaturesIndexRoute
+  '/_app/app/account-settings/': typeof AppAppAccountSettingsIndexRoute
   '/_app/app/parse-cv/': typeof AppAppParseCvIndexRoute
 }
 export interface FileRouteTypes {
@@ -175,7 +176,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/parseCV'
-    | '/test'
     | '/app'
     | '/$'
     | '/login'
@@ -187,12 +187,12 @@ export interface FileRouteTypes {
     | '/app/'
     | '/about-us/'
     | '/features/'
+    | '/app/account-settings/'
     | '/app/parse-cv/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/parseCV'
-    | '/test'
     | '/$'
     | '/login'
     | '/onboarding'
@@ -203,6 +203,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/about-us'
     | '/features'
+    | '/app/account-settings'
     | '/app/parse-cv'
   id:
     | '__root__'
@@ -210,7 +211,6 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/_public'
     | '/parseCV'
-    | '/test'
     | '/_app/app'
     | '/_app/$'
     | '/_auth/login'
@@ -223,6 +223,7 @@ export interface FileRouteTypes {
     | '/_app/app/'
     | '/_public/about-us/'
     | '/_public/features/'
+    | '/_app/app/account-settings/'
     | '/_app/app/parse-cv/'
   fileRoutesById: FileRoutesById
 }
@@ -231,20 +232,12 @@ export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   PublicRouteRoute: typeof PublicRouteRouteWithChildren
   ParseCVRoute: typeof ParseCVRoute
-  TestRoute: typeof TestRoute
   QuizSessionIdRoute: typeof QuizSessionIdRoute
   ResultSessionIdRoute: typeof ResultSessionIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/test': {
-      id: '/test'
-      path: '/test'
-      fullPath: '/test'
-      preLoaderRoute: typeof TestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/parseCV': {
       id: '/parseCV'
       path: '/parseCV'
@@ -364,16 +357,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppParseCvIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
+    '/_app/app/account-settings/': {
+      id: '/_app/app/account-settings/'
+      path: '/account-settings'
+      fullPath: '/app/account-settings/'
+      preLoaderRoute: typeof AppAppAccountSettingsIndexRouteImport
+      parentRoute: typeof AppAppRouteRoute
+    }
   }
 }
 
 interface AppAppRouteRouteChildren {
   AppAppIndexRoute: typeof AppAppIndexRoute
+  AppAppAccountSettingsIndexRoute: typeof AppAppAccountSettingsIndexRoute
   AppAppParseCvIndexRoute: typeof AppAppParseCvIndexRoute
 }
 
 const AppAppRouteRouteChildren: AppAppRouteRouteChildren = {
   AppAppIndexRoute: AppAppIndexRoute,
+  AppAppAccountSettingsIndexRoute: AppAppAccountSettingsIndexRoute,
   AppAppParseCvIndexRoute: AppAppParseCvIndexRoute,
 }
 
@@ -434,7 +436,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   PublicRouteRoute: PublicRouteRouteWithChildren,
   ParseCVRoute: ParseCVRoute,
-  TestRoute: TestRoute,
   QuizSessionIdRoute: QuizSessionIdRoute,
   ResultSessionIdRoute: ResultSessionIdRoute,
 }
