@@ -70,11 +70,6 @@ export default function AppTopBar() {
               </nav>
 
               <nav className="flex items-center rounded-md border bg-muted/50 p-1 h-10">
-                <AppTopbarItem
-                  to="/app/riwayat"
-                  icon={History}
-                  label="Riwayat"
-                />
                 {NavItemsSecondary.map((item) => (
                   <AppTopbarItem
                     key={item.path}
