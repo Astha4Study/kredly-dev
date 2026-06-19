@@ -57,7 +57,7 @@ function TestOverviewPage() {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const { assessmentId } = useSearch({
-    from: '/_app/app/test-overview',
+    from: '/_app/app/test-overview/',
   });
 
   // States initialized from cached user data
