@@ -1,9 +1,9 @@
 import Kredly from '@/assets/logo.png';
 import UserAvatar from '@/components/UserAvatar';
+import CreditTopup from '@/components/CreditTopup';
 import {
   BellIcon,
   Coins,
-  Plus,
   Home,
   Award,
   FileText,
@@ -14,25 +14,19 @@ import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import {
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useNavigate, Link } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 import AppTopbarItem from './AppTopbarItem';
 
 export default function AppTopBar() {
-  const navigate = useNavigate();
-
   // TODO: Fetch kredit dari API
   const kredit = 150;
 
   const navItems = [
     { path: '/app', label: 'Beranda', icon: Home },
     { path: '/app/certification', label: 'Sertifikasi', icon: Award },
-    { path: '/app/assasemen', label: 'Asesmen', icon: FileText },
+    { path: '/app/assessment', label: 'Asesmen', icon: FileText },
   ];
 
   const NavItemsSecondary = [
@@ -93,38 +87,10 @@ export default function AppTopBar() {
                   <span className="font-semibold">{kredit} Kredit</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      Kredit Anda
-                    </p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      Sisa kredit yang tersedia
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <div className="px-2 py-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold">{kredit}</span>
-                    <span className="text-sm text-muted-foreground">
-                      Kredit
-                    </span>
-                  </div>
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => navigate({ to: '/app/topup' })}
-                  className="cursor-pointer"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  <span>Tambah Kredit</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
+              <CreditTopup kredit={kredit} />
             </DropdownMenu>
             <Button variant="default" asChild>
-              <Link to="/pricing">Daftar Harga</Link>
+              <Link to="/app/pricing">Daftar Harga</Link>
             </Button>
             <Separator orientation="vertical" />
             <Button aria-label="Notifications" size="icon" variant="outline">

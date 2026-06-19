@@ -1,24 +1,12 @@
 import * as React from 'react';
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { createFileRoute } from '@tanstack/react-router';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import {
-  BookOpen,
-  Clock,
-  FileQuestion,
-  CheckCircle2,
-  Loader2,
-} from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { AssessmentCard } from '@/pages/dashboard/assessment/AssessmentCard';
+import { GeneralAssessmentCard } from '@/pages/dashboard/assessment/GeneralAssessmentCard';
 
-export const Route = createFileRoute('/_app/app/assasemen/')({
+export const Route = createFileRoute('/_app/app/assessment/')({
   component: RouteComponent,
 });
 
@@ -287,193 +275,11 @@ function RouteComponent() {
     },
   ];
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'Beginner':
-        return 'bg-green-100 text-green-800';
-      case 'Intermediate':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Advanced':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const AssessmentCard = ({ assessment }: { assessment: Assessment }) => (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg">{assessment.skillName}</CardTitle>
-            <CardDescription className="mt-1">
-              {assessment.category}
-            </CardDescription>
-          </div>
-          {assessment.isRecommended && (
-            <Badge variant="default" className="ml-2">
-              Recommended
-            </Badge>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center gap-4 text-sm text-gray-600">
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(assessment.difficulty)}`}
-          >
-            {assessment.difficulty}
-          </span>
-          <span>⏱️ {assessment.estimatedTime}</span>
-          <span>📝 {assessment.questionCount} soal</span>
-        </div>
-
-        {assessment.status === 'in-progress' &&
-          assessment.progress !== undefined && (
-            <div>
-              <div className="flex items-center justify-between text-sm mb-1">
-                <span className="text-gray-600">Progress</span>
-                <span className="font-medium">{assessment.progress}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-blue-600 h-2 rounded-full"
-                  style={{ width: `${assessment.progress}%` }}
-                ></div>
-              </div>
-            </div>
-          )}
-
-        {assessment.status === 'completed' && (
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Score</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {assessment.score}/100
-              </p>
-            </div>
-            <Badge variant={assessment.passed ? 'default' : 'destructive'}>
-              {assessment.passed ? 'Passed' : 'Failed'}
-            </Badge>
-          </div>
-        )}
-
-        {assessment.status === 'available' && (
-          <Link
-            to="/app/test-overview"
-            search={{ assessmentId: assessment.id }}
-            className="w-full"
-          >
-            <Button className="w-full">Mulai Assessment</Button>
-          </Link>
-        )}
-        {assessment.status === 'in-progress' && (
-          <Button className="w-full" variant="default">
-            Lanjutkan Assessment
-          </Button>
-        )}
-        {assessment.status === 'completed' && (
-          <div className="flex gap-2">
-            <Link to="/app/kredensial" className="flex-1">
-              <Button variant="outline" className="w-full">
-                {assessment.passed ? 'Lihat Kredensial' : 'Lihat Detail'}
-              </Button>
-            </Link>
-            <Button variant="ghost" className="flex-1">
-              Retake
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-
-  const GeneralAssessmentCard = ({
-    assessment,
-  }: {
-    assessment: GeneralAssessment;
-  }) => (
-    <Card className="hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-200 bg-gradient-to-br from-indigo-50/20 via-white to-white flex flex-col justify-between h-full">
-      <div>
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <Badge
-                variant="outline"
-                className="mb-2 bg-indigo-50 text-indigo-700 border-indigo-200"
-              >
-                General Role
-              </Badge>
-              <CardTitle className="text-xl font-bold text-slate-800">
-                {assessment.title}
-              </CardTitle>
-              <CardDescription className="mt-1.5 text-sm text-slate-500 leading-relaxed">
-                {assessment.description}
-              </CardDescription>
-            </div>
-            {assessment.isRecommended && (
-              <Badge
-                variant="default"
-                className="bg-indigo-600 hover:bg-indigo-700 ml-2 text-white border-0"
-              >
-                Recommended
-              </Badge>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              <BookOpen className="w-3.5 h-3.5" /> Topik/Materi Diujikan:
-            </div>
-            <ul className="space-y-1.5">
-              {assessment.topics.map((topic, index) => (
-                <li
-                  key={index}
-                  className="flex items-start gap-2 text-sm text-slate-600"
-                >
-                  <CheckCircle2 className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
-                  <span>{topic}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </CardContent>
-      </div>
-      <CardContent className="pt-0 space-y-4">
-        <div className="flex items-center justify-between text-xs text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-200/50">
-          <span
-            className={`px-2 py-0.5 rounded-full font-medium ${getDifficultyColor(assessment.difficulty)}`}
-          >
-            {assessment.difficulty}
-          </span>
-          <span className="flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5 text-slate-400" />{' '}
-            {assessment.estimatedTime}
-          </span>
-          <span className="flex items-center gap-1">
-            <FileQuestion className="w-3.5 h-3.5 text-slate-400" />{' '}
-            {assessment.questionCount} Soal
-          </span>
-        </div>
-        <Link
-          to="/app/test-overview"
-          search={{ assessmentId: assessment.id }}
-          className="w-full"
-        >
-          <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow transition-all duration-200">
-            Mulai Asesmen
-          </Button>
-        </Link>
-      </CardContent>
-    </Card>
-  );
-
   if (isLoadingProfile) {
     return (
       <div className="min-h-[50vh] flex items-center justify-center bg-background text-foreground">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-muted-foreground text-sm font-medium">
             Memuat daftar assessment...
           </p>
@@ -483,58 +289,63 @@ function RouteComponent() {
   }
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="space-y-6">
         {/* Header Section */}
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">Assasemen</h2>
-          <p className="text-gray-600 mt-2">
+          <h2 className="text-2xl font-bold tracking-tight">Assasemen</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
             Ikuti assessment untuk mendapatkan kredensial blockchain
           </p>
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="available" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="available">
-              Tersedia (
-              {availableAssessments.length + generalAssessments.length})
+        <Tabs defaultValue="available" className="w-full space-y-4">
+          <TabsList className="grid w-full grid-cols-3 bg-muted p-1 h-auto">
+            <TabsTrigger
+              value="available"
+              className="flex items-center gap-2 transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm hover:bg-background/50"
+            >
+              <span>Tersedia</span>
+              <span className="rounded-full border px-2 py-0.5 text-xs bg-background data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                {availableAssessments.length + generalAssessments.length}
+              </span>
             </TabsTrigger>
-            <TabsTrigger value="in-progress">
-              Sedang Berjalan ({inProgressAssessments.length})
+
+            <TabsTrigger
+              value="in-progress"
+              className=" flex items-center gap-2 transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm hover:bg-background/50"
+            >
+              <span>Sedang Berjalan</span>
+              <span className="rounded-full border bg-background px-2 py-0.5 text-xs">
+                {inProgressAssessments.length}
+              </span>
             </TabsTrigger>
-            <TabsTrigger value="completed">
-              Selesai ({completedAssessments.length})
+
+            <TabsTrigger
+              value="completed"
+              className="flex items-center gap-2 transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm hover:bg-background/50"
+            >
+              <span>Selesai</span>
+              <span className="rounded-full border bg-background px-2 py-0.5 text-xs">
+                {completedAssessments.length}
+              </span>
             </TabsTrigger>
           </TabsList>
 
           {/* Tab: Tersedia */}
-          <TabsContent value="available" className="space-y-8 mt-6">
-            {/* Info Banner */}
-            <Card className="bg-blue-50 border-blue-200">
-              <CardContent>
-                <div className="flex items-start gap-3">
-                  <div>
-                    <p className="text-sm text-blue-900">
-                      Berdasarkan CV-mu, ini assessment yang tersedia:
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
+          <TabsContent value="available" className="space-y-3">
             {/* General Assessments Section */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between border-b pb-2">
-                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <span className="h-5 w-1 bg-indigo-600 rounded"></span>
+              <div className="flex items-center justify-between pb-3 border-b">
+                <h3 className="text-lg font-bold">
                   Asesmen General (Role-based)
                 </h3>
-                <span className="text-sm font-medium text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">
+                <span className="text-sm font-medium text-muted-foreground">
                   {generalAssessments.length} Asesmen
                 </span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {generalAssessments.map((assessment) => (
                   <GeneralAssessmentCard
                     key={assessment.id}
@@ -546,17 +357,14 @@ function RouteComponent() {
 
             {/* Skill Assessments Section */}
             <div className="space-y-4 pt-4">
-              <div className="flex items-center justify-between border-b pb-2">
-                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <span className="h-5 w-1 bg-blue-600 rounded"></span>
-                  Asesmen Spesifik Skill
-                </h3>
-                <span className="text-sm font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
+              <div className="flex items-center justify-between pb-3 border-b">
+                <h3 className="text-lg font-bold">Asesmen Spesifik Skill</h3>
+                <span className="text-sm font-medium text-muted-foreground">
                   {availableAssessments.length} Asesmen
                 </span>
               </div>
               {availableAssessments.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {availableAssessments.map((assessment) => (
                     <AssessmentCard
                       key={assessment.id}
@@ -565,9 +373,9 @@ function RouteComponent() {
                   ))}
                 </div>
               ) : (
-                <Card className="py-12">
+                <Card className="py-12 border">
                   <CardContent className="text-center">
-                    <p className="text-gray-600">
+                    <p className="text-muted-foreground">
                       Tidak ada assessment spesifik skill tersedia saat ini.
                     </p>
                   </CardContent>
@@ -579,17 +387,17 @@ function RouteComponent() {
           {/* Tab: Sedang Berjalan */}
           <TabsContent value="in-progress" className="space-y-6 mt-6">
             {inProgressAssessments.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {inProgressAssessments.map((assessment) => (
                   <AssessmentCard key={assessment.id} assessment={assessment} />
                 ))}
               </div>
             ) : (
-              <Card className="py-12">
-                <CardContent className="text-center">
-                  <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Card className="py-12 border">
+                <CardContent className="text-center space-y-4">
+                  <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto">
                     <svg
-                      className="w-12 h-12 text-gray-400"
+                      className="w-10 h-10 text-muted-foreground"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -602,12 +410,14 @@ function RouteComponent() {
                       />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    Tidak Ada Assessment Sedang Berjalan
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    Mulai assessment baru dari tab "Tersedia"
-                  </p>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">
+                      Tidak Ada Assessment Sedang Berjalan
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Mulai assessment baru dari tab "Tersedia"
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -616,15 +426,15 @@ function RouteComponent() {
           {/* Tab: Selesai */}
           <TabsContent value="completed" className="space-y-6 mt-6">
             {completedAssessments.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {completedAssessments.map((assessment) => (
                   <AssessmentCard key={assessment.id} assessment={assessment} />
                 ))}
               </div>
             ) : (
-              <Card className="py-12">
+              <Card className="py-12 border">
                 <CardContent className="text-center">
-                  <p className="text-gray-600">
+                  <p className="text-muted-foreground">
                     Anda belum menyelesaikan assessment apapun.
                   </p>
                 </CardContent>

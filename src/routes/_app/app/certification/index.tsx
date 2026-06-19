@@ -110,9 +110,9 @@ function RouteComponent() {
         {/* Header Section */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight">
               Kredensial Saya
-            </h1>
+            </h2>
 
             <p className="mt-1 text-sm text-muted-foreground">
               Lihat dan kelola seluruh kredensial yang telah Anda peroleh.

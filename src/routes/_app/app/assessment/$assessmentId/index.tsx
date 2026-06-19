@@ -3,7 +3,7 @@ import {
   createFileRoute,
   useNavigate,
   Link,
-  useSearch,
+  useParams,
 } from '@tanstack/react-router';
 import { useAuth } from '@/contexts';
 import {
@@ -27,7 +27,6 @@ import {
   Clock,
   Award,
   Zap,
-  ArrowLeft,
 } from 'lucide-react';
 import { sessionService } from '@/services/sessionService';
 import { toast } from 'sonner';
@@ -46,18 +45,15 @@ interface CVAssessment {
   status: string;
 }
 
-export const Route = createFileRoute('/_app/app/test-overview/')({
+export const Route = createFileRoute('/_app/app/assessment/$assessmentId/')({
   component: TestOverviewPage,
-  validateSearch: (search: Record<string, unknown>) => ({
-    assessmentId: (search.assessmentId as string) || '',
-  }),
 });
 
 function TestOverviewPage() {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
-  const { assessmentId } = useSearch({
-    from: '/_app/app/test-overview/',
+  const { assessmentId } = useParams({
+    from: '/_app/app/assessment/$assessmentId/',
   });
 
   // States initialized from cached user data
@@ -235,29 +231,6 @@ function TestOverviewPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans overflow-x-hidden">
-      {/* Header */}
-      <header className="border-b border-border bg-background/60 backdrop-blur-md sticky top-0 z-40">
-        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link
-              to="/app/assasemen"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Button variant="ghost" size="icon" className="hover:bg-accent">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="font-semibold text-lg leading-none text-foreground">
-                Persiapan Ujian
-              </h1>
-              <span className="text-xs text-muted-foreground">
-                Tinjau skill dan informasi ujian sebelum memulai
-              </span>
-            </div>
-          </div>
-        </div>
-      </header>
 
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-6 py-10 max-w-5xl">

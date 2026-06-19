@@ -1,4 +1,4 @@
-import { AssessmentAnimation } from '@/components/AssasementAnimation';
+import { AssessmentAnimation } from '@/components/AssessmentAnimation';
 import GridBorder from '@/components/GridBorder';
 import { OrbitingCirclesAnimation } from '@/components/OrbitingCirclesAnimation';
 import { ProfileAnalysisAnimation } from '@/components/ProfileAnalysisAnimation';

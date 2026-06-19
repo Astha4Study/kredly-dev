@@ -25,13 +25,14 @@ import { Route as AppAppRouteRouteImport } from './routes/_app/app/route'
 import { Route as PublicFeaturesIndexRouteImport } from './routes/_public/features/index'
 import { Route as PublicAboutUsIndexRouteImport } from './routes/_public/about-us/index'
 import { Route as AppAppIndexRouteImport } from './routes/_app/app/index'
-import { Route as AppAppTestOverviewIndexRouteImport } from './routes/_app/app/test-overview/index'
 import { Route as AppAppParseCvIndexRouteImport } from './routes/_app/app/parse-cv/index'
 import { Route as AppAppHistoryIndexRouteImport } from './routes/_app/app/history/index'
 import { Route as AppAppCertificationIndexRouteImport } from './routes/_app/app/certification/index'
 import { Route as AppAppCertificateVerificationIndexRouteImport } from './routes/_app/app/certificate-verification/index'
-import { Route as AppAppAssasemenIndexRouteImport } from './routes/_app/app/assasemen/index'
+import { Route as AppAppAssessmentIndexRouteImport } from './routes/_app/app/assessment/index'
 import { Route as AppAppAccountSettingsIndexRouteImport } from './routes/_app/app/account-settings/index'
+import { Route as AppAppAssessmentAssessmentIdRouteRouteImport } from './routes/_app/app/assessment/$assessmentId/route'
+import { Route as AppAppAssessmentAssessmentIdIndexRouteImport } from './routes/_app/app/assessment/$assessmentId/index'
 
 const ParseCVRoute = ParseCVRouteImport.update({
   id: '/parseCV',
@@ -110,11 +111,6 @@ const AppAppIndexRoute = AppAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppAppRouteRoute,
 } as any)
-const AppAppTestOverviewIndexRoute = AppAppTestOverviewIndexRouteImport.update({
-  id: '/test-overview/',
-  path: '/test-overview/',
-  getParentRoute: () => AppAppRouteRoute,
-} as any)
 const AppAppParseCvIndexRoute = AppAppParseCvIndexRouteImport.update({
   id: '/parse-cv/',
   path: '/parse-cv/',
@@ -137,9 +133,9 @@ const AppAppCertificateVerificationIndexRoute =
     path: '/certificate-verification/',
     getParentRoute: () => AppAppRouteRoute,
   } as any)
-const AppAppAssasemenIndexRoute = AppAppAssasemenIndexRouteImport.update({
-  id: '/assasemen/',
-  path: '/assasemen/',
+const AppAppAssessmentIndexRoute = AppAppAssessmentIndexRouteImport.update({
+  id: '/assessment/',
+  path: '/assessment/',
   getParentRoute: () => AppAppRouteRoute,
 } as any)
 const AppAppAccountSettingsIndexRoute =
@@ -147,6 +143,18 @@ const AppAppAccountSettingsIndexRoute =
     id: '/account-settings/',
     path: '/account-settings/',
     getParentRoute: () => AppAppRouteRoute,
+  } as any)
+const AppAppAssessmentAssessmentIdRouteRoute =
+  AppAppAssessmentAssessmentIdRouteRouteImport.update({
+    id: '/assessment/$assessmentId',
+    path: '/assessment/$assessmentId',
+    getParentRoute: () => AppAppRouteRoute,
+  } as any)
+const AppAppAssessmentAssessmentIdIndexRoute =
+  AppAppAssessmentAssessmentIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppAppAssessmentAssessmentIdRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -163,13 +171,14 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppAppIndexRoute
   '/about-us/': typeof PublicAboutUsIndexRoute
   '/features/': typeof PublicFeaturesIndexRoute
+  '/app/assessment/$assessmentId': typeof AppAppAssessmentAssessmentIdRouteRouteWithChildren
   '/app/account-settings/': typeof AppAppAccountSettingsIndexRoute
-  '/app/assasemen/': typeof AppAppAssasemenIndexRoute
+  '/app/assessment/': typeof AppAppAssessmentIndexRoute
   '/app/certificate-verification/': typeof AppAppCertificateVerificationIndexRoute
   '/app/certification/': typeof AppAppCertificationIndexRoute
   '/app/history/': typeof AppAppHistoryIndexRoute
   '/app/parse-cv/': typeof AppAppParseCvIndexRoute
-  '/app/test-overview/': typeof AppAppTestOverviewIndexRoute
+  '/app/assessment/$assessmentId/': typeof AppAppAssessmentAssessmentIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
@@ -185,12 +194,12 @@ export interface FileRoutesByTo {
   '/about-us': typeof PublicAboutUsIndexRoute
   '/features': typeof PublicFeaturesIndexRoute
   '/app/account-settings': typeof AppAppAccountSettingsIndexRoute
-  '/app/assasemen': typeof AppAppAssasemenIndexRoute
+  '/app/assessment': typeof AppAppAssessmentIndexRoute
   '/app/certificate-verification': typeof AppAppCertificateVerificationIndexRoute
   '/app/certification': typeof AppAppCertificationIndexRoute
   '/app/history': typeof AppAppHistoryIndexRoute
   '/app/parse-cv': typeof AppAppParseCvIndexRoute
-  '/app/test-overview': typeof AppAppTestOverviewIndexRoute
+  '/app/assessment/$assessmentId': typeof AppAppAssessmentAssessmentIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -210,13 +219,14 @@ export interface FileRoutesById {
   '/_app/app/': typeof AppAppIndexRoute
   '/_public/about-us/': typeof PublicAboutUsIndexRoute
   '/_public/features/': typeof PublicFeaturesIndexRoute
+  '/_app/app/assessment/$assessmentId': typeof AppAppAssessmentAssessmentIdRouteRouteWithChildren
   '/_app/app/account-settings/': typeof AppAppAccountSettingsIndexRoute
-  '/_app/app/assasemen/': typeof AppAppAssasemenIndexRoute
+  '/_app/app/assessment/': typeof AppAppAssessmentIndexRoute
   '/_app/app/certificate-verification/': typeof AppAppCertificateVerificationIndexRoute
   '/_app/app/certification/': typeof AppAppCertificationIndexRoute
   '/_app/app/history/': typeof AppAppHistoryIndexRoute
   '/_app/app/parse-cv/': typeof AppAppParseCvIndexRoute
-  '/_app/app/test-overview/': typeof AppAppTestOverviewIndexRoute
+  '/_app/app/assessment/$assessmentId/': typeof AppAppAssessmentAssessmentIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -234,13 +244,14 @@ export interface FileRouteTypes {
     | '/app/'
     | '/about-us/'
     | '/features/'
+    | '/app/assessment/$assessmentId'
     | '/app/account-settings/'
-    | '/app/assasemen/'
+    | '/app/assessment/'
     | '/app/certificate-verification/'
     | '/app/certification/'
     | '/app/history/'
     | '/app/parse-cv/'
-    | '/app/test-overview/'
+    | '/app/assessment/$assessmentId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -256,12 +267,12 @@ export interface FileRouteTypes {
     | '/about-us'
     | '/features'
     | '/app/account-settings'
-    | '/app/assasemen'
+    | '/app/assessment'
     | '/app/certificate-verification'
     | '/app/certification'
     | '/app/history'
     | '/app/parse-cv'
-    | '/app/test-overview'
+    | '/app/assessment/$assessmentId'
   id:
     | '__root__'
     | '/_app'
@@ -280,13 +291,14 @@ export interface FileRouteTypes {
     | '/_app/app/'
     | '/_public/about-us/'
     | '/_public/features/'
+    | '/_app/app/assessment/$assessmentId'
     | '/_app/app/account-settings/'
-    | '/_app/app/assasemen/'
+    | '/_app/app/assessment/'
     | '/_app/app/certificate-verification/'
     | '/_app/app/certification/'
     | '/_app/app/history/'
     | '/_app/app/parse-cv/'
-    | '/_app/app/test-overview/'
+    | '/_app/app/assessment/$assessmentId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -412,13 +424,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
-    '/_app/app/test-overview/': {
-      id: '/_app/app/test-overview/'
-      path: '/test-overview'
-      fullPath: '/app/test-overview/'
-      preLoaderRoute: typeof AppAppTestOverviewIndexRouteImport
-      parentRoute: typeof AppAppRouteRoute
-    }
     '/_app/app/parse-cv/': {
       id: '/_app/app/parse-cv/'
       path: '/parse-cv'
@@ -447,11 +452,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppCertificateVerificationIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
-    '/_app/app/assasemen/': {
-      id: '/_app/app/assasemen/'
-      path: '/assasemen'
-      fullPath: '/app/assasemen/'
-      preLoaderRoute: typeof AppAppAssasemenIndexRouteImport
+    '/_app/app/assessment/': {
+      id: '/_app/app/assessment/'
+      path: '/assessment'
+      fullPath: '/app/assessment/'
+      preLoaderRoute: typeof AppAppAssessmentIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
     '/_app/app/account-settings/': {
@@ -461,30 +466,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppAccountSettingsIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
+    '/_app/app/assessment/$assessmentId': {
+      id: '/_app/app/assessment/$assessmentId'
+      path: '/assessment/$assessmentId'
+      fullPath: '/app/assessment/$assessmentId'
+      preLoaderRoute: typeof AppAppAssessmentAssessmentIdRouteRouteImport
+      parentRoute: typeof AppAppRouteRoute
+    }
+    '/_app/app/assessment/$assessmentId/': {
+      id: '/_app/app/assessment/$assessmentId/'
+      path: '/'
+      fullPath: '/app/assessment/$assessmentId/'
+      preLoaderRoute: typeof AppAppAssessmentAssessmentIdIndexRouteImport
+      parentRoute: typeof AppAppAssessmentAssessmentIdRouteRoute
+    }
   }
 }
 
+interface AppAppAssessmentAssessmentIdRouteRouteChildren {
+  AppAppAssessmentAssessmentIdIndexRoute: typeof AppAppAssessmentAssessmentIdIndexRoute
+}
+
+const AppAppAssessmentAssessmentIdRouteRouteChildren: AppAppAssessmentAssessmentIdRouteRouteChildren =
+  {
+    AppAppAssessmentAssessmentIdIndexRoute:
+      AppAppAssessmentAssessmentIdIndexRoute,
+  }
+
+const AppAppAssessmentAssessmentIdRouteRouteWithChildren =
+  AppAppAssessmentAssessmentIdRouteRoute._addFileChildren(
+    AppAppAssessmentAssessmentIdRouteRouteChildren,
+  )
+
 interface AppAppRouteRouteChildren {
   AppAppIndexRoute: typeof AppAppIndexRoute
+  AppAppAssessmentAssessmentIdRouteRoute: typeof AppAppAssessmentAssessmentIdRouteRouteWithChildren
   AppAppAccountSettingsIndexRoute: typeof AppAppAccountSettingsIndexRoute
-  AppAppAssasemenIndexRoute: typeof AppAppAssasemenIndexRoute
+  AppAppAssessmentIndexRoute: typeof AppAppAssessmentIndexRoute
   AppAppCertificateVerificationIndexRoute: typeof AppAppCertificateVerificationIndexRoute
   AppAppCertificationIndexRoute: typeof AppAppCertificationIndexRoute
   AppAppHistoryIndexRoute: typeof AppAppHistoryIndexRoute
   AppAppParseCvIndexRoute: typeof AppAppParseCvIndexRoute
-  AppAppTestOverviewIndexRoute: typeof AppAppTestOverviewIndexRoute
 }
 
 const AppAppRouteRouteChildren: AppAppRouteRouteChildren = {
   AppAppIndexRoute: AppAppIndexRoute,
+  AppAppAssessmentAssessmentIdRouteRoute:
+    AppAppAssessmentAssessmentIdRouteRouteWithChildren,
   AppAppAccountSettingsIndexRoute: AppAppAccountSettingsIndexRoute,
-  AppAppAssasemenIndexRoute: AppAppAssasemenIndexRoute,
+  AppAppAssessmentIndexRoute: AppAppAssessmentIndexRoute,
   AppAppCertificateVerificationIndexRoute:
     AppAppCertificateVerificationIndexRoute,
   AppAppCertificationIndexRoute: AppAppCertificationIndexRoute,
   AppAppHistoryIndexRoute: AppAppHistoryIndexRoute,
   AppAppParseCvIndexRoute: AppAppParseCvIndexRoute,
-  AppAppTestOverviewIndexRoute: AppAppTestOverviewIndexRoute,
 }
 
 const AppAppRouteRouteWithChildren = AppAppRouteRoute._addFileChildren(
