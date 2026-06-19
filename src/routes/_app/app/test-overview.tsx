@@ -35,7 +35,7 @@ import {
 import { sessionService } from '@/services/sessionService';
 import { toast } from 'sonner';
 
-export const Route = createFileRoute('/_app/test-overview')({
+export const Route = createFileRoute('/_app/app/test-overview')({
   component: TestOverviewPage,
 });
 
@@ -268,41 +268,12 @@ function TestOverviewPage() {
                     Role Pekerjaan yang Diuji
                   </Label>
                   <div className="flex items-center gap-2 pb-1 border-b border-border">
-                    {isEditingRole ? (
-                      <Input
-                        ref={roleInputRef}
-                        id="role-input"
-                        value={role}
-                        onChange={(e) => setRole(e.target.value)}
-                        placeholder="Contoh: Frontend Engineer"
-                        onBlur={() => setIsEditingRole(false)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') setIsEditingRole(false);
-                        }}
-                        className="bg-transparent border-none text-base font-semibold focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-9"
-                      />
-                    ) : (
-                      <span className="text-base font-semibold py-1.5 flex-1">
-                        {role || 'Contoh: Frontend Engineer'}
-                      </span>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setIsEditingRole((prev) => !prev)}
-                      className="h-8 w-8 hover:bg-muted text-muted-foreground hover:text-foreground shrink-0"
-                    >
-                      {isEditingRole ? (
-                        <Check className="h-4 w-4 text-primary" />
-                      ) : (
-                        <Pencil className="h-4 w-4" />
-                      )}
-                    </Button>
+                    <h1>{role}</h1>
                   </div>
                 </div>
 
                 {/* Level Selection */}
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label
                     htmlFor="level-select"
                     className="text-sm font-medium text-foreground"
@@ -328,7 +299,7 @@ function TestOverviewPage() {
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
+                </div> */}
 
                 {/* Skills Checkbox Grid */}
                 <div className="space-y-4 pt-2">

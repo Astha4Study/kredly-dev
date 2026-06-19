@@ -21,12 +21,13 @@ import { Route as AuthVerificationRouteImport } from './routes/_auth/verificatio
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthOnboardingRouteImport } from './routes/_auth/onboarding'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
-import { Route as AppTestOverviewRouteImport } from './routes/_app/test-overview'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppAppRouteRouteImport } from './routes/_app/app/route'
 import { Route as PublicFeaturesIndexRouteImport } from './routes/_public/features/index'
 import { Route as PublicAboutUsIndexRouteImport } from './routes/_public/about-us/index'
 import { Route as AppAppIndexRouteImport } from './routes/_app/app/index'
+import { Route as AppAppTestOverviewRouteImport } from './routes/_app/app/test-overview'
+import { Route as AppAppTestOverviewIndexRouteImport } from './routes/_app/app/test-overview/index'
 import { Route as AppAppParseCvIndexRouteImport } from './routes/_app/app/parse-cv/index'
 
 const TestRoute = TestRouteImport.update({
@@ -86,11 +87,6 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const AppTestOverviewRoute = AppTestOverviewRouteImport.update({
-  id: '/test-overview',
-  path: '/test-overview',
-  getParentRoute: () => AppRouteRoute,
-} as any)
 const AppSplatRoute = AppSplatRouteImport.update({
   id: '/$',
   path: '/$',
@@ -116,6 +112,16 @@ const AppAppIndexRoute = AppAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppAppRouteRoute,
 } as any)
+const AppAppTestOverviewRoute = AppAppTestOverviewRouteImport.update({
+  id: '/test-overview',
+  path: '/test-overview',
+  getParentRoute: () => AppAppRouteRoute,
+} as any)
+const AppAppTestOverviewIndexRoute = AppAppTestOverviewIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAppTestOverviewRoute,
+} as any)
 const AppAppParseCvIndexRoute = AppAppParseCvIndexRouteImport.update({
   id: '/parse-cv/',
   path: '/parse-cv/',
@@ -128,24 +134,24 @@ export interface FileRoutesByFullPath {
   '/test': typeof TestRoute
   '/app': typeof AppAppRouteRouteWithChildren
   '/$': typeof AppSplatRoute
-  '/test-overview': typeof AppTestOverviewRoute
   '/login': typeof AuthLoginRoute
   '/onboarding': typeof AuthOnboardingRoute
   '/register': typeof AuthRegisterRoute
   '/verification': typeof AuthVerificationRoute
   '/quiz/$sessionId': typeof QuizSessionIdRoute
   '/result/$sessionId': typeof ResultSessionIdRoute
+  '/app/test-overview': typeof AppAppTestOverviewRouteWithChildren
   '/app/': typeof AppAppIndexRoute
   '/about-us/': typeof PublicAboutUsIndexRoute
   '/features/': typeof PublicFeaturesIndexRoute
   '/app/parse-cv/': typeof AppAppParseCvIndexRoute
+  '/app/test-overview/': typeof AppAppTestOverviewIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/parseCV': typeof ParseCVRoute
   '/test': typeof TestRoute
   '/$': typeof AppSplatRoute
-  '/test-overview': typeof AppTestOverviewRoute
   '/login': typeof AuthLoginRoute
   '/onboarding': typeof AuthOnboardingRoute
   '/register': typeof AuthRegisterRoute
@@ -156,6 +162,7 @@ export interface FileRoutesByTo {
   '/about-us': typeof PublicAboutUsIndexRoute
   '/features': typeof PublicFeaturesIndexRoute
   '/app/parse-cv': typeof AppAppParseCvIndexRoute
+  '/app/test-overview': typeof AppAppTestOverviewIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -166,7 +173,6 @@ export interface FileRoutesById {
   '/test': typeof TestRoute
   '/_app/app': typeof AppAppRouteRouteWithChildren
   '/_app/$': typeof AppSplatRoute
-  '/_app/test-overview': typeof AppTestOverviewRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/onboarding': typeof AuthOnboardingRoute
   '/_auth/register': typeof AuthRegisterRoute
@@ -174,10 +180,12 @@ export interface FileRoutesById {
   '/quiz/$sessionId': typeof QuizSessionIdRoute
   '/result/$sessionId': typeof ResultSessionIdRoute
   '/_public/': typeof PublicIndexRoute
+  '/_app/app/test-overview': typeof AppAppTestOverviewRouteWithChildren
   '/_app/app/': typeof AppAppIndexRoute
   '/_public/about-us/': typeof PublicAboutUsIndexRoute
   '/_public/features/': typeof PublicFeaturesIndexRoute
   '/_app/app/parse-cv/': typeof AppAppParseCvIndexRoute
+  '/_app/app/test-overview/': typeof AppAppTestOverviewIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -187,24 +195,24 @@ export interface FileRouteTypes {
     | '/test'
     | '/app'
     | '/$'
-    | '/test-overview'
     | '/login'
     | '/onboarding'
     | '/register'
     | '/verification'
     | '/quiz/$sessionId'
     | '/result/$sessionId'
+    | '/app/test-overview'
     | '/app/'
     | '/about-us/'
     | '/features/'
     | '/app/parse-cv/'
+    | '/app/test-overview/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/parseCV'
     | '/test'
     | '/$'
-    | '/test-overview'
     | '/login'
     | '/onboarding'
     | '/register'
@@ -215,6 +223,7 @@ export interface FileRouteTypes {
     | '/about-us'
     | '/features'
     | '/app/parse-cv'
+    | '/app/test-overview'
   id:
     | '__root__'
     | '/_app'
@@ -224,7 +233,6 @@ export interface FileRouteTypes {
     | '/test'
     | '/_app/app'
     | '/_app/$'
-    | '/_app/test-overview'
     | '/_auth/login'
     | '/_auth/onboarding'
     | '/_auth/register'
@@ -232,10 +240,12 @@ export interface FileRouteTypes {
     | '/quiz/$sessionId'
     | '/result/$sessionId'
     | '/_public/'
+    | '/_app/app/test-overview'
     | '/_app/app/'
     | '/_public/about-us/'
     | '/_public/features/'
     | '/_app/app/parse-cv/'
+    | '/_app/app/test-overview/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -334,13 +344,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/_app/test-overview': {
-      id: '/_app/test-overview'
-      path: '/test-overview'
-      fullPath: '/test-overview'
-      preLoaderRoute: typeof AppTestOverviewRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
     '/_app/$': {
       id: '/_app/$'
       path: '/$'
@@ -376,6 +379,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
+    '/_app/app/test-overview': {
+      id: '/_app/app/test-overview'
+      path: '/test-overview'
+      fullPath: '/app/test-overview'
+      preLoaderRoute: typeof AppAppTestOverviewRouteImport
+      parentRoute: typeof AppAppRouteRoute
+    }
+    '/_app/app/test-overview/': {
+      id: '/_app/app/test-overview/'
+      path: '/'
+      fullPath: '/app/test-overview/'
+      preLoaderRoute: typeof AppAppTestOverviewIndexRouteImport
+      parentRoute: typeof AppAppTestOverviewRoute
+    }
     '/_app/app/parse-cv/': {
       id: '/_app/app/parse-cv/'
       path: '/parse-cv'
@@ -386,12 +403,25 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AppAppTestOverviewRouteChildren {
+  AppAppTestOverviewIndexRoute: typeof AppAppTestOverviewIndexRoute
+}
+
+const AppAppTestOverviewRouteChildren: AppAppTestOverviewRouteChildren = {
+  AppAppTestOverviewIndexRoute: AppAppTestOverviewIndexRoute,
+}
+
+const AppAppTestOverviewRouteWithChildren =
+  AppAppTestOverviewRoute._addFileChildren(AppAppTestOverviewRouteChildren)
+
 interface AppAppRouteRouteChildren {
+  AppAppTestOverviewRoute: typeof AppAppTestOverviewRouteWithChildren
   AppAppIndexRoute: typeof AppAppIndexRoute
   AppAppParseCvIndexRoute: typeof AppAppParseCvIndexRoute
 }
 
 const AppAppRouteRouteChildren: AppAppRouteRouteChildren = {
+  AppAppTestOverviewRoute: AppAppTestOverviewRouteWithChildren,
   AppAppIndexRoute: AppAppIndexRoute,
   AppAppParseCvIndexRoute: AppAppParseCvIndexRoute,
 }
@@ -403,13 +433,11 @@ const AppAppRouteRouteWithChildren = AppAppRouteRoute._addFileChildren(
 interface AppRouteRouteChildren {
   AppAppRouteRoute: typeof AppAppRouteRouteWithChildren
   AppSplatRoute: typeof AppSplatRoute
-  AppTestOverviewRoute: typeof AppTestOverviewRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAppRouteRoute: AppAppRouteRouteWithChildren,
   AppSplatRoute: AppSplatRoute,
-  AppTestOverviewRoute: AppTestOverviewRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
