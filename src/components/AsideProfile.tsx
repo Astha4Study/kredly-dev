@@ -114,12 +114,12 @@ export default function AsideProfile() {
               {
                 value: '3',
                 label: 'Asesmen',
-                to: '/assessments' as const,
+                to: '/app/assessments' as const,
               },
               {
                 value: '2',
                 label: 'Kredensial',
-                to: '/credentials' as const,
+                to: '/app/certification' as const,
               },
             ].map((stat, index) => (
               <Link

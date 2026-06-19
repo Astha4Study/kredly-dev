@@ -30,7 +30,7 @@ function RouteComponent() {
       <div className="flex items-start gap-4">
         <div className="min-w-0 flex-1">
           <div className="border-b border-border px-1 pb-5">
-            <h1 className="text-xl font-semibold text-foreground">
+            <h1 className="text-2xl font-semibold text-foreground">
               Selamat datang kembali, {user?.name?.split(' ')[0]}
             </h1>
 

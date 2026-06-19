@@ -8,6 +8,7 @@ import {
   Award,
   FileText,
   History,
+  ShieldCheck,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
@@ -30,8 +31,21 @@ export default function AppTopBar() {
 
   const navItems = [
     { path: '/app', label: 'Beranda', icon: Home },
-    { path: '/app/kredensial', label: 'Kredensial', icon: Award },
+    { path: '/app/certification', label: 'Sertifikasi', icon: Award },
     { path: '/app/assasemen', label: 'Asesmen', icon: FileText },
+  ];
+
+  const NavItemsSecondary = [
+    {
+      path: '/app/certificate-verification',
+      label: 'Verifikasi',
+      icon: ShieldCheck,
+    },
+    {
+      path: '/app/history',
+      label: 'Riwayat',
+      icon: History,
+    },
   ];
 
   return (
@@ -56,7 +70,14 @@ export default function AppTopBar() {
               </nav>
 
               <nav className="flex items-center rounded-md border bg-muted/50 p-1 h-10">
-                <AppTopbarItem to="/app/riwayat" icon={History} label="Riwayat" />
+                {NavItemsSecondary.map((item) => (
+                  <AppTopbarItem
+                    key={item.path}
+                    to={item.path}
+                    icon={item.icon}
+                    label={item.label}
+                  />
+                ))}
               </nav>
             </div>
           </div>

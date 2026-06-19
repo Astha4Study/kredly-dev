@@ -27,11 +27,11 @@ import { Route as PublicFeaturesIndexRouteImport } from './routes/_public/featur
 import { Route as PublicAboutUsIndexRouteImport } from './routes/_public/about-us/index'
 import { Route as AppRiwayatIndexRouteImport } from './routes/_app/riwayat/index'
 import { Route as AppKredensialIndexRouteImport } from './routes/_app/kredensial/index'
-import { Route as AppAssasemenIndexRouteImport } from './routes/_app/assasemen/index'
 import { Route as AppAppIndexRouteImport } from './routes/_app/app/index'
-import { Route as AppAppRiwayatIndexRouteImport } from './routes/_app/app/riwayat/index'
 import { Route as AppAppParseCvIndexRouteImport } from './routes/_app/app/parse-cv/index'
-import { Route as AppAppKredensialIndexRouteImport } from './routes/_app/app/kredensial/index'
+import { Route as AppAppHistoryIndexRouteImport } from './routes/_app/app/history/index'
+import { Route as AppAppCertificationIndexRouteImport } from './routes/_app/app/certification/index'
+import { Route as AppAppCertificateVerificationIndexRouteImport } from './routes/_app/app/certificate-verification/index'
 import { Route as AppAppAssasemenIndexRouteImport } from './routes/_app/app/assasemen/index'
 import { Route as AppAppAccountSettingsIndexRouteImport } from './routes/_app/app/account-settings/index'
 
@@ -122,19 +122,9 @@ const AppKredensialIndexRoute = AppKredensialIndexRouteImport.update({
   path: '/kredensial/',
   getParentRoute: () => AppRouteRoute,
 } as any)
-const AppAssasemenIndexRoute = AppAssasemenIndexRouteImport.update({
-  id: '/assasemen/',
-  path: '/assasemen/',
-  getParentRoute: () => AppRouteRoute,
-} as any)
 const AppAppIndexRoute = AppAppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AppAppRouteRoute,
-} as any)
-const AppAppRiwayatIndexRoute = AppAppRiwayatIndexRouteImport.update({
-  id: '/riwayat/',
-  path: '/riwayat/',
   getParentRoute: () => AppAppRouteRoute,
 } as any)
 const AppAppParseCvIndexRoute = AppAppParseCvIndexRouteImport.update({
@@ -142,11 +132,23 @@ const AppAppParseCvIndexRoute = AppAppParseCvIndexRouteImport.update({
   path: '/parse-cv/',
   getParentRoute: () => AppAppRouteRoute,
 } as any)
-const AppAppKredensialIndexRoute = AppAppKredensialIndexRouteImport.update({
-  id: '/kredensial/',
-  path: '/kredensial/',
+const AppAppHistoryIndexRoute = AppAppHistoryIndexRouteImport.update({
+  id: '/history/',
+  path: '/history/',
   getParentRoute: () => AppAppRouteRoute,
 } as any)
+const AppAppCertificationIndexRoute =
+  AppAppCertificationIndexRouteImport.update({
+    id: '/certification/',
+    path: '/certification/',
+    getParentRoute: () => AppAppRouteRoute,
+  } as any)
+const AppAppCertificateVerificationIndexRoute =
+  AppAppCertificateVerificationIndexRouteImport.update({
+    id: '/certificate-verification/',
+    path: '/certificate-verification/',
+    getParentRoute: () => AppAppRouteRoute,
+  } as any)
 const AppAppAssasemenIndexRoute = AppAppAssasemenIndexRouteImport.update({
   id: '/assasemen/',
   path: '/assasemen/',
@@ -172,16 +174,16 @@ export interface FileRoutesByFullPath {
   '/quiz/$sessionId': typeof QuizSessionIdRoute
   '/result/$sessionId': typeof ResultSessionIdRoute
   '/app/': typeof AppAppIndexRoute
-  '/assasemen/': typeof AppAssasemenIndexRoute
   '/kredensial/': typeof AppKredensialIndexRoute
   '/riwayat/': typeof AppRiwayatIndexRoute
   '/about-us/': typeof PublicAboutUsIndexRoute
   '/features/': typeof PublicFeaturesIndexRoute
   '/app/account-settings/': typeof AppAppAccountSettingsIndexRoute
   '/app/assasemen/': typeof AppAppAssasemenIndexRoute
-  '/app/kredensial/': typeof AppAppKredensialIndexRoute
+  '/app/certificate-verification/': typeof AppAppCertificateVerificationIndexRoute
+  '/app/certification/': typeof AppAppCertificationIndexRoute
+  '/app/history/': typeof AppAppHistoryIndexRoute
   '/app/parse-cv/': typeof AppAppParseCvIndexRoute
-  '/app/riwayat/': typeof AppAppRiwayatIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
@@ -195,16 +197,16 @@ export interface FileRoutesByTo {
   '/quiz/$sessionId': typeof QuizSessionIdRoute
   '/result/$sessionId': typeof ResultSessionIdRoute
   '/app': typeof AppAppIndexRoute
-  '/assasemen': typeof AppAssasemenIndexRoute
   '/kredensial': typeof AppKredensialIndexRoute
   '/riwayat': typeof AppRiwayatIndexRoute
   '/about-us': typeof PublicAboutUsIndexRoute
   '/features': typeof PublicFeaturesIndexRoute
   '/app/account-settings': typeof AppAppAccountSettingsIndexRoute
   '/app/assasemen': typeof AppAppAssasemenIndexRoute
-  '/app/kredensial': typeof AppAppKredensialIndexRoute
+  '/app/certificate-verification': typeof AppAppCertificateVerificationIndexRoute
+  '/app/certification': typeof AppAppCertificationIndexRoute
+  '/app/history': typeof AppAppHistoryIndexRoute
   '/app/parse-cv': typeof AppAppParseCvIndexRoute
-  '/app/riwayat': typeof AppAppRiwayatIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -223,16 +225,16 @@ export interface FileRoutesById {
   '/result/$sessionId': typeof ResultSessionIdRoute
   '/_public/': typeof PublicIndexRoute
   '/_app/app/': typeof AppAppIndexRoute
-  '/_app/assasemen/': typeof AppAssasemenIndexRoute
   '/_app/kredensial/': typeof AppKredensialIndexRoute
   '/_app/riwayat/': typeof AppRiwayatIndexRoute
   '/_public/about-us/': typeof PublicAboutUsIndexRoute
   '/_public/features/': typeof PublicFeaturesIndexRoute
   '/_app/app/account-settings/': typeof AppAppAccountSettingsIndexRoute
   '/_app/app/assasemen/': typeof AppAppAssasemenIndexRoute
-  '/_app/app/kredensial/': typeof AppAppKredensialIndexRoute
+  '/_app/app/certificate-verification/': typeof AppAppCertificateVerificationIndexRoute
+  '/_app/app/certification/': typeof AppAppCertificationIndexRoute
+  '/_app/app/history/': typeof AppAppHistoryIndexRoute
   '/_app/app/parse-cv/': typeof AppAppParseCvIndexRoute
-  '/_app/app/riwayat/': typeof AppAppRiwayatIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -249,16 +251,16 @@ export interface FileRouteTypes {
     | '/quiz/$sessionId'
     | '/result/$sessionId'
     | '/app/'
-    | '/assasemen/'
     | '/kredensial/'
     | '/riwayat/'
     | '/about-us/'
     | '/features/'
     | '/app/account-settings/'
     | '/app/assasemen/'
-    | '/app/kredensial/'
+    | '/app/certificate-verification/'
+    | '/app/certification/'
+    | '/app/history/'
     | '/app/parse-cv/'
-    | '/app/riwayat/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -272,16 +274,16 @@ export interface FileRouteTypes {
     | '/quiz/$sessionId'
     | '/result/$sessionId'
     | '/app'
-    | '/assasemen'
     | '/kredensial'
     | '/riwayat'
     | '/about-us'
     | '/features'
     | '/app/account-settings'
     | '/app/assasemen'
-    | '/app/kredensial'
+    | '/app/certificate-verification'
+    | '/app/certification'
+    | '/app/history'
     | '/app/parse-cv'
-    | '/app/riwayat'
   id:
     | '__root__'
     | '/_app'
@@ -299,16 +301,16 @@ export interface FileRouteTypes {
     | '/result/$sessionId'
     | '/_public/'
     | '/_app/app/'
-    | '/_app/assasemen/'
     | '/_app/kredensial/'
     | '/_app/riwayat/'
     | '/_public/about-us/'
     | '/_public/features/'
     | '/_app/app/account-settings/'
     | '/_app/app/assasemen/'
-    | '/_app/app/kredensial/'
+    | '/_app/app/certificate-verification/'
+    | '/_app/app/certification/'
+    | '/_app/app/history/'
     | '/_app/app/parse-cv/'
-    | '/_app/app/riwayat/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -448,25 +450,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppKredensialIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/_app/assasemen/': {
-      id: '/_app/assasemen/'
-      path: '/assasemen'
-      fullPath: '/assasemen/'
-      preLoaderRoute: typeof AppAssasemenIndexRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
     '/_app/app/': {
       id: '/_app/app/'
       path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AppAppIndexRouteImport
-      parentRoute: typeof AppAppRouteRoute
-    }
-    '/_app/app/riwayat/': {
-      id: '/_app/app/riwayat/'
-      path: '/riwayat'
-      fullPath: '/app/riwayat/'
-      preLoaderRoute: typeof AppAppRiwayatIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
     '/_app/app/parse-cv/': {
@@ -476,11 +464,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppParseCvIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
-    '/_app/app/kredensial/': {
-      id: '/_app/app/kredensial/'
-      path: '/kredensial'
-      fullPath: '/app/kredensial/'
-      preLoaderRoute: typeof AppAppKredensialIndexRouteImport
+    '/_app/app/history/': {
+      id: '/_app/app/history/'
+      path: '/history'
+      fullPath: '/app/history/'
+      preLoaderRoute: typeof AppAppHistoryIndexRouteImport
+      parentRoute: typeof AppAppRouteRoute
+    }
+    '/_app/app/certification/': {
+      id: '/_app/app/certification/'
+      path: '/certification'
+      fullPath: '/app/certification/'
+      preLoaderRoute: typeof AppAppCertificationIndexRouteImport
+      parentRoute: typeof AppAppRouteRoute
+    }
+    '/_app/app/certificate-verification/': {
+      id: '/_app/app/certificate-verification/'
+      path: '/certificate-verification'
+      fullPath: '/app/certificate-verification/'
+      preLoaderRoute: typeof AppAppCertificateVerificationIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
     '/_app/app/assasemen/': {
@@ -504,18 +506,21 @@ interface AppAppRouteRouteChildren {
   AppAppIndexRoute: typeof AppAppIndexRoute
   AppAppAccountSettingsIndexRoute: typeof AppAppAccountSettingsIndexRoute
   AppAppAssasemenIndexRoute: typeof AppAppAssasemenIndexRoute
-  AppAppKredensialIndexRoute: typeof AppAppKredensialIndexRoute
+  AppAppCertificateVerificationIndexRoute: typeof AppAppCertificateVerificationIndexRoute
+  AppAppCertificationIndexRoute: typeof AppAppCertificationIndexRoute
+  AppAppHistoryIndexRoute: typeof AppAppHistoryIndexRoute
   AppAppParseCvIndexRoute: typeof AppAppParseCvIndexRoute
-  AppAppRiwayatIndexRoute: typeof AppAppRiwayatIndexRoute
 }
 
 const AppAppRouteRouteChildren: AppAppRouteRouteChildren = {
   AppAppIndexRoute: AppAppIndexRoute,
   AppAppAccountSettingsIndexRoute: AppAppAccountSettingsIndexRoute,
   AppAppAssasemenIndexRoute: AppAppAssasemenIndexRoute,
-  AppAppKredensialIndexRoute: AppAppKredensialIndexRoute,
+  AppAppCertificateVerificationIndexRoute:
+    AppAppCertificateVerificationIndexRoute,
+  AppAppCertificationIndexRoute: AppAppCertificationIndexRoute,
+  AppAppHistoryIndexRoute: AppAppHistoryIndexRoute,
   AppAppParseCvIndexRoute: AppAppParseCvIndexRoute,
-  AppAppRiwayatIndexRoute: AppAppRiwayatIndexRoute,
 }
 
 const AppAppRouteRouteWithChildren = AppAppRouteRoute._addFileChildren(
@@ -526,7 +531,6 @@ interface AppRouteRouteChildren {
   AppAppRouteRoute: typeof AppAppRouteRouteWithChildren
   AppSplatRoute: typeof AppSplatRoute
   AppTestOverviewRoute: typeof AppTestOverviewRoute
-  AppAssasemenIndexRoute: typeof AppAssasemenIndexRoute
   AppKredensialIndexRoute: typeof AppKredensialIndexRoute
   AppRiwayatIndexRoute: typeof AppRiwayatIndexRoute
 }
@@ -535,7 +539,6 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAppRouteRoute: AppAppRouteRouteWithChildren,
   AppSplatRoute: AppSplatRoute,
   AppTestOverviewRoute: AppTestOverviewRoute,
-  AppAssasemenIndexRoute: AppAssasemenIndexRoute,
   AppKredensialIndexRoute: AppKredensialIndexRoute,
   AppRiwayatIndexRoute: AppRiwayatIndexRoute,
 }

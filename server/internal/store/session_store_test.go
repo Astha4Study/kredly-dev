@@ -9,7 +9,7 @@ import (
 )
 
 func TestSessionStore_SetAndGet(t *testing.T) {
-	s := NewSessionStore()
+	s := NewSessionStore(nil)
 	sess := &models.Session{
 		ID:        "session-1",
 		UserID:    "user-1",
@@ -32,7 +32,7 @@ func TestSessionStore_SetAndGet(t *testing.T) {
 }
 
 func TestSessionStore_GetNotFound(t *testing.T) {
-	s := NewSessionStore()
+	s := NewSessionStore(nil)
 
 	_, err := s.Get("non-existent")
 	if err == nil {
@@ -41,7 +41,7 @@ func TestSessionStore_GetNotFound(t *testing.T) {
 }
 
 func TestSessionStore_Update(t *testing.T) {
-	s := NewSessionStore()
+	s := NewSessionStore(nil)
 	sess := &models.Session{
 		ID:           "session-2",
 		ThetaCurrent: 0.0,
@@ -67,7 +67,7 @@ func TestSessionStore_Update(t *testing.T) {
 }
 
 func TestSessionStore_Delete(t *testing.T) {
-	s := NewSessionStore()
+	s := NewSessionStore(nil)
 	sess := &models.Session{
 		ID: "session-3",
 	}
@@ -82,7 +82,7 @@ func TestSessionStore_Delete(t *testing.T) {
 }
 
 func TestSessionStore_ConcurrentAccess(t *testing.T) {
-	s := NewSessionStore()
+	s := NewSessionStore(nil)
 	var wg sync.WaitGroup
 
 	// Let's run multiple readers, writers, and updaters concurrently
