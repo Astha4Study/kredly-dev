@@ -72,7 +72,7 @@ export default function QuizPage() {
     } catch (err) {
       console.error('Failed to abandon session:', err);
     }
-    navigate({ to: '/parseCV' });
+    navigate({ to: '/app/parse-cv' });
   };
 
   // Fetch first question on mount
@@ -285,14 +285,14 @@ export default function QuizPage() {
                     Jawaban Essay Anda:
                   </label>
                   <span className="text-xs text-muted-foreground/60">
-                    Tuliskan penjelasan teknis yang mendalam
+                    Tuliskan jawaban singkat dan padat
                   </span>
                 </div>
                 <textarea
                   disabled={isLoading || isSubmitting || showResult}
                   value={selectedAnswer || ''}
                   onChange={(e) => setSelectedAnswer(e.target.value)}
-                  placeholder="Ketik penjelasan teknis Anda secara detail di sini..."
+                  placeholder="Ketik jawaban singkat Anda di sini (cukup 1-3 kalimat atau poin-poin kunci)..."
                   className="w-full min-h-[160px] p-4 rounded-2xl border border-foreground/10 bg-background/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-300 resize-y text-sm leading-relaxed"
                 />
               </motion.div>

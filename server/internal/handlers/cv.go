@@ -79,8 +79,31 @@ The JSON must follow this exact schema:
   "role": "Candidate's primary role or title (e.g., Backend Engineer)",
   "level": "Candidate's seniority level (e.g., Junior, Mid, Senior, Lead)",
   "skills": ["Skill 1", "Skill 2"],
-  "summary": "A concise, clean, and professional summary of the candidate's profile, key experience, and education. Keep it brief (2-3 sentences max) as a single plain paragraph. Do NOT include any special characters, list bullet points, or symbols like '●' or '•'."
+  "summary": "A concise, clean, and professional summary of the candidate's profile, key experience, and education. Keep it brief (2-3 sentences max) as a single plain paragraph. Do NOT include any special characters, list bullet points, or symbols like '●' or '•'.",
+  "assessments": [
+    {
+      "id": "A unique slug/ID like gen-frontend or skill-typescript",
+      "type": "general" or "skill",
+      "title": "Assessment title (e.g. Front End, Backend, TypeScript, Go)",
+      "description": "Short description of what is tested",
+      "difficulty": "Beginner", "Intermediate", or "Advanced" based on candidate level,
+      "estimatedTime": "Estimated time (e.g. '30 menit', '45 menit')",
+      "questionCount": number of questions (e.g., 20 or 25),
+      "topics": ["list of key topics/subjects tested"] (only for type "general", empty or null for "skill"),
+      "isRecommended": true,
+      "category": "Frontend", "Backend", "Mobile", "DevOps", "Database", "General" etc.,
+      "status": "available"
+    }
+  ]
 }
+
+For the "assessments" field:
+1. Generate exactly 1 "general" assessment matching the candidate's overall role (e.g., "Front End", "Backend", "Mobile Developer", "DevOps") with 3-5 relevant "topics" to be tested.
+2. Generate 3-5 "skill" assessments matching the candidate's top extracted skills (e.g., "TypeScript", "Node.js", "Docker").
+3. Choose the "difficulty" matching their cv level (Junior -> Beginner/Intermediate, Mid -> Intermediate, Senior/Lead -> Advanced).
+4. Assign a unique slug/ID for each assessment (e.g., "gen-frontend", "skill-typescript").
+5. The "status" of each assessment should be "available".
+6. The "category" should align with the candidate's domain (e.g., "Frontend", "Backend", "Mobile", "DevOps", "Database", "General").
 
 Ensure all fields are populated as accurately as possible based on the text. If a field is missing, set it to null or an empty array/string. Do not include any markdown format tags like ` + "`" + `json` + "`" + ` or any conversational intro/outro text. Return ONLY the raw JSON object.`
 
@@ -130,10 +153,11 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 	// 7. Save parsed results to the user profile if logged in
 	if loggedInUser != nil {
 		type parsedCV struct {
-			Role    string   `json:"role"`
-			Level   string   `json:"level"`
-			Skills  []string `json:"skills"`
-			Summary string   `json:"summary"`
+			Role        string                       `json:"role"`
+			Level       string                       `json:"level"`
+			Skills      []string                     `json:"skills"`
+			Summary     string                       `json:"summary"`
+			Assessments []models.GeneratedAssessment `json:"assessments"`
 		}
 
 		var parsed parsedCV
@@ -170,6 +194,23 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 			if updateErr != nil {
 				// Log the error but don't fail the request since parsing succeeded
 				c.Error(updateErr)
+			}
+
+			// Update UserProfile document as well
+			userProfileColl := database.DB.Collection("userProfile")
+			profileUpdate := bson.M{
+				"$set": bson.M{
+					"cvRole":        parsed.Role,
+					"cvLevel":       parsed.Level,
+					"cvSkills":      parsed.Skills,
+					"cvSummary":     cvSummary,
+					"cvAssessments": parsed.Assessments,
+					"updatedAt":     now,
+				},
+			}
+			_, updateErrProfile := userProfileColl.UpdateOne(c.Request.Context(), bson.M{"userId": loggedInUser.ID}, profileUpdate)
+			if updateErrProfile != nil {
+				c.Error(updateErrProfile)
 			}
 		}
 	}

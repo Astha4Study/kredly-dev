@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/select';
 import { useState } from 'react';
 
-export const Route = createFileRoute('/_app/kredensial/')({
+export const Route = createFileRoute('/_app/app/kredensial/')({
   component: RouteComponent,
 });
 
@@ -81,7 +81,7 @@ function RouteComponent() {
               Urutkan:
             </label>
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-45">
+              <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Pilih urutan" />
               </SelectTrigger>
               <SelectContent>
@@ -258,7 +258,7 @@ function RouteComponent() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="bg-linear-to-br from-blue-500 to-purple-600 rounded-lg p-8 text-white text-center">
+                <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-8 text-white text-center">
                   <h3 className="text-3xl font-bold mb-2">
                     Certificate of Achievement
                   </h3>
