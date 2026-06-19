@@ -359,7 +359,13 @@ function RouteComponent() {
         )}
 
         {assessment.status === 'available' && (
-          <Button className="w-full">Mulai Assessment</Button>
+          <Link
+            to="/app/test-overview"
+            search={{ assessmentId: assessment.id }}
+            className="w-full"
+          >
+            <Button className="w-full">Mulai Assessment</Button>
+          </Link>
         )}
         {assessment.status === 'in-progress' && (
           <Button className="w-full" variant="default">
@@ -450,9 +456,15 @@ function RouteComponent() {
             {assessment.questionCount} Soal
           </span>
         </div>
-        <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow transition-all duration-200">
-          Mulai Asesmen
-        </Button>
+        <Link
+          to="/app/test-overview"
+          search={{ assessmentId: assessment.id }}
+          className="w-full"
+        >
+          <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow transition-all duration-200">
+            Mulai Asesmen
+          </Button>
+        </Link>
       </CardContent>
     </Card>
   );
@@ -500,7 +512,7 @@ function RouteComponent() {
           <TabsContent value="available" className="space-y-8 mt-6">
             {/* Info Banner */}
             <Card className="bg-blue-50 border-blue-200">
-              <CardContent >
+              <CardContent>
                 <div className="flex items-start gap-3">
                   <div>
                     <p className="text-sm text-blue-900">
