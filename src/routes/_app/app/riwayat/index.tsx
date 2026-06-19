@@ -15,7 +15,12 @@ export const Route = createFileRoute('/_app/app/riwayat/')({
 
 interface Activity {
   id: string;
-  type: 'assessment_completed' | 'credential_earned' | 'cv_updated' | 'assessment_started' | 'blockchain_verified';
+  type:
+    | 'assessment_completed'
+    | 'credential_earned'
+    | 'cv_updated'
+    | 'assessment_started'
+    | 'blockchain_verified';
   title: string;
   description: string;
   date: string;
@@ -47,7 +52,8 @@ function RouteComponent() {
       id: '2',
       type: 'credential_earned',
       title: 'Kredensial Baru Diterbitkan',
-      description: 'Kredensial React Advanced berhasil diterbitkan ke blockchain',
+      description:
+        'Kredensial React Advanced berhasil diterbitkan ke blockchain',
       date: '15 Juni 2026',
       time: '14:35',
       metadata: {
@@ -91,7 +97,8 @@ function RouteComponent() {
       id: '6',
       type: 'credential_earned',
       title: 'Kredensial Baru Diterbitkan',
-      description: 'Kredensial JavaScript ES6 berhasil diterbitkan ke blockchain',
+      description:
+        'Kredensial JavaScript ES6 berhasil diterbitkan ke blockchain',
       date: '10 Juni 2026',
       time: '11:50',
       metadata: {
@@ -244,7 +251,9 @@ function RouteComponent() {
         {/* Header Section */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">Riwayat Aktivitas</h2>
+            <h2 className="text-3xl font-bold text-gray-900">
+              Riwayat Aktivitas
+            </h2>
             <p className="text-gray-600 mt-2">
               Timeline aktivitas Anda di platform
             </p>
