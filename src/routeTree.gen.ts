@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TestRouteImport } from './routes/test'
 import { Route as ParseCVRouteImport } from './routes/parseCV'
 import { Route as PublicRouteRouteImport } from './routes/_public/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
@@ -25,16 +24,18 @@ import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppAppRouteRouteImport } from './routes/_app/app/route'
 import { Route as PublicFeaturesIndexRouteImport } from './routes/_public/features/index'
 import { Route as PublicAboutUsIndexRouteImport } from './routes/_public/about-us/index'
+import { Route as AppRiwayatIndexRouteImport } from './routes/_app/riwayat/index'
+import { Route as AppKredensialIndexRouteImport } from './routes/_app/kredensial/index'
+import { Route as AppAssasemenIndexRouteImport } from './routes/_app/assasemen/index'
 import { Route as AppAppIndexRouteImport } from './routes/_app/app/index'
 import { Route as AppAppTestOverviewRouteImport } from './routes/_app/app/test-overview'
 import { Route as AppAppTestOverviewIndexRouteImport } from './routes/_app/app/test-overview/index'
+import { Route as AppAppRiwayatIndexRouteImport } from './routes/_app/app/riwayat/index'
 import { Route as AppAppParseCvIndexRouteImport } from './routes/_app/app/parse-cv/index'
+import { Route as AppAppKredensialIndexRouteImport } from './routes/_app/app/kredensial/index'
+import { Route as AppAppAssasemenIndexRouteImport } from './routes/_app/app/assasemen/index'
+import { Route as AppAppAccountSettingsIndexRouteImport } from './routes/_app/app/account-settings/index'
 
-const TestRoute = TestRouteImport.update({
-  id: '/test',
-  path: '/test',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ParseCVRoute = ParseCVRouteImport.update({
   id: '/parseCV',
   path: '/parseCV',
@@ -107,6 +108,21 @@ const PublicAboutUsIndexRoute = PublicAboutUsIndexRouteImport.update({
   path: '/about-us/',
   getParentRoute: () => PublicRouteRoute,
 } as any)
+const AppRiwayatIndexRoute = AppRiwayatIndexRouteImport.update({
+  id: '/riwayat/',
+  path: '/riwayat/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppKredensialIndexRoute = AppKredensialIndexRouteImport.update({
+  id: '/kredensial/',
+  path: '/kredensial/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppAssasemenIndexRoute = AppAssasemenIndexRouteImport.update({
+  id: '/assasemen/',
+  path: '/assasemen/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppAppIndexRoute = AppAppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -122,16 +138,36 @@ const AppAppTestOverviewIndexRoute = AppAppTestOverviewIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppAppTestOverviewRoute,
 } as any)
+const AppAppRiwayatIndexRoute = AppAppRiwayatIndexRouteImport.update({
+  id: '/riwayat/',
+  path: '/riwayat/',
+  getParentRoute: () => AppAppRouteRoute,
+} as any)
 const AppAppParseCvIndexRoute = AppAppParseCvIndexRouteImport.update({
   id: '/parse-cv/',
   path: '/parse-cv/',
   getParentRoute: () => AppAppRouteRoute,
 } as any)
+const AppAppKredensialIndexRoute = AppAppKredensialIndexRouteImport.update({
+  id: '/kredensial/',
+  path: '/kredensial/',
+  getParentRoute: () => AppAppRouteRoute,
+} as any)
+const AppAppAssasemenIndexRoute = AppAppAssasemenIndexRouteImport.update({
+  id: '/assasemen/',
+  path: '/assasemen/',
+  getParentRoute: () => AppAppRouteRoute,
+} as any)
+const AppAppAccountSettingsIndexRoute =
+  AppAppAccountSettingsIndexRouteImport.update({
+    id: '/account-settings/',
+    path: '/account-settings/',
+    getParentRoute: () => AppAppRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/parseCV': typeof ParseCVRoute
-  '/test': typeof TestRoute
   '/app': typeof AppAppRouteRouteWithChildren
   '/$': typeof AppSplatRoute
   '/login': typeof AuthLoginRoute
@@ -142,15 +178,21 @@ export interface FileRoutesByFullPath {
   '/result/$sessionId': typeof ResultSessionIdRoute
   '/app/test-overview': typeof AppAppTestOverviewRouteWithChildren
   '/app/': typeof AppAppIndexRoute
+  '/assasemen/': typeof AppAssasemenIndexRoute
+  '/kredensial/': typeof AppKredensialIndexRoute
+  '/riwayat/': typeof AppRiwayatIndexRoute
   '/about-us/': typeof PublicAboutUsIndexRoute
   '/features/': typeof PublicFeaturesIndexRoute
+  '/app/account-settings/': typeof AppAppAccountSettingsIndexRoute
+  '/app/assasemen/': typeof AppAppAssasemenIndexRoute
+  '/app/kredensial/': typeof AppAppKredensialIndexRoute
   '/app/parse-cv/': typeof AppAppParseCvIndexRoute
+  '/app/riwayat/': typeof AppAppRiwayatIndexRoute
   '/app/test-overview/': typeof AppAppTestOverviewIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/parseCV': typeof ParseCVRoute
-  '/test': typeof TestRoute
   '/$': typeof AppSplatRoute
   '/login': typeof AuthLoginRoute
   '/onboarding': typeof AuthOnboardingRoute
@@ -159,9 +201,16 @@ export interface FileRoutesByTo {
   '/quiz/$sessionId': typeof QuizSessionIdRoute
   '/result/$sessionId': typeof ResultSessionIdRoute
   '/app': typeof AppAppIndexRoute
+  '/assasemen': typeof AppAssasemenIndexRoute
+  '/kredensial': typeof AppKredensialIndexRoute
+  '/riwayat': typeof AppRiwayatIndexRoute
   '/about-us': typeof PublicAboutUsIndexRoute
   '/features': typeof PublicFeaturesIndexRoute
+  '/app/account-settings': typeof AppAppAccountSettingsIndexRoute
+  '/app/assasemen': typeof AppAppAssasemenIndexRoute
+  '/app/kredensial': typeof AppAppKredensialIndexRoute
   '/app/parse-cv': typeof AppAppParseCvIndexRoute
+  '/app/riwayat': typeof AppAppRiwayatIndexRoute
   '/app/test-overview': typeof AppAppTestOverviewIndexRoute
 }
 export interface FileRoutesById {
@@ -170,7 +219,6 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_public': typeof PublicRouteRouteWithChildren
   '/parseCV': typeof ParseCVRoute
-  '/test': typeof TestRoute
   '/_app/app': typeof AppAppRouteRouteWithChildren
   '/_app/$': typeof AppSplatRoute
   '/_auth/login': typeof AuthLoginRoute
@@ -182,9 +230,16 @@ export interface FileRoutesById {
   '/_public/': typeof PublicIndexRoute
   '/_app/app/test-overview': typeof AppAppTestOverviewRouteWithChildren
   '/_app/app/': typeof AppAppIndexRoute
+  '/_app/assasemen/': typeof AppAssasemenIndexRoute
+  '/_app/kredensial/': typeof AppKredensialIndexRoute
+  '/_app/riwayat/': typeof AppRiwayatIndexRoute
   '/_public/about-us/': typeof PublicAboutUsIndexRoute
   '/_public/features/': typeof PublicFeaturesIndexRoute
+  '/_app/app/account-settings/': typeof AppAppAccountSettingsIndexRoute
+  '/_app/app/assasemen/': typeof AppAppAssasemenIndexRoute
+  '/_app/app/kredensial/': typeof AppAppKredensialIndexRoute
   '/_app/app/parse-cv/': typeof AppAppParseCvIndexRoute
+  '/_app/app/riwayat/': typeof AppAppRiwayatIndexRoute
   '/_app/app/test-overview/': typeof AppAppTestOverviewIndexRoute
 }
 export interface FileRouteTypes {
@@ -192,7 +247,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/parseCV'
-    | '/test'
     | '/app'
     | '/$'
     | '/login'
@@ -203,15 +257,21 @@ export interface FileRouteTypes {
     | '/result/$sessionId'
     | '/app/test-overview'
     | '/app/'
+    | '/assasemen/'
+    | '/kredensial/'
+    | '/riwayat/'
     | '/about-us/'
     | '/features/'
+    | '/app/account-settings/'
+    | '/app/assasemen/'
+    | '/app/kredensial/'
     | '/app/parse-cv/'
+    | '/app/riwayat/'
     | '/app/test-overview/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/parseCV'
-    | '/test'
     | '/$'
     | '/login'
     | '/onboarding'
@@ -220,9 +280,16 @@ export interface FileRouteTypes {
     | '/quiz/$sessionId'
     | '/result/$sessionId'
     | '/app'
+    | '/assasemen'
+    | '/kredensial'
+    | '/riwayat'
     | '/about-us'
     | '/features'
+    | '/app/account-settings'
+    | '/app/assasemen'
+    | '/app/kredensial'
     | '/app/parse-cv'
+    | '/app/riwayat'
     | '/app/test-overview'
   id:
     | '__root__'
@@ -230,7 +297,6 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/_public'
     | '/parseCV'
-    | '/test'
     | '/_app/app'
     | '/_app/$'
     | '/_auth/login'
@@ -242,9 +308,16 @@ export interface FileRouteTypes {
     | '/_public/'
     | '/_app/app/test-overview'
     | '/_app/app/'
+    | '/_app/assasemen/'
+    | '/_app/kredensial/'
+    | '/_app/riwayat/'
     | '/_public/about-us/'
     | '/_public/features/'
+    | '/_app/app/account-settings/'
+    | '/_app/app/assasemen/'
+    | '/_app/app/kredensial/'
     | '/_app/app/parse-cv/'
+    | '/_app/app/riwayat/'
     | '/_app/app/test-overview/'
   fileRoutesById: FileRoutesById
 }
@@ -253,20 +326,12 @@ export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   PublicRouteRoute: typeof PublicRouteRouteWithChildren
   ParseCVRoute: typeof ParseCVRoute
-  TestRoute: typeof TestRoute
   QuizSessionIdRoute: typeof QuizSessionIdRoute
   ResultSessionIdRoute: typeof ResultSessionIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/test': {
-      id: '/test'
-      path: '/test'
-      fullPath: '/test'
-      preLoaderRoute: typeof TestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/parseCV': {
       id: '/parseCV'
       path: '/parseCV'
@@ -372,6 +437,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicAboutUsIndexRouteImport
       parentRoute: typeof PublicRouteRoute
     }
+    '/_app/riwayat/': {
+      id: '/_app/riwayat/'
+      path: '/riwayat'
+      fullPath: '/riwayat/'
+      preLoaderRoute: typeof AppRiwayatIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/kredensial/': {
+      id: '/_app/kredensial/'
+      path: '/kredensial'
+      fullPath: '/kredensial/'
+      preLoaderRoute: typeof AppKredensialIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/assasemen/': {
+      id: '/_app/assasemen/'
+      path: '/assasemen'
+      fullPath: '/assasemen/'
+      preLoaderRoute: typeof AppAssasemenIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/app/': {
       id: '/_app/app/'
       path: '/'
@@ -393,11 +479,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppTestOverviewIndexRouteImport
       parentRoute: typeof AppAppTestOverviewRoute
     }
+    '/_app/app/riwayat/': {
+      id: '/_app/app/riwayat/'
+      path: '/riwayat'
+      fullPath: '/app/riwayat/'
+      preLoaderRoute: typeof AppAppRiwayatIndexRouteImport
+      parentRoute: typeof AppAppRouteRoute
+    }
     '/_app/app/parse-cv/': {
       id: '/_app/app/parse-cv/'
       path: '/parse-cv'
       fullPath: '/app/parse-cv/'
       preLoaderRoute: typeof AppAppParseCvIndexRouteImport
+      parentRoute: typeof AppAppRouteRoute
+    }
+    '/_app/app/kredensial/': {
+      id: '/_app/app/kredensial/'
+      path: '/kredensial'
+      fullPath: '/app/kredensial/'
+      preLoaderRoute: typeof AppAppKredensialIndexRouteImport
+      parentRoute: typeof AppAppRouteRoute
+    }
+    '/_app/app/assasemen/': {
+      id: '/_app/app/assasemen/'
+      path: '/assasemen'
+      fullPath: '/app/assasemen/'
+      preLoaderRoute: typeof AppAppAssasemenIndexRouteImport
+      parentRoute: typeof AppAppRouteRoute
+    }
+    '/_app/app/account-settings/': {
+      id: '/_app/app/account-settings/'
+      path: '/account-settings'
+      fullPath: '/app/account-settings/'
+      preLoaderRoute: typeof AppAppAccountSettingsIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
   }
@@ -417,13 +531,21 @@ const AppAppTestOverviewRouteWithChildren =
 interface AppAppRouteRouteChildren {
   AppAppTestOverviewRoute: typeof AppAppTestOverviewRouteWithChildren
   AppAppIndexRoute: typeof AppAppIndexRoute
+  AppAppAccountSettingsIndexRoute: typeof AppAppAccountSettingsIndexRoute
+  AppAppAssasemenIndexRoute: typeof AppAppAssasemenIndexRoute
+  AppAppKredensialIndexRoute: typeof AppAppKredensialIndexRoute
   AppAppParseCvIndexRoute: typeof AppAppParseCvIndexRoute
+  AppAppRiwayatIndexRoute: typeof AppAppRiwayatIndexRoute
 }
 
 const AppAppRouteRouteChildren: AppAppRouteRouteChildren = {
   AppAppTestOverviewRoute: AppAppTestOverviewRouteWithChildren,
   AppAppIndexRoute: AppAppIndexRoute,
+  AppAppAccountSettingsIndexRoute: AppAppAccountSettingsIndexRoute,
+  AppAppAssasemenIndexRoute: AppAppAssasemenIndexRoute,
+  AppAppKredensialIndexRoute: AppAppKredensialIndexRoute,
   AppAppParseCvIndexRoute: AppAppParseCvIndexRoute,
+  AppAppRiwayatIndexRoute: AppAppRiwayatIndexRoute,
 }
 
 const AppAppRouteRouteWithChildren = AppAppRouteRoute._addFileChildren(
@@ -433,11 +555,17 @@ const AppAppRouteRouteWithChildren = AppAppRouteRoute._addFileChildren(
 interface AppRouteRouteChildren {
   AppAppRouteRoute: typeof AppAppRouteRouteWithChildren
   AppSplatRoute: typeof AppSplatRoute
+  AppAssasemenIndexRoute: typeof AppAssasemenIndexRoute
+  AppKredensialIndexRoute: typeof AppKredensialIndexRoute
+  AppRiwayatIndexRoute: typeof AppRiwayatIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAppRouteRoute: AppAppRouteRouteWithChildren,
   AppSplatRoute: AppSplatRoute,
+  AppAssasemenIndexRoute: AppAssasemenIndexRoute,
+  AppKredensialIndexRoute: AppKredensialIndexRoute,
+  AppRiwayatIndexRoute: AppRiwayatIndexRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
@@ -483,7 +611,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   PublicRouteRoute: PublicRouteRouteWithChildren,
   ParseCVRoute: ParseCVRoute,
-  TestRoute: TestRoute,
   QuizSessionIdRoute: QuizSessionIdRoute,
   ResultSessionIdRoute: ResultSessionIdRoute,
 }

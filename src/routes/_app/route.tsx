@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '@/contexts';
 import { useEffect } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export const Route = createFileRoute('/_app')({
   component: RouteComponent,
@@ -25,12 +26,38 @@ function RouteComponent() {
     }
   }, [isAuthenticated, isLoading, user, navigate]);
 
-  // Show loading saat check auth
+  // Show skeleton saat check auth
   if (isLoading) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div>Loading...</div>
-      </main>
+      <div className="min-h-screen bg-gray-50">
+        {/* TopBar Skeleton */}
+        <div className="sticky top-0 z-10 border-b bg-white">
+          <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
+            <div className="flex h-16 items-center justify-between">
+              <div className="flex items-center gap-6">
+                <Skeleton className="h-7 w-24" />
+                <Skeleton className="h-10 w-96" />
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Skeleton className="h-10 w-32" />
+                <Skeleton className="h-10 w-32" />
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-10 w-10 rounded-full" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Generic Content Skeleton */}
+        <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="space-y-6">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-96" />
+            <Skeleton className="mt-8 h-64 rounded-lg" />
+            <Skeleton className="h-48 rounded-lg" />
+          </div>
+        </main>
+      </div>
     );
   }
 
