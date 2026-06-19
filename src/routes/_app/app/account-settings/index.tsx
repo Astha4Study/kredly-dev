@@ -66,6 +66,27 @@ function RouteComponent() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex min-h-[calc(100vh-4rem)]">
+        <AppSidebarAccountSettings
+          activeMenu={activeMenu}
+          setActiveMenu={setActiveMenu}
+        />
+
+        <main className="flex-1 p-8">
+          <div className="mx-auto max-w-5xl">
+            <div className="space-y-4">
+              <div className="h-8 w-48 animate-pulse rounded-md bg-muted" />
+              <div className="h-32 animate-pulse rounded-xl bg-muted" />
+              <div className="h-48 animate-pulse rounded-xl bg-muted" />
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-[calc(100vh-4rem)]">
       <AppSidebarAccountSettings
