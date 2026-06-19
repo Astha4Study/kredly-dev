@@ -500,15 +500,8 @@ function RouteComponent() {
           <TabsContent value="available" className="space-y-8 mt-6">
             {/* Info Banner */}
             <Card className="bg-blue-50 border-blue-200">
-              <CardContent className="pt-6">
+              <CardContent >
                 <div className="flex items-start gap-3">
-                  <svg
-                    className="w-5 h-5 text-blue-600 mt-0.5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 011 1v5a1 1 0 11-2 0V5a1 1 0 011-1z" />
-                  </svg>
                   <div>
                     <p className="text-sm text-blue-900">
                       Berdasarkan CV-mu, ini assessment yang tersedia:
