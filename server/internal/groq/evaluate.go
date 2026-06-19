@@ -118,7 +118,8 @@ type EssayGradeResponse struct {
 }
 
 func (c *Client) GradeEssay(ctx context.Context, req EssayGradeRequest) (*EssayGradeResponse, error) {
-	systemPrompt := `Anda adalah penilai teknis ahli. Evaluasi jawaban kandidat terhadap pertanyaan teknis berdasarkan rubrik penilaian yang disediakan.
+	systemPrompt := `Anda adalah penilai teknis ahli. Evaluasi jawaban kandidat terhadap pertanyaan teknis berdasarkan rubrik/kunci jawaban yang disediakan.
+Pertanyaan ini dirancang untuk dijawab secara singkat dan padat (cukup 1-3 kalimat atau poin-poin kunci). Oleh karena itu, JANGAN kurangi nilai karena jawaban terlalu pendek. Berikan nilai penuh (100) atau tinggi jika jawaban kandidat telah mencakup kata kunci teknis utama atau konsep kunci yang diminta dalam rubrik/kunci jawaban, meskipun ditulis dengan sangat ringkas.
 Berikan nilai numerik/skor dalam rentang 0 sampai 100, di mana 100 mewakili pemahaman sempurna terhadap rubrik, dan 0 mewakili jawaban yang tidak relevan atau salah. Semakin mendekati jawaban benar, berikan skor yang semakin tinggi secara proporsional.
 Berikan penjelasan singkat (1-2 kalimat) dalam Bahasa Indonesia mengenai apa yang benar, apa yang terlewat, dan alasan di balik skor tersebut.
 

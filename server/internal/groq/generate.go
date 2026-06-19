@@ -60,8 +60,9 @@ Untuk setiap soal dalam batch, Anda harus memilih secara dinamis untuk menghasil
 
 2. Untuk ESSAY ("type": "essay"):
    - Set "pilihan" menjadi array kosong [].
-   - "kunci_jawaban" harus berisi rubrik penilaian mendetail atau daftar konsep/kata kunci teknis utama yang wajib dijawab kandidat.
-   - Berikan contoh jawaban model di "penjelasan".
+   - Pertanyaan essay HARUS dirancang agar cukup dijawab secara singkat, padat, dan langsung pada inti (misal: cukup 1-3 kalimat atau berupa poin-poin kunci). Hindari pertanyaan yang membutuhkan penjelasan panjang lebar.
+   - "kunci_jawaban" harus berupa daftar kata kunci teknis utama atau konsep kunci singkat yang wajib dijawab kandidat.
+   - Berikan contoh jawaban model yang singkat dan padat (1-2 kalimat saja) di "penjelasan".
 
 3. "b_estimated" harus sesuai dengan tingkat kesulitan soal yang diperlukan.
 

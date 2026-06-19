@@ -86,14 +86,30 @@ type UserProfile struct {
 	Experience string    `bson:"experience" json:"experience"`             // "below-1", "1-2", "3-5", "not-working"
 	IsStudent  bool      `bson:"isStudent" json:"isStudent"`               // true/false
 	Degree     *string   `bson:"degree,omitempty" json:"degree,omitempty"` // Jurusan (opsional, jika student)
-	CVRole     *string   `bson:"cvRole,omitempty" json:"cvRole,omitempty"`
-	CVLevel    *string   `bson:"cvLevel,omitempty" json:"cvLevel,omitempty"`
-	CVSkills   []string  `bson:"cvSkills,omitempty" json:"cvSkills,omitempty"`
-	CVSummary  *string   `bson:"cvSummary,omitempty" json:"cvSummary,omitempty"`
-	CreatedAt  time.Time `bson:"createdAt" json:"createdAt"`
-	UpdatedAt  time.Time `bson:"updatedAt" json:"updatedAt"`
+	CVRole        *string               `bson:"cvRole,omitempty" json:"cvRole,omitempty"`
+	CVLevel       *string               `bson:"cvLevel,omitempty" json:"cvLevel,omitempty"`
+	CVSkills      []string              `bson:"cvSkills,omitempty" json:"cvSkills,omitempty"`
+	CVSummary     *string               `bson:"cvSummary,omitempty" json:"cvSummary,omitempty"`
+	CVAssessments []GeneratedAssessment `bson:"cvAssessments,omitempty" json:"cvAssessments,omitempty"`
+	CreatedAt     time.Time             `bson:"createdAt" json:"createdAt"`
+	UpdatedAt     time.Time             `bson:"updatedAt" json:"updatedAt"`
 
 	User *User `bson:"-" json:"user,omitempty"` // Relasi untuk JSON response
+}
+
+type GeneratedAssessment struct {
+	ID            string   `bson:"id" json:"id"`
+	Type          string   `bson:"type" json:"type"` // "general" or "skill"
+	Title         string   `bson:"title" json:"title"`
+	Description   string   `bson:"description,omitempty" json:"description,omitempty"`
+	Difficulty    string   `bson:"difficulty" json:"difficulty"`
+	EstimatedTime string   `bson:"estimatedTime" json:"estimatedTime"`
+	QuestionCount int      `bson:"questionCount" json:"questionCount"`
+	Topics        []string `bson:"topics,omitempty" json:"topics,omitempty"`
+	IsRecommended bool     `bson:"isRecommended" json:"isRecommended"`
+	Category      string   `bson:"category" json:"category"`
+	Status        string   `bson:"status" json:"status"` // "available", "in-progress", "completed"
+	Progress      int      `bson:"progress,omitempty" json:"progress,omitempty"`
 }
 
 // ==========================================

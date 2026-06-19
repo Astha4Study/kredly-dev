@@ -56,7 +56,11 @@ export default function AppTopBar() {
               </nav>
 
               <nav className="flex items-center rounded-md border bg-muted/50 p-1 h-10">
-                <AppTopbarItem to="/app/riwayat" icon={History} label="Riwayat" />
+                <AppTopbarItem
+                  to="/app/riwayat"
+                  icon={History}
+                  label="Riwayat"
+                />
               </nav>
             </div>
           </div>

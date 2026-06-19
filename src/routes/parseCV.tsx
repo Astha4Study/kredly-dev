@@ -1,6 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router';
-import CVParserPage from '@/pages/client/parse-cv';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/parseCV')({
-  component: CVParserPage,
+  beforeLoad: () => {
+    throw redirect({ to: '/app/parse-cv' });
+  },
 });
