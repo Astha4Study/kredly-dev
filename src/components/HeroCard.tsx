@@ -464,7 +464,7 @@ export default function HeroCard() {
 
   return (
     <div className="relative flex h-100 md:h-105 items-center justify-center">
-      <div className="absolute -right-6 md:-right-30 xl:-right-20 top-1/2 w-full md:w-[120%] h-full -translate-y-1/2 border border-foreground/10 bg-background shadow-sm">
+      <div className="absolute -right-6 md:-right-30 xl:-right-20 top-1/2 w-full md:w-[120%] h-full -translate-y-1/2 border border-foreground/10 bg-background shadow-sm overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={current.id}

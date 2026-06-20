@@ -126,6 +126,13 @@ func main() {
 
 		// Profile endpoints - Protected
 		api.GET("/profile", middleware.AuthMiddleware(cfg, authService), profileHandler.HandleGetProfile)
+
+		// User account management - Protected
+		user := api.Group("/user")
+		user.Use(middleware.AuthMiddleware(cfg, authService))
+		{
+			user.DELETE("/delete-account", profileHandler.HandleDeleteAccount)
+		}
 	}
 
 	// 9. Start Server
