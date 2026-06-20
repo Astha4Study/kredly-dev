@@ -5,7 +5,7 @@ import {
   Link,
   useParams,
 } from '@tanstack/react-router';
-import { useAuth } from '@/contexts';
+import { useAuth } from '@/contexts/auth';
 import {
   Card,
   CardContent,

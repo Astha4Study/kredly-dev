@@ -11,7 +11,7 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from '@/components/ui/input-otp';
-import { useAuth } from '@/contexts';
+import { useAuth } from '@/contexts/auth';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_auth/verification')({

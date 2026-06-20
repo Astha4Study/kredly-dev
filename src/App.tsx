@@ -1,6 +1,6 @@
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
-import { AuthProvider } from './contexts';
+import { AuthProvider } from './contexts/auth';
 import { Toaster } from 'sonner';
 import './App.css';
 

@@ -1,4 +1,4 @@
-import { useAuth } from '@/contexts';
+import { useAuth } from '@/contexts/auth';
 import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import {

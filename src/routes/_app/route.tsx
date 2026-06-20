@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router';
-import { useAuth } from '@/contexts';
+import { useAuth } from '@/contexts/auth';
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 

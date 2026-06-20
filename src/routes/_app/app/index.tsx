@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import AsideProfile from '@/components/AsideProfile';
-import { useAuth } from '@/contexts';
+import { useAuth } from '@/contexts/auth';
 
 export const Route = createFileRoute('/_app/app/')({
   component: RouteComponent,

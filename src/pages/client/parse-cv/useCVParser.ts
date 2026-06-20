@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { LevelType, ParsedCVData } from './types';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/auth';
 
 export function useCVParser() {
   const { user, refetch } = useAuth();

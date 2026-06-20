@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from '@tanstack/react-router';
 import googleIcons from '@/assets/svg/google.svg';
-import { useAuth } from '@/contexts';
+import { useAuth } from '@/contexts/auth';
 
 export const Route = createFileRoute('/_auth/login')({
   component: RouteComponent,

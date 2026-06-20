@@ -1,4 +1,4 @@
-import { useAuth } from '@/contexts';
+import { useAuth } from '@/contexts/auth';
 import {
   Card,
   CardContent,
@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 
 export default function AccountTab() {
   const { user } = useAuth();
@@ -34,9 +35,9 @@ export default function AccountTab() {
               <p className="text-sm">{user?.email}</p>
             </div>
             {user?.emailVerified ? (
-              <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
+              <Badge variant="default">
                 Terverifikasi
-              </span>
+              </Badge>
             ) : (
               <Button variant="outline" size="sm">
                 Verifikasi Email

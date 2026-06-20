@@ -48,7 +48,7 @@ func main() {
 	onboardingHandler := handlers.NewOnboardingHandler(groqClient)
 
 	// 6. Initialize Profile system
-	profileHandler := handlers.NewProfileHandler()
+	profileHandler := handlers.NewProfileHandler(groqClient)
 
 	// 7. Initialize HTTP Handlers
 	cvHandler := handlers.NewCVHandler(groqClient)
@@ -131,6 +131,8 @@ func main() {
 		user := api.Group("/user")
 		user.Use(middleware.AuthMiddleware(cfg, authService))
 		{
+			user.PUT("/update-profile", profileHandler.HandleUpdateProfile)
+			user.POST("/upload-cv", profileHandler.HandleUploadCV)
 			user.DELETE("/delete-account", profileHandler.HandleDeleteAccount)
 		}
 	}

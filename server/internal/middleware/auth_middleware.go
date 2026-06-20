@@ -76,6 +76,7 @@ func AuthMiddleware(cfg *config.Config, authService *service.AuthService) gin.Ha
 			"id":                     user.ID,
 			"email":                  user.Email,
 			"name":                   user.Name,
+			"username":               user.Username,
 			"emailVerified":          user.EmailVerified,
 			"image":                  user.Image,
 			"hasCompletedOnboarding": hasCompletedOnboarding,

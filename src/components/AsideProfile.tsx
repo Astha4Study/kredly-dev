@@ -1,4 +1,4 @@
-import { useAuth } from '@/contexts';
+import { useAuth } from '@/contexts/auth';
 import { useEffect, useMemo, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Checkbox } from './ui/checkbox';

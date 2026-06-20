@@ -260,6 +260,7 @@ func (h *AuthHandler) HandleMe(c *gin.Context) {
 			"id":                     user.ID,
 			"email":                  user.Email,
 			"name":                   user.Name,
+			"username":               user.Username,
 			"emailVerified":          user.EmailVerified,
 			"image":                  user.Image,
 			"hasCompletedOnboarding": hasCompletedOnboarding,

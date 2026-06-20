@@ -1,70 +1,44 @@
 import type React from 'react';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { User, AuthContextType } from './types';
+import { AuthContext } from './context';
 
-// Types
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  emailVerified: boolean;
-  image?: string;
-  hasCompletedOnboarding?: boolean; // Tambahan untuk cek status onboarding
-  cvRole?: string;
-  cvLevel?: string;
-  cvSkills?: string[];
-  cvSummary?: string;
-}
-
-export interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  signInWithGoogle: () => void;
-  signInWithEmailOTP: (
-    email: string,
-    type?: 'sign-in' | 'sign-up',
-  ) => Promise<{ success: boolean; message: string }>;
-  verifyEmailOTP: (
-    email: string,
-    otp: string,
-    type?: 'sign-in' | 'sign-up',
-  ) => Promise<{ success: boolean; message: string; user?: User }>;
-  signOut: () => Promise<void>;
-  refetch: () => Promise<void>;
-}
-
-// Create Context
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Provider Component
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch current user session
-  const fetchUser = async () => {
+  // Shared fetch logic (no state updates)
+  const getUserSession = async (): Promise<User | null> => {
     try {
       const response = await fetch('/api/auth/get-session', {
-        credentials: 'include', // Important: kirim cookie
+        credentials: 'include',
       });
 
       if (response.ok) {
         const data = await response.json();
-        setUser(data.user);
-      } else {
-        setUser(null);
+        return data.user;
       }
+      return null;
     } catch (error) {
       console.error('Failed to fetch user:', error);
-      setUser(null);
-    } finally {
-      setIsLoading(false);
+      return null;
     }
+  };
+
+  // Fetch current user session (used by refetch)
+  const fetchUser = async () => {
+    const user = await getUserSession();
+    setUser(user);
+    setIsLoading(false);
   };
 
   // Check session on mount
   useEffect(() => {
-    fetchUser();
+    (async () => {
+      const user = await getUserSession();
+      setUser(user);
+      setIsLoading(false);
+    })();
   }, []);
 
   // Sign in with Google (redirect to OAuth)
@@ -177,13 +151,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-// Custom hook to use auth context
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 }
