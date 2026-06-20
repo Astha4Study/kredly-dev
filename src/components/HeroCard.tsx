@@ -117,7 +117,11 @@ function Avatar({ initials, image }: { initials: string; image?: string }) {
   return (
     <div className="flex size-10 shrink-0 items-center justify-center border border-foreground/20 bg-foreground/5 text-xs font-medium tracking-wide text-foreground shadow-sm overflow-hidden">
       {image ? (
-        <img src={image} alt={initials} className="size-full object-cover" />
+        <img
+          src={image}
+          alt={initials}
+          className="size-full aspect-square object-cover"
+        />
       ) : (
         initials
       )}

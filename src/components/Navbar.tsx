@@ -27,23 +27,33 @@ export function Navbar() {
           },
         )}
       >
-        <Link to="/">
-          <img src={Logo} alt="Kredly Logo" className="h-6" />
+        <Link to="/" preload="intent">
+          <img
+            src={Logo}
+            alt="Kredly Logo"
+            className="h-6 w-auto aspect-[100/24] object-contain"
+          />
         </Link>
         <div className="hidden items-center gap-2 md:flex">
           <div>
             {navLinks.map((link) => (
               <Button asChild key={link.label} size="sm" variant="ghost">
-                <Link to={link.href}>{link.label}</Link>
+                <Link to={link.href} preload="intent">
+                  {link.label}
+                </Link>
               </Button>
             ))}
           </div>
           <Button asChild size="sm" variant="outline">
-            <Link to="/login">Masuk</Link>
+            <Link to="/login" preload="intent">
+              Masuk
+            </Link>
           </Button>
 
           <Button asChild size="sm">
-            <Link to="/register">Daftar Gratis</Link>
+            <Link to="/register" preload="intent">
+              Daftar Gratis
+            </Link>
           </Button>
         </div>
         <MobileNav />

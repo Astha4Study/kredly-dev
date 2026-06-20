@@ -33,6 +33,9 @@ export default defineConfig({
       ],
     },
   },
+  output: {
+    injectStyles: false,
+  },
   server: {
     proxy: {
       '/api': {

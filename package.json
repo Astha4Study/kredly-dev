@@ -7,6 +7,7 @@
     "build": "rsbuild build",
     "build:server": "tsc --project tsconfig.server.json",
     "dev": "rsbuild",
+    "dev:server": "cd server && go run cmd/api/main.go",
     "format": "prettier --write .",
     "lint": "eslint .",
     "preview": "rsbuild preview",

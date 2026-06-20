@@ -104,6 +104,7 @@ export default function TeamSection() {
                   className="
                   h-full
                   w-full
+                  aspect-[4/3]
                   object-cover
                   grayscale
                   transition-all

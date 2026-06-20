@@ -22,6 +22,7 @@ function CVParserPage() {
           <div className="flex items-center gap-4">
             <Link
               to="/"
+              preload="intent"
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               <Button
