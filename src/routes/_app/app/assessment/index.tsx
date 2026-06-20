@@ -2,9 +2,11 @@ import * as React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2 } from 'lucide-react';
 import { AssessmentCard } from '@/pages/dashboard/assessment/AssessmentCard';
 import { GeneralAssessmentCard } from '@/pages/dashboard/assessment/GeneralAssessmentCard';
+import { AssessmentCardSkeleton } from '@/components/skeletons/AssessmentCardSkeleton';
+import { GeneralAssessmentCardSkeleton } from '@/components/skeletons/GeneralAssessmentCardSkeleton';
+import * as AssessmentIDs from '@/constants/assessment-ids';
 
 export const Route = createFileRoute('/_app/app/assessment/')({
   component: RouteComponent,
@@ -117,7 +119,7 @@ function RouteComponent() {
       // Default fallback mock data if no CV assessments are found:
       const defaultAvailable: Assessment[] = [
         {
-          id: '1',
+          id: AssessmentIDs.ASSESSMENT_ID_TYPESCRIPT,
           skillName: 'TypeScript',
           difficulty: 'Intermediate',
           estimatedTime: '30 menit',
@@ -127,7 +129,7 @@ function RouteComponent() {
           status: 'available',
         },
         {
-          id: '2',
+          id: AssessmentIDs.ASSESSMENT_ID_NODEJS,
           skillName: 'Node.js',
           difficulty: 'Advanced',
           estimatedTime: '45 menit',
@@ -137,7 +139,7 @@ function RouteComponent() {
           status: 'available',
         },
         {
-          id: '3',
+          id: AssessmentIDs.ASSESSMENT_ID_CSS,
           skillName: 'CSS',
           difficulty: 'Intermediate',
           estimatedTime: '25 menit',
@@ -147,7 +149,7 @@ function RouteComponent() {
           status: 'available',
         },
         {
-          id: '4',
+          id: AssessmentIDs.ASSESSMENT_ID_SQL,
           skillName: 'Database SQL',
           difficulty: 'Intermediate',
           estimatedTime: '40 menit',
@@ -160,7 +162,7 @@ function RouteComponent() {
 
       const defaultGeneral: GeneralAssessment[] = [
         {
-          id: 'g1',
+          id: AssessmentIDs.ASSESSMENT_ID_FRONTEND,
           title: 'Front End',
           description:
             'Menguji kompetensi komprehensif dalam pengembangan antarmuka web modern, interaktivitas, dan performa aplikasi client-side.',
@@ -177,7 +179,7 @@ function RouteComponent() {
           isRecommended: true,
         },
         {
-          id: 'g2',
+          id: AssessmentIDs.ASSESSMENT_ID_BACKEND,
           title: 'Back End',
           description:
             'Menguji keahlian arsitektur server, API design, pengelolaan database, keamanan, dan integrasi sistem backend.',
@@ -194,7 +196,7 @@ function RouteComponent() {
           isRecommended: false,
         },
         {
-          id: 'g3',
+          id: AssessmentIDs.ASSESSMENT_ID_FULLSTACK,
           title: 'Full Stack',
           description:
             'Menguji penguasaan end-to-end dari frontend, backend, integrasi database, hingga deployment dasar.',
@@ -221,7 +223,7 @@ function RouteComponent() {
 
   const inProgressAssessments: Assessment[] = [
     {
-      id: '5',
+      id: AssessmentIDs.ASSESSMENT_ID_REACT,
       skillName: 'React',
       difficulty: 'Advanced',
       estimatedTime: '45 menit',
@@ -235,7 +237,7 @@ function RouteComponent() {
 
   const completedAssessments: Assessment[] = [
     {
-      id: '6',
+      id: AssessmentIDs.ASSESSMENT_ID_REACT,
       skillName: 'React',
       difficulty: 'Intermediate',
       estimatedTime: '30 menit',
@@ -248,7 +250,7 @@ function RouteComponent() {
       passed: true,
     },
     {
-      id: '7',
+      id: AssessmentIDs.ASSESSMENT_ID_JAVASCRIPT,
       skillName: 'JavaScript',
       difficulty: 'Beginner',
       estimatedTime: '25 menit',
@@ -261,7 +263,7 @@ function RouteComponent() {
       passed: true,
     },
     {
-      id: '8',
+      id: AssessmentIDs.ASSESSMENT_ID_GIT,
       skillName: 'Git Version Control',
       difficulty: 'Beginner',
       estimatedTime: '20 menit',
@@ -277,14 +279,60 @@ function RouteComponent() {
 
   if (isLoadingProfile) {
     return (
-      <div className="min-h-[50vh] flex items-center justify-center bg-background text-foreground">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground text-sm font-medium">
-            Memuat daftar assessment...
-          </p>
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-6">
+          {/* Header Section */}
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Assasemen</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Ikuti assessment untuk mendapatkan kredensial blockchain
+            </p>
+          </div>
+
+          {/* Tabs Skeleton */}
+          <Tabs defaultValue="available" className="w-full space-y-4">
+            <TabsList className="grid w-full grid-cols-3 bg-muted p-1 h-auto">
+              <TabsTrigger value="available" className="flex items-center gap-2">
+                <span>Tersedia</span>
+              </TabsTrigger>
+              <TabsTrigger value="in-progress" className="flex items-center gap-2">
+                <span>Sedang Berjalan</span>
+              </TabsTrigger>
+              <TabsTrigger value="completed" className="flex items-center gap-2">
+                <span>Selesai</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="available" className="space-y-3">
+              {/* General Assessments Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b">
+                  <h3 className="text-lg font-bold">
+                    Asesmen General (Role-based)
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[...Array(3)].map((_, i) => (
+                    <GeneralAssessmentCardSkeleton key={i} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Skill Assessments Section */}
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center justify-between pb-3 border-b">
+                  <h3 className="text-lg font-bold">Asesmen Spesifik Skill</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[...Array(4)].map((_, i) => (
+                    <AssessmentCardSkeleton key={i} />
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
-      </div>
+      </main>
     );
   }
 

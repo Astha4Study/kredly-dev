@@ -83,7 +83,7 @@ export const GeneralAssessmentCard = ({
     <CardContent className="pt-0">
       <Button className="w-full" asChild>
         <Link
-          to="/app/assasemen/$assessmentId"
+          to="/app/assessment/$assessmentId"
           params={{ assessmentId: assessment.id }}
         >
           Mulai Asesmen

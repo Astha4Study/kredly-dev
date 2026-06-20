@@ -14,19 +14,21 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Briefcase,
   ArrowRight,
   Plus,
-  Check,
   Loader2,
   AlertCircle,
   BookOpen,
   Clock,
   Award,
   Zap,
+  X,
+  CheckCircle2,
+  Shield,
 } from 'lucide-react';
 import { sessionService } from '@/services/sessionService';
 import { toast } from 'sonner';
@@ -49,6 +51,15 @@ export const Route = createFileRoute('/_app/app/assessment/$assessmentId/')({
   component: TestOverviewPage,
 });
 
+const difficultyColors = {
+  Beginner:
+    'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20',
+  Intermediate:
+    'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20',
+  Advanced:
+    'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20',
+};
+
 function TestOverviewPage() {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -56,7 +67,6 @@ function TestOverviewPage() {
     from: '/_app/app/assessment/$assessmentId/',
   });
 
-  // States initialized from cached user data
   const [role, setRole] = React.useState(() => user?.cvRole || '');
   const [level, setLevel] = React.useState(() => user?.cvLevel || 'Junior');
   const [skills, setSkills] = React.useState<string[]>(() =>
@@ -72,7 +82,6 @@ function TestOverviewPage() {
   const [profileLoading, setProfileLoading] = React.useState(true);
   const [assessment, setAssessment] = React.useState<CVAssessment | null>(null);
 
-  // Fetch profile dynamically
   React.useEffect(() => {
     async function fetchProfile() {
       try {
@@ -170,6 +179,10 @@ function TestOverviewPage() {
     });
   };
 
+  const removeSkill = (skill: string) => {
+    setSkills((prev) => prev.filter((s) => s !== skill));
+  };
+
   const handleAddCustomSkill = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = newSkill.trim();
@@ -217,8 +230,7 @@ function TestOverviewPage() {
       navigate({
         to: '/quiz/$sessionId',
         params: { sessionId: response.session_id },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any);
+      });
     } catch (err) {
       setSessionError(
         err instanceof Error ? err.message : 'Gagal membuat sesi ujian',
@@ -230,273 +242,309 @@ function TestOverviewPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans overflow-x-hidden">
-
-      {/* Main Content */}
-      <main className="flex-1 container mx-auto px-6 py-10 max-w-5xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column: Skill Configuration or Assessment Detail (7 cols) */}
-          <div className="lg:col-span-7 space-y-6">
-            {assessment ? (
-              <Card className="bg-card/50 backdrop-blur-md border-border rounded-xl">
-                <CardHeader>
-                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-primary" />
-                    Detail Asesmen
-                  </CardTitle>
-                  <CardDescription>
-                    Tinjau detail materi dan role yang akan diuji di bawah ini.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Title & Level */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        Role / Skill
-                      </span>
-                      <p className="text-sm font-semibold text-foreground">
-                        {assessment.title}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        Tingkat Kesulitan
-                      </span>
-                      <p className="text-sm font-semibold text-foreground">
-                        {assessment.difficulty || 'Intermediate'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Topics List */}
-                  <div className="space-y-3 pt-2">
-                    <Label className="text-sm font-medium text-foreground">
-                      Materi yang Diujikan
-                    </Label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {assessment.topics && assessment.topics.length > 0 ? (
-                        assessment.topics.map((t: string, idx: number) => (
-                          <div
-                            key={idx}
-                            className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-border/60 bg-muted/10"
-                          >
-                            <Check className="h-4 w-4 text-primary shrink-0" />
-                            <span
-                              className="text-sm font-medium text-foreground/90 truncate"
-                              title={t}
-                            >
-                              {t}
-                            </span>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-border/60 bg-muted/10 col-span-2">
-                          <Check className="h-4 w-4 text-primary shrink-0" />
-                          <span className="text-sm font-medium text-foreground/90">
-                            {assessment.title}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card className="bg-card/50 backdrop-blur-md border-border rounded-xl">
-                <CardHeader>
-                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                    <Briefcase className="h-5 w-5 text-primary" />
-                    Kustomisasi Profil Ujian
-                  </CardTitle>
-                  <CardDescription>
-                    Sesuaikan role, tingkat pengalaman, dan skill yang ingin
-                    Anda buktikan dalam ujian ini.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Role Input */}
+    <div className="min-h-screen">
+      <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-10 max-w-5xl">
+        <div className="space-y-6 sm:space-y-8">
+          {/* Assessment Info Card */}
+          {assessment && (
+            <Card className="border-border/50 bg-linear-to-br from-card/50 to-card/30 backdrop-blur-sm">
+              <CardContent className="pt-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="role-input"
-                      className="text-sm font-medium text-foreground"
-                    >
-                      Role Pekerjaan yang Diuji
-                    </Label>
-                    <div className="flex items-center gap-2 pb-1 border-b border-border">
-                      <h1>{role}</h1>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-lg sm:text-xl font-semibold text-foreground">
+                        {assessment.title}
+                      </h3>
+                      <Badge
+                        variant="outline"
+                        className={`text-xs ${difficultyColors[assessment.difficulty]}`}
+                      >
+                        {assessment.difficulty}
+                      </Badge>
                     </div>
+                    {assessment.description && (
+                      <p className="text-sm text-muted-foreground max-w-2xl">
+                        {assessment.description}
+                      </p>
+                    )}
                   </div>
-
-                  {/* Skills Checkbox Grid */}
-                  <div className="space-y-4 pt-2">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-sm font-medium text-foreground">
-                        Pilih Skill untuk Diuji
-                      </Label>
-                      <span className="text-xs font-semibold text-primary bg-primary/10 px-2.5 py-1 rounded-full">
-                        {skills.length}/5 terpilih
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground shrink-0">
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="h-4 w-4" />
+                      <span className="font-medium">
+                        {assessment.estimatedTime}
                       </span>
                     </div>
-
-                    <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto pr-1">
-                      {allSkills.map((s) => {
-                        const isSelected = skills.includes(s);
-                        const isDisabled = !isSelected && skills.length >= 5;
-
-                        return (
-                          <label
-                            key={s}
-                            className={`flex items-center gap-3 px-3 py-2 rounded-xl border transition-all cursor-pointer select-none text-left ${
-                              isSelected
-                                ? 'border-primary bg-primary/5 text-foreground ring-1 ring-primary'
-                                : isDisabled
-                                  ? 'opacity-40 border-border bg-muted/20 cursor-not-allowed text-muted-foreground'
-                                  : 'border-border hover:border-border/85 hover:bg-muted/35 text-foreground'
-                            }`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              disabled={isDisabled}
-                              onChange={() => toggleSkill(s)}
-                              className="h-4 w-4 rounded border-input text-primary focus:ring-primary/30 cursor-pointer disabled:cursor-not-allowed accent-primary"
-                            />
-                            <span
-                              className="text-sm font-medium truncate max-w-37.5"
-                              title={s}
-                            >
-                              {s}
-                            </span>
-                          </label>
-                        );
-                      })}
-
-                      {allSkills.length === 0 && (
-                        <p className="text-sm text-muted-foreground italic text-center py-4 w-full">
-                          Belum ada skill yang tersimpan di profil Anda.
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Add Custom Skill Form */}
-                    <form
-                      onSubmit={handleAddCustomSkill}
-                      className="flex gap-2 pt-2 border-t border-border/40"
-                    >
-                      <Input
-                        placeholder="Tambahkan skill lain jika tidak terdaftar..."
-                        value={newSkill}
-                        onChange={(e) => setNewSkill(e.target.value)}
-                        className="bg-background border-border text-sm flex-1"
-                      />
-                      <Button
-                        type="submit"
-                        size="icon"
-                        disabled={skills.length >= 5}
-                        className="shrink-0"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </form>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Right Column: Test Overview Summary (5 cols) */}
-          <div className="lg:col-span-5 space-y-6">
-            <Card className="bg-card/50 backdrop-blur-md border-border rounded-xl">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-primary" />
-                  Ringkasan Ujian
-                </CardTitle>
-                <CardDescription>
-                  Harap baca petunjuk ujian dengan saksama sebelum memulai.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Guidelines Checklist */}
-                <div className="space-y-4">
-                  <div className="flex gap-3 items-start">
-                    <div className="h-6 w-6 rounded bg-primary/10 flex items-center justify-center shrink-0 mt-0.5 text-primary">
-                      <Zap className="h-3.5 w-3.5" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-foreground">
-                        Computer Adaptive Testing (CAT)
-                      </h4>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        Tingkat kesulitan soal akan menyesuaikan dengan
-                        kemampuan Anda secara real-time. Jawablah sebaik
-                        mungkin.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 items-start">
-                    <div className="h-6 w-6 rounded bg-primary/10 flex items-center justify-center shrink-0 mt-0.5 text-primary">
-                      <Clock className="h-3.5 w-3.5" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-foreground">
-                        Durasi & Jumlah Soal
-                      </h4>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {assessment
-                          ? `Estimasi pengerjaan adalah ${assessment.estimatedTime || '15-20 menit'} dengan total ${assessment.questionCount || 10} soal (termasuk pilihan ganda dan essay).`
-                          : 'Estimasi pengerjaan adalah 15-20 menit dengan total 10 hingga 15 soal (termasuk pilihan ganda dan essay).'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 items-start">
-                    <div className="h-6 w-6 rounded bg-primary/10 flex items-center justify-center shrink-0 mt-0.5 text-primary">
-                      <Award className="h-3.5 w-3.5" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-foreground">
-                        Verifikasi & Penilaian
-                      </h4>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        Setelah selesai, sistem AI akan langsung memproses hasil
-                        pengerjaan Anda dan memberikan skor serta feedback.
-                      </p>
+                    <div className="flex items-center gap-1.5">
+                      <BookOpen className="h-4 w-4" />
+                      <span className="font-medium">
+                        {assessment.questionCount} Soal
+                      </span>
                     </div>
                   </div>
                 </div>
-
-                {/* Error Banner */}
-                {sessionError && (
-                  <div className="flex items-center gap-3 p-3.5 border border-rose-500/20 bg-rose-500/5 rounded-xl text-rose-300 text-xs">
-                    <AlertCircle className="size-4 shrink-0" />
-                    <span>{sessionError}</span>
-                  </div>
-                )}
-
-                {/* Start Button */}
-                <Button
-                  size="lg"
-                  onClick={handleStartExam}
-                  disabled={skills.length === 0 || isCreatingSession}
-                  className="w-full group text-base font-semibold"
-                >
-                  {isCreatingSession ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Membuat Ujian...
-                    </>
-                  ) : (
-                    <>
-                      Mulai Ujian Sekarang
-                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </>
-                  )}
-                </Button>
               </CardContent>
             </Card>
+          )}
+
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Left: Skill/Topic Selection */}
+            <div className="lg:col-span-2 space-y-5">
+              <Card className="border-border/50">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
+                        <BookOpen className="h-5 w-5 text-primary" />
+                        {assessment
+                          ? 'Materi yang Akan Diuji'
+                          : 'Pilih Skill untuk Diuji'}
+                      </CardTitle>
+                      <CardDescription className="mt-1.5">
+                        {assessment
+                          ? 'Topik dan materi yang akan diujikan dalam assessment ini'
+                          : 'Pilih minimal 1 dan maksimal 5 skill yang ingin Anda uji'}
+                      </CardDescription>
+                    </div>
+                    {!assessment && (
+                      <Badge
+                        variant="secondary"
+                        className="shrink-0 text-xs font-medium"
+                      >
+                        {skills.length}/5
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {assessment ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {(assessment.topics && assessment.topics.length > 0
+                        ? assessment.topics
+                        : [assessment.title]
+                      ).map((topic: string, idx: number) => (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-3 px-4 py-3 rounded-lg border border-border/60 bg-muted/30"
+                        >
+                          <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                          <span className="text-sm font-medium text-foreground truncate">
+                            {topic}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <>
+                      {/* Selected Skills */}
+                      {skills.length > 0 && (
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-foreground">
+                            Skill Terpilih
+                          </Label>
+                          <div className="flex flex-wrap gap-2">
+                            {skills.map((skill) => (
+                              <Badge
+                                key={skill}
+                                variant="secondary"
+                                className="pl-3 pr-2 py-1.5 text-sm font-medium bg-primary/10 text-primary border-primary/20 hover:bg-primary/15"
+                              >
+                                {skill}
+                                <button
+                                  onClick={() => removeSkill(skill)}
+                                  className="ml-2 hover:bg-primary/20 rounded-full p-0.5 transition-colors"
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Available Skills */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium text-foreground">
+                          Skill Tersedia
+                        </Label>
+                        <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto pr-1">
+                          {allSkills
+                            .filter((s) => !skills.includes(s))
+                            .map((skill) => {
+                              const isDisabled = skills.length >= 5;
+                              return (
+                                <button
+                                  key={skill}
+                                  onClick={() => !isDisabled && toggleSkill(skill)}
+                                  disabled={isDisabled}
+                                  className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
+                                    isDisabled
+                                      ? 'opacity-40 border-border bg-muted/20 cursor-not-allowed text-muted-foreground'
+                                      : 'border-border hover:border-primary/50 hover:bg-muted/50 text-foreground cursor-pointer'
+                                  }`}
+                                >
+                                  {skill}
+                                </button>
+                              );
+                            })}
+                        </div>
+                      </div>
+
+                      {/* Add Custom Skill */}
+                      <form
+                        onSubmit={handleAddCustomSkill}
+                        className="flex gap-2 pt-2 border-t border-border/40"
+                      >
+                        <Input
+                          placeholder="Tambahkan skill kustom..."
+                          value={newSkill}
+                          onChange={(e) => setNewSkill(e.target.value)}
+                          className="bg-background border-border text-sm flex-1"
+                        />
+                        <Button
+                          type="submit"
+                          size="icon"
+                          disabled={skills.length >= 5}
+                          className="shrink-0"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </form>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Guidelines */}
+              <Card className="border-border/50 bg-background">
+                <CardHeader>
+                  <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-primary" />
+                    Petunjuk Asesmen
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <Zap className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-semibold text-foreground">
+                          Computer Adaptive Testing (CAT)
+                        </h4>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Tingkat kesulitan soal akan menyesuaikan dengan
+                          kemampuan Anda secara real-time.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <Clock className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-semibold text-foreground">
+                          Durasi & Jumlah Soal
+                        </h4>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {assessment
+                            ? `Estimasi ${assessment.estimatedTime} dengan ${assessment.questionCount} soal.`
+                            : 'Estimasi 15-20 menit dengan 10-15 soal.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <Award className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-semibold text-foreground">
+                          Verifikasi Blockchain
+                        </h4>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Hasil asesmen akan diverifikasi dan disimpan di
+                          blockchain untuk kredensial yang terautentikasi.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right: Action Card */}
+            <div className="lg:col-span-1">
+              <Card className="border-border/50 sticky top-20">
+                <CardHeader>
+                  <CardTitle className="text-base sm:text-lg font-semibold">
+                    Siap Memulai?
+                  </CardTitle>
+                  <CardDescription>
+                    Pastikan Anda sudah siap sebelum memulai asesmen
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Summary Stats */}
+                  <div className="space-y-3 p-4 rounded-lg bg-muted/30 border border-border/50">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Role</span>
+                      <span className="font-medium text-foreground">
+                        {role || 'N/A'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Level</span>
+                      <span className="font-medium text-foreground">
+                        {level}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Skill Diuji</span>
+                      <span className="font-medium text-foreground">
+                        {skills.length} skill
+                      </span>
+                    </div>
+                  </div>
+
+                  {sessionError && (
+                    <div className="flex items-start gap-2 p-3 border border-rose-500/20 bg-rose-500/5 rounded-lg text-xs text-rose-600 dark:text-rose-400">
+                      <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                      <span>{sessionError}</span>
+                    </div>
+                  )}
+
+                  <Button
+                    size="lg"
+                    onClick={handleStartExam}
+                    disabled={skills.length === 0 || isCreatingSession}
+                    className="w-full group"
+                  >
+                    {isCreatingSession ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Membuat Sesi...
+                      </>
+                    ) : (
+                      <>
+                        Mulai Asesmen
+                        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
+                  </Button>
+
+                  <p className="text-xs text-center text-muted-foreground">
+                    Dengan memulai asesmen, Anda menyetujui{' '}
+                    <a href="#" className="text-primary hover:underline">
+                      syarat dan ketentuan
+                    </a>
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </main>
