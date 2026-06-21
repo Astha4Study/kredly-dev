@@ -2,7 +2,6 @@ import * as React from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
 import {
   Award,
-  BookOpen,
   CheckCircle,
   Copy,
   Download,
@@ -22,7 +21,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'motion/react';

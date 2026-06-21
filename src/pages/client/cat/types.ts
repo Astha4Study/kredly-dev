@@ -14,6 +14,16 @@ export interface SessionResponse {
   theta_init: number;
 }
 
+export interface SessionDetails {
+  id: string;
+  role: string;
+  level: string;
+  total_items: number;
+  max_items: number;
+  min_items: number;
+  completed: boolean;
+}
+
 export interface QuizItem {
   id: string;
   type: 'multiple_choice' | 'essay';
@@ -25,6 +35,8 @@ export interface QuizItem {
 export interface NextItemResponse {
   item: QuizItem;
   question_number: number;
+  max_questions?: number;
+  min_questions?: number;
 }
 
 export interface AnswerResponse {

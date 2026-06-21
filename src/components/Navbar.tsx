@@ -5,9 +5,12 @@ import { MobileNav } from '@/components/MobileNav';
 import Logo from '@/assets/logo.png';
 import { navLinks } from '@/constants/navigation';
 import { Link } from '@tanstack/react-router';
+import { useAuth } from '@/contexts/auth';
+import UserAvatar from '@/components/UserAvatar';
 
 export function Navbar() {
   const scrolled = useScroll(10);
+  const { isAuthenticated, isLoading } = useAuth();
 
   return (
     <header
@@ -46,17 +49,34 @@ export function Navbar() {
               </Button>
             ))}
           </div>
-          <Button asChild size="sm" variant="outline">
-            <Link to="/login" preload="intent">
-              Masuk
-            </Link>
-          </Button>
+          {!isLoading && (
+            <>
+              {isAuthenticated ? (
+                <>
+                  <Button asChild size="sm" variant="outline">
+                    <Link to="/app" preload="intent">
+                      Dashboard
+                    </Link>
+                  </Button>
+                  <UserAvatar />
+                </>
+              ) : (
+                <>
+                  <Button asChild size="sm" variant="outline">
+                    <Link to="/login" preload="intent">
+                      Masuk
+                    </Link>
+                  </Button>
 
-          <Button asChild size="sm">
-            <Link to="/register" preload="intent">
-              Daftar Gratis
-            </Link>
-          </Button>
+                  <Button asChild size="sm">
+                    <Link to="/register" preload="intent">
+                      Daftar Gratis
+                    </Link>
+                  </Button>
+                </>
+              )}
+            </>
+          )}
         </div>
         <MobileNav />
       </nav>

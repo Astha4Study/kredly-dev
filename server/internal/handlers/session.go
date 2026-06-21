@@ -75,7 +75,7 @@ func (h *SessionHandler) HandleNextItem(c *gin.Context) {
 		return
 	}
 
-	item, qNum, err := h.catService.NextItem(c.Request.Context(), sessionID)
+	item, qNum, maxItems, minItems, err := h.catService.NextItem(c.Request.Context(), sessionID)
 	if err != nil {
 		// Detect if session is already completed to return appropriate status
 		if strings.Contains(err.Error(), "already completed") {
@@ -102,6 +102,8 @@ func (h *SessionHandler) HandleNextItem(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"item":            filtered,
 		"question_number": qNum,
+		"max_questions":   maxItems,
+		"min_questions":   minItems,
 	})
 }
 
@@ -180,4 +182,33 @@ func (h *SessionHandler) HandleAbandonSession(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": "session abandoned"})
+}
+
+// HandleGetSession GET /api/sessions/:id
+func (h *SessionHandler) HandleGetSession(c *gin.Context) {
+	sessionID := strings.TrimSpace(c.Param("id"))
+	if sessionID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Session ID is required"})
+		return
+	}
+
+	sess, err := h.catService.GetSession(c.Request.Context(), sessionID)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"id":          sess.ID,
+		"role":        sess.Role,
+		"level":       sess.Level,
+		"total_items": sess.TotalItems,
+		"max_items":   sess.MaxItems,
+		"min_items":   sess.MinItems,
+		"completed":   sess.Completed,
+	})
 }

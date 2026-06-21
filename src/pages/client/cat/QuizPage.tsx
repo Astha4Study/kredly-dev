@@ -29,6 +29,8 @@ export default function QuizPage() {
   // Quiz States
   const [currentItem, setCurrentItem] = React.useState<QuizItem | null>(null);
   const [questionNumber, setQuestionNumber] = React.useState(1);
+  const [maxQuestions, setMaxQuestions] = React.useState(30);
+  const [minQuestions, setMinQuestions] = React.useState(10);
   const [selectedAnswer, setSelectedAnswer] = React.useState<string | null>(
     null,
   );
@@ -71,7 +73,7 @@ export default function QuizPage() {
     } catch (err) {
       console.error('Failed to abandon session:', err);
     }
-    navigate({ to: '/app/parse-cv' });
+    navigate({ to: '/app' });
   };
 
   const loadNextQuestion = React.useCallback(async () => {
@@ -86,6 +88,8 @@ export default function QuizPage() {
       const res = await sessionService.getNextItem(sessionId);
       setCurrentItem(res.item);
       setQuestionNumber(res.question_number);
+      if (res.max_questions !== undefined) setMaxQuestions(res.max_questions);
+      if (res.min_questions !== undefined) setMinQuestions(res.min_questions);
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Gagal memuat soal berikutnya.');
@@ -94,14 +98,26 @@ export default function QuizPage() {
     }
   }, [sessionId]);
 
-  // Fetch first question on mount
+  // Fetch session details and first question on mount
   React.useEffect(() => {
     if (!sessionId) {
       setError('ID Sesi tidak ditemukan.');
       setIsLoading(false);
       return;
     }
-    loadNextQuestion();
+
+    async function initSession() {
+      try {
+        const sess = await sessionService.getSession(sessionId);
+        setMaxQuestions(sess.max_items);
+        setMinQuestions(sess.min_items);
+      } catch (err: any) {
+        console.error('Failed to pre-fetch session metadata:', err);
+      }
+      loadNextQuestion();
+    }
+
+    initSession();
   }, [sessionId, loadNextQuestion]);
 
   const handleSubmit = async (overrideAnswer?: string) => {
@@ -258,8 +274,8 @@ export default function QuizPage() {
         {/* Progress Tracker */}
         <ProgressBar
           currentQuestion={questionNumber}
-          minQuestions={10}
-          maxQuestions={30}
+          minQuestions={minQuestions}
+          maxQuestions={maxQuestions}
         />
 
         {/* Main Quiz Area */}
@@ -291,7 +307,7 @@ export default function QuizPage() {
                   disabled={isLoading || isSubmitting || showResult}
                   value={selectedAnswer || ''}
                   onChange={(e) => setSelectedAnswer(e.target.value)}
-                  placeholder="Ketik jawaban singkat Anda di sini (cukup 1-3 kalimat atau poin-poin kunci)..."
+                  placeholder="Ketik jawaban Anda di sini"
                   className="w-full min-h-[160px] p-4 rounded-2xl border border-foreground/10 bg-background/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-300 resize-y text-sm leading-relaxed"
                 />
               </motion.div>

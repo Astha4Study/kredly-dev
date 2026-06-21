@@ -88,6 +88,7 @@ func main() {
 
 		// CAT Session endpoints
 		api.POST("/sessions", middleware.AuthMiddleware(cfg, authService), sessionHandler.HandleCreateSession)
+		api.GET("/sessions/:id", sessionHandler.HandleGetSession)
 		api.GET("/sessions/:id/next-item", sessionHandler.HandleNextItem)
 		api.POST("/sessions/:id/answer", sessionHandler.HandleSubmitAnswer)
 		api.GET("/sessions/:id/result", sessionHandler.HandleGetResult)
