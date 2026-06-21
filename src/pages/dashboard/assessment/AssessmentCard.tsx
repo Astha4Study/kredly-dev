@@ -106,6 +106,7 @@ export const AssessmentCard = ({ assessment }: AssessmentCardProps) => (
           <Link
             to="/app/assessment/$assessmentId"
             params={{ assessmentId: assessment.id }}
+            preload="intent"
           >
             Mulai Assessment
           </Link>
@@ -117,7 +118,7 @@ export const AssessmentCard = ({ assessment }: AssessmentCardProps) => (
       {assessment.status === 'completed' && (
         <div className="flex gap-2">
           <Button variant="outline" className="flex-1" asChild>
-            <Link to="/app/kredensial">
+            <Link to="/app/kredensial" preload="intent">
               {assessment.passed ? 'Lihat Kredensial' : 'Lihat Detail'}
             </Link>
           </Button>

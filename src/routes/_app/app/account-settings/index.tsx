@@ -11,48 +11,18 @@ export const Route = createFileRoute('/_app/app/account-settings/')({
   component: RouteComponent,
 });
 
-interface UserProfile {
-  id: string;
-  userId: string;
-  cvFileName: string;
-  cvFilePath: string;
-  experience: string;
-  isStudent: boolean;
-  degree?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 function RouteComponent() {
   const [activeMenu, setActiveMenu] = useState('profile');
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const response = await fetch('/api/profile', {
-          credentials: 'include',
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUserProfile(data.profile);
-        }
-      } catch (error) {
-        console.error('Failed to fetch profile:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchProfile();
+    setLoading(false);
   }, []);
 
   const renderContent = () => {
     switch (activeMenu) {
       case 'profile':
-        return <ProfileTab userProfile={userProfile} />;
+        return <ProfileTab />;
       case 'account':
         return <AccountTab />;
       case 'security':

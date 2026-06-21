@@ -28,11 +28,13 @@ func NewCVHandler(groqClient *groq.Client) *CVHandler {
 
 // HandleParseCV receives a PDF file, extracts text, sends it to Groq API, and returns JSON
 func (h *CVHandler) HandleParseCV(c *gin.Context) {
-	// Get logged-in user from context (if authenticated)
-	var loggedInUser *models.User
+	// Get logged-in user ID from context (if authenticated)
+	var loggedInUserID string
 	if userVal, exists := c.Get("user"); exists {
-		if u, ok := userVal.(models.User); ok {
-			loggedInUser = &u
+		if userMap, ok := userVal.(gin.H); ok {
+			if uid, ok := userMap["id"].(string); ok {
+				loggedInUserID = uid
+			}
 		}
 	}
 
@@ -151,7 +153,7 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 	cleanJSON = strings.TrimSpace(cleanJSON)
 
 	// 7. Save parsed results to the user profile if logged in
-	if loggedInUser != nil {
+	if loggedInUserID != "" {
 		type parsedCV struct {
 			Role        string                       `json:"role"`
 			Level       string                       `json:"level"`
@@ -190,7 +192,7 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 				},
 			}
 
-			_, updateErr := userColl.UpdateOne(c.Request.Context(), bson.M{"_id": loggedInUser.ID}, update)
+			_, updateErr := userColl.UpdateOne(c.Request.Context(), bson.M{"_id": loggedInUserID}, update)
 			if updateErr != nil {
 				// Log the error but don't fail the request since parsing succeeded
 				c.Error(updateErr)
@@ -208,7 +210,7 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 					"updatedAt":     now,
 				},
 			}
-			_, updateErrProfile := userProfileColl.UpdateOne(c.Request.Context(), bson.M{"userId": loggedInUser.ID}, profileUpdate)
+			_, updateErrProfile := userProfileColl.UpdateOne(c.Request.Context(), bson.M{"userId": loggedInUserID}, profileUpdate)
 			if updateErrProfile != nil {
 				c.Error(updateErrProfile)
 			}
@@ -218,4 +220,3 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 	// 8. Send the JSON string response directly
 	c.Data(http.StatusOK, "application/json", []byte(cleanJSON))
 }
-

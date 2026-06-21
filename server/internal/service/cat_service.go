@@ -8,11 +8,13 @@ import (
 	"strings"
 	"time"
 
+	"kredly/internal/database"
 	"kredly/internal/groq"
 	"kredly/internal/models"
 	"kredly/internal/store"
 
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type CATService struct {
@@ -28,10 +30,12 @@ func NewCATService(sessions *store.SessionStore, groqClient *groq.Client) *CATSe
 }
 
 type CreateSessionReq struct {
-	Role      string   `json:"role"`
-	Level     string   `json:"level"`
-	Skills    []string `json:"skills"`
-	CVSummary string   `json:"cv_summary"`
+	Role         string   `json:"role"`
+	Level        string   `json:"level"`
+	Skills       []string `json:"skills"`
+	CVSummary    string   `json:"cv_summary"`
+	UserID       string   `json:"user_id"`
+	AssessmentID string   `json:"assessment_id"`
 }
 
 type AnswerResult struct {
@@ -59,22 +63,66 @@ type SessionResult struct {
 }
 
 // CreateSession initializes a new adaptive test session
-func (s *CATService) CreateSession(req CreateSessionReq) (*models.Session, error) {
+func (s *CATService) CreateSession(ctx context.Context, req CreateSessionReq) (*models.Session, error) {
 	if !ValidateRole(req.Role) {
 		return nil, fmt.Errorf("role '%s' is not supported", req.Role)
+	}
+
+	maxItems := 30
+	minItems := 10
+
+	// Fetch dynamic question count from UserProfile if UserID is provided
+	if req.UserID != "" {
+		userProfileColl := database.DB.Collection("userProfile")
+		var userProfile models.UserProfile
+		err := userProfileColl.FindOne(ctx, bson.M{"userId": req.UserID}).Decode(&userProfile)
+		if err == nil {
+			found := false
+			// 1. Try matching by AssessmentID if provided
+			if req.AssessmentID != "" {
+				for _, assessment := range userProfile.CVAssessments {
+					if assessment.ID == req.AssessmentID {
+						if assessment.QuestionCount > 0 {
+							maxItems = assessment.QuestionCount
+							found = true
+						}
+						break
+					}
+				}
+			}
+			// 2. If not matched, try matching by Title (case-insensitive) or recommended general assessment
+			if !found {
+				for _, assessment := range userProfile.CVAssessments {
+					if assessment.IsRecommended || assessment.Type == "general" || strings.EqualFold(assessment.Title, req.Role) {
+						if assessment.QuestionCount > 0 {
+							maxItems = assessment.QuestionCount
+							found = true
+						}
+						break
+					}
+				}
+			}
+			// Ensure minItems doesn't exceed maxItems
+			if minItems > maxItems {
+				minItems = maxItems
+			}
+		} else {
+			log.Printf("[CAT] Failed to fetch user profile for userId %s: %v\n", req.UserID, err)
+		}
 	}
 
 	sessionID := uuid.New().String()
 	sess := &models.Session{
 		ID:              sessionID,
+		UserID:          req.UserID,
 		Role:            req.Role,
 		Level:           req.Level,
 		Skills:          req.Skills,
 		CVSummary:       req.CVSummary,
 		ThetaCurrent:    0.0,
 		ThetaInit:       0.0,
-		MaxItems:        30,
-		MinItems:        10,
+		MaxItems:        maxItems,
+		MinItems:        minItems,
 		SEMThreshold:    0.3,
 		Completed:       false,
 		PrefetchedItems: make([]*models.PendingItem, 0),
@@ -95,19 +143,19 @@ func (s *CATService) CreateSession(req CreateSessionReq) (*models.Session, error
 }
 
 // NextItem retrieves the next question, either from the prefetch queue or synchronously
-func (s *CATService) NextItem(ctx context.Context, sessionID string) (*models.PendingItem, int, error) {
+func (s *CATService) NextItem(ctx context.Context, sessionID string) (*models.PendingItem, int, int, int, error) {
 	sess, err := s.sessions.Get(sessionID)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, 0, err
 	}
 
 	if sess.Completed {
-		return nil, 0, errors.New("session already completed")
+		return nil, 0, 0, 0, errors.New("session already completed")
 	}
 
 	// Idempotency: if candidate is already viewing a pending question, return it
 	if sess.PendingItem != nil {
-		return sess.PendingItem, sess.TotalItems + 1, nil
+		return sess.PendingItem, sess.TotalItems + 1, sess.MaxItems, sess.MinItems, nil
 	}
 
 	var item *models.PendingItem
@@ -128,14 +176,14 @@ func (s *CATService) NextItem(ctx context.Context, sessionID string) (*models.Pe
 		}
 	})
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, 0, err
 	}
 
 	// If successfully got item from queue
 	if item != nil {
 		// Trigger prefetch to refill if queue is getting low
 		go s.triggerBackgroundPrefetch(sessionID)
-		return item, qNum, nil
+		return item, qNum, sess.MaxItems, sess.MinItems, nil
 	}
 
 	// Slow path: Sync generate since queue was empty
@@ -151,7 +199,7 @@ func (s *CATService) NextItem(ctx context.Context, sessionID string) (*models.Pe
 		Skills:    sess.Skills,
 	})
 	if err != nil {
-		return nil, 0, fmt.Errorf("failed to generate items sync: %w", err)
+		return nil, 0, 0, 0, fmt.Errorf("failed to generate items sync: %w", err)
 	}
 
 	var pendingItems []*models.PendingItem
@@ -187,14 +235,14 @@ func (s *CATService) NextItem(ctx context.Context, sessionID string) (*models.Pe
 		}
 	})
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, 0, err
 	}
 
 	if item == nil {
-		return nil, 0, errors.New("no items were generated")
+		return nil, 0, 0, 0, errors.New("no items were generated")
 	}
 
-	return item, qNum, nil
+	return item, qNum, sess.MaxItems, sess.MinItems, nil
 }
 
 // SubmitAnswer evaluates candidate's answer, updates theta, SEM, and checks stopping conditions
@@ -449,4 +497,9 @@ func (s *CATService) AbandonSession(ctx context.Context, sessionID string) error
 		sess.Completed = true
 		sess.StopReason = "abandoned"
 	})
+}
+
+// GetSession retrieves the session state directly from the store
+func (s *CATService) GetSession(ctx context.Context, sessionID string) (*models.Session, error) {
+	return s.sessions.Get(sessionID)
 }

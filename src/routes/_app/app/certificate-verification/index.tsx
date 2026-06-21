@@ -210,9 +210,7 @@ function RouteComponent() {
 
               <TabsContent value="hash" className="space-y-4 mt-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    Hash Blockchain
-                  </label>
+                  <label className="text-sm font-medium">Hash Blockchain</label>
                   <Input
                     placeholder="Masukkan hash blockchain (0x...)"
                     value={hashInput}
@@ -296,89 +294,90 @@ function RouteComponent() {
               </div>
             </CardHeader>
 
-            {verificationResult.isValid && verificationResult.certificateData && (
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="flex items-start gap-3 rounded-lg border bg-white p-4">
-                    <User className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground">
-                        Penerima
-                      </p>
-                      <p className="text-sm font-semibold mt-1">
-                        {verificationResult.certificateData.recipientName}
-                      </p>
+            {verificationResult.isValid &&
+              verificationResult.certificateData && (
+                <CardContent className="space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="flex items-start gap-3 rounded-lg border bg-white p-4">
+                      <User className="h-5 w-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">
+                          Penerima
+                        </p>
+                        <p className="text-sm font-semibold mt-1">
+                          {verificationResult.certificateData.recipientName}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 rounded-lg border bg-white p-4">
+                      <Award className="h-5 w-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">
+                          Skill
+                        </p>
+                        <p className="text-sm font-semibold mt-1">
+                          {verificationResult.certificateData.skillName}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 rounded-lg border bg-white p-4">
+                      <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">
+                          Tanggal Terbit
+                        </p>
+                        <p className="text-sm font-semibold mt-1">
+                          {verificationResult.certificateData.issueDate}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 rounded-lg border bg-white p-4">
+                      <Shield className="h-5 w-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">
+                          Score
+                        </p>
+                        <p className="text-sm font-semibold mt-1">
+                          {verificationResult.certificateData.score}/100
+                        </p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 rounded-lg border bg-white p-4">
-                    <Award className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground">
-                        Skill
-                      </p>
-                      <p className="text-sm font-semibold mt-1">
-                        {verificationResult.certificateData.skillName}
-                      </p>
+                  <div className="rounded-lg border bg-white p-4">
+                    <label className="text-xs font-medium text-muted-foreground">
+                      Blockchain Transaction Hash
+                    </label>
+                    <div className="flex items-center gap-2 mt-2">
+                      <code className="text-xs bg-gray-100 px-3 py-2 rounded flex-1 font-mono break-all">
+                        {verificationResult.certificateData.blockchainHash}
+                      </code>
+                      <Button size="sm" variant="outline">
+                        Copy
+                      </Button>
                     </div>
+                    <a
+                      href="#"
+                      className="text-xs text-blue-600 hover:underline mt-2 inline-block"
+                    >
+                      Lihat di Blockchain Explorer →
+                    </a>
                   </div>
 
-                  <div className="flex items-start gap-3 rounded-lg border bg-white p-4">
-                    <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground">
-                        Tanggal Terbit
-                      </p>
-                      <p className="text-sm font-semibold mt-1">
-                        {verificationResult.certificateData.issueDate}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3 rounded-lg border bg-white p-4">
-                    <Shield className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground">
-                        Score
-                      </p>
-                      <p className="text-sm font-semibold mt-1">
-                        {verificationResult.certificateData.score}/100
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-lg border bg-white p-4">
-                  <label className="text-xs font-medium text-muted-foreground">
-                    Blockchain Transaction Hash
-                  </label>
-                  <div className="flex items-center gap-2 mt-2">
-                    <code className="text-xs bg-gray-100 px-3 py-2 rounded flex-1 font-mono break-all">
-                      {verificationResult.certificateData.blockchainHash}
-                    </code>
-                    <Button size="sm" variant="outline">
-                      Copy
+                  <div className="flex gap-3 pt-2">
+                    <Button className="flex-1">
+                      <FileText className="mr-2 h-4 w-4" />
+                      Download Sertifikat
+                    </Button>
+                    <Button variant="outline" onClick={resetVerification}>
+                      Verifikasi Lagi
                     </Button>
                   </div>
-                  <a
-                    href="#"
-                    className="text-xs text-blue-600 hover:underline mt-2 inline-block"
-                  >
-                    Lihat di Blockchain Explorer →
-                  </a>
-                </div>
-
-                <div className="flex gap-3 pt-2">
-                  <Button className="flex-1">
-                    <FileText className="mr-2 h-4 w-4" />
-                    Download Sertifikat
-                  </Button>
-                  <Button variant="outline" onClick={resetVerification}>
-                    Verifikasi Lagi
-                  </Button>
-                </div>
-              </CardContent>
-            )}
+                </CardContent>
+              )}
           </Card>
         )}
 

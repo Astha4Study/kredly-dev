@@ -1,6 +1,7 @@
 import type {
   CreateSessionPayload,
   SessionResponse,
+  SessionDetails,
   NextItemResponse,
   AnswerResponse,
   ResultResponse,
@@ -9,12 +10,26 @@ import type {
 const API_BASE = '/api';
 
 export const sessionService = {
+  async getSession(sessionId: string): Promise<SessionDetails> {
+    const response = await fetch(`${API_BASE}/sessions/${sessionId}`);
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(
+        errData.error || `Failed to fetch session details: ${response.status}`,
+      );
+    }
+
+    return response.json();
+  },
+
   async createSession(data: CreateSessionPayload): Promise<SessionResponse> {
     const response = await fetch(`${API_BASE}/sessions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(data),
     });
 

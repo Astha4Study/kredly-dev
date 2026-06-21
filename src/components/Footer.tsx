@@ -26,7 +26,13 @@ export default function Footer() {
         <div className="flex flex-col gap-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <img src={LogoWhite} alt="Kredly Logo" className="h-6" />
+              <img
+                src={LogoWhite}
+                alt="Kredly Logo"
+                width={100}
+                height={24}
+                className="h-6 w-auto aspect-[100/24] object-contain"
+              />
             </div>
             <div className="flex items-center">
               {socialLinks.map(({ href, label, icon }) => (

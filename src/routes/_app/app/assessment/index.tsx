@@ -6,7 +6,6 @@ import { AssessmentCard } from '@/pages/dashboard/assessment/AssessmentCard';
 import { GeneralAssessmentCard } from '@/pages/dashboard/assessment/GeneralAssessmentCard';
 import { AssessmentCardSkeleton } from '@/components/skeletons/AssessmentCardSkeleton';
 import { GeneralAssessmentCardSkeleton } from '@/components/skeletons/GeneralAssessmentCardSkeleton';
-import * as AssessmentIDs from '@/constants/assessment-ids';
 
 export const Route = createFileRoute('/_app/app/assessment/')({
   component: RouteComponent,
@@ -60,6 +59,7 @@ function RouteComponent() {
     GeneralAssessment[]
   >([]);
   const [isLoadingProfile, setIsLoadingProfile] = React.useState(true);
+  const [profileExists, setProfileExists] = React.useState(true);
 
   React.useEffect(() => {
     async function fetchAssessments() {
@@ -108,6 +108,7 @@ function RouteComponent() {
                 status: 'available',
               })),
             );
+            setProfileExists(true);
             setIsLoadingProfile(false);
             return;
           }
@@ -116,166 +117,18 @@ function RouteComponent() {
         console.error('Failed to load profile assessments', e);
       }
 
-      // Default fallback mock data if no CV assessments are found:
-      const defaultAvailable: Assessment[] = [
-        {
-          id: AssessmentIDs.ASSESSMENT_ID_TYPESCRIPT,
-          skillName: 'TypeScript',
-          difficulty: 'Intermediate',
-          estimatedTime: '30 menit',
-          questionCount: 20,
-          isRecommended: true,
-          category: 'Frontend',
-          status: 'available',
-        },
-        {
-          id: AssessmentIDs.ASSESSMENT_ID_NODEJS,
-          skillName: 'Node.js',
-          difficulty: 'Advanced',
-          estimatedTime: '45 menit',
-          questionCount: 25,
-          isRecommended: true,
-          category: 'Backend',
-          status: 'available',
-        },
-        {
-          id: AssessmentIDs.ASSESSMENT_ID_CSS,
-          skillName: 'CSS',
-          difficulty: 'Intermediate',
-          estimatedTime: '25 menit',
-          questionCount: 15,
-          isRecommended: false,
-          category: 'Frontend',
-          status: 'available',
-        },
-        {
-          id: AssessmentIDs.ASSESSMENT_ID_SQL,
-          skillName: 'Database SQL',
-          difficulty: 'Intermediate',
-          estimatedTime: '40 menit',
-          questionCount: 22,
-          isRecommended: true,
-          category: 'Database',
-          status: 'available',
-        },
-      ];
-
-      const defaultGeneral: GeneralAssessment[] = [
-        {
-          id: AssessmentIDs.ASSESSMENT_ID_FRONTEND,
-          title: 'Front End',
-          description:
-            'Menguji kompetensi komprehensif dalam pengembangan antarmuka web modern, interaktivitas, dan performa aplikasi client-side.',
-          difficulty: 'Intermediate',
-          estimatedTime: '60 menit',
-          questionCount: 40,
-          topics: [
-            'HTML5 & Semantic Elements',
-            'CSS Layouting (Flexbox, Grid, Custom Properties)',
-            'JavaScript Modern (ES6+, Async/Await, Web APIs)',
-            'React Framework & State Management (Hooks, Context)',
-            'Web Performance & Client-Side Security Basics',
-          ],
-          isRecommended: true,
-        },
-        {
-          id: AssessmentIDs.ASSESSMENT_ID_BACKEND,
-          title: 'Back End',
-          description:
-            'Menguji keahlian arsitektur server, API design, pengelolaan database, keamanan, dan integrasi sistem backend.',
-          difficulty: 'Advanced',
-          estimatedTime: '75 menit',
-          questionCount: 50,
-          topics: [
-            'Arsitektur RESTful API & GraphQL',
-            'Node.js Runtime & Express.js framework',
-            'Database Modeling & Query Optimization (SQL/NoSQL)',
-            'Authentication & Authorization (JWT, OAuth2)',
-            'Server Security, Caching & Background Jobs',
-          ],
-          isRecommended: false,
-        },
-        {
-          id: AssessmentIDs.ASSESSMENT_ID_FULLSTACK,
-          title: 'Full Stack',
-          description:
-            'Menguji penguasaan end-to-end dari frontend, backend, integrasi database, hingga deployment dasar.',
-          difficulty: 'Advanced',
-          estimatedTime: '90 menit',
-          questionCount: 60,
-          topics: [
-            'Integrasi Client-Server & CORS management',
-            'State Synchronization & Real-time communication',
-            'Database design & ORM integration',
-            'Full Stack Security & Input Validation',
-            'Deployment pipelines, Environment configuration & CI/CD',
-          ],
-          isRecommended: true,
-        },
-      ];
-
-      setAvailableAssessments(defaultAvailable);
-      setGeneralAssessments(defaultGeneral);
+      // No mock data if user profile or cvAssessments does not exist in MongoDB
+      setAvailableAssessments([]);
+      setGeneralAssessments([]);
+      setProfileExists(false);
       setIsLoadingProfile(false);
     }
     fetchAssessments();
   }, []);
 
-  const inProgressAssessments: Assessment[] = [
-    {
-      id: AssessmentIDs.ASSESSMENT_ID_REACT,
-      skillName: 'React',
-      difficulty: 'Advanced',
-      estimatedTime: '45 menit',
-      questionCount: 20,
-      isRecommended: true,
-      category: 'Frontend',
-      status: 'in-progress',
-      progress: 45,
-    },
-  ];
+  const inProgressAssessments: Assessment[] = profileExists ? [] : [];
 
-  const completedAssessments: Assessment[] = [
-    {
-      id: AssessmentIDs.ASSESSMENT_ID_REACT,
-      skillName: 'React',
-      difficulty: 'Intermediate',
-      estimatedTime: '30 menit',
-      questionCount: 20,
-      isRecommended: true,
-      category: 'Frontend',
-      status: 'completed',
-      score: 88,
-      completedDate: '15 Juni 2026',
-      passed: true,
-    },
-    {
-      id: AssessmentIDs.ASSESSMENT_ID_JAVASCRIPT,
-      skillName: 'JavaScript',
-      difficulty: 'Beginner',
-      estimatedTime: '25 menit',
-      questionCount: 18,
-      isRecommended: true,
-      category: 'Frontend',
-      status: 'completed',
-      score: 82,
-      completedDate: '10 Juni 2026',
-      passed: true,
-    },
-    {
-      id: AssessmentIDs.ASSESSMENT_ID_GIT,
-      skillName: 'Git Version Control',
-      difficulty: 'Beginner',
-      estimatedTime: '20 menit',
-      questionCount: 15,
-      isRecommended: false,
-      category: 'Tools',
-      status: 'completed',
-      score: 65,
-      completedDate: '5 Juni 2026',
-      passed: false,
-    },
-  ];
+  const completedAssessments: Assessment[] = profileExists ? [] : [];
 
   if (isLoadingProfile) {
     return (
@@ -292,13 +145,22 @@ function RouteComponent() {
           {/* Tabs Skeleton */}
           <Tabs defaultValue="available" className="w-full space-y-4">
             <TabsList className="grid w-full grid-cols-3 bg-muted p-1 h-auto">
-              <TabsTrigger value="available" className="flex items-center gap-2">
+              <TabsTrigger
+                value="available"
+                className="flex items-center gap-2"
+              >
                 <span>Tersedia</span>
               </TabsTrigger>
-              <TabsTrigger value="in-progress" className="flex items-center gap-2">
+              <TabsTrigger
+                value="in-progress"
+                className="flex items-center gap-2"
+              >
                 <span>Sedang Berjalan</span>
               </TabsTrigger>
-              <TabsTrigger value="completed" className="flex items-center gap-2">
+              <TabsTrigger
+                value="completed"
+                className="flex items-center gap-2"
+              >
                 <span>Selesai</span>
               </TabsTrigger>
             </TabsList>
@@ -383,58 +245,121 @@ function RouteComponent() {
 
           {/* Tab: Tersedia */}
           <TabsContent value="available" className="space-y-3">
-            {/* General Assessments Section */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b">
-                <h3 className="text-lg font-bold">
-                  Asesmen General (Role-based)
-                </h3>
-                <span className="text-sm font-medium text-muted-foreground">
-                  {generalAssessments.length} Asesmen
-                </span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {generalAssessments.map((assessment) => (
-                  <GeneralAssessmentCard
-                    key={assessment.id}
-                    assessment={assessment}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Skill Assessments Section */}
-            <div className="space-y-4 pt-4">
-              <div className="flex items-center justify-between pb-3 border-b">
-                <h3 className="text-lg font-bold">Asesmen Spesifik Skill</h3>
-                <span className="text-sm font-medium text-muted-foreground">
-                  {availableAssessments.length} Asesmen
-                </span>
-              </div>
-              {availableAssessments.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {availableAssessments.map((assessment) => (
-                    <AssessmentCard
-                      key={assessment.id}
-                      assessment={assessment}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <Card className="py-12 border">
-                  <CardContent className="text-center">
-                    <p className="text-muted-foreground">
-                      Tidak ada assessment spesifik skill tersedia saat ini.
+            {!profileExists ? (
+              <Card className="py-12 border">
+                <CardContent className="text-center space-y-4">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+                    <svg
+                      className="w-8 h-8 text-muted-foreground"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">
+                      Belum ada data skill
+                    </h3>
+                    <p className="text-muted-foreground text-sm max-w-sm mx-auto">
+                      Silakan unggah CV Anda di halaman Parse CV untuk
+                      menganalisis skill dan menampilkan rekomendasi asesmen.
                     </p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                {/* General Assessments Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b">
+                    <h3 className="text-lg font-bold">
+                      Asesmen General (Role-based)
+                    </h3>
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {generalAssessments.length} Asesmen
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {generalAssessments.map((assessment) => (
+                      <GeneralAssessmentCard
+                        key={assessment.id}
+                        assessment={assessment}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Skill Assessments Section */}
+                <div className="space-y-4 pt-4">
+                  <div className="flex items-center justify-between pb-3 border-b">
+                    <h3 className="text-lg font-bold">
+                      Asesmen Spesifik Skill
+                    </h3>
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {availableAssessments.length} Asesmen
+                    </span>
+                  </div>
+                  {availableAssessments.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {availableAssessments.map((assessment) => (
+                        <AssessmentCard
+                          key={assessment.id}
+                          assessment={assessment}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <Card className="py-12 border">
+                      <CardContent className="text-center">
+                        <p className="text-muted-foreground">
+                          Tidak ada assessment spesifik skill tersedia saat ini.
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </>
+            )}
           </TabsContent>
 
           {/* Tab: Sedang Berjalan */}
           <TabsContent value="in-progress" className="space-y-6 mt-6">
-            {inProgressAssessments.length > 0 ? (
+            {!profileExists ? (
+              <Card className="py-12 border">
+                <CardContent className="text-center space-y-4">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+                    <svg
+                      className="w-8 h-8 text-muted-foreground"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">
+                      Belum ada data skill
+                    </h3>
+                    <p className="text-muted-foreground text-sm max-w-sm mx-auto">
+                      Silakan unggah CV Anda terlebih dahulu.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : inProgressAssessments.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {inProgressAssessments.map((assessment) => (
                   <AssessmentCard key={assessment.id} assessment={assessment} />
@@ -473,7 +398,35 @@ function RouteComponent() {
 
           {/* Tab: Selesai */}
           <TabsContent value="completed" className="space-y-6 mt-6">
-            {completedAssessments.length > 0 ? (
+            {!profileExists ? (
+              <Card className="py-12 border">
+                <CardContent className="text-center space-y-4">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+                    <svg
+                      className="w-8 h-8 text-muted-foreground"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">
+                      Belum ada data skill
+                    </h3>
+                    <p className="text-muted-foreground text-sm max-w-sm mx-auto">
+                      Silakan unggah CV Anda terlebih dahulu.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : completedAssessments.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {completedAssessments.map((assessment) => (
                   <AssessmentCard key={assessment.id} assessment={assessment} />
