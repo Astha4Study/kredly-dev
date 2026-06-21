@@ -31,6 +31,8 @@ export function Navbar() {
           <img
             src={Logo}
             alt="Kredly Logo"
+            width={100}
+            height={24}
             className="h-6 w-auto aspect-[100/24] object-contain"
           />
         </Link>

@@ -51,6 +51,8 @@ export default function AppTopBar() {
               <img
                 src={Kredly}
                 alt="Kredly"
+                width={100}
+                height={28}
                 className="h-7 w-auto aspect-[100/28] object-contain"
               />
             </Link>

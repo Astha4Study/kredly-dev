@@ -8,11 +8,13 @@ import (
 	"strings"
 	"time"
 
+	"kredly/internal/database"
 	"kredly/internal/groq"
 	"kredly/internal/models"
 	"kredly/internal/store"
 
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type CATService struct {
@@ -28,10 +30,12 @@ func NewCATService(sessions *store.SessionStore, groqClient *groq.Client) *CATSe
 }
 
 type CreateSessionReq struct {
-	Role      string   `json:"role"`
-	Level     string   `json:"level"`
-	Skills    []string `json:"skills"`
-	CVSummary string   `json:"cv_summary"`
+	Role         string   `json:"role"`
+	Level        string   `json:"level"`
+	Skills       []string `json:"skills"`
+	CVSummary    string   `json:"cv_summary"`
+	UserID       string   `json:"user_id"`
+	AssessmentID string   `json:"assessment_id"`
 }
 
 type AnswerResult struct {
@@ -59,22 +63,49 @@ type SessionResult struct {
 }
 
 // CreateSession initializes a new adaptive test session
-func (s *CATService) CreateSession(req CreateSessionReq) (*models.Session, error) {
+func (s *CATService) CreateSession(ctx context.Context, req CreateSessionReq) (*models.Session, error) {
 	if !ValidateRole(req.Role) {
 		return nil, fmt.Errorf("role '%s' is not supported", req.Role)
+	}
+
+	maxItems := 30
+	minItems := 10
+
+	// Fetch dynamic question count from UserProfile if AssessmentID is provided
+	if req.UserID != "" && req.AssessmentID != "" {
+		userProfileColl := database.DB.Collection("userProfile")
+		var userProfile models.UserProfile
+		err := userProfileColl.FindOne(ctx, bson.M{"userId": req.UserID}).Decode(&userProfile)
+		if err == nil {
+			for _, assessment := range userProfile.CVAssessments {
+				if assessment.ID == req.AssessmentID {
+					if assessment.QuestionCount > 0 {
+						maxItems = assessment.QuestionCount
+						// Ensure minItems doesn't exceed maxItems
+						if minItems > maxItems {
+							minItems = maxItems
+						}
+					}
+					break
+				}
+			}
+		} else {
+			log.Printf("[CAT] Failed to fetch user profile for userId %s: %v\n", req.UserID, err)
+		}
 	}
 
 	sessionID := uuid.New().String()
 	sess := &models.Session{
 		ID:              sessionID,
+		UserID:          req.UserID,
 		Role:            req.Role,
 		Level:           req.Level,
 		Skills:          req.Skills,
 		CVSummary:       req.CVSummary,
 		ThetaCurrent:    0.0,
 		ThetaInit:       0.0,
-		MaxItems:        30,
-		MinItems:        10,
+		MaxItems:        maxItems,
+		MinItems:        minItems,
 		SEMThreshold:    0.3,
 		Completed:       false,
 		PrefetchedItems: make([]*models.PendingItem, 0),

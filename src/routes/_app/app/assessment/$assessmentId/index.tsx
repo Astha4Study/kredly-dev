@@ -166,6 +166,49 @@ function TestOverviewPage() {
     );
   }
 
+  if (!assessment) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <Card className="max-w-md w-full border-border bg-card">
+          <CardHeader className="text-center space-y-4">
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+              <svg
+                className="w-8 h-8 text-muted-foreground"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+            <div>
+              <CardTitle className="text-xl font-bold">
+                Belum Ada Data Skill
+              </CardTitle>
+              <CardDescription className="mt-1.5">
+                Silakan unggah CV Anda terlebih dahulu untuk menganalisis skill
+                dan mengakses halaman asesmen.
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="flex justify-center gap-4">
+            <Link to="/app/assessment">
+              <Button variant="outline">Kembali ke Asesmen</Button>
+            </Link>
+            <Link to="/app/parse-cv">
+              <Button>Unggah CV</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const toggleSkill = (skill: string) => {
     setSkills((prev) => {
       if (prev.includes(skill)) {
@@ -224,6 +267,7 @@ function TestOverviewPage() {
           summary ||
           user.cvSummary ||
           `${role}, level ${level}, skills: ${skills.join(', ')}`,
+        assessment_id: assessmentId,
       });
 
       toast.success('Sesi ujian berhasil dibuat!');
@@ -376,12 +420,15 @@ function TestOverviewPage() {
                               return (
                                 <button
                                   key={skill}
-                                  onClick={() => !isDisabled && toggleSkill(skill)}
+                                  onClick={() =>
+                                    !isDisabled && toggleSkill(skill)
+                                  }
                                   disabled={isDisabled}
-                                  className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all ${isDisabled
+                                  className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
+                                    isDisabled
                                       ? 'opacity-40 border-border bg-muted/20 cursor-not-allowed text-muted-foreground'
                                       : 'border-border hover:border-primary/50 hover:bg-muted/50 text-foreground cursor-pointer'
-                                    }`}
+                                  }`}
                                 >
                                   {skill}
                                 </button>

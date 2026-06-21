@@ -120,6 +120,8 @@ function Avatar({ initials, image }: { initials: string; image?: string }) {
         <img
           src={image}
           alt={initials}
+          width={40}
+          height={40}
           className="size-full aspect-square object-cover"
         />
       ) : (

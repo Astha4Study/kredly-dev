@@ -29,6 +29,8 @@ export default function Footer() {
               <img
                 src={LogoWhite}
                 alt="Kredly Logo"
+                width={100}
+                height={24}
                 className="h-6 w-auto aspect-[100/24] object-contain"
               />
             </div>

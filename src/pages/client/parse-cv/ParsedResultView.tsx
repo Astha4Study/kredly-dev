@@ -106,6 +106,8 @@ export default function ParsedResultView({
         <img
           src={surpriseImg}
           alt="Surprise"
+          width={320}
+          height={320}
           className="w-80 h-80 aspect-square object-contain animate-in zoom-in duration-700 delay-200 fill-mode-both"
         />
         <h2 className="text-3xl font-bold tracking-tight text-center">

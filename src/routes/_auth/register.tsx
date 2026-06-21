@@ -95,6 +95,8 @@ function RouteComponent() {
               <img
                 src={googleIcons}
                 alt="Google"
+                width={16}
+                height={16}
                 className="mr-2 h-4 w-4 aspect-square object-contain"
               />
               Daftar dengan Google

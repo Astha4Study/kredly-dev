@@ -101,6 +101,8 @@ export default function TeamSection() {
                 <img
                   src={member.image}
                   alt={member.name}
+                  width={400}
+                  height={300}
                   className="
                   h-full
                   w-full

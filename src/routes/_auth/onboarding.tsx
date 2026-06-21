@@ -153,6 +153,8 @@ function RouteComponent() {
         <img
           src={Illustration1}
           alt="Illustration"
+          width={400}
+          height={500}
           className="w-100 h-auto aspect-[4/5] object-contain select-none opacity-90 xl:w-125"
           loading="lazy"
         />
