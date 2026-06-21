@@ -47,8 +47,14 @@ export default function AppTopBar() {
       <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link to="/app">
-              <img src={Kredly} alt="Kredly" className="h-7" />
+            <Link to="/app" preload="intent">
+              <img
+                src={Kredly}
+                alt="Kredly"
+                width={100}
+                height={28}
+                className="h-7 w-auto aspect-[100/28] object-contain"
+              />
             </Link>
 
             <div className="hidden md:flex items-center gap-2">
@@ -90,7 +96,9 @@ export default function AppTopBar() {
               <CreditTopup kredit={kredit} />
             </DropdownMenu>
             <Button variant="default" asChild>
-              <Link to="/app/pricing">Daftar Harga</Link>
+              <Link to="/app/pricing" preload="intent">
+                Daftar Harga
+              </Link>
             </Button>
             <Separator orientation="vertical" />
             <Button aria-label="Notifications" size="icon" variant="outline">

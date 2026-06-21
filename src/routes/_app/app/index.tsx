@@ -113,7 +113,7 @@ function RouteComponent() {
                   </div>
                 </div>
 
-                <Link to="/app/assessments">
+                <Link to="/app/assessments" preload="intent">
                   <Button className="mt-5">Lanjutkan asesmen</Button>
                 </Link>
               </div>
@@ -130,7 +130,7 @@ function RouteComponent() {
                   </p>
                 </div>
 
-                <Link to="/app/credentials">
+                <Link to="/app/credentials" preload="intent">
                   <Button variant="ghost">Lihat semua</Button>
                 </Link>
               </div>

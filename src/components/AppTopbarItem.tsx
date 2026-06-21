@@ -18,6 +18,7 @@ export default function AppTopbarItem({
   return (
     <Link
       to={to}
+      preload="intent"
       className={`flex items-center gap-2 rounded-sm px-3 h-full text-sm font-medium transition-colors ${
         active
           ? 'bg-white text-foreground shadow-sm'

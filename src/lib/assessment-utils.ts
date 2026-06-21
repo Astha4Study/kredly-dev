@@ -34,7 +34,7 @@ export function generateRandomId(length: number = 8): string {
  */
 export function generateAssessmentId(
   title: string,
-  type: 'general' | 'skill'
+  type: 'general' | 'skill',
 ): string {
   const typePrefix = type === 'general' ? 'gen' : 'skill';
   const slug = generateSlug(title);
@@ -56,7 +56,8 @@ export function parseAssessmentId(id: string): {
   if (parts.length < 3) return null;
 
   const typePrefix = parts[0];
-  const type = typePrefix === 'gen' ? 'general' : typePrefix === 'skill' ? 'skill' : null;
+  const type =
+    typePrefix === 'gen' ? 'general' : typePrefix === 'skill' ? 'skill' : null;
 
   if (!type) return null;
 

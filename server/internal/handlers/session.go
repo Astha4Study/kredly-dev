@@ -44,7 +44,16 @@ func (h *SessionHandler) HandleCreateSession(c *gin.Context) {
 		return
 	}
 
-	sess, err := h.catService.CreateSession(req)
+	// Extract User ID from context if authenticated (set by AuthMiddleware)
+	if userInterface, exists := c.Get("user"); exists {
+		if userMap, ok := userInterface.(gin.H); ok {
+			if userID, ok := userMap["id"].(string); ok {
+				req.UserID = userID
+			}
+		}
+	}
+
+	sess, err := h.catService.CreateSession(c.Request.Context(), req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

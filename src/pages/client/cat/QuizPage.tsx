@@ -3,14 +3,13 @@ import { useParams, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { sessionService } from '@/services/sessionService';
 import type { QuizItem, AnswerResponse } from './types';
 import QuestionCard from '@/components/cat/QuestionCard';
 import AnswerOptions from '@/components/cat/AnswerOptions';
 import ProgressBar from '@/components/cat/ProgressBar';
 import Timer from '@/components/cat/Timer';
-import { cn } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -75,17 +74,7 @@ export default function QuizPage() {
     navigate({ to: '/app/parse-cv' });
   };
 
-  // Fetch first question on mount
-  React.useEffect(() => {
-    if (!sessionId) {
-      setError('ID Sesi tidak ditemukan.');
-      setIsLoading(false);
-      return;
-    }
-    loadNextQuestion();
-  }, [sessionId]);
-
-  const loadNextQuestion = async () => {
+  const loadNextQuestion = React.useCallback(async () => {
     setIsLoading(true);
     setError(null);
     setSelectedAnswer(null);
@@ -103,7 +92,17 @@ export default function QuizPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [sessionId]);
+
+  // Fetch first question on mount
+  React.useEffect(() => {
+    if (!sessionId) {
+      setError('ID Sesi tidak ditemukan.');
+      setIsLoading(false);
+      return;
+    }
+    loadNextQuestion();
+  }, [sessionId, loadNextQuestion]);
 
   const handleSubmit = async (overrideAnswer?: string) => {
     // If we are already submitting or showing result, do nothing

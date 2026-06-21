@@ -87,7 +87,7 @@ func main() {
 		api.POST("/parse-cv", middleware.AuthMiddleware(cfg, authService), cvHandler.HandleParseCV)
 
 		// CAT Session endpoints
-		api.POST("/sessions", sessionHandler.HandleCreateSession)
+		api.POST("/sessions", middleware.AuthMiddleware(cfg, authService), sessionHandler.HandleCreateSession)
 		api.GET("/sessions/:id/next-item", sessionHandler.HandleNextItem)
 		api.POST("/sessions/:id/answer", sessionHandler.HandleSubmitAnswer)
 		api.GET("/sessions/:id/result", sessionHandler.HandleGetResult)

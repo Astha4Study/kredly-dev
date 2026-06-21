@@ -72,14 +72,8 @@ export default function AppTopbarAssessment() {
     <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-10">
       <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-          <Button
-            variant="outline"
-            size="icon"
-            asChild
-          >
-            <Link
-              to="/app/assessment"
-            >
+          <Button variant="outline" size="icon" asChild>
+            <Link to="/app/assessment">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>

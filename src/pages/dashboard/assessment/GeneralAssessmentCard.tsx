@@ -39,9 +39,7 @@ export const GeneralAssessmentCard = ({
       </div>
 
       <div>
-        <CardTitle className="text-xl font-bold">
-          {assessment.title}
-        </CardTitle>
+        <CardTitle className="text-xl font-bold">{assessment.title}</CardTitle>
 
         <CardDescription className="mt-2 leading-5">
           {assessment.description}
@@ -85,6 +83,7 @@ export const GeneralAssessmentCard = ({
         <Link
           to="/app/assessment/$assessmentId"
           params={{ assessmentId: assessment.id }}
+          preload="intent"
         >
           Mulai Asesmen
         </Link>

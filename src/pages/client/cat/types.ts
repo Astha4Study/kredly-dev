@@ -4,6 +4,7 @@ export interface CreateSessionPayload {
   level: string;
   skills: string[];
   cv_summary: string;
+  assessment_id?: string;
 }
 
 // === Response Types ===
