@@ -35,9 +35,7 @@ export default function AccountTab() {
               <p className="text-sm">{user?.email}</p>
             </div>
             {user?.emailVerified ? (
-              <Badge variant="default">
-                Terverifikasi
-              </Badge>
+              <Badge variant="default">Terverifikasi</Badge>
             ) : (
               <Button variant="outline" size="sm">
                 Verifikasi Email

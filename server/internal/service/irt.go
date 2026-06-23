@@ -105,17 +105,3 @@ func ThetaToLevel(theta float64) string {
 	return "Expert"
 }
 
-// EstimatePercentile estimates the percentile rank based on the cumulative standard normal distribution
-func EstimatePercentile(theta float64) int {
-	// Φ(x) = 0.5 * erfc(-x / √2)
-	percentile := 0.5 * math.Erfc(-theta/math.Sqrt(2.0)) * 100.0
-	rounded := int(math.Round(percentile))
-
-	if rounded < 1 {
-		return 1
-	}
-	if rounded > 99 {
-		return 99
-	}
-	return rounded
-}
