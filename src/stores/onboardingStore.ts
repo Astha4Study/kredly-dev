@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface OnboardingState {
   currentUserId: string | null; // Track current user to detect user change
@@ -40,31 +41,47 @@ const initialState: OnboardingState = {
 };
 
 export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
-  (set) => ({
-    ...initialState,
+  persist(
+    (set) => ({
+      ...initialState,
 
-    setUserId: (userId) => set({ currentUserId: userId }),
+      setUserId: (userId) => set({ currentUserId: userId }),
 
-    setCurrentStep: (step) => set({ currentStep: step }),
+      setCurrentStep: (step) => set({ currentStep: step }),
 
-    setFullName: (name) => set({ fullName: name }),
+      setFullName: (name) => set({ fullName: name }),
 
-    setUsername: (username) => set({ username }),
+      setUsername: (username) => set({ username }),
 
-    setCvFile: (file) =>
-      set({
-        cvFile: file,
-        cvFileName: file ? file.name : '',
+      setCvFile: (file) =>
+        set({
+          cvFile: file,
+          cvFileName: file ? file.name : '',
+        }),
+
+      setExperience: (experience) => set({ experience }),
+
+      setIsStudent: (isStudent) => set({ isStudent }),
+
+      setDegree: (degree) => set({ degree }),
+
+      setCompleted: (completed) => set({ isCompleted: completed }),
+
+      reset: () => set(initialState),
+    }),
+    {
+      name: 'onboarding-storage',
+      partialize: (state) => ({
+        currentUserId: state.currentUserId,
+        currentStep: state.currentStep,
+        fullName: state.fullName,
+        username: state.username,
+        cvFileName: state.cvFileName,
+        experience: state.experience,
+        isStudent: state.isStudent,
+        degree: state.degree,
+        isCompleted: state.isCompleted,
       }),
-
-    setExperience: (experience) => set({ experience }),
-
-    setIsStudent: (isStudent) => set({ isStudent }),
-
-    setDegree: (degree) => set({ degree }),
-
-    setCompleted: (completed) => set({ isCompleted: completed }),
-
-    reset: () => set(initialState),
-  }),
+    }
+  )
 );

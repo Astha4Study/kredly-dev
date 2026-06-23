@@ -22,6 +22,7 @@ import { Route as AuthOnboardingRouteImport } from './routes/_auth/onboarding'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppAppRouteRouteImport } from './routes/_app/app/route'
+import { Route as PublicTermsIndexRouteImport } from './routes/_public/terms/index'
 import { Route as PublicFeaturesIndexRouteImport } from './routes/_public/features/index'
 import { Route as PublicAboutUsIndexRouteImport } from './routes/_public/about-us/index'
 import { Route as AppAppIndexRouteImport } from './routes/_app/app/index'
@@ -95,6 +96,11 @@ const AppAppRouteRoute = AppAppRouteRouteImport.update({
   id: '/app',
   path: '/app',
   getParentRoute: () => AppRouteRoute,
+} as any)
+const PublicTermsIndexRoute = PublicTermsIndexRouteImport.update({
+  id: '/terms/',
+  path: '/terms/',
+  getParentRoute: () => PublicRouteRoute,
 } as any)
 const PublicFeaturesIndexRoute = PublicFeaturesIndexRouteImport.update({
   id: '/features/',
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppAppIndexRoute
   '/about-us/': typeof PublicAboutUsIndexRoute
   '/features/': typeof PublicFeaturesIndexRoute
+  '/terms/': typeof PublicTermsIndexRoute
   '/app/assessment/$assessmentId': typeof AppAppAssessmentAssessmentIdRouteRouteWithChildren
   '/app/account-settings/': typeof AppAppAccountSettingsIndexRoute
   '/app/assessment/': typeof AppAppAssessmentIndexRoute
@@ -193,6 +200,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppAppIndexRoute
   '/about-us': typeof PublicAboutUsIndexRoute
   '/features': typeof PublicFeaturesIndexRoute
+  '/terms': typeof PublicTermsIndexRoute
   '/app/account-settings': typeof AppAppAccountSettingsIndexRoute
   '/app/assessment': typeof AppAppAssessmentIndexRoute
   '/app/certificate-verification': typeof AppAppCertificateVerificationIndexRoute
@@ -219,6 +227,7 @@ export interface FileRoutesById {
   '/_app/app/': typeof AppAppIndexRoute
   '/_public/about-us/': typeof PublicAboutUsIndexRoute
   '/_public/features/': typeof PublicFeaturesIndexRoute
+  '/_public/terms/': typeof PublicTermsIndexRoute
   '/_app/app/assessment/$assessmentId': typeof AppAppAssessmentAssessmentIdRouteRouteWithChildren
   '/_app/app/account-settings/': typeof AppAppAccountSettingsIndexRoute
   '/_app/app/assessment/': typeof AppAppAssessmentIndexRoute
@@ -244,6 +253,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/about-us/'
     | '/features/'
+    | '/terms/'
     | '/app/assessment/$assessmentId'
     | '/app/account-settings/'
     | '/app/assessment/'
@@ -266,6 +276,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/about-us'
     | '/features'
+    | '/terms'
     | '/app/account-settings'
     | '/app/assessment'
     | '/app/certificate-verification'
@@ -291,6 +302,7 @@ export interface FileRouteTypes {
     | '/_app/app/'
     | '/_public/about-us/'
     | '/_public/features/'
+    | '/_public/terms/'
     | '/_app/app/assessment/$assessmentId'
     | '/_app/app/account-settings/'
     | '/_app/app/assessment/'
@@ -402,6 +414,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app'
       preLoaderRoute: typeof AppAppRouteRouteImport
       parentRoute: typeof AppRouteRoute
+    }
+    '/_public/terms/': {
+      id: '/_public/terms/'
+      path: '/terms'
+      fullPath: '/terms/'
+      preLoaderRoute: typeof PublicTermsIndexRouteImport
+      parentRoute: typeof PublicRouteRoute
     }
     '/_public/features/': {
       id: '/_public/features/'
@@ -562,12 +581,14 @@ interface PublicRouteRouteChildren {
   PublicIndexRoute: typeof PublicIndexRoute
   PublicAboutUsIndexRoute: typeof PublicAboutUsIndexRoute
   PublicFeaturesIndexRoute: typeof PublicFeaturesIndexRoute
+  PublicTermsIndexRoute: typeof PublicTermsIndexRoute
 }
 
 const PublicRouteRouteChildren: PublicRouteRouteChildren = {
   PublicIndexRoute: PublicIndexRoute,
   PublicAboutUsIndexRoute: PublicAboutUsIndexRoute,
   PublicFeaturesIndexRoute: PublicFeaturesIndexRoute,
+  PublicTermsIndexRoute: PublicTermsIndexRoute,
 }
 
 const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(
