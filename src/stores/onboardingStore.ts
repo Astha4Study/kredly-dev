@@ -8,6 +8,7 @@ interface OnboardingState {
   username: string;
   cvFile: File | null;
   cvFileName: string;
+  cvImages: string[]; // Base64 images extracted from PDF for vision processing
   experience: string;
   isStudent: boolean | null;
   degree: string;
@@ -20,6 +21,7 @@ interface OnboardingActions {
   setFullName: (name: string) => void;
   setUsername: (username: string) => void;
   setCvFile: (file: File | null) => void;
+  setCvImages: (images: string[]) => void;
   setExperience: (experience: string) => void;
   setIsStudent: (isStudent: boolean | null) => void;
   setDegree: (degree: string) => void;
@@ -34,6 +36,7 @@ const initialState: OnboardingState = {
   username: '',
   cvFile: null,
   cvFileName: '',
+  cvImages: [],
   experience: '',
   isStudent: null,
   degree: '',
@@ -59,6 +62,8 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
           cvFileName: file ? file.name : '',
         }),
 
+      setCvImages: (images) => set({ cvImages: images }),
+
       setExperience: (experience) => set({ experience }),
 
       setIsStudent: (isStudent) => set({ isStudent }),
@@ -82,6 +87,6 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
         degree: state.degree,
         isCompleted: state.isCompleted,
       }),
-    }
-  )
+    },
+  ),
 );

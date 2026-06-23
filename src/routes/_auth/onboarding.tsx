@@ -34,6 +34,7 @@ function RouteComponent() {
     fullName,
     username,
     cvFile,
+    cvImages,
     experience,
     isStudent,
     degree,
@@ -42,6 +43,7 @@ function RouteComponent() {
     setFullName,
     setUsername,
     setCvFile,
+    setCvImages,
     setExperience,
     setIsStudent,
     setDegree,
@@ -113,6 +115,10 @@ function RouteComponent() {
     if (isStudent && degree) {
       formData.append('degree', degree);
     }
+    // Send extracted PDF images for vision processing
+    if (cvImages && cvImages.length > 0) {
+      formData.append('cvImages', JSON.stringify(cvImages));
+    }
 
     try {
       const response = await fetch('/api/onboarding/complete', {
@@ -122,6 +128,26 @@ function RouteComponent() {
       });
 
       if (response.ok) {
+        const data = await response.json();
+
+        // Validasi parsing hasil CV
+        const profile = data.profile;
+        const hasSkills = profile?.cvSkills && profile.cvSkills.length > 0;
+        const hasSummary =
+          profile?.cvSummary && profile.cvSummary.trim() !== '';
+
+        if (!hasSkills || !hasSummary) {
+          toast.error(
+            'Gagal membaca CV. Pastikan CV Anda berisi text yang dapat dibaca (bukan hanya gambar). Silakan gunakan CV dalam format Word atau PDF dengan text layer.',
+            { duration: 6000 },
+          );
+          setIsSubmitting(false);
+          setShowConfirmDialog(false);
+          // Kembali ke step 2 untuk upload ulang CV
+          setCurrentStep(2);
+          return;
+        }
+
         toast.success('Onboarding berhasil diselesaikan!');
 
         // Mark as completed di local storage
@@ -206,6 +232,7 @@ function RouteComponent() {
           <StepTwoOnboarding
             cvFile={cvFile}
             setCvFile={setCvFile}
+            setCvImages={setCvImages}
             onNext={() => setCurrentStep(3)}
           />
         )}

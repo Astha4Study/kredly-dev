@@ -63,13 +63,13 @@ func NewClient(apiKey, baseURL string) *Client {
 
 // CreateChatCompletion sends a request to Groq's chat completion endpoint
 func (c *Client) CreateChatCompletion(req ChatCompletionRequest) (*ChatCompletionResponse, error) {
+	return c.createChatCompletionGeneric(req)
+}
+
+// createChatCompletionGeneric handles both regular and vision requests
+func (c *Client) createChatCompletionGeneric(req interface{}) (*ChatCompletionResponse, error) {
 	if c.apiKey == "" {
 		return nil, errors.New("groq api key is not configured")
-	}
-
-	// Default model if none specified
-	if req.Model == "" {
-		req.Model = "qwen/qwen3-32b" // Standard fast & powerful model on Groq
 	}
 
 	var completionResponse ChatCompletionResponse
