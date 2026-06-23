@@ -4,9 +4,21 @@ import (
 	"time"
 )
 
+type SessionResult struct {
+	Score           int      `bson:"score" json:"score"`
+	Theta           float64  `bson:"theta" json:"theta"`
+	Level           string   `bson:"level" json:"level"`
+	Feedback        string   `bson:"feedback" json:"feedback"`
+	Strengths       []string `bson:"strengths" json:"strengths"`
+	Weaknesses      []string `bson:"weaknesses" json:"weaknesses"`
+	Recommendations []string `bson:"recommendations" json:"recommendations"`
+	VerificationID  string   `bson:"verificationId" json:"verification_id"`
+}
+
 type Session struct {
 	ID              string           `bson:"_id" json:"id"`
 	UserID          string           `bson:"userId" json:"user_id"`
+	AssessmentID    string           `bson:"assessmentId,omitempty" json:"assessment_id,omitempty"`
 	Role            string           `bson:"role" json:"role"`
 	Level           string           `bson:"level" json:"level"`
 	Skills          []string         `bson:"skills" json:"skills"`
@@ -24,6 +36,7 @@ type Session struct {
 	SeenItemIDs     []string         `bson:"seenItemIds" json:"seen_item_ids"`
 	SeenTopics      []string         `bson:"seenTopics" json:"seen_topics"`
 	History         []AnswerHistory  `bson:"history" json:"history"`
+	Result          *SessionResult   `bson:"result,omitempty" json:"result,omitempty"`
 	Version         int64            `bson:"version" json:"version"`            // Optimistic concurrency control version
 	CreatedAt       time.Time        `bson:"createdAt" json:"created_at"`
 }

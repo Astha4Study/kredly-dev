@@ -53,7 +53,6 @@ export interface ResultResponse {
   score: number;
   theta: number;
   level: string;
-  percentile: number;
   feedback: string;
   strengths: string[];
   weaknesses: string[];

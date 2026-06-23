@@ -52,7 +52,6 @@ type SessionResult struct {
 	Score           int      `json:"score"`
 	Theta           float64  `json:"theta"`
 	Level           string   `json:"level"`
-	Percentile      int      `json:"percentile"`
 	Feedback        string   `json:"feedback"`
 	Strengths       []string `json:"strengths"`
 	Weaknesses      []string `json:"weaknesses"`
@@ -72,6 +71,7 @@ func (s *CATService) CreateSession(ctx context.Context, req CreateSessionReq) (*
 	minItems := 10
 
 	// Fetch dynamic question count from UserProfile if UserID is provided
+	var resolvedAssessmentID string
 	if req.UserID != "" {
 		userProfileColl := database.DB.Collection("userProfile")
 		var userProfile models.UserProfile
@@ -85,6 +85,7 @@ func (s *CATService) CreateSession(ctx context.Context, req CreateSessionReq) (*
 						if assessment.QuestionCount > 0 {
 							maxItems = assessment.QuestionCount
 							found = true
+							resolvedAssessmentID = assessment.ID
 						}
 						break
 					}
@@ -97,6 +98,7 @@ func (s *CATService) CreateSession(ctx context.Context, req CreateSessionReq) (*
 						if assessment.QuestionCount > 0 {
 							maxItems = assessment.QuestionCount
 							found = true
+							resolvedAssessmentID = assessment.ID
 						}
 						break
 					}
@@ -111,10 +113,16 @@ func (s *CATService) CreateSession(ctx context.Context, req CreateSessionReq) (*
 		}
 	}
 
+	astID := req.AssessmentID
+	if astID == "" {
+		astID = resolvedAssessmentID
+	}
+
 	sessionID := uuid.New().String()
 	sess := &models.Session{
 		ID:              sessionID,
 		UserID:          req.UserID,
+		AssessmentID:    astID,
 		Role:            req.Role,
 		Level:           req.Level,
 		Skills:          req.Skills,
@@ -356,6 +364,22 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 		return nil, err
 	}
 
+	// 1. If result is already saved in the database, return it immediately
+	if sess.Result != nil {
+		return &SessionResult{
+			Score:           sess.Result.Score,
+			Theta:           sess.Result.Theta,
+			Level:           sess.Result.Level,
+			Feedback:        sess.Result.Feedback,
+			Strengths:       sess.Result.Strengths,
+			Weaknesses:      sess.Result.Weaknesses,
+			Recommendations: sess.Result.Recommendations,
+			VerificationID:  sess.Result.VerificationID,
+			Role:            sess.Role,
+			TotalItems:      sess.TotalItems,
+		}, nil
+	}
+
 	if !sess.Completed {
 		// Force completion if requested and min items met
 		if sess.TotalItems >= sess.MinItems {
@@ -374,7 +398,6 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 
 	score := ThetaToScore(sess.ThetaCurrent)
 	level := ThetaToLevel(sess.ThetaCurrent)
-	percentile := EstimatePercentile(sess.ThetaCurrent)
 
 	// Convert history to evaluate payload format
 	var historyItems []groq.EvaluateHistoryItem
@@ -410,11 +433,10 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 		}
 	}
 
-	return &SessionResult{
+	res := &SessionResult{
 		Score:           score,
 		Theta:           sess.ThetaCurrent,
 		Level:           level,
-		Percentile:      percentile,
 		Feedback:        evalRes.Feedback,
 		Strengths:       evalRes.Strengths,
 		Weaknesses:      evalRes.Weaknesses,
@@ -422,7 +444,51 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 		VerificationID:  "CERT-" + strings.ToUpper(sessionID[:8]),
 		Role:            sess.Role,
 		TotalItems:      sess.TotalItems,
-	}, nil
+	}
+
+	// 2. Persist the results inside the session document
+	err = s.sessions.Update(sessionID, func(currentSess *models.Session) {
+		currentSess.Result = &models.SessionResult{
+			Score:           res.Score,
+			Theta:           res.Theta,
+			Level:           res.Level,
+			Feedback:        res.Feedback,
+			Strengths:       res.Strengths,
+			Weaknesses:      res.Weaknesses,
+			Recommendations: res.Recommendations,
+			VerificationID:  res.VerificationID,
+		}
+	})
+	if err != nil {
+		log.Printf("[CAT] Failed to save result to session %s: %v\n", sessionID, err)
+	}
+
+	// 3. Update assessment status in UserProfile to "completed"
+	if sess.UserID != "" && sess.AssessmentID != "" {
+		go func() {
+			userProfileColl := database.DB.Collection("userProfile")
+			bgCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+
+			filter := bson.M{
+				"userId":           sess.UserID,
+				"cvAssessments.id": sess.AssessmentID,
+			}
+			update := bson.M{
+				"$set": bson.M{
+					"cvAssessments.$.status": "completed",
+				},
+			}
+			_, updateErr := userProfileColl.UpdateOne(bgCtx, filter, update)
+			if updateErr != nil {
+				log.Printf("[CAT] Failed to update assessment status in UserProfile: %v\n", updateErr)
+			} else {
+				log.Printf("[CAT] Assessment status updated to completed for user %s, assessment %s\n", sess.UserID, sess.AssessmentID)
+			}
+		}()
+	}
+
+	return res, nil
 }
 
 // triggerBackgroundPrefetch populates the prefetch queue in a background goroutine
