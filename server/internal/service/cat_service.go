@@ -476,7 +476,10 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 			}
 			update := bson.M{
 				"$set": bson.M{
-					"cvAssessments.$.status": "completed",
+					"cvAssessments.$.status":    "completed",
+					"cvAssessments.$.sessionId": sessionID,
+					"cvAssessments.$.score":     res.Score,
+					"cvAssessments.$.level":     res.Level,
 				},
 			}
 			_, updateErr := userProfileColl.UpdateOne(bgCtx, filter, update)

@@ -24,6 +24,8 @@ interface Assessment {
   score?: number;
   completedDate?: string;
   passed?: boolean;
+  sessionId?: string;
+  level?: string;
 }
 
 interface GeneralAssessment {
@@ -35,6 +37,10 @@ interface GeneralAssessment {
   questionCount: number;
   topics: string[];
   isRecommended: boolean;
+  status?: string;
+  sessionId?: string;
+  score?: number;
+  level?: string;
 }
 
 interface CVAssessmentFromAPI {
@@ -49,10 +55,16 @@ interface CVAssessmentFromAPI {
   isRecommended: boolean;
   category?: string;
   status: string;
+  sessionId?: string;
+  score?: number;
+  level?: string;
 }
 
 function RouteComponent() {
   const [availableAssessments, setAvailableAssessments] = React.useState<
+    Assessment[]
+  >([]);
+  const [completedAssessments, setCompletedAssessments] = React.useState<
     Assessment[]
   >([]);
   const [generalAssessments, setGeneralAssessments] = React.useState<
@@ -74,11 +86,16 @@ function RouteComponent() {
             data.profile.cvAssessments &&
             data.profile.cvAssessments.length > 0
           ) {
-            const gen = data.profile.cvAssessments.filter(
-              (a: CVAssessmentFromAPI) => a.type === 'general',
+            const allAssessments = data.profile.cvAssessments as CVAssessmentFromAPI[];
+
+            const gen = allAssessments.filter(
+              (a: CVAssessmentFromAPI) => a.type === 'general' && a.status !== 'completed' && a.status !== 'in-progress',
             );
-            const skill = data.profile.cvAssessments.filter(
-              (a: CVAssessmentFromAPI) => a.type === 'skill',
+            const availableSkills = allAssessments.filter(
+              (a: CVAssessmentFromAPI) => a.type === 'skill' && (a.status === 'available' || !a.status),
+            );
+            const completed = allAssessments.filter(
+              (a: CVAssessmentFromAPI) => a.status === 'completed',
             );
 
             setGeneralAssessments(
@@ -93,11 +110,15 @@ function RouteComponent() {
                 questionCount: a.questionCount || 40,
                 topics: a.topics || [],
                 isRecommended: a.isRecommended,
+                status: a.status,
+                sessionId: a.sessionId,
+                score: a.score,
+                level: a.level,
               })),
             );
 
             setAvailableAssessments(
-              skill.map((a: CVAssessmentFromAPI) => ({
+              availableSkills.map((a: CVAssessmentFromAPI) => ({
                 id: a.id,
                 skillName: a.title,
                 difficulty: a.difficulty || 'Intermediate',
@@ -108,6 +129,23 @@ function RouteComponent() {
                 status: 'available',
               })),
             );
+
+            setCompletedAssessments(
+              completed.map((a: CVAssessmentFromAPI) => ({
+                id: a.id,
+                skillName: a.title,
+                difficulty: a.difficulty || 'Intermediate',
+                estimatedTime: a.estimatedTime || '30 menit',
+                questionCount: a.questionCount || 20,
+                isRecommended: a.isRecommended,
+                category: a.category || (a.type === 'general' ? 'General' : 'Skill'),
+                status: 'completed',
+                sessionId: a.sessionId,
+                score: a.score,
+                level: a.level,
+              })),
+            );
+
             setProfileExists(true);
             setIsLoadingProfile(false);
             return;
@@ -119,16 +157,13 @@ function RouteComponent() {
 
       // No mock data if user profile or cvAssessments does not exist in MongoDB
       setAvailableAssessments([]);
+      setCompletedAssessments([]);
       setGeneralAssessments([]);
       setProfileExists(false);
       setIsLoadingProfile(false);
     }
     fetchAssessments();
   }, []);
-
-  const inProgressAssessments: Assessment[] = profileExists ? [] : [];
-
-  const completedAssessments: Assessment[] = profileExists ? [] : [];
 
   if (isLoadingProfile) {
     return (
@@ -144,18 +179,12 @@ function RouteComponent() {
 
           {/* Tabs Skeleton */}
           <Tabs defaultValue="available" className="w-full space-y-4">
-            <TabsList className="grid w-full grid-cols-3 bg-muted p-1 h-auto">
+            <TabsList className="grid w-full grid-cols-2 bg-muted p-1 h-auto">
               <TabsTrigger
                 value="available"
                 className="flex items-center gap-2"
               >
                 <span>Tersedia</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="in-progress"
-                className="flex items-center gap-2"
-              >
-                <span>Sedang Berjalan</span>
               </TabsTrigger>
               <TabsTrigger
                 value="completed"
@@ -211,7 +240,7 @@ function RouteComponent() {
 
         {/* Tabs */}
         <Tabs defaultValue="available" className="w-full space-y-4">
-          <TabsList className="grid w-full grid-cols-3 bg-muted p-1 h-auto">
+          <TabsList className="grid w-full grid-cols-2 bg-muted p-1 h-auto">
             <TabsTrigger
               value="available"
               className="flex items-center gap-2 transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm hover:bg-background/50"
@@ -219,16 +248,6 @@ function RouteComponent() {
               <span>Tersedia</span>
               <span className="rounded-full border px-2 py-0.5 text-xs bg-background data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 {availableAssessments.length + generalAssessments.length}
-              </span>
-            </TabsTrigger>
-
-            <TabsTrigger
-              value="in-progress"
-              className=" flex items-center gap-2 transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm hover:bg-background/50"
-            >
-              <span>Sedang Berjalan</span>
-              <span className="rounded-full border bg-background px-2 py-0.5 text-xs">
-                {inProgressAssessments.length}
               </span>
             </TabsTrigger>
 
@@ -329,72 +348,6 @@ function RouteComponent() {
             )}
           </TabsContent>
 
-          {/* Tab: Sedang Berjalan */}
-          <TabsContent value="in-progress" className="space-y-6 mt-6">
-            {!profileExists ? (
-              <Card className="py-12 border">
-                <CardContent className="text-center space-y-4">
-                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
-                    <svg
-                      className="w-8 h-8 text-muted-foreground"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">
-                      Belum ada data skill
-                    </h3>
-                    <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-                      Silakan unggah CV Anda terlebih dahulu.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : inProgressAssessments.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {inProgressAssessments.map((assessment) => (
-                  <AssessmentCard key={assessment.id} assessment={assessment} />
-                ))}
-              </div>
-            ) : (
-              <Card className="py-12 border">
-                <CardContent className="text-center space-y-4">
-                  <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto">
-                    <svg
-                      className="w-10 h-10 text-muted-foreground"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">
-                      Tidak Ada Assessment Sedang Berjalan
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Mulai assessment baru dari tab "Tersedia"
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
 
           {/* Tab: Selesai */}
           <TabsContent value="completed" className="space-y-6 mt-6">

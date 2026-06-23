@@ -23,6 +23,8 @@ interface Assessment {
   score?: number;
   completedDate?: string;
   passed?: boolean;
+  sessionId?: string;
+  level?: string;
 }
 
 interface AssessmentCardProps {
@@ -32,11 +34,7 @@ interface AssessmentCardProps {
 export const AssessmentCard = ({ assessment }: AssessmentCardProps) => (
   <Card className="h-full border transition-all duration-300 shadow-xs hover:shadow-sm flex flex-col">
     <CardHeader className="space-y-3">
-      <div className="flex items-center justify-between">
-        <Badge variant="outline">{assessment.category}</Badge>
 
-        {assessment.isRecommended && <Badge>Recommended</Badge>}
-      </div>
 
       <div>
         <CardTitle className="text-xl font-bold">
@@ -84,15 +82,15 @@ export const AssessmentCard = ({ assessment }: AssessmentCardProps) => (
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Score</p>
                 <p className="text-2xl font-bold">
-                  {assessment.score}
-                  <span className="text-base text-muted-foreground">/100</span>
+                  {assessment.score || 0}
+                  <span className="text-base text-muted-foreground font-normal">/1000</span>
                 </p>
               </div>
               <Badge
-                variant={assessment.passed ? 'default' : 'destructive'}
-                className="text-xs px-3 py-1"
+                variant="secondary"
+                className="text-xs px-3 py-1 font-semibold"
               >
-                {assessment.passed ? 'Passed' : 'Failed'}
+                {assessment.level || 'Completed'}
               </Badge>
             </div>
           )}
@@ -117,14 +115,23 @@ export const AssessmentCard = ({ assessment }: AssessmentCardProps) => (
       )}
       {assessment.status === 'completed' && (
         <div className="flex gap-2">
-          <Button variant="outline" className="flex-1" asChild>
-            <Link to="/app/kredensial" preload="intent">
-              {assessment.passed ? 'Lihat Kredensial' : 'Lihat Detail'}
-            </Link>
-          </Button>
-          <Button variant="outline" className="flex-1">
-            Retake
-          </Button>
+          {assessment.sessionId ? (
+            <Button className="w-full font-semibold" asChild>
+              <Link
+                to="/result/$sessionId"
+                params={{ sessionId: assessment.sessionId }}
+                preload="intent"
+              >
+                Lihat Hasil Detail
+              </Link>
+            </Button>
+          ) : (
+            <Button variant="outline" className="w-full font-semibold" asChild>
+              <Link to="/app/kredensial" preload="intent">
+                Lihat Kredensial
+              </Link>
+            </Button>
+          )}
         </div>
       )}
     </CardContent>
