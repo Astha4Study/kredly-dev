@@ -86,13 +86,18 @@ function RouteComponent() {
             data.profile.cvAssessments &&
             data.profile.cvAssessments.length > 0
           ) {
-            const allAssessments = data.profile.cvAssessments as CVAssessmentFromAPI[];
+            const allAssessments = data.profile
+              .cvAssessments as CVAssessmentFromAPI[];
 
             const gen = allAssessments.filter(
-              (a: CVAssessmentFromAPI) => a.type === 'general' && a.status !== 'completed' && a.status !== 'in-progress',
+              (a: CVAssessmentFromAPI) =>
+                a.type === 'general' &&
+                a.status !== 'completed' &&
+                a.status !== 'in-progress',
             );
             const availableSkills = allAssessments.filter(
-              (a: CVAssessmentFromAPI) => a.type === 'skill' && (a.status === 'available' || !a.status),
+              (a: CVAssessmentFromAPI) =>
+                a.type === 'skill' && (a.status === 'available' || !a.status),
             );
             const completed = allAssessments.filter(
               (a: CVAssessmentFromAPI) => a.status === 'completed',
@@ -138,7 +143,8 @@ function RouteComponent() {
                 estimatedTime: a.estimatedTime || '30 menit',
                 questionCount: a.questionCount || 20,
                 isRecommended: a.isRecommended,
-                category: a.category || (a.type === 'general' ? 'General' : 'Skill'),
+                category:
+                  a.category || (a.type === 'general' ? 'General' : 'Skill'),
                 status: 'completed',
                 sessionId: a.sessionId,
                 score: a.score,
@@ -347,7 +353,6 @@ function RouteComponent() {
               </>
             )}
           </TabsContent>
-
 
           {/* Tab: Selesai */}
           <TabsContent value="completed" className="space-y-6 mt-6">

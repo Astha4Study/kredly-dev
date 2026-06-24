@@ -14,7 +14,6 @@ import ResultHeader from '@/pages/client/cat/result/ResultHeader';
 import ResultScoreCard from '@/pages/client/cat/result/ResultScoreCard';
 import ResultSummaryCard from '@/pages/client/cat/result/ResultSummaryCard';
 import ResultInsights from '@/pages/client/cat/result/ResultInsights';
-import ResultMethodology from '@/pages/client/cat/result/ResultMethodology';
 import ResultActions from '@/pages/client/cat/result/ResultActions';
 import ResultCertModal from '@/pages/client/cat/result/ResultCertModal';
 
@@ -31,7 +30,6 @@ function RouteComponent() {
   const [result, setResult] = React.useState<ResultResponse | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [copied, setCopied] = React.useState(false);
   const [downloading, setDownloading] = React.useState(false);
   const [showCertModal, setShowCertModal] = React.useState(false);
 
@@ -83,13 +81,6 @@ function RouteComponent() {
 
     requestAnimationFrame(animate);
   }, [result]);
-
-  const handleCopyVerificationId = () => {
-    if (!result) return;
-    navigator.clipboard.writeText(result.verification_id);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const handleDownloadCertificate = () => {
     if (!result) return;
@@ -165,13 +156,6 @@ Keabsahan      : Sertifikat ini sah dan terdaftar pada database Kredly.
           strengths={result.strengths}
           weaknesses={result.weaknesses}
           recommendations={result.recommendations}
-        />
-
-        {/* Academic / IRT Methodology Note */}
-        <ResultMethodology
-          verificationId={result.verification_id}
-          onCopy={handleCopyVerificationId}
-          copied={copied}
         />
 
         {/* Action Buttons */}

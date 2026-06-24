@@ -34,8 +34,6 @@ interface AssessmentCardProps {
 export const AssessmentCard = ({ assessment }: AssessmentCardProps) => (
   <Card className="h-full border transition-all duration-300 shadow-xs hover:shadow-sm flex flex-col">
     <CardHeader className="space-y-3">
-
-
       <div>
         <CardTitle className="text-xl font-bold">
           {assessment.skillName}
@@ -83,7 +81,9 @@ export const AssessmentCard = ({ assessment }: AssessmentCardProps) => (
                 <p className="text-xs text-muted-foreground mb-1">Score</p>
                 <p className="text-2xl font-bold">
                   {assessment.score || 0}
-                  <span className="text-base text-muted-foreground font-normal">/1000</span>
+                  <span className="text-base text-muted-foreground font-normal">
+                    /1000
+                  </span>
                 </p>
               </div>
               <Badge

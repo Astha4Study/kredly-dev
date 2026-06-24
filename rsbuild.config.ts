@@ -34,7 +34,7 @@ export default defineConfig({
     },
   },
   output: {
-    injectStyles: false,
+    injectStyles: true,
   },
   server: {
     proxy: {
