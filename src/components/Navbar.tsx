@@ -36,7 +36,7 @@ export function Navbar() {
             alt="Kredly Logo"
             width={100}
             height={24}
-            className="h-6 w-auto aspect-[100/24] object-contain"
+            className="h-6 w-auto aspect-100/24 object-contain"
           />
         </Link>
         <div className="hidden items-center gap-2 md:flex">
