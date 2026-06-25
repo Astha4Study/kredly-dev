@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   History,
   Coins,
+  Upload,
 } from 'lucide-react';
 
 interface AppMobileNavProps {
@@ -24,6 +25,11 @@ export function AppMobileNav({ kredit, open, setOpen }: AppMobileNavProps) {
     { path: '/app', label: 'Beranda', icon: Home },
     { path: '/app/certification', label: 'Sertifikasi', icon: Award },
     { path: '/app/assessment', label: 'Asesmen', icon: FileText },
+    ...(import.meta.env.DEV ? [{
+      path: '/app/demo-pdf',
+      label: 'Demo PDF',
+      icon: Upload,
+    }] : []),
     {
       path: '/app/certificate-verification',
       label: 'Verifikasi',

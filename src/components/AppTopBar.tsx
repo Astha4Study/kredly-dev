@@ -9,6 +9,7 @@ import {
   FileText,
   History,
   ShieldCheck,
+  Upload,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
@@ -33,6 +34,11 @@ export default function AppTopBar() {
   ];
 
   const NavItemsSecondary = [
+    ...(import.meta.env.DEV ? [{
+      path: '/app/demo-pdf',
+      label: 'Demo PDF',
+      icon: Upload,
+    }] : []),
     {
       path: '/app/certificate-verification',
       label: 'Verifikasi',
