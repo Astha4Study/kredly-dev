@@ -59,6 +59,7 @@ type SessionResult struct {
 	VerificationID  string   `json:"verification_id"`
 	Role            string   `json:"role"`
 	TotalItems      int      `json:"total_items"`
+	DurationSeconds int      `json:"duration_seconds"`
 }
 
 // CreateSession initializes a new adaptive test session
@@ -333,6 +334,9 @@ func (s *CATService) SubmitAnswer(ctx context.Context, sessionID, answer string)
 		if completed {
 			sess.Completed = true
 			sess.StopReason = stopReason
+			now := time.Now()
+			sess.CompletedAt = &now
+			sess.DurationSeconds = int(now.Sub(sess.CreatedAt).Seconds())
 		}
 
 		result = AnswerResult{
@@ -377,6 +381,7 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 			VerificationID:  sess.Result.VerificationID,
 			Role:            sess.Role,
 			TotalItems:      sess.TotalItems,
+			DurationSeconds: sess.DurationSeconds,
 		}, nil
 	}
 
@@ -386,6 +391,9 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 			err = s.sessions.Update(sessionID, func(s *models.Session) {
 				s.Completed = true
 				s.StopReason = "force_completed"
+				now := time.Now()
+				s.CompletedAt = &now
+				s.DurationSeconds = int(now.Sub(s.CreatedAt).Seconds())
 			})
 			if err != nil {
 				return nil, err
@@ -444,6 +452,7 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 		VerificationID:  "CERT-" + strings.ToUpper(sessionID[:8]),
 		Role:            sess.Role,
 		TotalItems:      sess.TotalItems,
+		DurationSeconds: sess.DurationSeconds,
 	}
 
 	// 2. Persist the results inside the session document
@@ -565,6 +574,9 @@ func (s *CATService) AbandonSession(ctx context.Context, sessionID string) error
 	return s.sessions.Update(sessionID, func(sess *models.Session) {
 		sess.Completed = true
 		sess.StopReason = "abandoned"
+		now := time.Now()
+		sess.CompletedAt = &now
+		sess.DurationSeconds = int(now.Sub(sess.CreatedAt).Seconds())
 	})
 }
 

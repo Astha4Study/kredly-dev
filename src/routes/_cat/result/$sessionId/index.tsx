@@ -88,6 +88,13 @@ function RouteComponent() {
 
     // Simulate PDF generation/download
     setTimeout(() => {
+      const minutes = Math.floor((result.duration_seconds || 0) / 60);
+      const remainingSeconds = (result.duration_seconds || 0) % 60;
+      const durationStr =
+        minutes > 0
+          ? `${minutes} menit ${remainingSeconds} detik`
+          : `${remainingSeconds} detik`;
+
       const certContent = `
 =========================================
           KREDLY CERTIFICATION
@@ -97,6 +104,7 @@ Role           : ${result.role}
 Level Hasil    : ${result.level}
 Skor Akhir     : ${result.score} (Skor Theta: ${result.theta.toFixed(3)})
 Total Soal     : ${result.total_items} Soal
+Durasi Ujian   : ${durationStr}
 
 Metodologi     : Rasch 1PL - Item Response Theory
 Keabsahan      : Sertifikat ini sah dan terdaftar pada database Kredly.
@@ -148,6 +156,7 @@ Keabsahan      : Sertifikat ini sah dan terdaftar pada database Kredly.
             feedback={result.feedback}
             verificationId={result.verification_id}
             totalItems={result.total_items}
+            durationSeconds={result.duration_seconds}
           />
         </div>
 

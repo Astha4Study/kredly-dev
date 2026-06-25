@@ -82,6 +82,7 @@ Tanggapan harus berupa objek JSON yang valid. Jangan bungkus dengan blok kode ma
 				Content: userContent,
 			},
 		},
+		Model: "qwen/qwen3-32b",
 		ResponseFormat: &ResponseFormat{
 			Type: "json_object",
 		},
@@ -144,6 +145,7 @@ Respons harus berupa objek JSON yang valid:
 				Content: userContent,
 			},
 		},
+		Model: "qwen/qwen3-32b",
 		ResponseFormat: &ResponseFormat{
 			Type: "json_object",
 		},

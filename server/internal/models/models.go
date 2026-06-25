@@ -39,6 +39,8 @@ type Session struct {
 	Result          *SessionResult   `bson:"result,omitempty" json:"result,omitempty"`
 	Version         int64            `bson:"version" json:"version"`            // Optimistic concurrency control version
 	CreatedAt       time.Time        `bson:"createdAt" json:"created_at"`
+	CompletedAt     *time.Time       `bson:"completedAt,omitempty" json:"completed_at,omitempty"`
+	DurationSeconds int              `bson:"durationSeconds,omitempty" json:"duration_seconds,omitempty"`
 }
 
 type PendingItem struct {

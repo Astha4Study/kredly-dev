@@ -98,6 +98,7 @@ Respons harus berupa array JSON objek pertanyaan yang valid. Jangan bungkus deng
 				Content: fmt.Sprintf("Hasilkan batch berisi %d soal campuran (pilihan ganda atau essay) untuk topik: %s dalam Bahasa Indonesia", req.BatchSize, req.Topic),
 			},
 		},
+		Model: "qwen/qwen3-32b",
 		ResponseFormat: &ResponseFormat{
 			Type: "json_object",
 		},

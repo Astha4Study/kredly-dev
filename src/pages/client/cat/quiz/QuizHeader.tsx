@@ -31,15 +31,6 @@ export default function QuizHeader({
       >
         <ArrowLeft className="mr-2 size-4" /> Kembali
       </Button>
-
-      {currentItem && !showResult && (
-        <Timer
-          duration={120} // 2 minutes per question
-          isActive={!isLoading && !showResult}
-          onTimeUp={handleTimeUp}
-          resetKey={timerKey}
-        />
-      )}
     </div>
   );
 }

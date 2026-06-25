@@ -60,4 +60,5 @@ export interface ResultResponse {
   verification_id: string;
   role: string;
   total_items: number;
+  duration_seconds: number;
 }

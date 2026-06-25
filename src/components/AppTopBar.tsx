@@ -34,11 +34,15 @@ export default function AppTopBar() {
   ];
 
   const NavItemsSecondary = [
-    ...(import.meta.env.DEV ? [{
-      path: '/app/demo-pdf',
-      label: 'Demo PDF',
-      icon: Upload,
-    }] : []),
+    ...(import.meta.env.DEV
+      ? [
+          {
+            path: '/app/demo-pdf',
+            label: 'Demo PDF',
+            icon: Upload,
+          },
+        ]
+      : []),
     {
       path: '/app/certificate-verification',
       label: 'Verifikasi',
@@ -52,7 +56,9 @@ export default function AppTopBar() {
   ];
 
   return (
-    <header className={`sticky top-0 z-50 w-full bg-white text-foreground ${!mobileMenuOpen ? 'border-b shadow-sm' : ''}`}>
+    <header
+      className={`sticky top-0 z-50 w-full bg-white text-foreground ${!mobileMenuOpen ? 'border-b shadow-sm' : ''}`}
+    >
       <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-4 lg:gap-6">
