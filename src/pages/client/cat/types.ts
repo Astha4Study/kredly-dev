@@ -61,4 +61,5 @@ export interface ResultResponse {
   role: string;
   total_items: number;
   duration_seconds: number;
+  candidate_name: string;
 }

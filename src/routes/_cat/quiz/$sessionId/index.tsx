@@ -41,7 +41,6 @@ function RouteComponent() {
   const [showResult, setShowResult] = React.useState(false);
   const [feedback, setFeedback] = React.useState<AnswerResponse | null>(null);
   const [countdown, setCountdown] = React.useState(5);
-  const [timerKey, setTimerKey] = React.useState(0);
   const [countdownIntervalId, setCountdownIntervalId] =
     React.useState<ReturnType<typeof setInterval> | null>(null);
 
@@ -165,13 +164,8 @@ function RouteComponent() {
     if (answerRes.completed) {
       navigate({ to: `/result/${sessionId}` });
     } else {
-      setTimerKey((prev) => prev + 1);
       loadNextQuestion();
     }
-  };
-
-  const handleTimeUp = () => {
-    handleSubmit('');
   };
 
   const handleFastForward = () => {
@@ -191,14 +185,7 @@ function RouteComponent() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-start p-4 md:p-8">
       <div className="w-full max-w-3xl space-y-6 md:space-y-8 my-auto">
-        <QuizHeader
-          onBack={() => setShowExitWarning(true)}
-          currentItem={currentItem}
-          showResult={showResult}
-          isLoading={isLoading}
-          handleTimeUp={handleTimeUp}
-          timerKey={timerKey}
-        />
+        <QuizHeader onBack={() => setShowExitWarning(true)} />
 
         <ProgressBar
           currentQuestion={questionNumber}

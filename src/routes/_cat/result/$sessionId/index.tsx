@@ -15,7 +15,6 @@ import ResultScoreCard from '@/pages/client/cat/result/ResultScoreCard';
 import ResultSummaryCard from '@/pages/client/cat/result/ResultSummaryCard';
 import ResultInsights from '@/pages/client/cat/result/ResultInsights';
 import ResultActions from '@/pages/client/cat/result/ResultActions';
-import ResultCertModal from '@/pages/client/cat/result/ResultCertModal';
 
 export const Route = createFileRoute('/_cat/result/$sessionId/')({
   component: RouteComponent,
@@ -30,8 +29,6 @@ function RouteComponent() {
   const [result, setResult] = React.useState<ResultResponse | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [downloading, setDownloading] = React.useState(false);
-  const [showCertModal, setShowCertModal] = React.useState(false);
 
   // Animated displayed score
   const [displayedScore, setDisplayedScore] = React.useState(0);
@@ -84,46 +81,7 @@ function RouteComponent() {
 
   const handleDownloadCertificate = () => {
     if (!result) return;
-    setDownloading(true);
-
-    // Simulate PDF generation/download
-    setTimeout(() => {
-      const minutes = Math.floor((result.duration_seconds || 0) / 60);
-      const remainingSeconds = (result.duration_seconds || 0) % 60;
-      const durationStr =
-        minutes > 0
-          ? `${minutes} menit ${remainingSeconds} detik`
-          : `${remainingSeconds} detik`;
-
-      const certContent = `
-=========================================
-          KREDLY CERTIFICATION
-=========================================
-ID Sertifikat  : ${result.verification_id}
-Role           : ${result.role}
-Level Hasil    : ${result.level}
-Skor Akhir     : ${result.score} (Skor Theta: ${result.theta.toFixed(3)})
-Total Soal     : ${result.total_items} Soal
-Durasi Ujian   : ${durationStr}
-
-Metodologi     : Rasch 1PL - Item Response Theory
-Keabsahan      : Sertifikat ini sah dan terdaftar pada database Kredly.
-=========================================
-      Terima kasih telah menggunakan Kredly!
-      `;
-
-      const blob = new Blob([certContent], {
-        type: 'text/plain;charset=utf-8',
-      });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `Kredly_Certificate_${result.verification_id}.txt`;
-      link.click();
-      URL.revokeObjectURL(url);
-      setDownloading(false);
-      setShowCertModal(true);
-    }, 1500);
+    window.open(`/statement-of-accomplishment/${sessionId}`, '_blank');
   };
 
   if (isLoading) {
@@ -170,21 +128,11 @@ Keabsahan      : Sertifikat ini sah dan terdaftar pada database Kredly.
         {/* Action Buttons */}
         <ResultActions
           onDownload={handleDownloadCertificate}
-          downloading={downloading}
+          downloading={false}
           onNewTest={() => navigate({ to: '/parseCV' })}
           onHome={() => navigate({ to: '/' })}
         />
       </div>
-
-      {/* Certificate Modal Dialog */}
-      <ResultCertModal
-        show={showCertModal}
-        onClose={() => setShowCertModal(false)}
-        role={result.role}
-        level={result.level}
-        score={result.score}
-        verificationId={result.verification_id}
-      />
     </div>
   );
 }

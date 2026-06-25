@@ -39,12 +39,12 @@ export default function AppTopBar() {
   const NavItemsSecondary = [
     ...(import.meta.env.DEV
       ? [
-        {
-          path: '/app/demo-pdf',
-          label: 'Demo PDF',
-          icon: Upload,
-        },
-      ]
+          {
+            path: '/app/demo-pdf',
+            label: 'Demo PDF',
+            icon: Upload,
+          },
+        ]
       : []),
     {
       path: '/app/certification-test',

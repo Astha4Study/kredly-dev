@@ -27,12 +27,12 @@ export function AppMobileNav({ kredit, open, setOpen }: AppMobileNavProps) {
     { path: '/app/jobs', label: 'Karier', icon: Briefcase },
     ...(import.meta.env.DEV
       ? [
-        {
-          path: '/app/demo-pdf',
-          label: 'Demo PDF',
-          icon: Upload,
-        },
-      ]
+          {
+            path: '/app/demo-pdf',
+            label: 'Demo PDF',
+            icon: Upload,
+          },
+        ]
       : []),
     {
       path: '/app/certificate-verification',

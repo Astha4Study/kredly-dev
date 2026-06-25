@@ -60,6 +60,7 @@ type SessionResult struct {
 	Role            string   `json:"role"`
 	TotalItems      int      `json:"total_items"`
 	DurationSeconds int      `json:"duration_seconds"`
+	CandidateName   string   `json:"candidate_name"`
 }
 
 // CreateSession initializes a new adaptive test session
@@ -368,6 +369,16 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 		return nil, err
 	}
 
+	candidateName := "Pengguna Kredly"
+	if sess.UserID != "" {
+		userColl := database.DB.Collection("user")
+		var u models.User
+		err := userColl.FindOne(ctx, bson.M{"_id": sess.UserID}).Decode(&u)
+		if err == nil {
+			candidateName = u.Name
+		}
+	}
+
 	// 1. If result is already saved in the database, return it immediately
 	if sess.Result != nil {
 		return &SessionResult{
@@ -382,6 +393,7 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 			Role:            sess.Role,
 			TotalItems:      sess.TotalItems,
 			DurationSeconds: sess.DurationSeconds,
+			CandidateName:   candidateName,
 		}, nil
 	}
 
@@ -453,6 +465,7 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 		Role:            sess.Role,
 		TotalItems:      sess.TotalItems,
 		DurationSeconds: sess.DurationSeconds,
+		CandidateName:   candidateName,
 	}
 
 	// 2. Persist the results inside the session document

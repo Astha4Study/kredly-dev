@@ -2,24 +2,167 @@ import * as React from 'react';
 import { Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'motion/react';
+import certificationTemplate from '@/assets/certification/certification-template.png';
 
 interface ResultCertModalProps {
   show: boolean;
   onClose: () => void;
+  userName: string;
   role: string;
   level: string;
   score: number;
   verificationId: string;
+  totalItems: number;
+  durationSeconds: number;
+  onReady?: (url: string) => void;
 }
 
 export default function ResultCertModal({
   show,
   onClose,
+  userName,
   role,
   level,
   score,
   verificationId,
+  totalItems,
+  durationSeconds,
+  onReady,
 }: ResultCertModalProps) {
+  const [certImageUrl, setCertImageUrl] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const img = new Image();
+    img.src = certificationTemplate;
+
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        ctx.drawImage(img, 0, 0);
+
+        const leftMargin = 127;
+        const startY = 380;
+
+        // Name
+        ctx.fillStyle = '#1a1a1a';
+        ctx.font = 'bold 90px Arial';
+        ctx.fillText(userName, leftMargin, startY + 70);
+
+        // Assessment Name
+        ctx.fillStyle = '#1a1a1a';
+        ctx.font = 'bold 90px Arial';
+        ctx.fillText(role, leftMargin, startY + 310);
+
+        // Level
+        ctx.fillStyle = '#1a1a1a';
+        ctx.font = 'bold 90px Arial';
+        ctx.fillText(level, leftMargin, startY + 530);
+
+        // Score
+        ctx.fillStyle = '#1a1a1a';
+        ctx.font = 'bold 80px Arial';
+        ctx.fillText(`${score}/1000`, leftMargin, startY + 770);
+
+        // Total Questions and Duration
+        ctx.font = '38px Arial';
+        ctx.fillStyle = '#000957';
+
+        const y = startY + 880;
+
+        const questionsText = `${totalItems} Soal`;
+        ctx.fillText(questionsText, leftMargin, y);
+
+        const qWidth = ctx.measureText(questionsText).width;
+
+        const dot1 = ' · ';
+        ctx.fillText(dot1, leftMargin + qWidth, y);
+
+        const dot1Width = ctx.measureText(dot1).width;
+
+        const durationMinutes = Math.ceil((durationSeconds || 0) / 60);
+        const durationText = `${durationMinutes} Menit`;
+        ctx.fillText(durationText, leftMargin + qWidth + dot1Width, y);
+
+        const dWidth = ctx.measureText(durationText).width;
+
+        const dot2 = ' · ';
+        ctx.fillText(dot2, leftMargin + qWidth + dot1Width + dWidth, y);
+
+        const dot2Width = ctx.measureText(dot2).width;
+
+        ctx.fillText(
+          'Computerized Adaptive Testing',
+          leftMargin + qWidth + dot1Width + dWidth + dot2Width,
+          y,
+        );
+
+        const qrSize = 250;
+        const modules = 25;
+        const moduleSize = qrSize / modules;
+
+        const qrX = canvas.width - qrSize - 175;
+        const qrY = 530;
+
+        // Background putih QR
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(qrX - 12, qrY - 12, qrSize + 24, qrSize + 24);
+
+        // Draw QR Code
+        ctx.fillStyle = '#000000';
+
+        const getHashCharValue = (str: string, index: number) => {
+          if (!str) return 0;
+          const code = str.charCodeAt(index % str.length);
+          return code;
+        };
+
+        for (let row = 0; row < modules; row++) {
+          for (let col = 0; col < modules; col++) {
+            const seed =
+              row * 31 + col + getHashCharValue(verificationId, row + col);
+            const pseudoRandom = (Math.sin(seed) + 1) / 2;
+            if (pseudoRandom > 0.5) {
+              ctx.fillRect(
+                qrX + col * moduleSize,
+                qrY + row * moduleSize,
+                moduleSize,
+                moduleSize,
+              );
+            }
+          }
+        }
+
+        ctx.fillStyle = '#6b7280';
+        ctx.font = '14px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(verificationId, qrX + qrSize / 2, qrY + qrSize + 20);
+
+        const url = canvas.toDataURL('image/png');
+        setCertImageUrl(url);
+        if (onReady) {
+          onReady(url);
+        }
+      } catch (err) {
+        console.error('Failed to generate preview certificate:', err);
+      }
+    };
+  }, [
+    userName,
+    role,
+    level,
+    score,
+    verificationId,
+    totalItems,
+    durationSeconds,
+    onReady,
+  ]);
+
   return (
     <AnimatePresence>
       {show && (
@@ -41,35 +184,21 @@ export default function ResultCertModal({
               </p>
             </div>
 
-            {/* Certificate Mockup Frame */}
-            <div className="border border-primary/20 bg-primary/[0.02] rounded-xl p-6 relative overflow-hidden space-y-6 text-center">
-              <div className="absolute top-0 right-0 size-24 bg-primary/5 rounded-full blur-2xl" />
-              <div className="border-b border-primary/10 pb-3">
-                <span className="text-[10px] tracking-widest uppercase font-bold text-primary">
-                  Kredly Verified Professional
-                </span>
-                <h4 className="text-lg font-bold mt-1">{role}</h4>
-              </div>
-              <div className="grid grid-cols-2 gap-4 text-left text-xs">
-                <div>
-                  <span className="text-muted-foreground block">Kemampuan</span>
-                  <span className="font-semibold text-foreground">{level}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground block">
-                    Skor Kompetensi
-                  </span>
-                  <span className="font-semibold text-primary">
-                    {score} / 1000
+            {/* Certificate Preview Image */}
+            <div className="flex justify-center">
+              {certImageUrl ? (
+                <img
+                  src={certImageUrl}
+                  alt="Pratinjau Sertifikat Kredly"
+                  className="w-full max-w-lg h-auto rounded-xl border border-primary/20 shadow-lg object-contain"
+                />
+              ) : (
+                <div className="w-full h-64 flex items-center justify-center border border-dashed border-muted-foreground/30 rounded-xl bg-muted/5">
+                  <span className="text-sm text-muted-foreground">
+                    Memuat pratinjau sertifikat...
                   </span>
                 </div>
-              </div>
-              <div className="border-t border-primary/10 pt-3 flex justify-between items-center text-[10px] text-muted-foreground">
-                <span>ID: {verificationId}</span>
-                <span className="text-emerald-400 font-semibold uppercase">
-                  Status: Valid
-                </span>
-              </div>
+              )}
             </div>
 
             <Button onClick={onClose} className="w-full">
