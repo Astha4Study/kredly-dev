@@ -10,6 +10,8 @@ import {
   History,
   ShieldCheck,
   Upload,
+  Briefcase,
+  BarChart3,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
@@ -29,16 +31,26 @@ export default function AppTopBar() {
 
   const navItems = [
     { path: '/app', label: 'Beranda', icon: Home },
-    { path: '/app/certification', label: 'Sertifikasi', icon: Award },
     { path: '/app/assessment', label: 'Asesmen', icon: FileText },
+    { path: '/app/certification', label: 'Kredensial', icon: Award },
+    { path: '/app/jobs', label: 'Karier', icon: Briefcase },
   ];
 
   const NavItemsSecondary = [
-    ...(import.meta.env.DEV ? [{
-      path: '/app/demo-pdf',
-      label: 'Demo PDF',
-      icon: Upload,
-    }] : []),
+    ...(import.meta.env.DEV
+      ? [
+          {
+            path: '/app/demo-pdf',
+            label: 'Demo PDF',
+            icon: Upload,
+          },
+        ]
+      : []),
+    {
+      path: '/app/certification-test',
+      label: 'Contoh Sertifikasi',
+      icon: BarChart3,
+    },
     {
       path: '/app/certificate-verification',
       label: 'Verifikasi',
@@ -52,7 +64,9 @@ export default function AppTopBar() {
   ];
 
   return (
-    <header className={`sticky top-0 z-50 w-full bg-white text-foreground ${!mobileMenuOpen ? 'border-b shadow-sm' : ''}`}>
+    <header
+      className={`sticky top-0 z-50 w-full bg-white text-foreground ${!mobileMenuOpen ? 'border-b shadow-sm' : ''}`}
+    >
       <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-4 lg:gap-6">

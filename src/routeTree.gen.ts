@@ -27,9 +27,11 @@ import { Route as AppAppIndexRouteImport } from './routes/_app/app/index'
 import { Route as CatResultSessionIdIndexRouteImport } from './routes/_cat/result/$sessionId/index'
 import { Route as CatQuizSessionIdIndexRouteImport } from './routes/_cat/quiz/$sessionId/index'
 import { Route as AppAppParseCvIndexRouteImport } from './routes/_app/app/parse-cv/index'
+import { Route as AppAppJobsIndexRouteImport } from './routes/_app/app/jobs/index'
 import { Route as AppAppHistoryIndexRouteImport } from './routes/_app/app/history/index'
 import { Route as AppAppDemoPdfIndexRouteImport } from './routes/_app/app/demo-pdf/index'
 import { Route as AppAppCertificationIndexRouteImport } from './routes/_app/app/certification/index'
+import { Route as AppAppCertificationTestIndexRouteImport } from './routes/_app/app/certification-test/index'
 import { Route as AppAppCertificateVerificationIndexRouteImport } from './routes/_app/app/certificate-verification/index'
 import { Route as AppAppAssessmentIndexRouteImport } from './routes/_app/app/assessment/index'
 import { Route as AppAppAccountSettingsIndexRouteImport } from './routes/_app/app/account-settings/index'
@@ -123,6 +125,11 @@ const AppAppParseCvIndexRoute = AppAppParseCvIndexRouteImport.update({
   path: '/parse-cv/',
   getParentRoute: () => AppAppRouteRoute,
 } as any)
+const AppAppJobsIndexRoute = AppAppJobsIndexRouteImport.update({
+  id: '/jobs/',
+  path: '/jobs/',
+  getParentRoute: () => AppAppRouteRoute,
+} as any)
 const AppAppHistoryIndexRoute = AppAppHistoryIndexRouteImport.update({
   id: '/history/',
   path: '/history/',
@@ -137,6 +144,12 @@ const AppAppCertificationIndexRoute =
   AppAppCertificationIndexRouteImport.update({
     id: '/certification/',
     path: '/certification/',
+    getParentRoute: () => AppAppRouteRoute,
+  } as any)
+const AppAppCertificationTestIndexRoute =
+  AppAppCertificationTestIndexRouteImport.update({
+    id: '/certification-test/',
+    path: '/certification-test/',
     getParentRoute: () => AppAppRouteRoute,
   } as any)
 const AppAppCertificateVerificationIndexRoute =
@@ -186,9 +199,11 @@ export interface FileRoutesByFullPath {
   '/app/account-settings/': typeof AppAppAccountSettingsIndexRoute
   '/app/assessment/': typeof AppAppAssessmentIndexRoute
   '/app/certificate-verification/': typeof AppAppCertificateVerificationIndexRoute
+  '/app/certification-test/': typeof AppAppCertificationTestIndexRoute
   '/app/certification/': typeof AppAppCertificationIndexRoute
   '/app/demo-pdf/': typeof AppAppDemoPdfIndexRoute
   '/app/history/': typeof AppAppHistoryIndexRoute
+  '/app/jobs/': typeof AppAppJobsIndexRoute
   '/app/parse-cv/': typeof AppAppParseCvIndexRoute
   '/quiz/$sessionId/': typeof CatQuizSessionIdIndexRoute
   '/result/$sessionId/': typeof CatResultSessionIdIndexRoute
@@ -209,9 +224,11 @@ export interface FileRoutesByTo {
   '/app/account-settings': typeof AppAppAccountSettingsIndexRoute
   '/app/assessment': typeof AppAppAssessmentIndexRoute
   '/app/certificate-verification': typeof AppAppCertificateVerificationIndexRoute
+  '/app/certification-test': typeof AppAppCertificationTestIndexRoute
   '/app/certification': typeof AppAppCertificationIndexRoute
   '/app/demo-pdf': typeof AppAppDemoPdfIndexRoute
   '/app/history': typeof AppAppHistoryIndexRoute
+  '/app/jobs': typeof AppAppJobsIndexRoute
   '/app/parse-cv': typeof AppAppParseCvIndexRoute
   '/quiz/$sessionId': typeof CatQuizSessionIdIndexRoute
   '/result/$sessionId': typeof CatResultSessionIdIndexRoute
@@ -238,9 +255,11 @@ export interface FileRoutesById {
   '/_app/app/account-settings/': typeof AppAppAccountSettingsIndexRoute
   '/_app/app/assessment/': typeof AppAppAssessmentIndexRoute
   '/_app/app/certificate-verification/': typeof AppAppCertificateVerificationIndexRoute
+  '/_app/app/certification-test/': typeof AppAppCertificationTestIndexRoute
   '/_app/app/certification/': typeof AppAppCertificationIndexRoute
   '/_app/app/demo-pdf/': typeof AppAppDemoPdfIndexRoute
   '/_app/app/history/': typeof AppAppHistoryIndexRoute
+  '/_app/app/jobs/': typeof AppAppJobsIndexRoute
   '/_app/app/parse-cv/': typeof AppAppParseCvIndexRoute
   '/_cat/quiz/$sessionId/': typeof CatQuizSessionIdIndexRoute
   '/_cat/result/$sessionId/': typeof CatResultSessionIdIndexRoute
@@ -265,9 +284,11 @@ export interface FileRouteTypes {
     | '/app/account-settings/'
     | '/app/assessment/'
     | '/app/certificate-verification/'
+    | '/app/certification-test/'
     | '/app/certification/'
     | '/app/demo-pdf/'
     | '/app/history/'
+    | '/app/jobs/'
     | '/app/parse-cv/'
     | '/quiz/$sessionId/'
     | '/result/$sessionId/'
@@ -288,9 +309,11 @@ export interface FileRouteTypes {
     | '/app/account-settings'
     | '/app/assessment'
     | '/app/certificate-verification'
+    | '/app/certification-test'
     | '/app/certification'
     | '/app/demo-pdf'
     | '/app/history'
+    | '/app/jobs'
     | '/app/parse-cv'
     | '/quiz/$sessionId'
     | '/result/$sessionId'
@@ -316,9 +339,11 @@ export interface FileRouteTypes {
     | '/_app/app/account-settings/'
     | '/_app/app/assessment/'
     | '/_app/app/certificate-verification/'
+    | '/_app/app/certification-test/'
     | '/_app/app/certification/'
     | '/_app/app/demo-pdf/'
     | '/_app/app/history/'
+    | '/_app/app/jobs/'
     | '/_app/app/parse-cv/'
     | '/_cat/quiz/$sessionId/'
     | '/_cat/result/$sessionId/'
@@ -462,6 +487,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppParseCvIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
+    '/_app/app/jobs/': {
+      id: '/_app/app/jobs/'
+      path: '/jobs'
+      fullPath: '/app/jobs/'
+      preLoaderRoute: typeof AppAppJobsIndexRouteImport
+      parentRoute: typeof AppAppRouteRoute
+    }
     '/_app/app/history/': {
       id: '/_app/app/history/'
       path: '/history'
@@ -481,6 +513,13 @@ declare module '@tanstack/react-router' {
       path: '/certification'
       fullPath: '/app/certification/'
       preLoaderRoute: typeof AppAppCertificationIndexRouteImport
+      parentRoute: typeof AppAppRouteRoute
+    }
+    '/_app/app/certification-test/': {
+      id: '/_app/app/certification-test/'
+      path: '/certification-test'
+      fullPath: '/app/certification-test/'
+      preLoaderRoute: typeof AppAppCertificationTestIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
     '/_app/app/certificate-verification/': {
@@ -542,9 +581,11 @@ interface AppAppRouteRouteChildren {
   AppAppAccountSettingsIndexRoute: typeof AppAppAccountSettingsIndexRoute
   AppAppAssessmentIndexRoute: typeof AppAppAssessmentIndexRoute
   AppAppCertificateVerificationIndexRoute: typeof AppAppCertificateVerificationIndexRoute
+  AppAppCertificationTestIndexRoute: typeof AppAppCertificationTestIndexRoute
   AppAppCertificationIndexRoute: typeof AppAppCertificationIndexRoute
   AppAppDemoPdfIndexRoute: typeof AppAppDemoPdfIndexRoute
   AppAppHistoryIndexRoute: typeof AppAppHistoryIndexRoute
+  AppAppJobsIndexRoute: typeof AppAppJobsIndexRoute
   AppAppParseCvIndexRoute: typeof AppAppParseCvIndexRoute
 }
 
@@ -556,9 +597,11 @@ const AppAppRouteRouteChildren: AppAppRouteRouteChildren = {
   AppAppAssessmentIndexRoute: AppAppAssessmentIndexRoute,
   AppAppCertificateVerificationIndexRoute:
     AppAppCertificateVerificationIndexRoute,
+  AppAppCertificationTestIndexRoute: AppAppCertificationTestIndexRoute,
   AppAppCertificationIndexRoute: AppAppCertificationIndexRoute,
   AppAppDemoPdfIndexRoute: AppAppDemoPdfIndexRoute,
   AppAppHistoryIndexRoute: AppAppHistoryIndexRoute,
+  AppAppJobsIndexRoute: AppAppJobsIndexRoute,
   AppAppParseCvIndexRoute: AppAppParseCvIndexRoute,
 }
 
