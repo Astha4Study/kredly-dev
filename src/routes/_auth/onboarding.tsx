@@ -34,6 +34,7 @@ function RouteComponent() {
     fullName,
     username,
     cvFile,
+    cvImages,
     experience,
     isStudent,
     degree,
@@ -42,6 +43,7 @@ function RouteComponent() {
     setFullName,
     setUsername,
     setCvFile,
+    setCvImages,
     setExperience,
     setIsStudent,
     setDegree,
@@ -52,21 +54,18 @@ function RouteComponent() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Reset form saat component mount atau saat user berubah
+  // Inisialisasi atau reset form saat user berubah
   useEffect(() => {
     if (user?.id) {
       // Jika user ID berbeda dari yang tersimpan di store, berarti ganti user
       if (currentUserId !== user.id) {
-        // Clear localStorage
-        localStorage.clear();
-
         // Reset semua field di store
         reset();
 
         // Set user ID baru
         setUserId(user.id);
 
-        // Pre-fill HANYA username dari email dengan delay
+        // Pre-fill username dari email dan fullName dari Google (jika ada)
         const timer = setTimeout(() => {
           if (user.email) {
             const defaultUsername = user.email
@@ -75,12 +74,26 @@ function RouteComponent() {
               .replace(/[^a-z0-9._]/g, '');
             setUsername(defaultUsername);
           }
+
+          // Auto-fill fullName dari Google name jika tersedia
+          if (user.name && user.name.trim() !== '') {
+            setFullName(user.name);
+          }
         }, 100);
 
         return () => clearTimeout(timer);
       }
     }
-  }, [user?.id, currentUserId, reset, setUserId, setUsername, user?.email]);
+  }, [
+    user?.id,
+    user?.email,
+    user?.name,
+    currentUserId,
+    reset,
+    setUserId,
+    setUsername,
+    setFullName,
+  ]);
 
   const handleFinalSubmit = () => {
     // Tampilkan dialog konfirmasi
@@ -102,6 +115,10 @@ function RouteComponent() {
     if (isStudent && degree) {
       formData.append('degree', degree);
     }
+    // Send extracted PDF images for vision processing
+    if (cvImages && cvImages.length > 0) {
+      formData.append('cvImages', JSON.stringify(cvImages));
+    }
 
     try {
       const response = await fetch('/api/onboarding/complete', {
@@ -111,6 +128,26 @@ function RouteComponent() {
       });
 
       if (response.ok) {
+        const data = await response.json();
+
+        // Validasi parsing hasil CV
+        const profile = data.profile;
+        const hasSkills = profile?.cvSkills && profile.cvSkills.length > 0;
+        const hasSummary =
+          profile?.cvSummary && profile.cvSummary.trim() !== '';
+
+        if (!hasSkills || !hasSummary) {
+          toast.error(
+            'Gagal membaca CV. Pastikan CV Anda berisi text yang dapat dibaca (bukan hanya gambar). Silakan gunakan CV dalam format Word atau PDF dengan text layer.',
+            { duration: 6000 },
+          );
+          setIsSubmitting(false);
+          setShowConfirmDialog(false);
+          // Kembali ke step 2 untuk upload ulang CV
+          setCurrentStep(2);
+          return;
+        }
+
         toast.success('Onboarding berhasil diselesaikan!');
 
         // Mark as completed di local storage
@@ -155,7 +192,7 @@ function RouteComponent() {
           alt="Illustration"
           width={400}
           height={500}
-          className="w-100 h-auto aspect-[4/5] object-contain select-none opacity-90 xl:w-125"
+          className="w-100 h-auto aspect-6/5 object-contain select-none opacity-90 xl:w-125"
           loading="lazy"
         />
       </div>
@@ -195,6 +232,7 @@ function RouteComponent() {
           <StepTwoOnboarding
             cvFile={cvFile}
             setCvFile={setCvFile}
+            setCvImages={setCvImages}
             onNext={() => setCurrentStep(3)}
           />
         )}
@@ -230,6 +268,18 @@ function RouteComponent() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Loading Overlay */}
+      {isSubmitting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <p className="text-sm font-medium text-white">
+              Menyimpan data Anda...
+            </p>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

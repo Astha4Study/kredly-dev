@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Link } from '@tanstack/react-router';
 import googleIcons from '@/assets/svg/google.svg';
 import { useAuth } from '@/contexts/auth';
+import AuthSwiper from '@/components/AuthSwiper';
 
 export const Route = createFileRoute('/_auth/login')({
   component: RouteComponent,
@@ -49,9 +50,9 @@ function RouteComponent() {
 
   return (
     <main className="grid min-h-screen lg:grid-cols-2 md:p-4">
-      {/* Left — slot untuk gambar */}
+      {/* Left — swiper dengan testimonial */}
       <section className="hidden lg:block relative bg-white border-r overflow-hidden">
-        {/* Taruh <img> atau komponen gambar di sini */}
+        <AuthSwiper />
       </section>
 
       {/* Right — form login */}

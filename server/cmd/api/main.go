@@ -53,6 +53,9 @@ func main() {
 	// 7. Initialize HTTP Handlers
 	cvHandler := handlers.NewCVHandler(groqClient)
 
+	// 8. Initialize Blockchain Handler
+	blockchainHandler := handlers.NewBlockchainHandler()
+
 	// Set Gin mode
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
@@ -85,6 +88,10 @@ func main() {
 		})
 
 		api.POST("/parse-cv", middleware.AuthMiddleware(cfg, authService), cvHandler.HandleParseCV)
+
+		// Blockchain verification endpoints
+		api.POST("/blockchain/verify-upload", blockchainHandler.HandleVerifyPDFByUpload)
+		api.POST("/blockchain/verify-hash", blockchainHandler.HandleVerifyPDFByHash)
 
 		// CAT Session endpoints
 		api.POST("/sessions", middleware.AuthMiddleware(cfg, authService), sessionHandler.HandleCreateSession)

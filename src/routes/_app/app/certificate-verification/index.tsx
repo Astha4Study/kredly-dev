@@ -61,22 +61,50 @@ function RouteComponent() {
     setIsVerifying(true);
     setVerificationResult(null);
 
-    // Simulasi API call
-    setTimeout(() => {
+    try {
+      // Calculate SHA256 hash in browser
+      const arrayBuffer = await selectedFile.arrayBuffer();
+      const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = '0x' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+      const response = await fetch('http://localhost:3001/api/blockchain/verify-upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ hash: hashHex }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to verify PDF');
+      }
+
+      const data = await response.json();
+      
       setVerificationResult({
-        isValid: true,
-        certificateData: {
+        isValid: data.isValid,
+        certificateData: data.isValid ? {
           recipientName: 'John Doe',
           skillName: 'React Advanced',
-          issueDate: '15 Juni 2026',
+          issueDate: new Date(data.timestamp * 1000).toLocaleDateString('id-ID'),
           score: 88,
-          blockchainHash: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+          blockchainHash: data.pdfHash,
           issuer: 'Kredly Platform',
-        },
-        message: 'Sertifikat valid dan terverifikasi di blockchain',
+        } : undefined,
+        message: data.isValid 
+          ? `Sertifikat valid dan terverifikasi di blockchain - Status: ${data.currentStatus}`
+          : `Sertifikat tidak valid - Status: ${data.currentStatus}`,
       });
+    } catch (error) {
+      console.error('Error verifying PDF:', error);
+      setVerificationResult({
+        isValid: false,
+        message: 'Gagal memverifikasi sertifikat. Silakan coba lagi.',
+      });
+    } finally {
       setIsVerifying(false);
-    }, 2000);
+    }
   };
 
   const verifyByHash = async () => {
@@ -85,27 +113,44 @@ function RouteComponent() {
     setIsVerifying(true);
     setVerificationResult(null);
 
-    // Simulasi API call
-    setTimeout(() => {
-      const isValid = hashInput.startsWith('0x') && hashInput.length > 20;
-      setVerificationResult({
-        isValid,
-        certificateData: isValid
-          ? {
-              recipientName: 'Jane Smith',
-              skillName: 'TypeScript Fundamentals',
-              issueDate: '10 Juni 2026',
-              score: 91,
-              blockchainHash: hashInput,
-              issuer: 'Kredly Platform',
-            }
-          : undefined,
-        message: isValid
-          ? 'Sertifikat valid dan terverifikasi di blockchain'
-          : 'Hash blockchain tidak ditemukan atau tidak valid',
+    try {
+      const response = await fetch('http://localhost:3001/api/blockchain/verify-hash', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ hash: hashInput }),
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to verify hash');
+      }
+
+      const data = await response.json();
+      
+      setVerificationResult({
+        isValid: data.isValid,
+        certificateData: data.isValid ? {
+          recipientName: 'Jane Smith',
+          skillName: 'TypeScript Fundamentals',
+          issueDate: new Date(data.timestamp * 1000).toLocaleDateString('id-ID'),
+          score: 91,
+          blockchainHash: data.pdfHash,
+          issuer: 'Kredly Platform',
+        } : undefined,
+        message: data.isValid
+          ? `Sertifikat valid dan terverifikasi di blockchain - Status: ${data.currentStatus}`
+          : `Hash blockchain tidak ditemukan atau tidak valid - Status: ${data.currentStatus}`,
+      });
+    } catch (error) {
+      console.error('Error verifying hash:', error);
+      setVerificationResult({
+        isValid: false,
+        message: 'Gagal memverifikasi hash. Silakan coba lagi.',
+      });
+    } finally {
       setIsVerifying(false);
-    }, 2000);
+    }
   };
 
   const resetVerification = () => {

@@ -20,6 +20,7 @@ import { Route as AuthOnboardingRouteImport } from './routes/_auth/onboarding'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppAppRouteRouteImport } from './routes/_app/app/route'
+import { Route as PublicTermsIndexRouteImport } from './routes/_public/terms/index'
 import { Route as PublicFeaturesIndexRouteImport } from './routes/_public/features/index'
 import { Route as PublicAboutUsIndexRouteImport } from './routes/_public/about-us/index'
 import { Route as AppAppIndexRouteImport } from './routes/_app/app/index'
@@ -27,6 +28,7 @@ import { Route as CatResultSessionIdIndexRouteImport } from './routes/_cat/resul
 import { Route as CatQuizSessionIdIndexRouteImport } from './routes/_cat/quiz/$sessionId/index'
 import { Route as AppAppParseCvIndexRouteImport } from './routes/_app/app/parse-cv/index'
 import { Route as AppAppHistoryIndexRouteImport } from './routes/_app/app/history/index'
+import { Route as AppAppDemoPdfIndexRouteImport } from './routes/_app/app/demo-pdf/index'
 import { Route as AppAppCertificationIndexRouteImport } from './routes/_app/app/certification/index'
 import { Route as AppAppCertificateVerificationIndexRouteImport } from './routes/_app/app/certificate-verification/index'
 import { Route as AppAppAssessmentIndexRouteImport } from './routes/_app/app/assessment/index'
@@ -86,6 +88,11 @@ const AppAppRouteRoute = AppAppRouteRouteImport.update({
   path: '/app',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const PublicTermsIndexRoute = PublicTermsIndexRouteImport.update({
+  id: '/terms/',
+  path: '/terms/',
+  getParentRoute: () => PublicRouteRoute,
+} as any)
 const PublicFeaturesIndexRoute = PublicFeaturesIndexRouteImport.update({
   id: '/features/',
   path: '/features/',
@@ -119,6 +126,11 @@ const AppAppParseCvIndexRoute = AppAppParseCvIndexRouteImport.update({
 const AppAppHistoryIndexRoute = AppAppHistoryIndexRouteImport.update({
   id: '/history/',
   path: '/history/',
+  getParentRoute: () => AppAppRouteRoute,
+} as any)
+const AppAppDemoPdfIndexRoute = AppAppDemoPdfIndexRouteImport.update({
+  id: '/demo-pdf/',
+  path: '/demo-pdf/',
   getParentRoute: () => AppAppRouteRoute,
 } as any)
 const AppAppCertificationIndexRoute =
@@ -169,11 +181,13 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppAppIndexRoute
   '/about-us/': typeof PublicAboutUsIndexRoute
   '/features/': typeof PublicFeaturesIndexRoute
+  '/terms/': typeof PublicTermsIndexRoute
   '/app/assessment/$assessmentId': typeof AppAppAssessmentAssessmentIdRouteRouteWithChildren
   '/app/account-settings/': typeof AppAppAccountSettingsIndexRoute
   '/app/assessment/': typeof AppAppAssessmentIndexRoute
   '/app/certificate-verification/': typeof AppAppCertificateVerificationIndexRoute
   '/app/certification/': typeof AppAppCertificationIndexRoute
+  '/app/demo-pdf/': typeof AppAppDemoPdfIndexRoute
   '/app/history/': typeof AppAppHistoryIndexRoute
   '/app/parse-cv/': typeof AppAppParseCvIndexRoute
   '/quiz/$sessionId/': typeof CatQuizSessionIdIndexRoute
@@ -191,10 +205,12 @@ export interface FileRoutesByTo {
   '/app': typeof AppAppIndexRoute
   '/about-us': typeof PublicAboutUsIndexRoute
   '/features': typeof PublicFeaturesIndexRoute
+  '/terms': typeof PublicTermsIndexRoute
   '/app/account-settings': typeof AppAppAccountSettingsIndexRoute
   '/app/assessment': typeof AppAppAssessmentIndexRoute
   '/app/certificate-verification': typeof AppAppCertificateVerificationIndexRoute
   '/app/certification': typeof AppAppCertificationIndexRoute
+  '/app/demo-pdf': typeof AppAppDemoPdfIndexRoute
   '/app/history': typeof AppAppHistoryIndexRoute
   '/app/parse-cv': typeof AppAppParseCvIndexRoute
   '/quiz/$sessionId': typeof CatQuizSessionIdIndexRoute
@@ -217,11 +233,13 @@ export interface FileRoutesById {
   '/_app/app/': typeof AppAppIndexRoute
   '/_public/about-us/': typeof PublicAboutUsIndexRoute
   '/_public/features/': typeof PublicFeaturesIndexRoute
+  '/_public/terms/': typeof PublicTermsIndexRoute
   '/_app/app/assessment/$assessmentId': typeof AppAppAssessmentAssessmentIdRouteRouteWithChildren
   '/_app/app/account-settings/': typeof AppAppAccountSettingsIndexRoute
   '/_app/app/assessment/': typeof AppAppAssessmentIndexRoute
   '/_app/app/certificate-verification/': typeof AppAppCertificateVerificationIndexRoute
   '/_app/app/certification/': typeof AppAppCertificationIndexRoute
+  '/_app/app/demo-pdf/': typeof AppAppDemoPdfIndexRoute
   '/_app/app/history/': typeof AppAppHistoryIndexRoute
   '/_app/app/parse-cv/': typeof AppAppParseCvIndexRoute
   '/_cat/quiz/$sessionId/': typeof CatQuizSessionIdIndexRoute
@@ -242,11 +260,13 @@ export interface FileRouteTypes {
     | '/app/'
     | '/about-us/'
     | '/features/'
+    | '/terms/'
     | '/app/assessment/$assessmentId'
     | '/app/account-settings/'
     | '/app/assessment/'
     | '/app/certificate-verification/'
     | '/app/certification/'
+    | '/app/demo-pdf/'
     | '/app/history/'
     | '/app/parse-cv/'
     | '/quiz/$sessionId/'
@@ -264,10 +284,12 @@ export interface FileRouteTypes {
     | '/app'
     | '/about-us'
     | '/features'
+    | '/terms'
     | '/app/account-settings'
     | '/app/assessment'
     | '/app/certificate-verification'
     | '/app/certification'
+    | '/app/demo-pdf'
     | '/app/history'
     | '/app/parse-cv'
     | '/quiz/$sessionId'
@@ -289,11 +311,13 @@ export interface FileRouteTypes {
     | '/_app/app/'
     | '/_public/about-us/'
     | '/_public/features/'
+    | '/_public/terms/'
     | '/_app/app/assessment/$assessmentId'
     | '/_app/app/account-settings/'
     | '/_app/app/assessment/'
     | '/_app/app/certificate-verification/'
     | '/_app/app/certification/'
+    | '/_app/app/demo-pdf/'
     | '/_app/app/history/'
     | '/_app/app/parse-cv/'
     | '/_cat/quiz/$sessionId/'
@@ -389,6 +413,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppRouteRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_public/terms/': {
+      id: '/_public/terms/'
+      path: '/terms'
+      fullPath: '/terms/'
+      preLoaderRoute: typeof PublicTermsIndexRouteImport
+      parentRoute: typeof PublicRouteRoute
+    }
     '/_public/features/': {
       id: '/_public/features/'
       path: '/features'
@@ -436,6 +467,13 @@ declare module '@tanstack/react-router' {
       path: '/history'
       fullPath: '/app/history/'
       preLoaderRoute: typeof AppAppHistoryIndexRouteImport
+      parentRoute: typeof AppAppRouteRoute
+    }
+    '/_app/app/demo-pdf/': {
+      id: '/_app/app/demo-pdf/'
+      path: '/demo-pdf'
+      fullPath: '/app/demo-pdf/'
+      preLoaderRoute: typeof AppAppDemoPdfIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
     '/_app/app/certification/': {
@@ -505,6 +543,7 @@ interface AppAppRouteRouteChildren {
   AppAppAssessmentIndexRoute: typeof AppAppAssessmentIndexRoute
   AppAppCertificateVerificationIndexRoute: typeof AppAppCertificateVerificationIndexRoute
   AppAppCertificationIndexRoute: typeof AppAppCertificationIndexRoute
+  AppAppDemoPdfIndexRoute: typeof AppAppDemoPdfIndexRoute
   AppAppHistoryIndexRoute: typeof AppAppHistoryIndexRoute
   AppAppParseCvIndexRoute: typeof AppAppParseCvIndexRoute
 }
@@ -518,6 +557,7 @@ const AppAppRouteRouteChildren: AppAppRouteRouteChildren = {
   AppAppCertificateVerificationIndexRoute:
     AppAppCertificateVerificationIndexRoute,
   AppAppCertificationIndexRoute: AppAppCertificationIndexRoute,
+  AppAppDemoPdfIndexRoute: AppAppDemoPdfIndexRoute,
   AppAppHistoryIndexRoute: AppAppHistoryIndexRoute,
   AppAppParseCvIndexRoute: AppAppParseCvIndexRoute,
 }
@@ -562,12 +602,14 @@ interface PublicRouteRouteChildren {
   PublicIndexRoute: typeof PublicIndexRoute
   PublicAboutUsIndexRoute: typeof PublicAboutUsIndexRoute
   PublicFeaturesIndexRoute: typeof PublicFeaturesIndexRoute
+  PublicTermsIndexRoute: typeof PublicTermsIndexRoute
 }
 
 const PublicRouteRouteChildren: PublicRouteRouteChildren = {
   PublicIndexRoute: PublicIndexRoute,
   PublicAboutUsIndexRoute: PublicAboutUsIndexRoute,
   PublicFeaturesIndexRoute: PublicFeaturesIndexRoute,
+  PublicTermsIndexRoute: PublicTermsIndexRoute,
 }
 
 const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(

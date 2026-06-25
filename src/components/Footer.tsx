@@ -3,17 +3,16 @@ import LogoWhite from '@/assets/logo-white.png';
 import { Button } from '@/components/ui/button';
 
 const navLinks = [
-  { href: '#', label: 'Features' },
-  { href: '#', label: 'Blog' },
-  { href: '#', label: 'About' },
-  { href: '#', label: 'Contact' },
-  { href: '#', label: 'Licence' },
-  { href: '#', label: 'Privacy' },
+  { href: '/features', label: 'Fitur' },
+  { href: '/pricing', label: 'Harga' },
+  { href: '/about', label: 'Tentang Kami' },
+  { href: '/license', label: 'Licence' },
+  { href: '/privacy', label: 'Privacy' },
 ];
 
 const socialLinks = [
   {
-    href: '#',
+    href: 'https://github.com/GwFirman/kredly',
     label: 'Github',
     icon: <GithubIcon />,
   },
@@ -31,7 +30,7 @@ export default function Footer() {
                 alt="Kredly Logo"
                 width={100}
                 height={24}
-                className="h-6 w-auto aspect-[100/24] object-contain"
+                className="h-6 w-auto aspect-100/24 object-contain"
               />
             </div>
             <div className="flex items-center">
@@ -43,7 +42,7 @@ export default function Footer() {
                   variant="ghost"
                   className="text-zinc-400 hover:bg-white/10 hover:text-white"
                 >
-                  <a aria-label={label} href={href}>
+                  <a aria-label={label} href={href} target="_blank" rel="noopener noreferrer">
                     {icon}
                   </a>
                 </Button>
@@ -68,7 +67,7 @@ export default function Footer() {
         </div>
 
         <div className="flex items-center justify-between gap-4 border-t py-4 text-muted-foreground text-sm">
-          <p>&copy; {new Date().getFullYear()} kredly.</p>
+          <p>&copy; {new Date().getFullYear()} kredly rights reserved.</p>
         </div>
       </div>
     </footer>

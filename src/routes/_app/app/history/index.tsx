@@ -1,13 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
 
 export const Route = createFileRoute('/_app/app/history/')({
   component: RouteComponent,
@@ -134,9 +128,9 @@ function RouteComponent() {
     switch (type) {
       case 'assessment_completed':
         return (
-          <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+          <div className="w-10 h-10  flex items-center justify-center">
             <svg
-              className="w-5 h-5 text-green-600"
+              className="w-5 h-5 text-primary"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -150,9 +144,9 @@ function RouteComponent() {
         );
       case 'credential_earned':
         return (
-          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+          <div className="w-10 h-10  flex items-center justify-center">
             <svg
-              className="w-5 h-5 text-blue-600"
+              className="w-5 h-5 text-primary"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -167,9 +161,9 @@ function RouteComponent() {
         );
       case 'cv_updated':
         return (
-          <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+          <div className="w-10 h-10  flex items-center justify-center">
             <svg
-              className="w-5 h-5 text-purple-600"
+              className="w-5 h-5 text-foreground"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -179,9 +173,9 @@ function RouteComponent() {
         );
       case 'assessment_started':
         return (
-          <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">
+          <div className="w-10 h-10  flex items-center justify-center">
             <svg
-              className="w-5 h-5 text-yellow-600"
+              className="w-5 h-5 text-muted-foreground"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -195,9 +189,9 @@ function RouteComponent() {
         );
       case 'blockchain_verified':
         return (
-          <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+          <div className="w-10 h-10  flex items-center justify-center">
             <svg
-              className="w-5 h-5 text-indigo-600"
+              className="w-5 h-5 text-primary"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -211,9 +205,9 @@ function RouteComponent() {
         );
       default:
         return (
-          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+          <div className="w-10 h-10  flex items-center justify-center">
             <svg
-              className="w-5 h-5 text-gray-600"
+              className="w-5 h-5 text-muted-foreground"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -233,92 +227,50 @@ function RouteComponent() {
       case 'assessment_completed':
         return <Badge variant="default">Assessment</Badge>;
       case 'credential_earned':
-        return <Badge className="bg-blue-500">Kredensial</Badge>;
+        return <Badge variant="default">Kredensial</Badge>;
       case 'cv_updated':
-        return <Badge className="bg-purple-500">CV</Badge>;
+        return <Badge variant="secondary">CV</Badge>;
       case 'assessment_started':
         return <Badge variant="secondary">Assessment</Badge>;
       case 'blockchain_verified':
-        return <Badge className="bg-indigo-500">Blockchain</Badge>;
+        return <Badge variant="default">Blockchain</Badge>;
       default:
         return <Badge variant="outline">Lainnya</Badge>;
     }
   };
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="space-y-6">
         {/* Header Section */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900">
-              Riwayat Aktivitas
-            </h2>
-            <p className="text-gray-600 mt-2">
-              Timeline aktivitas Anda di platform
-            </p>
+        <div className="border-b border-border px-1 pb-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold text-foreground">
+                Riwayat Aktivitas
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Timeline aktivitas Anda di platform
+              </p>
+            </div>
+            <Button variant="outline" className="gap-2">
+              <Download className="h-4 w-4" />
+              Export PDF
+            </Button>
           </div>
         </div>
 
-        {/* Statistics Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">
-                  {activities.length}
-                </p>
-                <p className="text-sm text-gray-600 mt-1">Total Aktivitas</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">15 Juni</p>
-                <p className="text-sm text-gray-600 mt-1">Hari Paling Aktif</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">7 hari</p>
-                <p className="text-sm text-gray-600 mt-1">Streak Terpanjang</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Activity Timeline */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Timeline Aktivitas</CardTitle>
-                <CardDescription>
-                  Riwayat aktivitas Anda secara kronologis
-                </CardDescription>
-              </div>
-              <Button variant="outline" size="sm">
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-                Export PDF
-              </Button>
+        <div className="border border-border bg-background">
+          <div className="flex items-center justify-between border-b border-border p-6">
+            <div>
+              <h3 className="text-lg font-semibold">Timeline Aktivitas</h3>
+              <p className="text-sm text-muted-foreground">
+                Riwayat aktivitas Anda secara kronologis
+              </p>
             </div>
-          </CardHeader>
-          <CardContent>
+          </div>
+          <div className="p-6">
             {activities.length > 0 ? (
               <div className="space-y-6">
                 {activities.map((activity, index) => (
@@ -327,7 +279,7 @@ function RouteComponent() {
                     <div className="flex flex-col items-center">
                       {getActivityIcon(activity.type)}
                       {index !== activities.length - 1 && (
-                        <div className="w-0.5 h-full bg-gray-200 mt-2"></div>
+                        <div className="w-0.5 h-full bg-border mt-2"></div>
                       )}
                     </div>
 
@@ -335,19 +287,19 @@ function RouteComponent() {
                     <div className="flex-1 pb-6">
                       <div className="flex items-start justify-between mb-1">
                         <div className="flex items-center gap-2">
-                          <h4 className="font-semibold text-gray-900">
+                          <h4 className="font-semibold text-foreground">
                             {activity.title}
                           </h4>
                           {getActivityTypeBadge(activity.type)}
                         </div>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-muted-foreground">
                           {activity.time}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">
+                      <p className="text-sm text-muted-foreground mb-2">
                         {activity.description}
                       </p>
-                      <p className="text-xs text-gray-500 mb-2">
+                      <p className="text-xs text-muted-foreground mb-2">
                         {activity.date}
                       </p>
 
@@ -356,10 +308,10 @@ function RouteComponent() {
                         <div className="mt-3 space-y-2">
                           {activity.metadata.score !== undefined && (
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-medium text-foreground">
                                 Score:
                               </span>
-                              <span className="text-sm text-gray-900 font-semibold">
+                              <span className="text-sm text-foreground font-semibold">
                                 {activity.metadata.score}/100
                               </span>
                             </div>
@@ -367,15 +319,15 @@ function RouteComponent() {
 
                           {activity.metadata.txHash && (
                             <div>
-                              <span className="text-xs font-medium text-gray-500 block mb-1">
+                              <span className="text-xs font-medium text-muted-foreground block mb-1">
                                 Blockchain TX Hash:
                               </span>
-                              <code className="text-xs bg-gray-100 px-2 py-1 rounded block truncate">
+                              <code className="text-xs bg-muted px-2 py-1 block truncate">
                                 {activity.metadata.txHash}
                               </code>
                               <a
                                 href="#"
-                                className="text-xs text-blue-600 hover:underline mt-1 inline-block"
+                                className="text-xs text-primary hover:underline mt-1 inline-block"
                               >
                                 View on blockchain explorer →
                               </a>
@@ -384,10 +336,10 @@ function RouteComponent() {
 
                           {activity.metadata.fileName && (
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-medium text-foreground">
                                 File:
                               </span>
-                              <span className="text-sm text-gray-900">
+                              <span className="text-sm text-foreground">
                                 {activity.metadata.fileName}
                               </span>
                             </div>
@@ -395,14 +347,14 @@ function RouteComponent() {
 
                           {activity.metadata.skills && (
                             <div>
-                              <span className="text-sm font-medium text-gray-700 block mb-1">
+                              <span className="text-sm font-medium text-foreground block mb-1">
                                 New Skills Detected:
                               </span>
                               <div className="flex flex-wrap gap-1">
                                 {activity.metadata.skills.map((skill) => (
                                   <span
                                     key={skill}
-                                    className="px-2 py-0.5 bg-gray-100 text-gray-800 rounded text-xs"
+                                    className="px-2 py-0.5 bg-muted text-foreground text-xs"
                                   >
                                     {skill}
                                   </span>
@@ -413,10 +365,10 @@ function RouteComponent() {
 
                           {activity.metadata.progress && (
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-medium text-foreground">
                                 Status:
                               </span>
-                              <span className="text-sm text-gray-900">
+                              <span className="text-sm text-foreground">
                                 {activity.metadata.progress}
                               </span>
                             </div>
@@ -429,11 +381,11 @@ function RouteComponent() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-600">Belum ada aktivitas</p>
+                <p className="text-muted-foreground">Belum ada aktivitas</p>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </main>
   );

@@ -1,23 +1,45 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload } from 'lucide-react';
+import { Upload, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { extractPDFImages } from '@/lib/pdfRenderer';
+import { toast } from 'sonner';
 
 interface StepTwoOnboardingProps {
   cvFile: File | null;
   setCvFile: (file: File | null) => void;
+  setCvImages: (images: string[]) => void;
   onNext: () => void;
 }
 
 export function StepTwoOnboarding({
   cvFile,
   setCvFile,
+  setCvImages,
   onNext,
 }: StepTwoOnboardingProps) {
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type === 'application/pdf') {
       setCvFile(file);
+
+      // Extract images from PDF for vision processing
+      setIsProcessing(true);
+      try {
+        const images = await extractPDFImages(file, { scale: 2, maxPages: 5 });
+        setCvImages(images);
+      } catch (error) {
+        console.error('Failed to extract PDF images:', error);
+        toast.error(
+          'Gagal memproses PDF. Tetap akan mencoba membaca text dari CV.',
+        );
+        setCvImages([]);
+      } finally {
+        setIsProcessing(false);
+      }
     }
   };
 
@@ -67,8 +89,20 @@ export function StepTwoOnboarding({
           </div>
         </div>
 
-        <Button type="submit" size="lg" className="w-full" disabled={!cvFile}>
-          Simpan dan Lanjutkan
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full"
+          disabled={!cvFile || isProcessing}
+        >
+          {isProcessing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Memproses PDF...
+            </>
+          ) : (
+            'Simpan dan Lanjutkan'
+          )}
         </Button>
       </form>
     </>
