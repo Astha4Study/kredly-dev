@@ -11,7 +11,6 @@ import {
   ShieldCheck,
   Upload,
   Briefcase,
-  BarChart3,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
@@ -46,11 +45,11 @@ export default function AppTopBar() {
           },
         ]
       : []),
-    {
-      path: '/app/certification-test',
-      label: 'Contoh Sertifikasi',
-      icon: BarChart3,
-    },
+    // {
+    //   path: '/app/certification-test',
+    //   label: 'Contoh Sertifikasi',
+    //   icon: BarChart3,
+    // },
     {
       path: '/app/certificate-verification',
       label: 'Verifikasi',

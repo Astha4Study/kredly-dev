@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-router';
 import { sessionService } from '@/services/sessionService';
 import type { ResultResponse } from '@/pages/client/cat/types';
+import AppTopbarAssessment from '@/components/AppTopbarAssessment';
 
 // Section components
 import ResultLoading from '@/pages/client/cat/result/ResultLoading';
@@ -98,40 +99,46 @@ function RouteComponent() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-start p-4 md:p-8">
-      <div className="w-full max-w-4xl space-y-8">
-        {/* Title Block */}
-        <ResultHeader role={result.role} />
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <AppTopbarAssessment
+        assessmentId={result.assessment_id}
+        title="Hasil Asesmen"
+      />
+      <div className="flex-1 flex flex-col items-center justify-start p-4 md:p-8">
+        <div className="w-full max-w-4xl space-y-8">
+          {/* Title Block */}
+          <ResultHeader role={result.role} />
 
-        {/* Top Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <ResultScoreCard
-            displayedScore={displayedScore}
-            level={result.level}
+          {/* Top Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <ResultScoreCard
+              displayedScore={displayedScore}
+              level={result.level}
+            />
+
+            <ResultSummaryCard
+              feedback={result.feedback}
+              verificationId={result.verification_id}
+              totalItems={result.total_items}
+              durationSeconds={result.duration_seconds}
+            />
+          </div>
+
+          {/* AI Recommendations & Detailed Insights */}
+          <ResultInsights
+            strengths={result.strengths}
+            weaknesses={result.weaknesses}
+            recommendations={result.recommendations}
           />
 
-          <ResultSummaryCard
-            feedback={result.feedback}
-            verificationId={result.verification_id}
-            totalItems={result.total_items}
-            durationSeconds={result.duration_seconds}
+          {/* Action Buttons */}
+          <ResultActions
+            onDownload={handleDownloadCertificate}
+            downloading={false}
+            onNewTest={() => navigate({ to: '/parseCV' })}
+            onHome={() => navigate({ to: '/' })}
           />
         </div>
-
-        {/* AI Recommendations & Detailed Insights */}
-        <ResultInsights
-          strengths={result.strengths}
-          weaknesses={result.weaknesses}
-          recommendations={result.recommendations}
-        />
-
-        {/* Action Buttons */}
-        <ResultActions
-          onDownload={handleDownloadCertificate}
-          downloading={false}
-          onNewTest={() => navigate({ to: '/parseCV' })}
-          onHome={() => navigate({ to: '/' })}
-        />
       </div>
     </div>
   );

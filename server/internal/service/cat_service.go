@@ -61,6 +61,7 @@ type SessionResult struct {
 	TotalItems      int      `json:"total_items"`
 	DurationSeconds int      `json:"duration_seconds"`
 	CandidateName   string   `json:"candidate_name"`
+	AssessmentID    string   `json:"assessment_id,omitempty"`
 }
 
 // CreateSession initializes a new adaptive test session
@@ -224,7 +225,7 @@ func (s *CATService) NextItem(ctx context.Context, sessionID string) (*models.Pe
 			Topic:        topic,
 			Pertanyaan:   g.Pertanyaan,
 			Pilihan:      g.Pilihan,
-			KunciJawaban: g.KunciJawaban,
+			KunciJawaban: string(g.KunciJawaban),
 			Penjelasan:   g.Penjelasan,
 			BEstimated:   g.BEstimated,
 		})
@@ -394,6 +395,7 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 			TotalItems:      sess.TotalItems,
 			DurationSeconds: sess.DurationSeconds,
 			CandidateName:   candidateName,
+			AssessmentID:    sess.AssessmentID,
 		}, nil
 	}
 
@@ -466,6 +468,7 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 		TotalItems:      sess.TotalItems,
 		DurationSeconds: sess.DurationSeconds,
 		CandidateName:   candidateName,
+		AssessmentID:    sess.AssessmentID,
 	}
 
 	// 2. Persist the results inside the session document
@@ -564,7 +567,7 @@ func (s *CATService) triggerBackgroundPrefetch(sessionID string) {
 			Topic:        topic,
 			Pertanyaan:   g.Pertanyaan,
 			Pilihan:      g.Pilihan,
-			KunciJawaban: g.KunciJawaban,
+			KunciJawaban: string(g.KunciJawaban),
 			Penjelasan:   g.Penjelasan,
 			BEstimated:   g.BEstimated,
 		})
