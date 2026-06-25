@@ -112,6 +112,27 @@ type GeneratedAssessment struct {
 	Progress      int      `bson:"progress,omitempty" json:"progress,omitempty"`
 }
 
+type Job struct {
+	ID           string     `bson:"_id" json:"id"`
+	UserID       string     `bson:"userId" json:"userId"`
+	Source       string     `bson:"source" json:"source"` // "linkedin", "indeed", "glassdoor", "upwork"
+	Title        string     `bson:"title" json:"title"`
+	Company      string     `bson:"company" json:"company"`
+	Location     string     `bson:"location" json:"location"`
+	JobType      *string    `bson:"jobType,omitempty" json:"type,omitempty"`
+	Salary       *string    `bson:"salary,omitempty" json:"salary,omitempty"`
+	Description  *string    `bson:"description,omitempty" json:"description,omitempty"`
+	URL          *string    `bson:"url,omitempty" json:"url,omitempty"`
+	PostedDate   *string    `bson:"postedDate,omitempty" json:"postedTime,omitempty"`
+	Logo         *string    `bson:"logo,omitempty" json:"logo,omitempty"`
+	Promoted     bool       `bson:"promoted" json:"promoted"`
+	EarlyApplicant bool     `bson:"earlyApplicant" json:"earlyApplicant"`
+	CreatedAt    time.Time  `bson:"createdAt" json:"createdAt"`
+	UpdatedAt    time.Time  `bson:"updatedAt" json:"updatedAt"`
+
+	User *User `bson:"-" json:"user,omitempty"`
+}
+
 // ==========================================
 // 2. SETUP UNIQUE INDEXES
 // ==========================================

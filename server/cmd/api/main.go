@@ -56,6 +56,9 @@ func main() {
 	// 8. Initialize Blockchain Handler
 	blockchainHandler := handlers.NewBlockchainHandler()
 
+	// 9. Initialize Job Handler
+	jobHandler := handlers.NewJobHandler(database.DB)
+
 	// Set Gin mode
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
@@ -142,6 +145,14 @@ func main() {
 			user.PUT("/update-profile", profileHandler.HandleUpdateProfile)
 			user.POST("/upload-cv", profileHandler.HandleUploadCV)
 			user.DELETE("/delete-account", profileHandler.HandleDeleteAccount)
+		}
+
+		// Job endpoints - Protected
+		jobs := api.Group("/jobs")
+		jobs.Use(middleware.AuthMiddleware(cfg, authService))
+		{
+			jobs.POST("/fetch", jobHandler.FetchAndStoreJobs)
+			jobs.GET("", jobHandler.GetUserJobs)
 		}
 	}
 
