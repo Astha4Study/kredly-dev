@@ -86,113 +86,126 @@ function RouteComponent() {
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex items-start gap-6">
         {/* Main Content */}
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 space-y-6">
           {/* Info Banner */}
           <JobsBanner />
 
           {/* Jobs Section */}
-          <div className="mt-6 overflow-hidden rounded-xl border border-border bg-background">
-            {/* Section Header */}
-            <div className="border-b border-border p-6">
-              <h2 className="text-xl font-semibold">
-                Jobs based on your preferences
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Part-time or contract Frontend Developer or User Interface
-                Designer or User Experience Designer or Back End Developer,
-                on-site or hybrid or remote in Purwokerto or Kecamatan
-                Purwokerto Utara or Jakarta, Indonesia
-              </p>
-            </div>
-
-            {/* New Feature Notice */}
-            <div className="border-b border-border bg-blue-50/50 p-4 dark:bg-blue-950/10">
+          <div className="border border-border bg-background">
+            {/* Header */}
+            <div className="border-b p-6">
               <div className="flex items-start justify-between gap-4">
-                <p className="flex-1 text-sm">
-                  <span className="font-semibold">New:</span> Explore jobs based
-                  on preferences you set in open to work. Edit preferences or
-                  visibility at any time.
-                </p>
-                <button className="shrink-0 text-muted-foreground transition-colors hover:text-foreground">
-                  <X className="h-4 w-4" />
-                </button>
+                <div>
+                  <h2 className="text-xl font-semibold">
+                    Pekerjaan untuk Anda
+                  </h2>
+
+                  <p className="mt-1 text-sm text-muted-foreground max-w-3xl">
+                    Berdasarkan profil, hasil asesmen, dan preferensi karier
+                    Anda.
+                  </p>
+                </div>
+
+                <Button variant="outline" size="sm">
+                  Edit Preferensi
+                </Button>
               </div>
             </div>
 
-            {/* Job Listings */}
-            <div className="divide-y divide-border">
+            {/* Job List */}
+            <div>
               {dummyJobs.map((job) => (
                 <div
                   key={job.id}
-                  className="group relative p-6 transition-colors hover:bg-muted/30"
+                  className="
+                    group
+                    border-b
+                    p-6
+                    transition-colors
+                    hover:bg-muted/20
+                  "
                 >
-                  <button className="absolute right-4 top-4 rounded-full p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground group-hover:opacity-100">
-                    <X className="h-4 w-4" />
-                  </button>
-
-                  <div className="flex gap-4">
-                    {/* Company Logo */}
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg border border-border bg-linear-to-br from-primary/10 to-primary/5 text-xl font-bold text-primary">
+                  <div className="flex gap-5">
+                    {/* Logo */}
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center border bg-muted/30 text-sm font-semibold">
                       {job.logo}
                     </div>
 
-                    {/* Job Details */}
+                    {/* Content */}
                     <div className="min-w-0 flex-1">
-                      <Link
-                        to="/app/jobs/$jobId"
-                        params={{ jobId: job.id }}
-                        className="group/link inline-block"
-                      >
-                        <h3 className="text-base font-semibold text-primary transition-colors group-hover/link:underline">
-                          {job.title}
-                        </h3>
-                      </Link>
-
-                      <p className="mt-1 text-sm">{job.company}</p>
-
-                      <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-                        <MapPin className="h-3.5 w-3.5" />
-                        <span>{job.location}</span>
-                      </div>
-
-                      {job.salary && (
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          {job.salary}
-                        </p>
-                      )}
-
-                      {/* Badges */}
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
-                        {job.promoted && (
-                          <Badge variant="secondary" className="text-xs">
-                            Promoted
-                          </Badge>
-                        )}
-                        {job.earlyApplicant && (
-                          <Badge
-                            variant="outline"
-                            className="border-green-600/20 bg-green-50 text-xs text-green-700 dark:bg-green-950/20 dark:text-green-400"
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <Link
+                            to="/app/jobs/$jobId"
+                            params={{ jobId: job.id }}
                           >
-                            Be an early applicant
-                          </Badge>
-                        )}
+                            <h3 className="text-base font-semibold transition-colors group-hover:text-primary">
+                              {job.title}
+                            </h3>
+                          </Link>
+
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            {job.company}
+                          </p>
+                        </div>
+
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="opacity-0 transition-opacity group-hover:opacity-100"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
                       </div>
 
-                      {/* Posted Time */}
-                      <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        <span>{job.postedTime}</span>
+                      {/* Meta */}
+                      <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5" />
+                          {job.location}
+                        </div>
+
+                        {job.salary && (
+                          <>
+                            <span>•</span>
+                            <span>{job.salary}</span>
+                          </>
+                        )}
+
+                        <span>•</span>
+
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="h-3.5 w-3.5" />
+                          {job.postedTime}
+                        </div>
                       </div>
+
+                      {/* Status */}
+                      {(job.promoted || job.earlyApplicant) && (
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {job.promoted && (
+                            <Badge variant="outline" className="font-normal">
+                              Promoted
+                            </Badge>
+                          )}
+
+                          {job.earlyApplicant && (
+                            <Badge variant="outline" className="font-normal">
+                              Early Applicant
+                            </Badge>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Load More */}
-            <div className="border-t border-border p-6 text-center">
-              <Button variant="outline" className="w-full sm:w-auto">
-                Show more jobs
+            {/* Footer */}
+            <div className="p-6">
+              <Button variant="outline" className="w-full">
+                Muat Lebih Banyak
               </Button>
             </div>
           </div>
