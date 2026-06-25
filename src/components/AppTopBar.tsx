@@ -10,6 +10,8 @@ import {
   History,
   ShieldCheck,
   Upload,
+  Briefcase,
+  BarChart3,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
@@ -29,20 +31,26 @@ export default function AppTopBar() {
 
   const navItems = [
     { path: '/app', label: 'Beranda', icon: Home },
-    { path: '/app/certification', label: 'Sertifikasi', icon: Award },
     { path: '/app/assessment', label: 'Asesmen', icon: FileText },
+    { path: '/app/certification', label: 'Kredensial', icon: Award },
+    { path: '/app/jobs', label: 'Karier', icon: Briefcase },
   ];
 
   const NavItemsSecondary = [
     ...(import.meta.env.DEV
       ? [
-          {
-            path: '/app/demo-pdf',
-            label: 'Demo PDF',
-            icon: Upload,
-          },
-        ]
+        {
+          path: '/app/demo-pdf',
+          label: 'Demo PDF',
+          icon: Upload,
+        },
+      ]
       : []),
+    {
+      path: '/app/certification-test',
+      label: 'Contoh Sertifikasi',
+      icon: BarChart3,
+    },
     {
       path: '/app/certificate-verification',
       label: 'Verifikasi',

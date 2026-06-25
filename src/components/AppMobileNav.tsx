@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Portal, PortalBackdrop } from '@/components/ui/portal';
-import { XIcon, MenuIcon } from 'lucide-react';
+import { XIcon, MenuIcon, Briefcase } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import {
   Home,
@@ -22,16 +22,17 @@ interface AppMobileNavProps {
 export function AppMobileNav({ kredit, open, setOpen }: AppMobileNavProps) {
   const navItems = [
     { path: '/app', label: 'Beranda', icon: Home },
-    { path: '/app/certification', label: 'Sertifikasi', icon: Award },
     { path: '/app/assessment', label: 'Asesmen', icon: FileText },
+    { path: '/app/certification', label: 'Kredensial', icon: Award },
+    { path: '/app/jobs', label: 'Karier', icon: Briefcase },
     ...(import.meta.env.DEV
       ? [
-          {
-            path: '/app/demo-pdf',
-            label: 'Demo PDF',
-            icon: Upload,
-          },
-        ]
+        {
+          path: '/app/demo-pdf',
+          label: 'Demo PDF',
+          icon: Upload,
+        },
+      ]
       : []),
     {
       path: '/app/certificate-verification',
