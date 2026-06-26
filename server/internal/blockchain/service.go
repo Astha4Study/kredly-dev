@@ -1,128 +1,55 @@
 package blockchain
 
 import (
-	"context"
-	"encoding/hex"
 	"fmt"
-	"math/big"
 	"os"
-	"strings"
-
-	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-const contractABI = `[{"inputs":[{"internalType":"bytes32","name":"_pdfHash","type":"bytes32"}],"name":"verifyPDF","outputs":[{"internalType":"bool","name":"isValid","type":"bool"},{"internalType":"string","name":"currentStatus","type":"string"},{"internalType":"uint256","name":"timestamp","type":"uint256"},{"internalType":"bytes32","name":"replacedByHash","type":"bytes32"}],"stateMutability":"view","type":"function"}]`
-
+// BlockchainService is a wrapper around CertificateClient for backward compatibility
+// Deprecated: Use CertificateClient directly instead
 type BlockchainService struct {
-	client          *ethclient.Client
-	contractAddress common.Address
-	contractABI     abi.ABI
-	rpcURL          string
+	client *CertificateClient
 }
 
+// NewBlockchainService creates a new blockchain service using environment variables
+// Deprecated: Use NewCertificateClient directly instead
 func NewBlockchainService() (*BlockchainService, error) {
 	rpcURL := os.Getenv("BLOCKCHAIN_RPC_URL")
 	contractAddr := os.Getenv("BLOCKCHAIN_CONTRACT_ADDRESS")
+	privateKey := os.Getenv("BLOCKCHAIN_PRIVATE_KEY")
 
 	if rpcURL == "" || contractAddr == "" {
 		return nil, fmt.Errorf("blockchain configuration not set")
 	}
 
-	client, err := ethclient.Dial(rpcURL)
+	client, err := NewCertificateClient(rpcURL, contractAddr, privateKey)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to blockchain: %w", err)
-	}
-
-	parsedABI, err := abi.JSON(strings.NewReader(contractABI))
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse ABI: %w", err)
+		return nil, err
 	}
 
 	return &BlockchainService{
-		client:          client,
-		contractAddress: common.HexToAddress(contractAddr),
-		contractABI:     parsedABI,
-		rpcURL:          rpcURL,
+		client: client,
 	}, nil
 }
 
+// VerifyPDF is deprecated - use VerifyCertificate instead
+// This method is kept for backward compatibility but will return an error
 func (b *BlockchainService) VerifyPDF(pdfHash string) (*VerificationResult, error) {
-	hashBytes := common.HexToHash(pdfHash)
-
-	var (
-		isValid        bool
-		currentStatus  string
-		timestamp      *big.Int
-		replacedByHash [32]byte
-	)
-
-	callData, err := b.contractABI.Pack("verifyPDF", hashBytes)
-	if err != nil {
-		return nil, fmt.Errorf("failed to pack data: %w", err)
-	}
-
-	msg := ethereum.CallMsg{
-		To:   &b.contractAddress,
-		Data: callData,
-	}
-
-	result, err := b.client.CallContract(context.Background(), msg, nil)
-	if err != nil {
-		return nil, fmt.Errorf("contract call failed: %w", err)
-	}
-
-	outputs := []interface{}{&isValid, &currentStatus, &timestamp, &replacedByHash}
-	err = b.contractABI.UnpackIntoInterface(&outputs, "verifyPDF", result)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unpack result: %w", err)
-	}
-
-	replacedBy := ""
-	if replacedByHash != [32]byte{} {
-		replacedBy = "0x" + hex.EncodeToString(replacedByHash[:])
-	}
-
-	return &VerificationResult{
-		IsValid:        isValid,
-		CurrentStatus:  currentStatus,
-		Timestamp:      timestamp.Uint64(),
-		ReplacedByHash: replacedBy,
-	}, nil
+	return nil, fmt.Errorf("VerifyPDF is deprecated, use VerifyCertificate(certificateID, pdfHash) instead")
 }
 
+// RegisterPDF is deprecated - use IssueCertificate instead
+// This method is kept for backward compatibility but will return an error
 func (b *BlockchainService) RegisterPDF(pdfHash string) (string, error) {
-	privateKeyHex := os.Getenv("BLOCKCHAIN_PRIVATE_KEY")
-	if privateKeyHex == "" {
-		return "", fmt.Errorf("private key not configured")
-	}
-
-	privateKey, err := crypto.HexToECDSA(privateKeyHex)
-	if err != nil {
-		return "", fmt.Errorf("invalid private key: %w", err)
-	}
-
-	chainID, err := b.client.NetworkID(context.Background())
-	if err != nil {
-		return "", fmt.Errorf("failed to get chain ID: %w", err)
-	}
-
-	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
-	if err != nil {
-		return "", fmt.Errorf("failed to create transactor: %w", err)
-	}
-
-	auth.Value = big.NewInt(0)
-	auth.GasLimit = uint64(300000)
-
-	// TODO: Implement actual transaction
-	return "0x0000000000000000000000000000000000000000000000000000000000000000", nil
+	return "", fmt.Errorf("RegisterPDF is deprecated, use IssueCertificate(certificateID, pdfHash, ipfsCID) instead")
 }
 
+// GetClient returns the underlying CertificateClient
+func (b *BlockchainService) GetClient() *CertificateClient {
+	return b.client
+}
+
+// Close closes the blockchain connection
 func (b *BlockchainService) Close() {
 	if b.client != nil {
 		b.client.Close()

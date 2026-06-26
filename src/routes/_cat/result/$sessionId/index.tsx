@@ -32,7 +32,6 @@ function RouteComponent() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState(false);
-  const [downloading, setDownloading] = React.useState(false);
   const [showCertModal, setShowCertModal] = React.useState(false);
 
   // Animated displayed score
@@ -93,11 +92,9 @@ function RouteComponent() {
 
   const handleDownloadCertificate = () => {
     if (!result) return;
-    setDownloading(true);
 
-    // Simulate PDF generation/download
-    setTimeout(() => {
-      const certContent = `
+    // Download text certificate immediately
+    const certContent = `
 =========================================
           KREDLY CERTIFICATION
 =========================================
@@ -113,18 +110,16 @@ Keabsahan      : Sertifikat ini sah dan terdaftar pada database Kredly.
       Terima kasih telah menggunakan Kredly!
       `;
 
-      const blob = new Blob([certContent], {
-        type: 'text/plain;charset=utf-8',
-      });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `Kredly_Certificate_${result.verification_id}.txt`;
-      link.click();
-      URL.revokeObjectURL(url);
-      setDownloading(false);
-      setShowCertModal(true);
-    }, 1500);
+    const blob = new Blob([certContent], {
+      type: 'text/plain;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Kredly_Certificate_${result.verification_id}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+    setShowCertModal(true);
   };
 
   if (isLoading) {
@@ -177,7 +172,6 @@ Keabsahan      : Sertifikat ini sah dan terdaftar pada database Kredly.
         {/* Action Buttons */}
         <ResultActions
           onDownload={handleDownloadCertificate}
-          downloading={downloading}
           onNewTest={() => navigate({ to: '/parseCV' })}
           onHome={() => navigate({ to: '/' })}
         />

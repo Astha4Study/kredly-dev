@@ -29,13 +29,13 @@ import { Route as CatQuizSessionIdIndexRouteImport } from './routes/_cat/quiz/$s
 import { Route as AppAppParseCvIndexRouteImport } from './routes/_app/app/parse-cv/index'
 import { Route as AppAppJobsIndexRouteImport } from './routes/_app/app/jobs/index'
 import { Route as AppAppHistoryIndexRouteImport } from './routes/_app/app/history/index'
-import { Route as AppAppDemoPdfIndexRouteImport } from './routes/_app/app/demo-pdf/index'
 import { Route as AppAppCertificationIndexRouteImport } from './routes/_app/app/certification/index'
 import { Route as AppAppCertificationTestIndexRouteImport } from './routes/_app/app/certification-test/index'
 import { Route as AppAppCertificateVerificationIndexRouteImport } from './routes/_app/app/certificate-verification/index'
 import { Route as AppAppAssessmentIndexRouteImport } from './routes/_app/app/assessment/index'
 import { Route as AppAppAccountSettingsIndexRouteImport } from './routes/_app/app/account-settings/index'
 import { Route as AppAppAssessmentAssessmentIdRouteRouteImport } from './routes/_app/app/assessment/$assessmentId/route'
+import { Route as AppAppCertificationIdIndexRouteImport } from './routes/_app/app/certification/$id/index'
 import { Route as AppAppAssessmentAssessmentIdIndexRouteImport } from './routes/_app/app/assessment/$assessmentId/index'
 
 const ParseCVRoute = ParseCVRouteImport.update({
@@ -135,11 +135,6 @@ const AppAppHistoryIndexRoute = AppAppHistoryIndexRouteImport.update({
   path: '/history/',
   getParentRoute: () => AppAppRouteRoute,
 } as any)
-const AppAppDemoPdfIndexRoute = AppAppDemoPdfIndexRouteImport.update({
-  id: '/demo-pdf/',
-  path: '/demo-pdf/',
-  getParentRoute: () => AppAppRouteRoute,
-} as any)
 const AppAppCertificationIndexRoute =
   AppAppCertificationIndexRouteImport.update({
     id: '/certification/',
@@ -175,6 +170,12 @@ const AppAppAssessmentAssessmentIdRouteRoute =
     path: '/assessment/$assessmentId',
     getParentRoute: () => AppAppRouteRoute,
   } as any)
+const AppAppCertificationIdIndexRoute =
+  AppAppCertificationIdIndexRouteImport.update({
+    id: '/certification/$id/',
+    path: '/certification/$id/',
+    getParentRoute: () => AppAppRouteRoute,
+  } as any)
 const AppAppAssessmentAssessmentIdIndexRoute =
   AppAppAssessmentAssessmentIdIndexRouteImport.update({
     id: '/',
@@ -201,13 +202,13 @@ export interface FileRoutesByFullPath {
   '/app/certificate-verification/': typeof AppAppCertificateVerificationIndexRoute
   '/app/certification-test/': typeof AppAppCertificationTestIndexRoute
   '/app/certification/': typeof AppAppCertificationIndexRoute
-  '/app/demo-pdf/': typeof AppAppDemoPdfIndexRoute
   '/app/history/': typeof AppAppHistoryIndexRoute
   '/app/jobs/': typeof AppAppJobsIndexRoute
   '/app/parse-cv/': typeof AppAppParseCvIndexRoute
   '/quiz/$sessionId/': typeof CatQuizSessionIdIndexRoute
   '/result/$sessionId/': typeof CatResultSessionIdIndexRoute
   '/app/assessment/$assessmentId/': typeof AppAppAssessmentAssessmentIdIndexRoute
+  '/app/certification/$id/': typeof AppAppCertificationIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
@@ -226,13 +227,13 @@ export interface FileRoutesByTo {
   '/app/certificate-verification': typeof AppAppCertificateVerificationIndexRoute
   '/app/certification-test': typeof AppAppCertificationTestIndexRoute
   '/app/certification': typeof AppAppCertificationIndexRoute
-  '/app/demo-pdf': typeof AppAppDemoPdfIndexRoute
   '/app/history': typeof AppAppHistoryIndexRoute
   '/app/jobs': typeof AppAppJobsIndexRoute
   '/app/parse-cv': typeof AppAppParseCvIndexRoute
   '/quiz/$sessionId': typeof CatQuizSessionIdIndexRoute
   '/result/$sessionId': typeof CatResultSessionIdIndexRoute
   '/app/assessment/$assessmentId': typeof AppAppAssessmentAssessmentIdIndexRoute
+  '/app/certification/$id': typeof AppAppCertificationIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -257,13 +258,13 @@ export interface FileRoutesById {
   '/_app/app/certificate-verification/': typeof AppAppCertificateVerificationIndexRoute
   '/_app/app/certification-test/': typeof AppAppCertificationTestIndexRoute
   '/_app/app/certification/': typeof AppAppCertificationIndexRoute
-  '/_app/app/demo-pdf/': typeof AppAppDemoPdfIndexRoute
   '/_app/app/history/': typeof AppAppHistoryIndexRoute
   '/_app/app/jobs/': typeof AppAppJobsIndexRoute
   '/_app/app/parse-cv/': typeof AppAppParseCvIndexRoute
   '/_cat/quiz/$sessionId/': typeof CatQuizSessionIdIndexRoute
   '/_cat/result/$sessionId/': typeof CatResultSessionIdIndexRoute
   '/_app/app/assessment/$assessmentId/': typeof AppAppAssessmentAssessmentIdIndexRoute
+  '/_app/app/certification/$id/': typeof AppAppCertificationIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -286,13 +287,13 @@ export interface FileRouteTypes {
     | '/app/certificate-verification/'
     | '/app/certification-test/'
     | '/app/certification/'
-    | '/app/demo-pdf/'
     | '/app/history/'
     | '/app/jobs/'
     | '/app/parse-cv/'
     | '/quiz/$sessionId/'
     | '/result/$sessionId/'
     | '/app/assessment/$assessmentId/'
+    | '/app/certification/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -311,13 +312,13 @@ export interface FileRouteTypes {
     | '/app/certificate-verification'
     | '/app/certification-test'
     | '/app/certification'
-    | '/app/demo-pdf'
     | '/app/history'
     | '/app/jobs'
     | '/app/parse-cv'
     | '/quiz/$sessionId'
     | '/result/$sessionId'
     | '/app/assessment/$assessmentId'
+    | '/app/certification/$id'
   id:
     | '__root__'
     | '/_app'
@@ -341,13 +342,13 @@ export interface FileRouteTypes {
     | '/_app/app/certificate-verification/'
     | '/_app/app/certification-test/'
     | '/_app/app/certification/'
-    | '/_app/app/demo-pdf/'
     | '/_app/app/history/'
     | '/_app/app/jobs/'
     | '/_app/app/parse-cv/'
     | '/_cat/quiz/$sessionId/'
     | '/_cat/result/$sessionId/'
     | '/_app/app/assessment/$assessmentId/'
+    | '/_app/app/certification/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -501,13 +502,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppHistoryIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
-    '/_app/app/demo-pdf/': {
-      id: '/_app/app/demo-pdf/'
-      path: '/demo-pdf'
-      fullPath: '/app/demo-pdf/'
-      preLoaderRoute: typeof AppAppDemoPdfIndexRouteImport
-      parentRoute: typeof AppAppRouteRoute
-    }
     '/_app/app/certification/': {
       id: '/_app/app/certification/'
       path: '/certification'
@@ -550,6 +544,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppAssessmentAssessmentIdRouteRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
+    '/_app/app/certification/$id/': {
+      id: '/_app/app/certification/$id/'
+      path: '/certification/$id'
+      fullPath: '/app/certification/$id/'
+      preLoaderRoute: typeof AppAppCertificationIdIndexRouteImport
+      parentRoute: typeof AppAppRouteRoute
+    }
     '/_app/app/assessment/$assessmentId/': {
       id: '/_app/app/assessment/$assessmentId/'
       path: '/'
@@ -583,10 +584,10 @@ interface AppAppRouteRouteChildren {
   AppAppCertificateVerificationIndexRoute: typeof AppAppCertificateVerificationIndexRoute
   AppAppCertificationTestIndexRoute: typeof AppAppCertificationTestIndexRoute
   AppAppCertificationIndexRoute: typeof AppAppCertificationIndexRoute
-  AppAppDemoPdfIndexRoute: typeof AppAppDemoPdfIndexRoute
   AppAppHistoryIndexRoute: typeof AppAppHistoryIndexRoute
   AppAppJobsIndexRoute: typeof AppAppJobsIndexRoute
   AppAppParseCvIndexRoute: typeof AppAppParseCvIndexRoute
+  AppAppCertificationIdIndexRoute: typeof AppAppCertificationIdIndexRoute
 }
 
 const AppAppRouteRouteChildren: AppAppRouteRouteChildren = {
@@ -599,10 +600,10 @@ const AppAppRouteRouteChildren: AppAppRouteRouteChildren = {
     AppAppCertificateVerificationIndexRoute,
   AppAppCertificationTestIndexRoute: AppAppCertificationTestIndexRoute,
   AppAppCertificationIndexRoute: AppAppCertificationIndexRoute,
-  AppAppDemoPdfIndexRoute: AppAppDemoPdfIndexRoute,
   AppAppHistoryIndexRoute: AppAppHistoryIndexRoute,
   AppAppJobsIndexRoute: AppAppJobsIndexRoute,
   AppAppParseCvIndexRoute: AppAppParseCvIndexRoute,
+  AppAppCertificationIdIndexRoute: AppAppCertificationIdIndexRoute,
 }
 
 const AppAppRouteRouteWithChildren = AppAppRouteRoute._addFileChildren(

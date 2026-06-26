@@ -54,7 +54,7 @@ func main() {
 	cvHandler := handlers.NewCVHandler(groqClient)
 
 	// 8. Initialize Blockchain Handler
-	blockchainHandler := handlers.NewBlockchainHandler()
+	blockchainHandler := handlers.NewBlockchainHandler(database.DB)
 
 	// 9. Initialize Job Handler
 	jobHandler := handlers.NewJobHandler(database.DB)
@@ -92,9 +92,12 @@ func main() {
 
 		api.POST("/parse-cv", middleware.AuthMiddleware(cfg, authService), cvHandler.HandleParseCV)
 
-		// Blockchain verification endpoints
-		api.POST("/blockchain/verify-upload", blockchainHandler.HandleVerifyPDFByUpload)
-		api.POST("/blockchain/verify-hash", blockchainHandler.HandleVerifyPDFByHash)
+		// Blockchain verification and issuance
+		api.POST("/blockchain/verify-by-hash", blockchainHandler.HandleVerifyByHashOnly) // Verify with hash only (search DB first)
+		api.GET("/blockchain/verify", blockchainHandler.HandleCheckCertificate)
+		api.POST("/blockchain/issue", middleware.AuthMiddleware(cfg, authService), blockchainHandler.HandleIssueCertificate)
+		api.GET("/certificates/metadata/:sessionId", blockchainHandler.HandleGetCertificateMetadata)
+		api.GET("/certificates/metadata/cert/:certificateId", blockchainHandler.HandleGetCertificateMetadataByCertID)
 
 		// CAT Session endpoints
 		api.POST("/sessions", middleware.AuthMiddleware(cfg, authService), sessionHandler.HandleCreateSession)

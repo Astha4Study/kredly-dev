@@ -25,15 +25,6 @@ export function AppMobileNav({ kredit, open, setOpen }: AppMobileNavProps) {
     { path: '/app/assessment', label: 'Asesmen', icon: FileText },
     { path: '/app/certification', label: 'Kredensial', icon: Award },
     { path: '/app/jobs', label: 'Karier', icon: Briefcase },
-    ...(import.meta.env.DEV
-      ? [
-          {
-            path: '/app/demo-pdf',
-            label: 'Demo PDF',
-            icon: Upload,
-          },
-        ]
-      : []),
     {
       path: '/app/certificate-verification',
       label: 'Verifikasi',

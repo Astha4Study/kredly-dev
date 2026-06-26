@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 
 interface Credential {
   id: string;
@@ -41,12 +42,13 @@ export default function CertificationList({
         }
       >
         {filteredCredentials.map((credential) => (
-          <div
+          <Link
             key={credential.id}
+            to="/app/certification/$id"
+            params={{ id: credential.id }}
             className={`cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:shadow-sm ${
               viewMode === 'list' ? 'flex flex-row' : ''
             }`}
-            onClick={() => setSelectedCredential(credential)}
           >
             {/* Header Image with Verified Badge */}
             <div
@@ -113,7 +115,7 @@ export default function CertificationList({
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     );

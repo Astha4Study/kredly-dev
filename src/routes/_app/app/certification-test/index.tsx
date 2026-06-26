@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select';
 import certificationTemplate from '@/assets/certification/certification-template.png';
 import { useState, useEffect, useRef } from 'react';
-import { Download, RefreshCw } from 'lucide-react';
+import { Download, RefreshCw, Upload, ShieldCheck } from 'lucide-react';
 
 export const Route = createFileRoute('/_app/app/certification-test/')({
   component: RouteComponent,
@@ -31,7 +31,11 @@ interface CertificateData {
 
 function RouteComponent() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [uploadedPDF, setUploadedPDF] = useState<File | null>(null);
+  const [verifying, setVerifying] = useState(false);
+  const [verificationResult, setVerificationResult] = useState<any>(null);
   const [certificateData, setCertificateData] = useState<CertificateData>({
     recipientName: 'Firman',
     assessmentName: 'React Native',
@@ -185,6 +189,54 @@ function RouteComponent() {
   const generateRandomCertId = () => {
     const random = Math.floor(Math.random() * 1000000);
     return `#${random.toString().padStart(6, '0')}.${Math.floor(Math.random() * 100000)}`;
+  };
+
+  const handlePDFUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === 'application/pdf') {
+      setUploadedPDF(file);
+      setVerificationResult(null);
+    }
+  };
+
+  const handleVerifyPDF = async () => {
+    if (!uploadedPDF) return;
+
+    setVerifying(true);
+    setVerificationResult(null);
+
+    try {
+      // Calculate PDF hash on client-side
+      const arrayBuffer = await uploadedPDF.arrayBuffer();
+      const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = '0x' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+      // Extract certificate ID from filename or use input
+      const certId = uploadedPDF.name.replace('.pdf', '').split('_').pop() || '';
+
+      // Send only hash to backend
+      const response = await fetch('/api/blockchain/verify-certificate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          certificateId: certId,
+          pdfHash: hashHex,
+        }),
+      });
+
+      const data = await response.json();
+      setVerificationResult(data);
+    } catch (err: any) {
+      setVerificationResult({
+        isValid: false,
+        status: 'error',
+        message: err.message || 'Gagal memverifikasi PDF',
+      });
+    } finally {
+      setVerifying(false);
+    }
   };
 
   return (
@@ -348,6 +400,80 @@ function RouteComponent() {
             </CardContent>
           </Card>
         </div>
+
+        {/* PDF Verification Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5" />
+              Verifikasi Sertifikat PDF
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="pdfUpload">Upload PDF Sertifikat</Label>
+              <p className="text-sm text-muted-foreground">
+                Upload file PDF sertifikat untuk memverifikasi keasliannya di blockchain
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  id="pdfUpload"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handlePDFUpload}
+                  ref={fileInputRef}
+                  className="flex-1"
+                />
+                <Button
+                  onClick={handleVerifyPDF}
+                  disabled={!uploadedPDF || verifying}
+                  className="gap-2"
+                >
+                  {verifying ? 'Memverifikasi...' : 'Verifikasi'}
+                </Button>
+              </div>
+              {uploadedPDF && (
+                <p className="text-sm text-muted-foreground">
+                  File: {uploadedPDF.name} ({(uploadedPDF.size / 1024).toFixed(2)} KB)
+                </p>
+              )}
+            </div>
+
+            {verificationResult && (
+              <div
+                className={`p-4 rounded-lg border ${
+                  verificationResult.isValid
+                    ? 'bg-green-50 border-green-200'
+                    : 'bg-red-50 border-red-200'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <ShieldCheck
+                    className={`h-5 w-5 mt-0.5 ${
+                      verificationResult.isValid ? 'text-green-600' : 'text-red-600'
+                    }`}
+                  />
+                  <div className="flex-1">
+                    <h4
+                      className={`font-semibold ${
+                        verificationResult.isValid ? 'text-green-900' : 'text-red-900'
+                      }`}
+                    >
+                      {verificationResult.isValid ? 'Sertifikat Valid ✓' : 'Sertifikat Tidak Valid ✗'}
+                    </h4>
+                    <p
+                      className={`text-sm mt-1 ${
+                        verificationResult.isValid ? 'text-green-700' : 'text-red-700'
+                      }`}
+                    >
+                      {verificationResult.message}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>

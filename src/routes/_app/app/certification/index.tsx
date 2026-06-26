@@ -35,7 +35,7 @@ function RouteComponent() {
   // Mock data - nanti diganti dengan data dari API
   const credentials: Credential[] = [
     {
-      id: '1',
+      id: '9b7fd660-59c5-47e0-8548-1b2971fb4dc1',
       skillName: 'React Advanced',
       score: 88,
       dateEarned: '15 Juni 2026',
