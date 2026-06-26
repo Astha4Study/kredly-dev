@@ -15,6 +15,7 @@ interface ResultCertModalProps {
   totalItems: number;
   durationSeconds: number;
   onReady?: (url: string) => void;
+  sessionId?: string;
 }
 
 export default function ResultCertModal({
@@ -28,6 +29,7 @@ export default function ResultCertModal({
   totalItems,
   durationSeconds,
   onReady,
+  sessionId,
 }: ResultCertModalProps) {
   const [certImageUrl, setCertImageUrl] = React.useState<string | null>(null);
 
@@ -174,13 +176,11 @@ export default function ResultCertModal({
             className="relative w-full max-w-xl border border-foreground/10 bg-card rounded-2xl p-6 shadow-2xl space-y-6"
           >
             <div className="text-center space-y-2">
-              <Award className="size-12 mx-auto text-primary animate-bounce" />
               <h3 className="text-xl font-bold">
-                Kredensial Digital Tersimpan!
+                Selamat, Sertifikat Anda Sudah Siap!
               </h3>
               <p className="text-sm text-muted-foreground">
-                Sertifikat digital Anda telah berhasil diunduh sebagai metadata
-                kredensial.
+                Pencapaian Anda berhasil dicatat. Sertifikat digital ini telah diamankan dan siap untuk Anda bagikan atau unduh.
               </p>
             </div>
 
@@ -201,9 +201,28 @@ export default function ResultCertModal({
               )}
             </div>
 
-            <Button onClick={onClose} className="w-full">
-              Selesai
-            </Button>
+            <div className="flex gap-3">
+              {sessionId && (
+                <Button
+                  onClick={() => {
+                    window.open(
+                      `/statement-of-accomplishment/${sessionId}`,
+                      '_blank',
+                    );
+                  }}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Unduh PDF
+                </Button>
+              )}
+              <Button
+                onClick={onClose}
+                className={sessionId ? 'flex-1' : 'w-full'}
+              >
+                Selesai
+              </Button>
+            </div>
           </motion.div>
         </div>
       )}

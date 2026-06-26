@@ -2,6 +2,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import certPlaceholder from '@/assets/certification/certplaceholder.png';
 
 interface Credential {
   id: string;
@@ -10,6 +12,8 @@ interface Credential {
   dateEarned: string;
   blockchainTxHash: string;
   status: 'verified';
+  sessionId?: string;
+  level?: string;
 }
 
 interface CertificationListProps {
@@ -50,10 +54,17 @@ export default function CertificationList({
           >
             {/* Header Image with Verified Badge */}
             <div
-              className={`relative flex items-center justify-center bg-gray-200 ${
-                viewMode === 'list' ? 'w-58 shrink-0' : 'h-48'
+              className={`relative flex items-center justify-center overflow-hidden bg-gray-100 ${
+                viewMode === 'list'
+                  ? 'w-48 shrink-0 aspect-[4/3]'
+                  : 'w-full aspect-[4/3]'
               }`}
             >
+              <img
+                src={certPlaceholder}
+                alt={credential.skillName}
+                className="w-full h-full object-cover"
+              />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent" />
 
               {/* Verified Badge - Absolute Top Right */}
@@ -80,7 +91,10 @@ export default function CertificationList({
                     Score
                   </span>
                   <span className="text-2xl font-bold text-gray-900">
-                    {credential.score}/100
+                    {credential.score}
+                    <span className="text-sm text-gray-500 font-normal">
+                      {credential.score > 100 ? '/1000' : '/100'}
+                    </span>
                   </span>
                 </div>
                 <div>
@@ -172,7 +186,9 @@ export default function CertificationList({
           Selesaikan assessment untuk mendapatkan kredensial pertama Anda! Semua
           kredensial akan tersimpan di blockchain dan dapat diverifikasi.
         </p>
-        <Button>Mulai Assessment</Button>
+        <Link to="/app/assessment">
+          <Button>Mulai Assessment</Button>
+        </Link>
       </CardContent>
     </Card>
   );
