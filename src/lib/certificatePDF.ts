@@ -1,5 +1,8 @@
 import { jsPDF } from 'jspdf';
-import { generateCertificateCanvas, type CertificateData } from './certificateGenerator';
+import {
+  generateCertificateCanvas,
+  type CertificateData,
+} from './certificateGenerator';
 
 /**
  * Generate deterministic hash from certificate data (NOT from PDF)
@@ -28,7 +31,8 @@ export async function generateCertificatePDFHash(
     const dataBuffer = encoder.encode(dataString);
     const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = '0x' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    const hashHex =
+      '0x' + hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 
     // Debug logging
     console.log('[Certificate Hash Debug - FROM DATA]');
@@ -93,7 +97,8 @@ export async function downloadCertificatePDF(
     pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight, undefined, 'NONE');
 
     // Save PDF
-    const pdfFilename = filename || `certificate-${data.recipientName.replace(/\s+/g, '-')}.pdf`;
+    const pdfFilename =
+      filename || `certificate-${data.recipientName.replace(/\s+/g, '-')}.pdf`;
     pdf.save(pdfFilename);
   } catch (error) {
     console.error('Failed to generate PDF:', error);

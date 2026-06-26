@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.PUBLIC_AUTH_SERVER_URL || 'http://localhost:8080';
+const API_BASE_URL =
+  import.meta.env.PUBLIC_AUTH_SERVER_URL || 'http://localhost:8080';
 
 export interface Job {
   id: string;
@@ -35,7 +36,7 @@ export interface FetchJobsResponse {
 }
 
 export async function fetchAndStoreJobs(
-  request: FetchJobsRequest
+  request: FetchJobsRequest,
 ): Promise<FetchJobsResponse> {
   const response = await fetch(`${API_BASE_URL}/api/jobs/fetch`, {
     method: 'POST',
@@ -47,7 +48,9 @@ export async function fetchAndStoreJobs(
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Failed to fetch jobs' }));
+    const error = await response
+      .json()
+      .catch(() => ({ error: 'Failed to fetch jobs' }));
     throw new Error(error.error || 'Failed to fetch jobs');
   }
 
@@ -64,7 +67,9 @@ export async function getUserJobs(): Promise<Job[]> {
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Failed to get jobs' }));
+    const error = await response
+      .json()
+      .catch(() => ({ error: 'Failed to get jobs' }));
     throw new Error(error.error || 'Failed to get jobs');
   }
 

@@ -36,11 +36,12 @@ export default function AppTopBar() {
   ];
 
   const NavItemsSecondary = [
-    {
-      path: '/app/certification-test',
-      label: 'Contoh Sertifikasi',
-      icon: BarChart3,
-    },
+    // ini lagi dinonaktifkan
+    // {
+    //   path: '/app/certification-test',
+    //   label: 'Contoh Sertifikasi',
+    //   icon: BarChart3,
+    // },
     {
       path: '/app/certificate-verification',
       label: 'Verifikasi',

@@ -33,11 +33,15 @@ function RouteComponent() {
   // States
   const [result, setResult] = React.useState<ResultResponse | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [loadingMessage, setLoadingMessage] = React.useState('Memuat data sertifikat...');
+  const [loadingMessage, setLoadingMessage] = React.useState(
+    'Memuat data sertifikat...',
+  );
   const [error, setError] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState(false);
   const [showCertModal, setShowCertModal] = React.useState(false);
-  const [certificateMetadata, setCertificateMetadata] = React.useState<any | null>(null);
+  const [certificateMetadata, setCertificateMetadata] = React.useState<
+    any | null
+  >(null);
 
   // Animated displayed score
   const [displayedScore, setDisplayedScore] = React.useState(0);
@@ -62,7 +66,7 @@ function RouteComponent() {
         const response = await fetch(`/api/certificates/metadata/${certId}`, {
           credentials: 'include',
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           if (data.exists && data.metadata) {
@@ -85,12 +89,12 @@ function RouteComponent() {
         // Check if certificate exists on blockchain
         const checkResponse = await fetch(
           `/api/blockchain/verify?certificateId=${data.verification_id}`,
-          { credentials: 'include' }
+          { credentials: 'include' },
         );
 
         if (checkResponse.ok) {
           const checkData = await checkResponse.json();
-          
+
           // If certificate already exists and valid, skip issuing
           if (checkData.isValid) {
             setLoadingMessage('Sertifikat sudah terverifikasi di blockchain');
@@ -100,9 +104,9 @@ function RouteComponent() {
 
         // Certificate not found, generate PDF buffer
         setLoadingMessage('Membuat sertifikat PDF...');
-        
+
         const estimatedDuration = Math.ceil(data.total_items * 2);
-        
+
         const canvas = await generateCertificateCanvas({
           recipientName: user?.name || 'User',
           assessmentName: data.role,
@@ -113,54 +117,67 @@ function RouteComponent() {
           duration: estimatedDuration.toString(),
           certificateId: data.verification_id,
         });
-        
+
         const imgData = canvas.toDataURL('image/png', 1.0);
-        
+
         const pdf = new jsPDF({
           orientation: 'landscape',
           unit: 'mm',
           format: 'a4',
           compress: false,
         });
-        
+
         pdf.setCreationDate(new Date('2026-01-01T00:00:00Z'));
-        
+
         // Add image to PDF
         const pdfWidth = 297;
         const pdfHeight = 210;
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
         const ratio = canvasWidth / canvasHeight;
-        
+
         let imgWidth = pdfWidth;
         let imgHeight = pdfWidth / ratio;
-        
+
         if (imgHeight > pdfHeight) {
           imgHeight = pdfHeight;
           imgWidth = pdfHeight * ratio;
         }
-        
+
         const x = (pdfWidth - imgWidth) / 2;
         const y = (pdfHeight - imgHeight) / 2;
-        
-        pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight, undefined, 'NONE');
-        
+
+        pdf.addImage(
+          imgData,
+          'PNG',
+          x,
+          y,
+          imgWidth,
+          imgHeight,
+          undefined,
+          'NONE',
+        );
+
         // Get PDF as ArrayBuffer for hash calculation
         const pdfArrayBuffer = pdf.output('arraybuffer');
-        
+
         // Calculate SHA256 hash from PDF bytes (SAME METHOD as verification page)
-        const hashBuffer = await crypto.subtle.digest('SHA-256', pdfArrayBuffer);
+        const hashBuffer = await crypto.subtle.digest(
+          'SHA-256',
+          pdfArrayBuffer,
+        );
         const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const pdfHash = '0x' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        
+        const pdfHash =
+          '0x' + hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+
         console.log('[Issue] PDF Hash calculated in frontend:', pdfHash);
-        
+
         // Convert PDF to base64 for upload
         const pdfBase64 = pdf.output('dataurlstring').split(',')[1];
 
         // Upload to backend (backend will upload to Pinata + issue to blockchain)
         setLoadingMessage('Mengupload ke IPFS dan blockchain...');
-        
+
         const issueResponse = await fetch('/api/blockchain/issue', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -178,7 +195,7 @@ function RouteComponent() {
         }
 
         const issueData = await issueResponse.json();
-        
+
         // Check if certificate already exists on blockchain
         if (issueData.alreadyExists) {
           console.log('[Certificate Already Exists]', {
@@ -188,7 +205,7 @@ function RouteComponent() {
             ipfsUrl: issueData.ipfsUrl,
             message: issueData.message,
           });
-          
+
           // Update metadata state so download can use IPFS URL
           setCertificateMetadata({
             certificateId: issueData.certificateId,
@@ -197,11 +214,11 @@ function RouteComponent() {
             ipfsURL: issueData.ipfsUrl,
             txHash: issueData.txHash || '',
           });
-          
+
           setLoadingMessage('Sertifikat sudah ada di blockchain (recovered)');
           return; // Exit early, certificate already exists
         }
-        
+
         console.log('[Certificate Issued]', {
           certificateId: issueData.certificateId,
           pdfHash: issueData.pdfHash,
@@ -222,7 +239,10 @@ function RouteComponent() {
         setLoadingMessage('Sertifikat berhasil diterbitkan ke blockchain!');
       } catch (err: any) {
         console.error('Blockchain verification error:', err);
-        setError(err.message || 'Gagal menerbitkan sertifikat ke blockchain. Silakan coba lagi.');
+        setError(
+          err.message ||
+            'Gagal menerbitkan sertifikat ke blockchain. Silakan coba lagi.',
+        );
         setIsLoading(false);
       }
     };
@@ -235,13 +255,12 @@ function RouteComponent() {
 
         // Check if certificate metadata already exists
         const metadataExists = await checkMetadata();
-        
+
         if (!metadataExists) {
           // Metadata not found, proceed with generate and issue
           setLoadingMessage('Memeriksa verifikasi blockchain...');
           await verifyAndIssueCertificate(data);
         }
-
       } catch (err: any) {
         console.error(err);
         setError(err.message || 'Gagal mengambil hasil sertifikat.');

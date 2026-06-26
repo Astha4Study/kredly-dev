@@ -213,10 +213,12 @@ function RouteComponent() {
       const arrayBuffer = await uploadedPDF.arrayBuffer();
       const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = '0x' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      const hashHex =
+        '0x' + hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 
       // Extract certificate ID from filename or use input
-      const certId = uploadedPDF.name.replace('.pdf', '').split('_').pop() || '';
+      const certId =
+        uploadedPDF.name.replace('.pdf', '').split('_').pop() || '';
 
       // Send only hash to backend
       const response = await fetch('/api/blockchain/verify-certificate', {
@@ -416,7 +418,8 @@ function RouteComponent() {
             <div className="space-y-2">
               <Label htmlFor="pdfUpload">Upload PDF Sertifikat</Label>
               <p className="text-sm text-muted-foreground">
-                Upload file PDF sertifikat untuk memverifikasi keasliannya di blockchain
+                Upload file PDF sertifikat untuk memverifikasi keasliannya di
+                blockchain
               </p>
               <div className="flex gap-2">
                 <Input
@@ -437,7 +440,8 @@ function RouteComponent() {
               </div>
               {uploadedPDF && (
                 <p className="text-sm text-muted-foreground">
-                  File: {uploadedPDF.name} ({(uploadedPDF.size / 1024).toFixed(2)} KB)
+                  File: {uploadedPDF.name} (
+                  {(uploadedPDF.size / 1024).toFixed(2)} KB)
                 </p>
               )}
             </div>
@@ -453,20 +457,28 @@ function RouteComponent() {
                 <div className="flex items-start gap-3">
                   <ShieldCheck
                     className={`h-5 w-5 mt-0.5 ${
-                      verificationResult.isValid ? 'text-green-600' : 'text-red-600'
+                      verificationResult.isValid
+                        ? 'text-green-600'
+                        : 'text-red-600'
                     }`}
                   />
                   <div className="flex-1">
                     <h4
                       className={`font-semibold ${
-                        verificationResult.isValid ? 'text-green-900' : 'text-red-900'
+                        verificationResult.isValid
+                          ? 'text-green-900'
+                          : 'text-red-900'
                       }`}
                     >
-                      {verificationResult.isValid ? 'Sertifikat Valid ✓' : 'Sertifikat Tidak Valid ✗'}
+                      {verificationResult.isValid
+                        ? 'Sertifikat Valid ✓'
+                        : 'Sertifikat Tidak Valid ✗'}
                     </h4>
                     <p
                       className={`text-sm mt-1 ${
-                        verificationResult.isValid ? 'text-green-700' : 'text-red-700'
+                        verificationResult.isValid
+                          ? 'text-green-700'
+                          : 'text-red-700'
                       }`}
                     >
                       {verificationResult.message}

@@ -180,7 +180,8 @@ export default function ResultCertModal({
                 Selamat, Sertifikat Anda Sudah Siap!
               </h3>
               <p className="text-sm text-muted-foreground">
-                Pencapaian Anda berhasil dicatat. Sertifikat digital ini telah diamankan dan siap untuk Anda bagikan atau unduh.
+                Pencapaian Anda berhasil dicatat. Sertifikat digital ini telah
+                diamankan dan siap untuk Anda bagikan atau unduh.
               </p>
             </div>
 

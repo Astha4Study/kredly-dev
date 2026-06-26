@@ -25,7 +25,7 @@ export async function generateCertificateCanvas(
 
     const img = new Image();
     img.src = certificationTemplate;
-    
+
     img.onload = async () => {
       canvas.width = img.width;
       canvas.height = img.height;
@@ -53,11 +53,7 @@ export async function generateCertificateCanvas(
       // Score
       ctx.fillStyle = '#1a1a1a';
       ctx.font = 'bold 80px Arial';
-      ctx.fillText(
-        `${data.score}/${data.maxScore}`,
-        leftMargin,
-        startY + 770,
-      );
+      ctx.fillText(`${data.score}/${data.maxScore}`, leftMargin, startY + 770);
 
       // Total Questions and Duration
       ctx.font = '38px Arial';
@@ -119,11 +115,7 @@ export async function generateCertificateCanvas(
           ctx.fillStyle = '#6b7280';
           ctx.font = '14px Arial';
           ctx.textAlign = 'center';
-          ctx.fillText(
-            data.certificateId,
-            qrX + qrSize / 2,
-            qrY + qrSize + 20,
-          );
+          ctx.fillText(data.certificateId, qrX + qrSize / 2, qrY + qrSize + 20);
 
           resolve(canvas);
         };
@@ -154,9 +146,10 @@ export async function downloadCertificatePNG(
   filename?: string,
 ): Promise<void> {
   const dataUrl = await generateCertificatePNG(data);
-  
+
   const link = document.createElement('a');
-  link.download = filename || `certificate-${data.recipientName.replace(/\s+/g, '-')}.png`;
+  link.download =
+    filename || `certificate-${data.recipientName.replace(/\s+/g, '-')}.png`;
   link.href = dataUrl;
   link.click();
 }

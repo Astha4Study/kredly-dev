@@ -8,13 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  CheckCircle2,
-  XCircle,
-  Loader2,
-  FileText,
-  Shield,
-} from 'lucide-react';
+import { CheckCircle2, XCircle, Loader2, FileText, Shield } from 'lucide-react';
 
 export const Route = createFileRoute('/_app/app/certificate-verification/')({
   component: RouteComponent,
@@ -56,7 +50,9 @@ function RouteComponent() {
           const arrayBuffer = reader.result as ArrayBuffer;
           const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
           const hashArray = Array.from(new Uint8Array(hashBuffer));
-          const pdfHash = '0x' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+          const pdfHash =
+            '0x' +
+            hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 
           console.log('[Verification] PDF Hash:', pdfHash);
 
@@ -77,7 +73,7 @@ function RouteComponent() {
           }
 
           const data = await response.json();
-          
+
           setVerificationResult({
             isValid: data.isValid,
             status: data.status,
@@ -137,41 +133,42 @@ function RouteComponent() {
           <CardHeader>
             <CardTitle>Upload Sertifikat</CardTitle>
             <CardDescription>
-              Upload file PDF sertifikat untuk memverifikasi keasliannya melalui blockchain
+              Upload file PDF sertifikat untuk memverifikasi keasliannya melalui
+              blockchain
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-                <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                  <input
-                    type="file"
-                    accept="application/pdf"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="file-upload"
-                  />
-                  <label
-                    htmlFor="file-upload"
-                    className="cursor-pointer flex flex-col items-center gap-3"
-                  >
-                    <div className="rounded-full bg-primary/10 p-4">
-                      <FileText className="h-8 w-8 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">
-                        {selectedFile
-                          ? selectedFile.name
-                          : 'Klik untuk upload sertifikat PDF'}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Format: PDF, Maksimal 5MB
-                      </p>
-                    </div>
-                  </label>
-                </div>
+              <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="file-upload"
+                />
+                <label
+                  htmlFor="file-upload"
+                  className="cursor-pointer flex flex-col items-center gap-3"
+                >
+                  <div className="rounded-full bg-primary/10 p-4">
+                    <FileText className="h-8 w-8 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">
+                      {selectedFile
+                        ? selectedFile.name
+                        : 'Klik untuk upload sertifikat PDF'}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Format: PDF, Maksimal 5MB
+                    </p>
+                  </div>
+                </label>
+              </div>
 
-                {selectedFile && (
-                  <>
+              {selectedFile && (
+                <>
                   <div className="flex gap-3">
                     <Button
                       onClick={verifyByFile}
@@ -198,8 +195,8 @@ function RouteComponent() {
                       Reset
                     </Button>
                   </div>
-                  </>
-                )}
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -256,7 +253,9 @@ function RouteComponent() {
                       {verificationResult.status}
                     </p>
                   </div>
-                  <Shield className={`h-8 w-8 ${verificationResult.isValid ? 'text-green-600' : 'text-red-600'}`} />
+                  <Shield
+                    className={`h-8 w-8 ${verificationResult.isValid ? 'text-green-600' : 'text-red-600'}`}
+                  />
                 </div>
               </div>
 
@@ -266,14 +265,19 @@ function RouteComponent() {
                     ℹ️ Informasi
                   </p>
                   <p className="text-sm text-blue-700 mt-1">
-                    Sertifikat ini telah terverifikasi di blockchain dan terbukti asli.
-                    Hash PDF cocok dengan yang terdaftar untuk ID sertifikat ini.
+                    Sertifikat ini telah terverifikasi di blockchain dan
+                    terbukti asli. Hash PDF cocok dengan yang terdaftar untuk ID
+                    sertifikat ini.
                   </p>
                 </div>
               )}
 
               <div className="flex gap-3 pt-2">
-                <Button variant="outline" onClick={resetVerification} className="flex-1">
+                <Button
+                  variant="outline"
+                  onClick={resetVerification}
+                  className="flex-1"
+                >
                   Verifikasi Lagi
                 </Button>
               </div>
