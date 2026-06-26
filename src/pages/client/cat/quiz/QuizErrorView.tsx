@@ -2,6 +2,7 @@ import * as React from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { getFriendlyErrorMessage } from '@/lib/utils';
 
 interface QuizErrorViewProps {
   error: string;
@@ -20,7 +21,9 @@ export default function QuizErrorView({ error, onRetry }: QuizErrorViewProps) {
             <h3 className="text-lg font-semibold text-rose-400">
               Terjadi Kesalahan
             </h3>
-            <p className="text-sm text-muted-foreground">{error}</p>
+            <p className="text-sm text-muted-foreground">
+              {getFriendlyErrorMessage(error)}
+            </p>
           </div>
           <Button
             onClick={onRetry}

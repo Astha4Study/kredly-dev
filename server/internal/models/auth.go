@@ -110,6 +110,9 @@ type GeneratedAssessment struct {
 	Category      string   `bson:"category" json:"category"`
 	Status        string   `bson:"status" json:"status"` // "available", "in-progress", "completed"
 	Progress      int      `bson:"progress,omitempty" json:"progress,omitempty"`
+	SessionID     string   `bson:"sessionId,omitempty" json:"sessionId,omitempty"`
+	Score         int      `bson:"score,omitempty" json:"score,omitempty"`
+	Level         string   `bson:"level,omitempty" json:"level,omitempty"`
 }
 
 type Job struct {

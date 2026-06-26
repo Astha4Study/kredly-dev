@@ -7,11 +7,11 @@ import {
 import { sessionService } from '@/services/sessionService';
 import type { QuizItem, AnswerResponse } from '@/pages/client/cat/types';
 import ProgressBar from '@/components/cat/ProgressBar';
+import AppTopbarAssessment from '@/components/AppTopbarAssessment';
 
 // Section components
 import QuizSkeleton from '@/pages/client/cat/quiz/QuizSkeleton';
 import QuizErrorView from '@/pages/client/cat/quiz/QuizErrorView';
-import QuizHeader from '@/pages/client/cat/quiz/QuizHeader';
 import QuizContent from '@/pages/client/cat/quiz/QuizContent';
 import QuizActions from '@/pages/client/cat/quiz/QuizActions';
 import QuizExitDialog from '@/pages/client/cat/quiz/QuizExitDialog';
@@ -36,12 +36,14 @@ function RouteComponent() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [assessmentId, setAssessmentId] = React.useState<string | undefined>(
+    undefined,
+  );
 
   // Feedback States
   const [showResult, setShowResult] = React.useState(false);
   const [feedback, setFeedback] = React.useState<AnswerResponse | null>(null);
   const [countdown, setCountdown] = React.useState(5);
-  const [timerKey, setTimerKey] = React.useState(0);
   const [countdownIntervalId, setCountdownIntervalId] =
     React.useState<ReturnType<typeof setInterval> | null>(null);
 
@@ -110,6 +112,7 @@ function RouteComponent() {
         const sess = await sessionService.getSession(sessionId);
         setMaxQuestions(sess.max_items);
         setMinQuestions(sess.min_items);
+        setAssessmentId(sess.assessment_id);
       } catch (err: any) {
         console.error('Failed to pre-fetch session metadata:', err);
       }
@@ -165,13 +168,8 @@ function RouteComponent() {
     if (answerRes.completed) {
       navigate({ to: `/result/${sessionId}` });
     } else {
-      setTimerKey((prev) => prev + 1);
       loadNextQuestion();
     }
-  };
-
-  const handleTimeUp = () => {
-    handleSubmit('');
   };
 
   const handleFastForward = () => {
@@ -189,47 +187,44 @@ function RouteComponent() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-start p-4 md:p-8">
-      <div className="w-full max-w-3xl space-y-6 md:space-y-8 my-auto">
-        <QuizHeader
-          onBack={() => setShowExitWarning(true)}
-          currentItem={currentItem}
-          showResult={showResult}
-          isLoading={isLoading}
-          handleTimeUp={handleTimeUp}
-          timerKey={timerKey}
-        />
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <AppTopbarAssessment
+        assessmentId={assessmentId}
+        onBack={() => setShowExitWarning(true)}
+      />
+      <div className="flex-1 flex flex-col items-center justify-start p-4 md:p-8">
+        <div className="w-full max-w-3xl space-y-6 md:space-y-8 my-auto">
+          <ProgressBar
+            currentQuestion={questionNumber}
+            minQuestions={minQuestions}
+            maxQuestions={maxQuestions}
+          />
 
-        <ProgressBar
-          currentQuestion={questionNumber}
-          minQuestions={minQuestions}
-          maxQuestions={maxQuestions}
-        />
+          {currentItem && (
+            <div className="space-y-6">
+              <QuizContent
+                currentItem={currentItem}
+                selectedAnswer={selectedAnswer}
+                setSelectedAnswer={setSelectedAnswer}
+                isLoading={isLoading}
+                isSubmitting={isSubmitting}
+                showResult={showResult}
+                feedback={feedback}
+                questionNumber={questionNumber}
+              />
 
-        {currentItem && (
-          <div className="space-y-6">
-            <QuizContent
-              currentItem={currentItem}
-              selectedAnswer={selectedAnswer}
-              setSelectedAnswer={setSelectedAnswer}
-              isLoading={isLoading}
-              isSubmitting={isSubmitting}
-              showResult={showResult}
-              feedback={feedback}
-              questionNumber={questionNumber}
-            />
-
-            <QuizActions
-              showResult={showResult}
-              selectedAnswer={selectedAnswer}
-              isSubmitting={isSubmitting}
-              onSubmit={() => handleSubmit()}
-              onContinue={handleFastForward}
-              countdown={countdown}
-              error={error}
-            />
-          </div>
-        )}
+              <QuizActions
+                showResult={showResult}
+                selectedAnswer={selectedAnswer}
+                isSubmitting={isSubmitting}
+                onSubmit={() => handleSubmit()}
+                onContinue={handleFastForward}
+                countdown={countdown}
+                error={error}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       <QuizExitDialog

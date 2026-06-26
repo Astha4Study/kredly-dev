@@ -26,7 +26,7 @@ function DemoPDFPage() {
         <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
           <Award className="h-10 w-10 text-primary" />
         </div>
-        
+
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-2">
             Ready to Claim Your Certificate

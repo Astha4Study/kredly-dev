@@ -19,10 +19,21 @@ interface CVAssessment {
   status: string;
 }
 
-export default function AppTopbarAssessment() {
-  const { assessmentId } = useParams({ strict: false }) as {
+interface AppTopbarAssessmentProps {
+  assessmentId?: string;
+  onBack?: () => void;
+  title?: string;
+}
+
+export default function AppTopbarAssessment({
+  assessmentId: propAssessmentId,
+  onBack,
+  title,
+}: AppTopbarAssessmentProps = {}) {
+  const { assessmentId: routeAssessmentId } = useParams({ strict: false }) as {
     assessmentId?: string;
   };
+  const assessmentId = propAssessmentId || routeAssessmentId;
   const [assessment, setAssessment] = useState<CVAssessment | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -63,18 +74,30 @@ export default function AppTopbarAssessment() {
     <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-10">
       <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-          <Button variant="outline" size="icon" asChild>
-            <Link to="/app/assessment">
+          {onBack ? (
+            <Button variant="outline" size="icon" onClick={onBack}>
               <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
+            </Button>
+          ) : (
+            <Button variant="outline" size="icon" asChild>
+              <Link to="/app/assessment">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            </Button>
+          )}
 
           <Separator orientation="vertical" />
 
-          {isLoading ? (
+          {isLoading && !title ? (
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <Skeleton className="h-5 w-32" />
               <Skeleton className="h-5 w-20 hidden sm:block" />
+            </div>
+          ) : title ? (
+            <div className="min-w-0 flex-1">
+              <h2 className="font-semibold text-base sm:text-lg text-foreground truncate">
+                {title}
+              </h2>
             </div>
           ) : assessment ? (
             <div className="flex items-center gap-3 min-w-0">

@@ -42,7 +42,12 @@ export default function Footer() {
                   variant="ghost"
                   className="text-zinc-400 hover:bg-white/10 hover:text-white"
                 >
-                  <a aria-label={label} href={href} target="_blank" rel="noopener noreferrer">
+                  <a
+                    aria-label={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {icon}
                   </a>
                 </Button>

@@ -66,33 +66,41 @@ function RouteComponent() {
       const arrayBuffer = await selectedFile.arrayBuffer();
       const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = '0x' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      const hashHex =
+        '0x' + hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 
-      const response = await fetch('http://localhost:3001/api/blockchain/verify-upload', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        'http://localhost:3001/api/blockchain/verify-upload',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ hash: hashHex }),
         },
-        body: JSON.stringify({ hash: hashHex }),
-      });
+      );
 
       if (!response.ok) {
         throw new Error('Failed to verify PDF');
       }
 
       const data = await response.json();
-      
+
       setVerificationResult({
         isValid: data.isValid,
-        certificateData: data.isValid ? {
-          recipientName: 'John Doe',
-          skillName: 'React Advanced',
-          issueDate: new Date(data.timestamp * 1000).toLocaleDateString('id-ID'),
-          score: 88,
-          blockchainHash: data.pdfHash,
-          issuer: 'Kredly Platform',
-        } : undefined,
-        message: data.isValid 
+        certificateData: data.isValid
+          ? {
+              recipientName: 'John Doe',
+              skillName: 'React Advanced',
+              issueDate: new Date(data.timestamp * 1000).toLocaleDateString(
+                'id-ID',
+              ),
+              score: 88,
+              blockchainHash: data.pdfHash,
+              issuer: 'Kredly Platform',
+            }
+          : undefined,
+        message: data.isValid
           ? `Sertifikat valid dan terverifikasi di blockchain - Status: ${data.currentStatus}`
           : `Sertifikat tidak valid - Status: ${data.currentStatus}`,
       });
@@ -114,30 +122,37 @@ function RouteComponent() {
     setVerificationResult(null);
 
     try {
-      const response = await fetch('http://localhost:3001/api/blockchain/verify-hash', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        'http://localhost:3001/api/blockchain/verify-hash',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ hash: hashInput }),
         },
-        body: JSON.stringify({ hash: hashInput }),
-      });
+      );
 
       if (!response.ok) {
         throw new Error('Failed to verify hash');
       }
 
       const data = await response.json();
-      
+
       setVerificationResult({
         isValid: data.isValid,
-        certificateData: data.isValid ? {
-          recipientName: 'Jane Smith',
-          skillName: 'TypeScript Fundamentals',
-          issueDate: new Date(data.timestamp * 1000).toLocaleDateString('id-ID'),
-          score: 91,
-          blockchainHash: data.pdfHash,
-          issuer: 'Kredly Platform',
-        } : undefined,
+        certificateData: data.isValid
+          ? {
+              recipientName: 'Jane Smith',
+              skillName: 'TypeScript Fundamentals',
+              issueDate: new Date(data.timestamp * 1000).toLocaleDateString(
+                'id-ID',
+              ),
+              score: 91,
+              blockchainHash: data.pdfHash,
+              issuer: 'Kredly Platform',
+            }
+          : undefined,
         message: data.isValid
           ? `Sertifikat valid dan terverifikasi di blockchain - Status: ${data.currentStatus}`
           : `Hash blockchain tidak ditemukan atau tidak valid - Status: ${data.currentStatus}`,

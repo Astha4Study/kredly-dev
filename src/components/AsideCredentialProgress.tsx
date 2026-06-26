@@ -63,7 +63,9 @@ export default function AsideCredentialProgress() {
       {
         label: 'Ikuti asesmen pertama',
         // TODO: Check if user has any assessments from cvAssessments when available
-        done: Boolean(userProfile?.cvAssessments && userProfile.cvAssessments.length > 0),
+        done: Boolean(
+          userProfile?.cvAssessments && userProfile.cvAssessments.length > 0,
+        ),
       },
       {
         label: 'Dapatkan kredensial pertama',
