@@ -14,6 +14,7 @@ import { Route as PublicRouteRouteImport } from './routes/_public/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as StatementOfAccomplishmentSessionIdRouteImport } from './routes/statement-of-accomplishment/$sessionId'
 import { Route as AuthVerificationRouteImport } from './routes/_auth/verification'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthOnboardingRouteImport } from './routes/_auth/onboarding'
@@ -60,6 +61,12 @@ const PublicIndexRoute = PublicIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PublicRouteRoute,
 } as any)
+const StatementOfAccomplishmentSessionIdRoute =
+  StatementOfAccomplishmentSessionIdRouteImport.update({
+    id: '/statement-of-accomplishment/$sessionId',
+    path: '/statement-of-accomplishment/$sessionId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthVerificationRoute = AuthVerificationRouteImport.update({
   id: '/verification',
   path: '/verification',
@@ -192,6 +199,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthOnboardingRoute
   '/register': typeof AuthRegisterRoute
   '/verification': typeof AuthVerificationRoute
+  '/statement-of-accomplishment/$sessionId': typeof StatementOfAccomplishmentSessionIdRoute
   '/app/': typeof AppAppIndexRoute
   '/about-us/': typeof PublicAboutUsIndexRoute
   '/features/': typeof PublicFeaturesIndexRoute
@@ -218,6 +226,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthOnboardingRoute
   '/register': typeof AuthRegisterRoute
   '/verification': typeof AuthVerificationRoute
+  '/statement-of-accomplishment/$sessionId': typeof StatementOfAccomplishmentSessionIdRoute
   '/app': typeof AppAppIndexRoute
   '/about-us': typeof PublicAboutUsIndexRoute
   '/features': typeof PublicFeaturesIndexRoute
@@ -247,6 +256,7 @@ export interface FileRoutesById {
   '/_auth/onboarding': typeof AuthOnboardingRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_auth/verification': typeof AuthVerificationRoute
+  '/statement-of-accomplishment/$sessionId': typeof StatementOfAccomplishmentSessionIdRoute
   '/_public/': typeof PublicIndexRoute
   '/_app/app/': typeof AppAppIndexRoute
   '/_public/about-us/': typeof PublicAboutUsIndexRoute
@@ -277,6 +287,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/register'
     | '/verification'
+    | '/statement-of-accomplishment/$sessionId'
     | '/app/'
     | '/about-us/'
     | '/features/'
@@ -303,6 +314,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/register'
     | '/verification'
+    | '/statement-of-accomplishment/$sessionId'
     | '/app'
     | '/about-us'
     | '/features'
@@ -331,6 +343,7 @@ export interface FileRouteTypes {
     | '/_auth/onboarding'
     | '/_auth/register'
     | '/_auth/verification'
+    | '/statement-of-accomplishment/$sessionId'
     | '/_public/'
     | '/_app/app/'
     | '/_public/about-us/'
@@ -356,6 +369,7 @@ export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   PublicRouteRoute: typeof PublicRouteRouteWithChildren
   ParseCVRoute: typeof ParseCVRoute
+  StatementOfAccomplishmentSessionIdRoute: typeof StatementOfAccomplishmentSessionIdRoute
   CatQuizSessionIdIndexRoute: typeof CatQuizSessionIdIndexRoute
   CatResultSessionIdIndexRoute: typeof CatResultSessionIdIndexRoute
 }
@@ -396,6 +410,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof PublicIndexRouteImport
       parentRoute: typeof PublicRouteRoute
+    }
+    '/statement-of-accomplishment/$sessionId': {
+      id: '/statement-of-accomplishment/$sessionId'
+      path: '/statement-of-accomplishment/$sessionId'
+      fullPath: '/statement-of-accomplishment/$sessionId'
+      preLoaderRoute: typeof StatementOfAccomplishmentSessionIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_auth/verification': {
       id: '/_auth/verification'
@@ -665,6 +686,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   PublicRouteRoute: PublicRouteRouteWithChildren,
   ParseCVRoute: ParseCVRoute,
+  StatementOfAccomplishmentSessionIdRoute:
+    StatementOfAccomplishmentSessionIdRoute,
   CatQuizSessionIdIndexRoute: CatQuizSessionIdIndexRoute,
   CatResultSessionIdIndexRoute: CatResultSessionIdIndexRoute,
 }

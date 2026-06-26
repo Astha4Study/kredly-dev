@@ -11,8 +11,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import certificationTemplate from '@/assets/certification/certification-template.png';
-import { useState, useEffect, useRef } from 'react';
-import { Download, RefreshCw, Upload, ShieldCheck } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Download, RefreshCw, ShieldCheck } from 'lucide-react';
 
 export const Route = createFileRoute('/_app/app/certification-test/')({
   component: RouteComponent,
@@ -47,6 +47,117 @@ function RouteComponent() {
     certificateId: '#123313.21413',
   });
 
+  const drawCertificate = useCallback(
+    (img: HTMLImageElement) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      ctx.drawImage(img, 0, 0);
+
+      const leftMargin = 127;
+      const startY = 380;
+
+      // Name
+      ctx.fillStyle = '#1a1a1a';
+      ctx.font = 'bold 90px Arial';
+      ctx.fillText(certificateData.recipientName, leftMargin, startY + 70);
+
+      // Assessment Name
+      ctx.fillStyle = '#1a1a1a';
+      ctx.font = 'bold 90px Arial';
+      ctx.fillText(certificateData.assessmentName, leftMargin, startY + 310);
+
+      // Level
+      ctx.fillStyle = '#1a1a1a';
+      ctx.font = 'bold 90px Arial';
+      ctx.fillText(certificateData.level, leftMargin, startY + 530);
+
+      // Score
+      ctx.fillStyle = '#1a1a1a';
+      ctx.font = 'bold 80px Arial';
+      ctx.fillText(
+        `${certificateData.score}/${certificateData.maxScore}`,
+        leftMargin,
+        startY + 770,
+      );
+
+      // Total Questions and Duration
+      ctx.font = '38px Arial';
+      ctx.fillStyle = '#000957';
+
+      const y = startY + 880;
+
+      const questionsText = `${certificateData.totalQuestions} Soal`;
+      ctx.fillText(questionsText, leftMargin, y);
+
+      const qWidth = ctx.measureText(questionsText).width;
+
+      const dot1 = ' · ';
+      ctx.fillText(dot1, leftMargin + qWidth, y);
+
+      const dot1Width = ctx.measureText(dot1).width;
+
+      const durationText = `${certificateData.duration} Menit`;
+      ctx.fillText(durationText, leftMargin + qWidth + dot1Width, y);
+
+      const dWidth = ctx.measureText(durationText).width;
+
+      const dot2 = ' · ';
+      ctx.fillText(dot2, leftMargin + qWidth + dot1Width + dWidth, y);
+
+      const dot2Width = ctx.measureText(dot2).width;
+
+      ctx.fillText(
+        'Computerized Adaptive Testing',
+        leftMargin + qWidth + dot1Width + dWidth + dot2Width,
+        y,
+      );
+
+      const qrSize = 250;
+      const modules = 25;
+      const moduleSize = qrSize / modules;
+
+      const qrX = canvas.width - qrSize - 175;
+      const qrY = 530;
+
+      // Background putih QR
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(qrX - 12, qrY - 12, qrSize + 24, qrSize + 24);
+
+      // Draw QR Code
+      ctx.fillStyle = '#000000';
+
+      for (let row = 0; row < modules; row++) {
+        for (let col = 0; col < modules; col++) {
+          if (Math.random() > 0.5) {
+            ctx.fillRect(
+              qrX + col * moduleSize,
+              qrY + row * moduleSize,
+              moduleSize,
+              moduleSize,
+            );
+          }
+        }
+      }
+
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(
+        certificateData.certificateId,
+        qrX + qrSize / 2,
+        qrY + qrSize + 20,
+      );
+    },
+    [certificateData],
+  );
+
   useEffect(() => {
     const img = new Image();
     img.src = certificationTemplate;
@@ -54,7 +165,7 @@ function RouteComponent() {
       setImageLoaded(true);
       drawCertificate(img);
     };
-  }, []);
+  }, [drawCertificate]);
 
   useEffect(() => {
     if (imageLoaded) {
@@ -62,115 +173,7 @@ function RouteComponent() {
       img.src = certificationTemplate;
       img.onload = () => drawCertificate(img);
     }
-  }, [certificateData, imageLoaded]);
-
-  const drawCertificate = (img: HTMLImageElement) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    canvas.width = img.width;
-    canvas.height = img.height;
-
-    ctx.drawImage(img, 0, 0);
-
-    const leftMargin = 127;
-    const startY = 380;
-
-    // Name
-    ctx.fillStyle = '#1a1a1a';
-    ctx.font = 'bold 90px Arial';
-    ctx.fillText(certificateData.recipientName, leftMargin, startY + 70);
-
-    // Assessment Name
-    ctx.fillStyle = '#1a1a1a';
-    ctx.font = 'bold 90px Arial';
-    ctx.fillText(certificateData.assessmentName, leftMargin, startY + 310);
-
-    // Level
-    ctx.fillStyle = '#1a1a1a';
-    ctx.font = 'bold 90px Arial';
-    ctx.fillText(certificateData.level, leftMargin, startY + 530);
-
-    // Score
-    ctx.fillStyle = '#1a1a1a';
-    ctx.font = 'bold 80px Arial';
-    ctx.fillText(
-      `${certificateData.score}/${certificateData.maxScore}`,
-      leftMargin,
-      startY + 770,
-    );
-
-    // Total Questions and Duration
-    ctx.font = '38px Arial';
-    ctx.fillStyle = '#000957';
-
-    const y = startY + 880;
-
-    const questionsText = `${certificateData.totalQuestions} Soal`;
-    ctx.fillText(questionsText, leftMargin, y);
-
-    const qWidth = ctx.measureText(questionsText).width;
-
-    const dot1 = ' · ';
-    ctx.fillText(dot1, leftMargin + qWidth, y);
-
-    const dot1Width = ctx.measureText(dot1).width;
-
-    const durationText = `${certificateData.duration} Menit`;
-    ctx.fillText(durationText, leftMargin + qWidth + dot1Width, y);
-
-    const dWidth = ctx.measureText(durationText).width;
-
-    const dot2 = ' · ';
-    ctx.fillText(dot2, leftMargin + qWidth + dot1Width + dWidth, y);
-
-    const dot2Width = ctx.measureText(dot2).width;
-
-    ctx.fillText(
-      'Computerized Adaptive Testing',
-      leftMargin + qWidth + dot1Width + dWidth + dot2Width,
-      y,
-    );
-
-    const qrSize = 250;
-    const modules = 25;
-    const moduleSize = qrSize / modules;
-
-    const qrX = canvas.width - qrSize - 175;
-    const qrY = 530;
-
-    // Background putih QR
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(qrX - 12, qrY - 12, qrSize + 24, qrSize + 24);
-
-    // Draw QR Code
-    ctx.fillStyle = '#000000';
-
-    for (let row = 0; row < modules; row++) {
-      for (let col = 0; col < modules; col++) {
-        if (Math.random() > 0.5) {
-          ctx.fillRect(
-            qrX + col * moduleSize,
-            qrY + row * moduleSize,
-            moduleSize,
-            moduleSize,
-          );
-        }
-      }
-    }
-
-    ctx.fillStyle = '#6b7280';
-    ctx.font = '14px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText(
-      certificateData.certificateId,
-      qrX + qrSize / 2,
-      qrY + qrSize + 20,
-    );
-  };
+  }, [imageLoaded, drawCertificate]);
 
   const handleInputChange = (field: keyof CertificateData, value: string) => {
     setCertificateData((prev) => ({ ...prev, [field]: value }));

@@ -16,13 +16,31 @@ type GenerateItemBatchRequest struct {
 	Skills    []string
 }
 
+type CustomString string
+
+func (cs *CustomString) UnmarshalJSON(b []byte) error {
+	var s string
+	if err := json.Unmarshal(b, &s); err == nil {
+		*cs = CustomString(s)
+		return nil
+	}
+
+	var arr []string
+	if err := json.Unmarshal(b, &arr); err == nil {
+		*cs = CustomString(strings.Join(arr, ", "))
+		return nil
+	}
+
+	return fmt.Errorf("cannot unmarshal json value into string or array of strings")
+}
+
 type GeneratedItem struct {
-	Type         string   `json:"type"` // "multiple_choice" atau "essay"
-	Pertanyaan   string   `json:"pertanyaan"`
-	Pilihan      []string `json:"pilihan"`
-	KunciJawaban string   `json:"kunci_jawaban"`
-	Penjelasan   string   `json:"penjelasan"`
-	BEstimated   float64  `json:"b_estimated"`
+	Type         string       `json:"type"` // "multiple_choice" atau "essay"
+	Pertanyaan   string       `json:"pertanyaan"`
+	Pilihan      []string     `json:"pilihan"`
+	KunciJawaban CustomString `json:"kunci_jawaban"`
+	Penjelasan   string       `json:"penjelasan"`
+	BEstimated   float64      `json:"b_estimated"`
 }
 
 func (c *Client) GenerateItemBatch(ctx context.Context, req GenerateItemBatchRequest) ([]GeneratedItem, error) {
@@ -61,7 +79,7 @@ Untuk setiap soal dalam batch, Anda harus memilih secara dinamis untuk menghasil
 2. Untuk ESSAY ("type": "essay"):
    - Set "pilihan" menjadi array kosong [].
    - Pertanyaan essay HARUS dirancang agar cukup dijawab secara singkat, padat, dan langsung pada inti (misal: cukup 1-3 kalimat atau berupa poin-poin kunci). Hindari pertanyaan yang membutuhkan penjelasan panjang lebar.
-   - "kunci_jawaban" harus berupa daftar kata kunci teknis utama atau konsep kunci singkat yang wajib dijawab kandidat.
+   - "kunci_jawaban" harus berupa string berisi daftar kata kunci teknis utama (misal: "Provider, Riverpod, setState") atau konsep kunci singkat yang wajib dijawab kandidat.
    - Berikan contoh jawaban model yang singkat dan padat (1-2 kalimat saja) di "penjelasan".
 
 3. "b_estimated" harus sesuai dengan tingkat kesulitan soal yang diperlukan.
@@ -98,6 +116,7 @@ Respons harus berupa array JSON objek pertanyaan yang valid. Jangan bungkus deng
 				Content: fmt.Sprintf("Hasilkan batch berisi %d soal campuran (pilihan ganda atau essay) untuk topik: %s dalam Bahasa Indonesia", req.BatchSize, req.Topic),
 			},
 		},
+		Model: "qwen/qwen3-32b",
 		ResponseFormat: &ResponseFormat{
 			Type: "json_object",
 		},
@@ -141,7 +160,7 @@ Respons harus berupa array JSON objek pertanyaan yang valid. Jangan bungkus deng
 	// Normalize key answers to uppercase for multiple choice questions only
 	for i := range items {
 		if items[i].Type == "multiple_choice" {
-			items[i].KunciJawaban = strings.ToUpper(strings.TrimSpace(items[i].KunciJawaban))
+			items[i].KunciJawaban = CustomString(strings.ToUpper(strings.TrimSpace(string(items[i].KunciJawaban))))
 		}
 	}
 

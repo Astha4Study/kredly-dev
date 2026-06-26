@@ -2,6 +2,7 @@ import * as React from 'react';
 import { ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'motion/react';
+import { getFriendlyErrorMessage } from '@/lib/utils';
 
 interface QuizActionsProps {
   showResult: boolean;
@@ -64,7 +65,7 @@ export default function QuizActions({
           className="flex items-center gap-3 p-4 border border-rose-500/20 bg-rose-500/5 rounded-xl text-rose-300 text-sm"
         >
           <AlertCircle className="size-4 shrink-0" />
-          <span>{error}</span>
+          <span>{getFriendlyErrorMessage(error)}</span>
         </motion.div>
       )}
     </div>

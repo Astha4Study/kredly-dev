@@ -59,6 +59,9 @@ type SessionResult struct {
 	VerificationID  string   `json:"verification_id"`
 	Role            string   `json:"role"`
 	TotalItems      int      `json:"total_items"`
+	DurationSeconds int      `json:"duration_seconds"`
+	CandidateName   string   `json:"candidate_name"`
+	AssessmentID    string   `json:"assessment_id,omitempty"`
 }
 
 // CreateSession initializes a new adaptive test session
@@ -222,7 +225,7 @@ func (s *CATService) NextItem(ctx context.Context, sessionID string) (*models.Pe
 			Topic:        topic,
 			Pertanyaan:   g.Pertanyaan,
 			Pilihan:      g.Pilihan,
-			KunciJawaban: g.KunciJawaban,
+			KunciJawaban: string(g.KunciJawaban),
 			Penjelasan:   g.Penjelasan,
 			BEstimated:   g.BEstimated,
 		})
@@ -333,6 +336,9 @@ func (s *CATService) SubmitAnswer(ctx context.Context, sessionID, answer string)
 		if completed {
 			sess.Completed = true
 			sess.StopReason = stopReason
+			now := time.Now()
+			sess.CompletedAt = &now
+			sess.DurationSeconds = int(now.Sub(sess.CreatedAt).Seconds())
 		}
 
 		result = AnswerResult{
@@ -364,6 +370,16 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 		return nil, err
 	}
 
+	candidateName := "Pengguna Kredly"
+	if sess.UserID != "" {
+		userColl := database.DB.Collection("user")
+		var u models.User
+		err := userColl.FindOne(ctx, bson.M{"_id": sess.UserID}).Decode(&u)
+		if err == nil {
+			candidateName = u.Name
+		}
+	}
+
 	// 1. If result is already saved in the database, return it immediately
 	if sess.Result != nil {
 		return &SessionResult{
@@ -377,6 +393,9 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 			VerificationID:  sess.Result.VerificationID,
 			Role:            sess.Role,
 			TotalItems:      sess.TotalItems,
+			DurationSeconds: sess.DurationSeconds,
+			CandidateName:   candidateName,
+			AssessmentID:    sess.AssessmentID,
 		}, nil
 	}
 
@@ -386,6 +405,9 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 			err = s.sessions.Update(sessionID, func(s *models.Session) {
 				s.Completed = true
 				s.StopReason = "force_completed"
+				now := time.Now()
+				s.CompletedAt = &now
+				s.DurationSeconds = int(now.Sub(s.CreatedAt).Seconds())
 			})
 			if err != nil {
 				return nil, err
@@ -444,6 +466,9 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 		VerificationID:  "CERT-" + strings.ToUpper(sessionID[:8]),
 		Role:            sess.Role,
 		TotalItems:      sess.TotalItems,
+		DurationSeconds: sess.DurationSeconds,
+		CandidateName:   candidateName,
+		AssessmentID:    sess.AssessmentID,
 	}
 
 	// 2. Persist the results inside the session document
@@ -476,7 +501,10 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 			}
 			update := bson.M{
 				"$set": bson.M{
-					"cvAssessments.$.status": "completed",
+					"cvAssessments.$.status":    "completed",
+					"cvAssessments.$.sessionId": sessionID,
+					"cvAssessments.$.score":     res.Score,
+					"cvAssessments.$.level":     res.Level,
 				},
 			}
 			_, updateErr := userProfileColl.UpdateOne(bgCtx, filter, update)
@@ -539,7 +567,7 @@ func (s *CATService) triggerBackgroundPrefetch(sessionID string) {
 			Topic:        topic,
 			Pertanyaan:   g.Pertanyaan,
 			Pilihan:      g.Pilihan,
-			KunciJawaban: g.KunciJawaban,
+			KunciJawaban: string(g.KunciJawaban),
 			Penjelasan:   g.Penjelasan,
 			BEstimated:   g.BEstimated,
 		})
@@ -562,6 +590,9 @@ func (s *CATService) AbandonSession(ctx context.Context, sessionID string) error
 	return s.sessions.Update(sessionID, func(sess *models.Session) {
 		sess.Completed = true
 		sess.StopReason = "abandoned"
+		now := time.Now()
+		sess.CompletedAt = &now
+		sess.DurationSeconds = int(now.Sub(sess.CreatedAt).Seconds())
 	})
 }
 

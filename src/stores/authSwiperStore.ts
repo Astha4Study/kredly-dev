@@ -14,6 +14,6 @@ export const useAuthSwiperStore = create<AuthSwiperState>()(
     }),
     {
       name: 'auth-swiper-storage',
-    }
-  )
+    },
+  ),
 );

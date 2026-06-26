@@ -26,7 +26,7 @@ export default function ProgressBar({
       <div className="flex items-center justify-between text-xs text-muted-foreground font-medium">
         <span>
           Soal <strong className="text-foreground">{currentQuestion}</strong>{' '}
-          dari <span className="text-foreground">~{maxQuestions}</span>
+          dari <span className="text-foreground">{maxQuestions}</span>
         </span>
       </div>
 

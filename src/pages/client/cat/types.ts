@@ -22,6 +22,7 @@ export interface SessionDetails {
   max_items: number;
   min_items: number;
   completed: boolean;
+  assessment_id?: string;
 }
 
 export interface QuizItem {
@@ -60,4 +61,7 @@ export interface ResultResponse {
   verification_id: string;
   role: string;
   total_items: number;
+  duration_seconds: number;
+  candidate_name: string;
+  assessment_id?: string;
 }

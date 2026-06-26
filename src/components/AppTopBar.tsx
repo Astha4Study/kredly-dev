@@ -9,7 +9,6 @@ import {
   FileText,
   History,
   ShieldCheck,
-  Upload,
   Briefcase,
   BarChart3,
 } from 'lucide-react';
