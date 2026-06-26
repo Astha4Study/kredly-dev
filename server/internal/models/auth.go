@@ -113,22 +113,29 @@ type GeneratedAssessment struct {
 }
 
 type Job struct {
-	ID           string     `bson:"_id" json:"id"`
-	UserID       string     `bson:"userId" json:"userId"`
-	Source       string     `bson:"source" json:"source"` // "linkedin", "indeed", "glassdoor", "upwork"
-	Title        string     `bson:"title" json:"title"`
-	Company      string     `bson:"company" json:"company"`
-	Location     string     `bson:"location" json:"location"`
-	JobType      *string    `bson:"jobType,omitempty" json:"type,omitempty"`
-	Salary       *string    `bson:"salary,omitempty" json:"salary,omitempty"`
-	Description  *string    `bson:"description,omitempty" json:"description,omitempty"`
-	URL          *string    `bson:"url,omitempty" json:"url,omitempty"`
-	PostedDate   *string    `bson:"postedDate,omitempty" json:"postedTime,omitempty"`
-	Logo         *string    `bson:"logo,omitempty" json:"logo,omitempty"`
-	Promoted     bool       `bson:"promoted" json:"promoted"`
-	EarlyApplicant bool     `bson:"earlyApplicant" json:"earlyApplicant"`
-	CreatedAt    time.Time  `bson:"createdAt" json:"createdAt"`
-	UpdatedAt    time.Time  `bson:"updatedAt" json:"updatedAt"`
+	ID              string     `bson:"_id" json:"id"`
+	UserID          string     `bson:"userId" json:"userId"`
+	Source          string     `bson:"source" json:"source"` // "linkedin", "indeed", "glassdoor", "upwork"
+	Title           string     `bson:"title" json:"title"`
+	Company         string     `bson:"company" json:"company"`
+	CompanyURL      *string    `bson:"companyUrl,omitempty" json:"companyUrl,omitempty"`
+	Location        string     `bson:"location" json:"location"`
+	RecruiterName   *string    `bson:"recruiterName,omitempty" json:"recruiterName,omitempty"`
+	RecruiterURL    *string    `bson:"recruiterUrl,omitempty" json:"recruiterUrl,omitempty"`
+	ExperienceLevel *string    `bson:"experienceLevel,omitempty" json:"experienceLevel,omitempty"`
+	JobType         *string    `bson:"jobType,omitempty" json:"type,omitempty"`
+	Sector          *string    `bson:"sector,omitempty" json:"sector,omitempty"`
+	Salary          *string    `bson:"salary,omitempty" json:"salary,omitempty"`
+	Description     *string    `bson:"description,omitempty" json:"description,omitempty"`
+	DescriptionHTML *string    `bson:"descriptionHtml,omitempty" json:"descriptionHtml,omitempty"`
+	URL             *string    `bson:"url,omitempty" json:"url,omitempty"`
+	PostedDate      *string    `bson:"postedDate,omitempty" json:"postedTime,omitempty"`
+	PostedDateExact *string    `bson:"postedDateExact,omitempty" json:"postedDate,omitempty"`
+	Logo            *string    `bson:"logo,omitempty" json:"logo,omitempty"`
+	Promoted        bool       `bson:"promoted" json:"promoted"`
+	EarlyApplicant  bool       `bson:"earlyApplicant" json:"earlyApplicant"`
+	CreatedAt       time.Time  `bson:"createdAt" json:"createdAt"`
+	UpdatedAt       time.Time  `bson:"updatedAt" json:"updatedAt"`
 
 	User *User `bson:"-" json:"user,omitempty"`
 }

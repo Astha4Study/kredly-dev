@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import AsideProfile from '@/components/AsideProfile';
 import { Loader2, Sparkles } from 'lucide-react';
 import JobsBanner from '@/components/JobsBanner';
@@ -57,23 +56,8 @@ function RouteComponent() {
     loadJobs();
   }, []);
 
-  const getSourceBadgeColor = (source: string) => {
-    switch (source) {
-      case 'linkedin':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-      case 'indeed':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-      case 'glassdoor':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
-      case 'upwork':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
-    }
-  };
-
-  const renderJobCard = (job: Job, source: string) => {
-    switch (source) {
+  const renderJobCard = (job: Job) => {
+    switch (job.source) {
       case 'linkedin':
         return <LinkedInJobCard key={job.id} job={job} />;
       case 'indeed':
@@ -86,18 +70,6 @@ function RouteComponent() {
         return null;
     }
   };
-
-  // Group jobs by source
-  const groupedJobs = jobs.reduce((acc, job) => {
-    if (!acc[job.source]) {
-      acc[job.source] = [];
-    }
-    acc[job.source].push(job);
-    return acc;
-  }, {} as Record<string, Job[]>);
-
-  const sourceOrder = ['linkedin', 'indeed', 'glassdoor', 'upwork'];
-  const sortedSources = sourceOrder.filter(source => groupedJobs[source]?.length > 0);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
@@ -135,10 +107,7 @@ function RouteComponent() {
                       Mencari Pekerjaan...
                     </>
                   ) : (
-                    <>
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Cari Pekerjaan Baru
-                    </>
+                    <>Cari Pekerjaan Baru</>
                   )}
                 </Button>
               </div>
@@ -165,55 +134,15 @@ function RouteComponent() {
                     Belum Ada Pekerjaan
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4 max-w-md">
-                    Klik tombol "Cari Pekerjaan Baru" di atas untuk mencari
-                    pekerjaan dari LinkedIn, Indeed, Glassdoor, dan Upwork.
+                    Klik tombol "Cari Pekerjaan Baru" di atas untuk mencari 15
+                    pekerjaan relevan dari LinkedIn, Indeed, Glassdoor, dan
+                    Upwork.
                   </p>
                 </div>
               ) : (
-                sortedSources.map((source) => (
-                  <div key={source} className="border-b last:border-b-0">
-                    {/* Platform Header */}
-                    <div className="bg-muted/30 px-6 py-3 border-b">
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant="outline"
-                          className={`font-medium ${getSourceBadgeColor(source)}`}
-                        >
-                          {source.charAt(0).toUpperCase() + source.slice(1)}
-                        </Badge>
-                        <span className="text-sm text-muted-foreground">
-                          {groupedJobs[source].length} pekerjaan
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Jobs from this source */}
-                    {groupedJobs[source].map((job) => renderJobCard(job, source))}
-                  </div>
-                ))
+                <div>{jobs.map((job) => renderJobCard(job))}</div>
               )}
             </div>
-
-            {/* Footer */}
-            {jobs.length > 0 && (
-              <div className="p-6">
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={handleFetchJobs}
-                  disabled={fetchingJobs}
-                >
-                  {fetchingJobs ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Memuat...
-                    </>
-                  ) : (
-                    'Muat Lebih Banyak'
-                  )}
-                </Button>
-              </div>
-            )}
           </div>
         </div>
 
