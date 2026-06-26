@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Briefcase, Clock, MapPin } from 'lucide-react';
 import type { Job } from '@/lib/jobs-client';
+import IndeedIcon from '@/assets/svg/Indeed.svg';
 
 interface IndeedJobCardProps {
   job: Job;
@@ -40,16 +41,16 @@ export function IndeedJobCard({ job }: IndeedJobCardProps) {
               alt={job.company}
               className="h-full w-full object-contain p-2"
               onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.textContent = job.company
-                  .charAt(0)
-                  .toUpperCase();
+                e.currentTarget.src = IndeedIcon;
+                e.currentTarget.alt = 'Indeed';
               }}
             />
           ) : (
-            <span className="text-lg font-semibold">
-              {job.company.charAt(0).toUpperCase()}
-            </span>
+            <img
+              src={IndeedIcon}
+              alt="Indeed"
+              className="h-full w-full object-contain p-2"
+            />
           )}
         </div>
 

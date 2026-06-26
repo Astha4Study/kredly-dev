@@ -2,6 +2,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Briefcase, Clock, MapPin } from 'lucide-react';
 import type { Job } from '@/lib/jobs-client';
+import LinkedInIcon from '@/assets/svg/Linkedin.svg';
+import { useState } from 'react';
 
 interface LinkedInJobCardProps {
   job: Job;
@@ -29,28 +31,23 @@ function formatDate(dateString: string): string {
 }
 
 export function LinkedInJobCard({ job }: LinkedInJobCardProps) {
+  const [useFallback, setUseFallback] = useState(!job.logo);
+
   return (
     <article className="border-b border-border transition-colors hover:bg-muted/30">
       <div className="flex gap-4 px-6 py-5">
         {/* Logo */}
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center border bg-muted">
-          {job.logo ? (
-            <img
-              src={job.logo}
-              alt={job.company}
-              className="h-full w-full object-contain p-2"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.textContent = job.company
-                  .charAt(0)
-                  .toUpperCase();
-              }}
-            />
-          ) : (
-            <span className="text-lg font-semibold">
-              {job.company.charAt(0).toUpperCase()}
-            </span>
-          )}
+        <div
+          className={`flex h-14 w-14 shrink-0 items-center justify-center border ${
+            useFallback ? 'bg-transparent border-transparent' : 'bg-muted'
+          }`}
+        >
+          <img
+            src={useFallback ? LinkedInIcon : job.logo!}
+            alt={useFallback ? 'LinkedIn' : job.company}
+            className="h-full w-full object-contain p-2"
+            onError={() => setUseFallback(true)}
+          />
         </div>
 
         {/* Content */}
