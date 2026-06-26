@@ -118,11 +118,11 @@ export const AssessmentCard = ({ assessment }: AssessmentCardProps) => (
           {assessment.sessionId ? (
             <Button className="w-full font-semibold" asChild>
               <Link
-                to="/result/$sessionId"
-                params={{ sessionId: assessment.sessionId }}
+                to="/app/certification/$id"
+                params={{ id: assessment.sessionId }}
                 preload="intent"
               >
-                Lihat Hasil Detail
+                Lihat Sertifikat
               </Link>
             </Button>
           ) : (

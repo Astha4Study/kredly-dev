@@ -25,7 +25,6 @@ import { Route as PublicTermsIndexRouteImport } from './routes/_public/terms/ind
 import { Route as PublicFeaturesIndexRouteImport } from './routes/_public/features/index'
 import { Route as PublicAboutUsIndexRouteImport } from './routes/_public/about-us/index'
 import { Route as AppAppIndexRouteImport } from './routes/_app/app/index'
-import { Route as CatResultSessionIdIndexRouteImport } from './routes/_cat/result/$sessionId/index'
 import { Route as CatQuizSessionIdIndexRouteImport } from './routes/_cat/quiz/$sessionId/index'
 import { Route as AppAppParseCvIndexRouteImport } from './routes/_app/app/parse-cv/index'
 import { Route as AppAppJobsIndexRouteImport } from './routes/_app/app/jobs/index'
@@ -116,11 +115,6 @@ const AppAppIndexRoute = AppAppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppAppRouteRoute,
-} as any)
-const CatResultSessionIdIndexRoute = CatResultSessionIdIndexRouteImport.update({
-  id: '/_cat/result/$sessionId/',
-  path: '/result/$sessionId/',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const CatQuizSessionIdIndexRoute = CatQuizSessionIdIndexRouteImport.update({
   id: '/_cat/quiz/$sessionId/',
@@ -214,7 +208,6 @@ export interface FileRoutesByFullPath {
   '/app/jobs/': typeof AppAppJobsIndexRoute
   '/app/parse-cv/': typeof AppAppParseCvIndexRoute
   '/quiz/$sessionId/': typeof CatQuizSessionIdIndexRoute
-  '/result/$sessionId/': typeof CatResultSessionIdIndexRoute
   '/app/assessment/$assessmentId/': typeof AppAppAssessmentAssessmentIdIndexRoute
   '/app/certification/$id/': typeof AppAppCertificationIdIndexRoute
 }
@@ -240,7 +233,6 @@ export interface FileRoutesByTo {
   '/app/jobs': typeof AppAppJobsIndexRoute
   '/app/parse-cv': typeof AppAppParseCvIndexRoute
   '/quiz/$sessionId': typeof CatQuizSessionIdIndexRoute
-  '/result/$sessionId': typeof CatResultSessionIdIndexRoute
   '/app/assessment/$assessmentId': typeof AppAppAssessmentAssessmentIdIndexRoute
   '/app/certification/$id': typeof AppAppCertificationIdIndexRoute
 }
@@ -272,7 +264,6 @@ export interface FileRoutesById {
   '/_app/app/jobs/': typeof AppAppJobsIndexRoute
   '/_app/app/parse-cv/': typeof AppAppParseCvIndexRoute
   '/_cat/quiz/$sessionId/': typeof CatQuizSessionIdIndexRoute
-  '/_cat/result/$sessionId/': typeof CatResultSessionIdIndexRoute
   '/_app/app/assessment/$assessmentId/': typeof AppAppAssessmentAssessmentIdIndexRoute
   '/_app/app/certification/$id/': typeof AppAppCertificationIdIndexRoute
 }
@@ -302,7 +293,6 @@ export interface FileRouteTypes {
     | '/app/jobs/'
     | '/app/parse-cv/'
     | '/quiz/$sessionId/'
-    | '/result/$sessionId/'
     | '/app/assessment/$assessmentId/'
     | '/app/certification/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -328,7 +318,6 @@ export interface FileRouteTypes {
     | '/app/jobs'
     | '/app/parse-cv'
     | '/quiz/$sessionId'
-    | '/result/$sessionId'
     | '/app/assessment/$assessmentId'
     | '/app/certification/$id'
   id:
@@ -359,7 +348,6 @@ export interface FileRouteTypes {
     | '/_app/app/jobs/'
     | '/_app/app/parse-cv/'
     | '/_cat/quiz/$sessionId/'
-    | '/_cat/result/$sessionId/'
     | '/_app/app/assessment/$assessmentId/'
     | '/_app/app/certification/$id/'
   fileRoutesById: FileRoutesById
@@ -371,7 +359,6 @@ export interface RootRouteChildren {
   ParseCVRoute: typeof ParseCVRoute
   StatementOfAccomplishmentSessionIdRoute: typeof StatementOfAccomplishmentSessionIdRoute
   CatQuizSessionIdIndexRoute: typeof CatQuizSessionIdIndexRoute
-  CatResultSessionIdIndexRoute: typeof CatResultSessionIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -487,13 +474,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AppAppIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
-    }
-    '/_cat/result/$sessionId/': {
-      id: '/_cat/result/$sessionId/'
-      path: '/result/$sessionId'
-      fullPath: '/result/$sessionId/'
-      preLoaderRoute: typeof CatResultSessionIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/_cat/quiz/$sessionId/': {
       id: '/_cat/quiz/$sessionId/'
@@ -689,7 +669,6 @@ const rootRouteChildren: RootRouteChildren = {
   StatementOfAccomplishmentSessionIdRoute:
     StatementOfAccomplishmentSessionIdRoute,
   CatQuizSessionIdIndexRoute: CatQuizSessionIdIndexRoute,
-  CatResultSessionIdIndexRoute: CatResultSessionIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

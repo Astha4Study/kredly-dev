@@ -340,6 +340,7 @@ function RouteComponent() {
             feedback={result.feedback}
             verificationId={result.verification_id}
             totalItems={result.total_items}
+            durationSeconds={result.duration_seconds}
           />
         </div>
 
@@ -369,10 +370,13 @@ function RouteComponent() {
       <ResultCertModal
         show={showCertModal}
         onClose={() => setShowCertModal(false)}
+        userName={user?.name || 'Pengguna Kredly'}
         role={result.role}
         level={result.level}
         score={result.score}
         verificationId={result.verification_id}
+        totalItems={result.total_items}
+        durationSeconds={result.duration_seconds}
       />
     </div>
   );

@@ -166,7 +166,7 @@ function RouteComponent() {
     setIsSubmitting(false);
 
     if (answerRes.completed) {
-      navigate({ to: `/result/${sessionId}` });
+      navigate({ to: `/app/certification/${sessionId}` });
     } else {
       loadNextQuestion();
     }
