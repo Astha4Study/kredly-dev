@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/auth';
 import { useEffect, useState } from 'react';
 import { Clock, FileText, ArrowRight, Layers, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import DashboardSkeleton from '@/components/skeletons/DashboardSkeleton';
+import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeleton';
 import AsideProfileSkeleton from '@/components/skeletons/AsideProfileSkeleton';
 
 export const Route = createFileRoute('/_app/app/')({

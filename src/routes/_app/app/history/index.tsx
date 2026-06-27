@@ -1,222 +1,82 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import {
+  Download,
+  CheckCircle2,
+  Award,
+  FileText,
+  Clock,
+  ShieldCheck,
+  Info,
+  Loader2,
+  History,
+} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { getUserActivities, type Activity } from '@/lib/history-client';
 
 export const Route = createFileRoute('/_app/app/history/')({
   component: RouteComponent,
 });
 
-interface Activity {
-  id: string;
-  type:
-    | 'assessment_completed'
-    | 'credential_earned'
-    | 'cv_updated'
-    | 'assessment_started'
-    | 'blockchain_verified';
-  title: string;
-  description: string;
-  date: string;
-  time: string;
-  metadata?: {
-    score?: number;
-    txHash?: string;
-    fileName?: string;
-    skills?: string[];
-    progress?: string;
-  };
-}
-
 function RouteComponent() {
-  // Mock data - nanti diganti dengan data dari API
-  const activities: Activity[] = [
-    {
-      id: '1',
-      type: 'assessment_completed',
-      title: 'Assessment Selesai: React Advanced',
-      description: 'Anda menyelesaikan assessment React Advanced',
-      date: '15 Juni 2026',
-      time: '14:30',
-      metadata: {
-        score: 85,
-      },
-    },
-    {
-      id: '2',
-      type: 'credential_earned',
-      title: 'Kredensial Baru Diterbitkan',
-      description:
-        'Kredensial React Advanced berhasil diterbitkan ke blockchain',
-      date: '15 Juni 2026',
-      time: '14:35',
-      metadata: {
-        txHash: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
-      },
-    },
-    {
-      id: '3',
-      type: 'blockchain_verified',
-      title: 'Kredensial Diverifikasi di Blockchain',
-      description: 'Kredensial React Advanced telah diverifikasi di blockchain',
-      date: '15 Juni 2026',
-      time: '14:36',
-      metadata: {
-        txHash: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
-      },
-    },
-    {
-      id: '4',
-      type: 'assessment_started',
-      title: 'Memulai Assessment: TypeScript Fundamentals',
-      description: 'Assessment TypeScript Fundamentals dimulai',
-      date: '14 Juni 2026',
-      time: '16:00',
-      metadata: {
-        progress: '5/20 soal dijawab',
-      },
-    },
-    {
-      id: '5',
-      type: 'assessment_completed',
-      title: 'Assessment Selesai: JavaScript ES6',
-      description: 'Anda menyelesaikan assessment JavaScript ES6',
-      date: '10 Juni 2026',
-      time: '11:45',
-      metadata: {
-        score: 82,
-      },
-    },
-    {
-      id: '6',
-      type: 'credential_earned',
-      title: 'Kredensial Baru Diterbitkan',
-      description:
-        'Kredensial JavaScript ES6 berhasil diterbitkan ke blockchain',
-      date: '10 Juni 2026',
-      time: '11:50',
-      metadata: {
-        txHash: '0x456def789ghi012jkl345mno678pqr901stu234',
-      },
-    },
-    {
-      id: '7',
-      type: 'cv_updated',
-      title: 'CV Diperbarui',
-      description: 'CV berhasil diperbarui dengan file baru',
-      date: '9 Juni 2026',
-      time: '09:15',
-      metadata: {
-        fileName: 'resume_v2.pdf',
-        skills: ['TypeScript', 'GraphQL', 'Docker'],
-      },
-    },
-    {
-      id: '8',
-      type: 'blockchain_verified',
-      title: 'Kredensial Diverifikasi di Blockchain',
-      description: 'Kredensial JavaScript ES6 telah diverifikasi di blockchain',
-      date: '10 Juni 2026',
-      time: '11:52',
-      metadata: {
-        txHash: '0x456def789ghi012jkl345mno678pqr901stu234',
-      },
-    },
-  ];
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadActivities = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getUserActivities();
+      setActivities(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load activities');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadActivities();
+  }, []);
 
   const getActivityIcon = (type: Activity['type']) => {
     switch (type) {
       case 'assessment_completed':
         return (
-          <div className="w-10 h-10  flex items-center justify-center">
-            <svg
-              className="w-5 h-5 text-primary"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clipRule="evenodd"
-              />
-            </svg>
+          <div className="w-10 h-10 flex items-center justify-center">
+            <CheckCircle2 className="w-5 h-5 text-primary" />
           </div>
         );
       case 'credential_earned':
         return (
-          <div className="w-10 h-10  flex items-center justify-center">
-            <svg
-              className="w-5 h-5 text-primary"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-              <path
-                fillRule="evenodd"
-                d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clipRule="evenodd"
-              />
-            </svg>
+          <div className="w-10 h-10 flex items-center justify-center">
+            <Award className="w-5 h-5 text-primary" />
           </div>
         );
       case 'cv_updated':
         return (
-          <div className="w-10 h-10  flex items-center justify-center">
-            <svg
-              className="w-5 h-5 text-foreground"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
-            </svg>
+          <div className="w-10 h-10 flex items-center justify-center">
+            <FileText className="w-5 h-5 text-foreground" />
           </div>
         );
       case 'assessment_started':
         return (
-          <div className="w-10 h-10  flex items-center justify-center">
-            <svg
-              className="w-5 h-5 text-muted-foreground"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                clipRule="evenodd"
-              />
-            </svg>
+          <div className="w-10 h-10 flex items-center justify-center">
+            <Clock className="w-5 h-5 text-muted-foreground" />
           </div>
         );
       case 'blockchain_verified':
         return (
-          <div className="w-10 h-10  flex items-center justify-center">
-            <svg
-              className="w-5 h-5 text-primary"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clipRule="evenodd"
-              />
-            </svg>
+          <div className="w-10 h-10 flex items-center justify-center">
+            <ShieldCheck className="w-5 h-5 text-primary" />
           </div>
         );
       default:
         return (
-          <div className="w-10 h-10  flex items-center justify-center">
-            <svg
-              className="w-5 h-5 text-muted-foreground"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                clipRule="evenodd"
-              />
-            </svg>
+          <div className="w-10 h-10 flex items-center justify-center">
+            <Info className="w-5 h-5 text-muted-foreground" />
           </div>
         );
     }
@@ -271,7 +131,16 @@ function RouteComponent() {
             </div>
           </div>
           <div className="p-6">
-            {activities.length > 0 ? (
+            {error && (
+              <div className="rounded-md bg-red-50 p-3 text-sm text-red-800 mb-4">
+                {error}
+              </div>
+            )}
+            {loading ? (
+              <div className="flex items-center justify-center p-12">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : activities.length > 0 ? (
               <div className="space-y-6">
                 {activities.map((activity, index) => (
                   <div key={activity.id} className="flex gap-4">
@@ -380,8 +249,16 @@ function RouteComponent() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Belum ada aktivitas</p>
+              <div className="flex flex-col items-center justify-center p-12 text-center">
+                <div className="rounded-full bg-muted p-3 mb-4">
+                  <History className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">
+                  Belum Ada Aktivitas
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Aktivitas Anda akan muncul di sini
+                </p>
               </div>
             )}
           </div>

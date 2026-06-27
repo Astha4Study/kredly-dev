@@ -59,6 +59,9 @@ func main() {
 	// 9. Initialize Job Handler
 	jobHandler := handlers.NewJobHandler(database.DB)
 
+	// 10. Initialize Activity Handler
+	activityHandler := handlers.NewActivityHandler(database.DB)
+
 	// Set Gin mode
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
@@ -157,6 +160,9 @@ func main() {
 			jobs.POST("/fetch", jobHandler.FetchAndStoreJobs)
 			jobs.GET("", jobHandler.GetUserJobs)
 		}
+
+		// Activity endpoints - Protected
+		api.GET("/activities", middleware.AuthMiddleware(cfg, authService), activityHandler.GetUserActivities)
 	}
 
 	// 9. Start Server
