@@ -88,15 +88,17 @@ export default function CertificationList({
             key={credential.id}
             to="/app/certification/$id"
             params={{ id: credential.sessionId || credential.id }}
-            className={`cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:shadow-sm ${viewMode === 'list' ? 'flex flex-row' : ''
-              }`}
+            className={`cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:shadow-sm ${
+              viewMode === 'list' ? 'flex flex-row' : ''
+            }`}
           >
             {/* Header Image with Verified Badge */}
             <div
-              className={`relative flex items-center justify-center overflow-hidden bg-gray-100 ${viewMode === 'list'
+              className={`relative flex items-center justify-center overflow-hidden bg-gray-100 ${
+                viewMode === 'list'
                   ? 'w-48 shrink-0 aspect-[4/3]'
                   : 'w-full aspect-[4/3]'
-                }`}
+              }`}
             >
               <img
                 src={certPlaceholder}

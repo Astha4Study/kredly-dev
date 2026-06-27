@@ -158,7 +158,7 @@ func (h *JobHandler) GetUserJobs(c *gin.Context) {
 	}
 	defer cursor.Close(context.Background())
 
-	var jobs []models.Job
+	jobs := []models.Job{}
 	if err = cursor.All(context.Background(), &jobs); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

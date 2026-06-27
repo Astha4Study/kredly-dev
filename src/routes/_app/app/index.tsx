@@ -27,7 +27,7 @@ interface Credential {
 
 interface CVAssessment {
   id: string;
-  type: 'general' | 'skill';
+  type: 'general' | 'skill' | 'related_skill';
   title: string;
   description?: string;
   estimatedTime: string;
@@ -79,7 +79,7 @@ function RouteComponent() {
               (a) => a.type === 'general',
             );
             const skillAssessments = assessments.filter(
-              (a) => a.type === 'skill',
+              (a) => a.type === 'skill' || a.type === 'related_skill',
             );
 
             const selected: CVAssessment[] = [];
@@ -205,6 +205,11 @@ function RouteComponent() {
                                   <>
                                     <Layers className="h-3 w-3" />
                                     General
+                                  </>
+                                ) : assessment.type === 'related_skill' ? (
+                                  <>
+                                    <Zap className="h-3 w-3" />
+                                    Related Skill
                                   </>
                                 ) : (
                                   <>

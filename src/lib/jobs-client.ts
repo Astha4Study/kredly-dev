@@ -1,6 +1,3 @@
-const API_BASE_URL =
-  import.meta.env.PUBLIC_AUTH_SERVER_URL || 'http://localhost:8080';
-
 export interface Job {
   id: string;
   title: string;
@@ -38,7 +35,7 @@ export interface FetchJobsResponse {
 export async function fetchAndStoreJobs(
   request: FetchJobsRequest,
 ): Promise<FetchJobsResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/jobs/fetch`, {
+  const response = await fetch(`/api/jobs/fetch`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -54,11 +51,15 @@ export async function fetchAndStoreJobs(
     throw new Error(error.error || 'Failed to fetch jobs');
   }
 
-  return response.json();
+  const data = await response.json();
+  return {
+    ...data,
+    jobs: data?.jobs || [],
+  };
 }
 
 export async function getUserJobs(): Promise<Job[]> {
-  const response = await fetch(`${API_BASE_URL}/api/jobs`, {
+  const response = await fetch(`/api/jobs`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -73,5 +74,6 @@ export async function getUserJobs(): Promise<Job[]> {
     throw new Error(error.error || 'Failed to get jobs');
   }
 
-  return response.json();
+  const data = await response.json();
+  return data || [];
 }
