@@ -43,3 +43,4 @@ yarn.lock
 package-lock.json
 
 server/tmp_build
+src/routeTree.gen.ts
