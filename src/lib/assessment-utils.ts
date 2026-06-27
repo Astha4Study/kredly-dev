@@ -34,9 +34,10 @@ export function generateRandomId(length: number = 8): string {
  */
 export function generateAssessmentId(
   title: string,
-  type: 'general' | 'skill',
+  type: 'general' | 'skill' | 'related_skill',
 ): string {
-  const typePrefix = type === 'general' ? 'gen' : 'skill';
+  const typePrefix =
+    type === 'general' ? 'gen' : type === 'related_skill' ? 'rel' : 'skill';
   const slug = generateSlug(title);
   const random = generateRandomId(6);
 
@@ -47,7 +48,7 @@ export function generateAssessmentId(
  * Parse assessment ID to extract type and slug
  */
 export function parseAssessmentId(id: string): {
-  type: 'general' | 'skill';
+  type: 'general' | 'skill' | 'related_skill';
   slug: string;
   random: string;
 } | null {
@@ -57,7 +58,13 @@ export function parseAssessmentId(id: string): {
 
   const typePrefix = parts[0];
   const type =
-    typePrefix === 'gen' ? 'general' : typePrefix === 'skill' ? 'skill' : null;
+    typePrefix === 'gen'
+      ? 'general'
+      : typePrefix === 'rel'
+        ? 'related_skill'
+        : typePrefix === 'skill'
+          ? 'skill'
+          : null;
 
   if (!type) return null;
 
@@ -79,4 +86,11 @@ export function isGeneralAssessment(id: string): boolean {
  */
 export function isSkillAssessment(id: string): boolean {
   return id.startsWith('skill-');
+}
+
+/**
+ * Check if an ID is a related skill assessment
+ */
+export function isRelatedSkillAssessment(id: string): boolean {
+  return id.startsWith('rel-');
 }

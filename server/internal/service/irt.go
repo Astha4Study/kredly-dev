@@ -58,10 +58,10 @@ func SEM(theta float64, items []models.AnswerHistory) float64 {
 // ShouldStop checks if the adaptive test stopping criteria are met
 func ShouldStop(totalItems int, sem float64, maxItems, minItems int, semThreshold float64) string {
 	if maxItems <= 0 {
-		maxItems = 30
+		maxItems = 50
 	}
 	if minItems <= 0 {
-		minItems = 10
+		minItems = 20
 	}
 	if semThreshold <= 0 {
 		semThreshold = 0.3

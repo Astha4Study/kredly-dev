@@ -34,7 +34,7 @@ import { toast } from 'sonner';
 
 interface CVAssessment {
   id: string;
-  type: 'general' | 'skill';
+  type: 'general' | 'skill' | 'related_skill';
   title: string;
   description?: string;
   estimatedTime: string;
@@ -490,7 +490,7 @@ function TestOverviewPage() {
                         <p className="text-xs text-muted-foreground leading-relaxed">
                           {assessment
                             ? `Estimasi ${assessment.estimatedTime} dengan ${assessment.questionCount} soal.`
-                            : 'Estimasi 15-20 menit dengan 10-15 soal.'}
+                            : 'Estimasi 45-90 menit dengan 30-50 soal.'}
                         </p>
                       </div>
                     </div>

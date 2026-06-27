@@ -70,8 +70,8 @@ func (s *CATService) CreateSession(ctx context.Context, req CreateSessionReq) (*
 		return nil, fmt.Errorf("role '%s' is not supported", req.Role)
 	}
 
-	maxItems := 30
-	minItems := 10
+	maxItems := 50
+	minItems := 20
 
 	// Fetch dynamic question count from UserProfile if UserID is provided
 	var resolvedAssessmentID string
@@ -87,6 +87,10 @@ func (s *CATService) CreateSession(ctx context.Context, req CreateSessionReq) (*
 					if assessment.ID == req.AssessmentID {
 						if assessment.QuestionCount > 0 {
 							maxItems = assessment.QuestionCount
+							minItems = maxItems / 2
+							if minItems < 10 {
+								minItems = 10
+							}
 							found = true
 							resolvedAssessmentID = assessment.ID
 						}
@@ -100,6 +104,10 @@ func (s *CATService) CreateSession(ctx context.Context, req CreateSessionReq) (*
 					if assessment.IsRecommended || assessment.Type == "general" || strings.EqualFold(assessment.Title, req.Role) {
 						if assessment.QuestionCount > 0 {
 							maxItems = assessment.QuestionCount
+							minItems = maxItems / 2
+							if minItems < 10 {
+								minItems = 10
+							}
 							found = true
 							resolvedAssessmentID = assessment.ID
 						}
