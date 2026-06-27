@@ -18,7 +18,6 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  ArrowRight,
   Plus,
   Loader2,
   AlertCircle,
@@ -38,7 +37,6 @@ interface CVAssessment {
   type: 'general' | 'skill';
   title: string;
   description?: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
   estimatedTime: string;
   questionCount: number;
   topics?: string[];
@@ -50,15 +48,6 @@ interface CVAssessment {
 export const Route = createFileRoute('/_app/app/assessment/$assessmentId/')({
   component: TestOverviewPage,
 });
-
-const difficultyColors = {
-  Beginner:
-    'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20',
-  Intermediate:
-    'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20',
-  Advanced:
-    'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20',
-};
 
 function TestOverviewPage() {
   const { user, isLoading } = useAuth();
@@ -100,7 +89,6 @@ function TestOverviewPage() {
               if (matched) {
                 setAssessment(matched);
                 setRole(matched.title || 'Software Engineer');
-                setLevel(matched.difficulty || 'Intermediate');
                 const matchedSkills =
                   matched.type === 'general'
                     ? matched.topics || []
@@ -288,44 +276,48 @@ function TestOverviewPage() {
   return (
     <div className="min-h-screen">
       <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-10 max-w-5xl">
-        <div className="space-y-6 sm:space-y-8">
+        <div className="space-y-6">
           {/* Assessment Info Card */}
           {assessment && (
             <Card className="border-border/50 bg-linear-to-br from-card/50 to-card/30 backdrop-blur-sm">
-              <CardContent className="pt-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-lg sm:text-xl font-semibold text-foreground">
-                        {assessment.title}
-                      </h3>
-                      <Badge
-                        variant="outline"
-                        className={`text-xs ${difficultyColors[assessment.difficulty]}`}
-                      >
-                        {assessment.difficulty}
-                      </Badge>
-                    </div>
+              <CardContent>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-xl font-semibold tracking-tight text-foreground">
+                      {assessment.title}
+                    </h3>
+
                     {assessment.description && (
-                      <p className="text-sm text-muted-foreground max-w-2xl">
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground max-w-2xl">
                         {assessment.description}
                       </p>
                     )}
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground shrink-0">
-                    <div className="flex items-center gap-1.5">
-                      <Clock className="h-4 w-4" />
-                      <span className="font-medium">
-                        {assessment.estimatedTime}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <BookOpen className="h-4 w-4" />
-                      <span className="font-medium">
-                        {assessment.questionCount} Soal
-                      </span>
-                    </div>
+
+                  <div className="hidden sm:flex items-center gap-2 shrink-0">
+                    <Badge variant="outline" className="gap-1.5 font-normal">
+                      <Clock className="h-3.5 w-3.5" />
+                      {assessment.estimatedTime}
+                    </Badge>
+
+                    <Badge variant="outline" className="gap-1.5 font-normal">
+                      <BookOpen className="h-3.5 w-3.5" />
+                      {assessment.questionCount} Soal
+                    </Badge>
                   </div>
+                </div>
+
+                {/* Mobile */}
+                <div className="mt-4 flex sm:hidden items-center gap-2">
+                  <Badge variant="outline" className="gap-1.5 font-normal">
+                    <Clock className="h-3.5 w-3.5" />
+                    {assessment.estimatedTime}
+                  </Badge>
+
+                  <Badge variant="outline" className="gap-1.5 font-normal">
+                    <BookOpen className="h-3.5 w-3.5" />
+                    {assessment.questionCount} Soal
+                  </Badge>
                 </div>
               </CardContent>
             </Card>
@@ -567,7 +559,7 @@ function TestOverviewPage() {
                     size="lg"
                     onClick={handleStartExam}
                     disabled={skills.length === 0 || isCreatingSession}
-                    className="w-full group"
+                    className="w-full group cursor-pointer"
                   >
                     {isCreatingSession ? (
                       <>
@@ -575,10 +567,7 @@ function TestOverviewPage() {
                         Membuat Sesi...
                       </>
                     ) : (
-                      <>
-                        Mulai Asesmen
-                        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                      </>
+                      <>Mulai Asesmen</>
                     )}
                   </Button>
 

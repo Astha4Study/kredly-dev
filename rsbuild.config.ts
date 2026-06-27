@@ -1,6 +1,7 @@
 import { defineConfig } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 import { tanstackRouter } from '@tanstack/router-plugin/rspack';
+import { pluginImageCompress } from '@rsbuild/plugin-image-compress';
 import { pluginBabel } from '@rsbuild/plugin-babel';
 import { pluginSvgr } from '@rsbuild/plugin-svgr';
 import { config } from 'dotenv';
@@ -15,6 +16,7 @@ export default defineConfig({
   plugins: [
     pluginReact(),
     pluginSvgr(),
+    pluginImageCompress(),
     pluginBabel({
       include: /\.[jt]sx?$/,
       exclude: [/[\\/]node_modules[\\/]/],
@@ -34,7 +36,7 @@ export default defineConfig({
     },
   },
   output: {
-    injectStyles: false,
+    injectStyles: true,
   },
   server: {
     proxy: {

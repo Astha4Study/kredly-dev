@@ -94,6 +94,25 @@
   font-display: swap;
 }
 
+/* Mumbai Sticker Font Regular */
+@font-face {
+  font-family: 'Mumbai Sticker';
+  src: url('./assets/fonts/TheMumbaiStickerDemo-Regular.ttf') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Mumbai Sticker Font Shadow Outline */
+@font-face {
+  font-family: 'Mumbai Sticker';
+  src: url('./assets/fonts/TheMumbaiStickerDemo-ShadowOutline.ttf')
+    format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

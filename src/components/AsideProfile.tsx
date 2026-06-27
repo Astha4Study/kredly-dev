@@ -1,8 +1,9 @@
 import { useAuth } from '@/contexts/auth';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Checkbox } from './ui/checkbox';
 import { Link } from '@tanstack/react-router';
+import { Award, BookOpen } from 'lucide-react';
+import AsideCredentialProgress from './AsideCredentialProgress';
 
 interface UserProfile {
   id: string;
@@ -12,6 +13,7 @@ interface UserProfile {
   experience: string;
   isStudent: boolean;
   degree?: string;
+  cvAssessments?: Array<{ id: string }>;
   createdAt: string;
   updatedAt: string;
 }
@@ -42,40 +44,6 @@ export default function AsideProfile() {
 
     fetchProfile();
   }, []);
-
-  const onboardingSteps = useMemo(
-    () => [
-      {
-        label: 'Lengkapi profil dasar',
-        done: Boolean(user?.name),
-      },
-      {
-        label: 'Pilih username',
-        done: true,
-      },
-      {
-        label: 'Unggah CV',
-        done: Boolean(userProfile?.cvFilePath),
-      },
-      {
-        label: 'Tambahkan pengalaman',
-        done: Boolean(userProfile?.experience),
-      },
-      {
-        label: 'Ikuti asesmen pertama',
-        done: false,
-      },
-      {
-        label: 'Dapatkan kredensial pertama',
-        done: false,
-      },
-    ],
-    [user, userProfile],
-  );
-
-  const completedSteps = onboardingSteps.filter((step) => step.done).length;
-
-  const progressPercentage = (completedSteps / onboardingSteps.length) * 100;
 
   return (
     <aside className="sticky top-20 w-64 shrink-0">
@@ -112,27 +80,26 @@ export default function AsideProfile() {
           <div className="grid grid-cols-2 border-y border-border">
             {[
               {
-                value: '3',
+                value: userProfile?.cvAssessments?.length.toString() || '0',
                 label: 'Asesmen',
-                to: '/app/assessments' as const,
+                icon: BookOpen,
+                to: '/app/assessment' as const,
               },
               {
-                value: '2',
+                value: '0',
                 label: 'Kredensial',
-                to: '/app/certification' as const,
+                icon: Award,
+                to: '/app/credentials' as const,
               },
             ].map((stat, index) => (
               <Link
                 key={stat.label}
                 to={stat.to}
-                className={`block p-4 transition-colors hover:bg-muted ${
+                className={`group block p-4 transition-colors hover:bg-muted/50 ${
                   index === 0 ? 'border-r border-border' : ''
                 }`}
               >
-                <p className="text-xl font-semibold tabular-nums">
-                  {stat.value}
-                </p>
-
+                <p className="text-2xl font-bold tabular-nums">{stat.value}</p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {stat.label}
                 </p>
@@ -141,14 +108,15 @@ export default function AsideProfile() {
           </div>
 
           {/* Profile */}
-          <div className="p-4">
-            <h3 className="mb-4 text-sm font-medium">Profil</h3>
+          <div className="px-4 pt-2 pb-4">
+            <h3 className="mb-4 text-sm font-semibold">Profil</h3>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <p className="text-xs text-muted-foreground">Status</p>
-
-                <p className="mt-1 text-sm">
+                <p className="text-xs font-medium text-muted-foreground">
+                  Status
+                </p>
+                <p className="mt-1.5 text-sm font-medium">
                   {profileLoading
                     ? '—'
                     : userProfile?.isStudent
@@ -158,9 +126,10 @@ export default function AsideProfile() {
               </div>
 
               <div>
-                <p className="text-xs text-muted-foreground">Pengalaman</p>
-
-                <p className="mt-1 text-sm">
+                <p className="text-xs font-medium text-muted-foreground">
+                  Pengalaman
+                </p>
+                <p className="mt-1.5 text-sm font-medium">
                   {profileLoading
                     ? '—'
                     : userProfile?.experience || 'Belum diatur'}
@@ -169,9 +138,12 @@ export default function AsideProfile() {
 
               {userProfile?.degree && (
                 <div>
-                  <p className="text-xs text-muted-foreground">Pendidikan</p>
-
-                  <p className="mt-1 text-sm">{userProfile.degree}</p>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Pendidikan
+                  </p>
+                  <p className="mt-1.5 text-sm font-medium">
+                    {userProfile.degree}
+                  </p>
                 </div>
               )}
             </div>
@@ -179,45 +151,7 @@ export default function AsideProfile() {
         </div>
 
         {/* Progress Kredensial */}
-        <div className="rounded-xl border border-border bg-background p-4">
-          <div className="mb-4">
-            <h3 className="text-sm font-medium">Progress kredensial</h3>
-
-            <p className="mt-1 text-xs text-muted-foreground">
-              Lengkapi langkah berikut untuk mendapatkan kredensial pertama
-              Anda.
-            </p>
-          </div>
-
-          <div className="mb-4">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Progress</span>
-
-              <span className="text-xs font-medium">
-                {completedSteps}/{onboardingSteps.length}
-              </span>
-            </div>
-
-            <div className="h-2 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-primary transition-all"
-                style={{
-                  width: `${progressPercentage}%`,
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {onboardingSteps.map((step) => (
-              <div key={step.label} className="flex items-center gap-3">
-                <Checkbox checked={step.done} disabled />
-
-                <span className="text-sm">{step.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <AsideCredentialProgress />
       </div>
     </aside>
   );

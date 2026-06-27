@@ -1,7 +1,10 @@
+import * as React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
+import { Link, useNavigate } from '@tanstack/react-router';
+import certPlaceholder from '@/assets/certification/certplaceholder.png';
 
 interface Credential {
   id: string;
@@ -10,12 +13,13 @@ interface Credential {
   dateEarned: string;
   blockchainTxHash: string;
   status: 'verified';
+  sessionId?: string;
+  level?: string;
 }
 
 interface CertificationListProps {
   filteredCredentials: Credential[];
   viewMode: 'grid' | 'list';
-  setSelectedCredential: (credential: Credential | null) => void;
   searchQuery: string;
   filterStatus: 'all' | 'verified';
   setSearchQuery: (value: string) => void;
@@ -25,12 +29,51 @@ interface CertificationListProps {
 export default function CertificationList({
   filteredCredentials,
   viewMode,
-  setSelectedCredential,
   searchQuery,
   filterStatus,
   setSearchQuery,
   setFilterStatus,
 }: CertificationListProps) {
+  const navigate = useNavigate();
+  const [downloadingId, setDownloadingId] = React.useState<string | null>(null);
+
+  const handleDownload = async (e: React.MouseEvent, sessionId?: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!sessionId) {
+      alert('Session ID tidak ditemukan.');
+      return;
+    }
+
+    setDownloadingId(sessionId);
+    try {
+      const response = await fetch(`/api/certificates/metadata/${sessionId}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.exists && data.metadata && data.metadata.ipfsURL) {
+          window.open(data.metadata.ipfsURL, '_blank');
+          return;
+        }
+      }
+      alert('Sertifikat belum tersedia atau sedang diproses di blockchain.');
+    } catch (err) {
+      console.error('Failed to fetch certificate metadata:', err);
+      alert('Gagal mengambil detail sertifikat.');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  const handleDetailClick = (e: React.MouseEvent, sessionId?: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!sessionId) return;
+    navigate({
+      to: '/app/certification/$id',
+      params: { id: sessionId },
+    });
+  };
+
   if (filteredCredentials.length > 0) {
     return (
       <div
@@ -41,19 +84,25 @@ export default function CertificationList({
         }
       >
         {filteredCredentials.map((credential) => (
-          <div
+          <Link
             key={credential.id}
-            className={`cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:shadow-sm ${
-              viewMode === 'list' ? 'flex flex-row' : ''
-            }`}
-            onClick={() => setSelectedCredential(credential)}
+            to="/app/certification/$id"
+            params={{ id: credential.sessionId || credential.id }}
+            className={`cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:shadow-sm ${viewMode === 'list' ? 'flex flex-row' : ''
+              }`}
           >
             {/* Header Image with Verified Badge */}
             <div
-              className={`relative flex items-center justify-center bg-gray-200 ${
-                viewMode === 'list' ? 'w-58 shrink-0' : 'h-48'
-              }`}
+              className={`relative flex items-center justify-center overflow-hidden bg-gray-100 ${viewMode === 'list'
+                  ? 'w-48 shrink-0 aspect-[4/3]'
+                  : 'w-full aspect-[4/3]'
+                }`}
             >
+              <img
+                src={certPlaceholder}
+                alt={credential.skillName}
+                className="w-full h-full object-cover"
+              />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent" />
 
               {/* Verified Badge - Absolute Top Right */}
@@ -80,19 +129,38 @@ export default function CertificationList({
                     Score
                   </span>
                   <span className="text-2xl font-bold text-gray-900">
-                    {credential.score}/100
+                    {credential.score}
+                    <span className="text-sm text-gray-500 font-normal">
+                      {credential.score > 100 ? '/1000' : '/100'}
+                    </span>
                   </span>
                 </div>
-                <div>
+                {/* <div>
                   <span className="mb-1 block text-xs font-medium text-gray-500">
                     Blockchain TX Hash
                   </span>
                   <code className="block truncate rounded bg-gray-100 px-2 py-1 text-xs">
                     {credential.blockchainTxHash}
                   </code>
-                </div>
+                </div> */}
                 <div className="flex gap-2 pt-2">
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={(e) => handleDownload(e, credential.sessionId)}
+                    disabled={downloadingId === credential.sessionId}
+                  >
+                    {downloadingId === credential.sessionId
+                      ? 'Memuat...'
+                      : 'Download'}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={(e) => handleDetailClick(e, credential.sessionId)}
+                  >
                     Lihat Detail
                   </Button>
                   <Button size="sm" variant="ghost">
@@ -113,7 +181,7 @@ export default function CertificationList({
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     );
@@ -172,7 +240,9 @@ export default function CertificationList({
           Selesaikan assessment untuk mendapatkan kredensial pertama Anda! Semua
           kredensial akan tersimpan di blockchain dan dapat diverifikasi.
         </p>
-        <Button>Mulai Assessment</Button>
+        <Link to="/app/assessment">
+          <Button>Mulai Assessment</Button>
+        </Link>
       </CardContent>
     </Card>
   );

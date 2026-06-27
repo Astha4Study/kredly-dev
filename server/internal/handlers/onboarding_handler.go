@@ -82,6 +82,16 @@ func (h *OnboardingHandler) HandleCompleteOnboarding(c *gin.Context) {
 	cvFileName := header.Filename
 	cvFilePath := "/uploads/cv/" + userID + "_" + cvFileName // Path placeholder
 
+	// Get images from frontend (rendered by PDF.js)
+	cvImagesJSON := c.PostForm("cvImages")
+	var cvImages []string
+	if cvImagesJSON != "" {
+		if err := json.Unmarshal([]byte(cvImagesJSON), &cvImages); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid cvImages format: " + err.Error()})
+			return
+		}
+	}
+
 	// --- PROSES PARSING CV ---
 	// 1. Buat file temporer
 	tempFile, err := os.CreateTemp("", "cv-*.pdf")
@@ -99,8 +109,8 @@ func (h *OnboardingHandler) HandleCompleteOnboarding(c *gin.Context) {
 		return
 	}
 
-	// 3. Ekstrak teks dari PDF
-	text, err := pdf.ReadPDFText(tempPath)
+	// 3. Ekstrak teks dari PDF (dengan vision fallback untuk image-based PDFs)
+	text, err := pdf.ReadPDFTextWithVisionFallback(tempPath, h.groqClient, cvImages)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to extract text from PDF: " + err.Error()})
 		return
@@ -223,6 +233,22 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 	}
 	// -------------------------
 
+	// VALIDASI: Jangan save ke database jika parsing gagal
+	// Check apakah CV berhasil di-parse dengan baik
+	hasValidSkills := len(parsedSkills) > 0
+	hasValidSummary := cvSummary != nil && len(strings.TrimSpace(*cvSummary)) > 30 // Lowered from 50 to 30 for better tolerance
+
+	if !hasValidSkills || !hasValidSummary {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "CV tidak dapat dibaca dengan baik. Pastikan CV Anda berisi text yang dapat dibaca atau gambar yang jelas. Silakan upload ulang cv.",
+			"details": gin.H{
+				"hasSkills":  hasValidSkills,
+				"hasSummary": hasValidSummary,
+			},
+		})
+		return
+	}
+
 	// Update User (fullName dan username)
 	userColl := database.DB.Collection("user")
 	_, err = userColl.UpdateOne(
@@ -268,8 +294,17 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	// Return parsed data untuk validasi di frontend
+	response := gin.H{
 		"success": true,
 		"message": "Onboarding completed successfully",
-	})
+		"profile": gin.H{
+			"cvRole":    parsedRole,
+			"cvLevel":   parsedLevel,
+			"cvSkills":  parsedSkills,
+			"cvSummary": cvSummary,
+		},
+	}
+
+	c.JSON(http.StatusOK, response)
 }

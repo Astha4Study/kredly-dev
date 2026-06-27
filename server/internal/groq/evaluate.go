@@ -31,32 +31,32 @@ type EvaluateResponse struct {
 func (c *Client) EvaluateSession(ctx context.Context, req EvaluateRequest) (*EvaluateResponse, error) {
 	var historyLines []string
 	for _, h := range req.History {
-		status := "Incorrect"
+		status := "Salah"
 		if h.Correct {
-			status = "Correct"
+			status = "Benar"
 		}
-		historyLines = append(historyLines, fmt.Sprintf("- Topic: %s (Result: %s)", h.Topic, status))
+		historyLines = append(historyLines, fmt.Sprintf("- Topik: %s (Hasil: %s)", h.Topic, status))
 	}
 	historyStr := strings.Join(historyLines, "\n")
 	skillsStr := strings.Join(req.Skills, ", ")
 
-	systemPrompt := `You are an expert technical assessor and developer mentor. Your task is to evaluate a candidate's performance on a Computerized Adaptive Test (CAT) and provide structured, constructive feedback.
+	systemPrompt := `Anda adalah seorang asesor teknis dan mentor developer yang ahli. Tugas Anda adalah mengevaluasi kinerja kandidat pada Computerized Adaptive Test (CAT) dan memberikan umpan balik yang terstruktur serta konstruktif dalam Bahasa Indonesia.
 
-Candidate Profile & Results:
-- Target Role: Option target role
-- Key Skills: Skills declared by the candidate
-- Ability Estimate (Theta): Ability estimate
-- Scored Points: Score on a scale from 0 to 1000
-- Seniority Level Classification: Beginner, Intermediate, Advanced, or Expert
-- Performance History: List of topic areas tested and whether candidate answered correctly
+Profil & Hasil Kandidat:
+- Peran Target: Target peran pilihan
+- Keahlian Utama: Keahlian yang dideklarasikan oleh kandidat
+- Estimasi Kemampuan (Theta): Estimasi kemampuan
+- Skor Nilai: Skor dalam skala dari 0 hingga 1000
+- Klasifikasi Tingkat Senioritas: Beginner, Intermediate, Advanced, atau Expert
+- Riwayat Performa: Daftar topik yang diuji beserta status jawaban kandidat (Benar/Salah)
 
-Your analysis must be returned as a valid JSON object. Provide:
-1. "feedback": A brief paragraph summarizing their performance and readiness for the role. Be constructive, professional, and encouraging.
-2. "strengths": A list of 2-3 specific technical strengths demonstrated during the test.
-3. "weaknesses": A list of 2-3 areas for improvement based on topics they answered incorrectly.
-4. "recommendations": A list of 2-3 actionable learning paths, reference materials, or practice recommendations.
+Analisis Anda harus dikembalikan sebagai objek JSON yang valid. Seluruh teks nilai di dalam JSON harus ditulis dalam Bahasa Indonesia. Sediakan:
+1. "feedback": Paragraf singkat yang merangkum performa dan kesiapan mereka untuk peran tersebut. Tulis secara konstruktif, profesional, dan memotivasi.
+2. "strengths": Daftar berisi 2-3 kekuatan teknis spesifik yang ditunjukkan selama tes.
+3. "weaknesses": Daftar berisi 2-3 area peningkatan berdasarkan topik yang dijawab salah oleh kandidat.
+4. "recommendations": Daftar berisi 2-3 jalur belajar praktis, bahan referensi, atau rekomendasi latihan.
 
-Response must be a valid JSON object. Do not wrap in markdown code blocks. The JSON structure must strictly be:
+Tanggapan harus berupa objek JSON yang valid. Jangan bungkus dengan blok kode markdown. Struktur JSON harus berupa:
 {
   "feedback": "...",
   "strengths": ["...", "..."],
@@ -64,11 +64,11 @@ Response must be a valid JSON object. Do not wrap in markdown code blocks. The J
   "recommendations": ["...", "..."]
 }`
 
-	userContent := fmt.Sprintf(`Evaluate the following test session results:
-- Target Role: %s
-- Key Skills: %s
-- Final Score: %d / 1000 (Level: %s, Theta: %.2f)
-- Question History:
+	userContent := fmt.Sprintf(`Evaluasi hasil sesi tes berikut:
+- Peran Target: %s
+- Keahlian Utama: %s
+- Skor Akhir: %d / 1000 (Level: %s, Theta: %.2f)
+- Riwayat Pertanyaan:
 %s`, req.Role, skillsStr, req.Score, req.Level, req.ThetaFinal, historyStr)
 
 	chatReq := ChatCompletionRequest{
@@ -82,6 +82,7 @@ Response must be a valid JSON object. Do not wrap in markdown code blocks. The J
 				Content: userContent,
 			},
 		},
+		Model: "qwen/qwen3-32b",
 		ResponseFormat: &ResponseFormat{
 			Type: "json_object",
 		},
@@ -144,6 +145,7 @@ Respons harus berupa objek JSON yang valid:
 				Content: userContent,
 			},
 		},
+		Model: "qwen/qwen3-32b",
 		ResponseFormat: &ResponseFormat{
 			Type: "json_object",
 		},

@@ -203,12 +203,13 @@ func (h *SessionHandler) HandleGetSession(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"id":          sess.ID,
-		"role":        sess.Role,
-		"level":       sess.Level,
-		"total_items": sess.TotalItems,
-		"max_items":   sess.MaxItems,
-		"min_items":   sess.MinItems,
-		"completed":   sess.Completed,
+		"id":            sess.ID,
+		"assessment_id": sess.AssessmentID,
+		"role":          sess.Role,
+		"level":         sess.Level,
+		"total_items":   sess.TotalItems,
+		"max_items":     sess.MaxItems,
+		"min_items":     sess.MinItems,
+		"completed":     sess.Completed,
 	})
 }

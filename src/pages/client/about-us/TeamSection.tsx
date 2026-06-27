@@ -14,8 +14,8 @@ const TeamMembers = [
     role: 'AI Engineer',
     expertise: 'Artificial Intelligence',
     image: firmanImage,
-    linkedin: '#',
-    github: '#',
+    linkedin: 'https://www.linkedin.com/in/firman-zamzami-aziz/',
+    github: 'https://github.com/GwFirman',
     email: 'firman@kredly.com',
   },
   {
@@ -23,8 +23,8 @@ const TeamMembers = [
     role: 'Fullstack & Blockchain Developer',
     expertise: 'Blockchain',
     image: fauzanImage,
-    linkedin: '#',
-    github: '#',
+    linkedin: 'https://www.linkedin.com/in/ozan-fn/',
+    github: 'https://github.com/ozan-fn',
     email: 'fauzan@kredly.com',
   },
   {
@@ -32,9 +32,9 @@ const TeamMembers = [
     role: 'Frontend Developer',
     expertise: 'Frontend Engineering',
     image: iyanImage,
-    linkedin: '#',
-    github: '#',
-    email: 'agus@kredly.com',
+    linkedin: 'https://www.linkedin.com/in/muhammad-agus-priyanto-991a34371/',
+    github: 'https://github.com/Astha4Study',
+    email: 'aguspriyanto.dev@gmail.com',
   },
 ];
 
@@ -106,7 +106,7 @@ export default function TeamSection() {
                   className="
                   h-full
                   w-full
-                  aspect-[4/3]
+                  aspect-4/3
                   object-cover
                   grayscale
                   transition-all

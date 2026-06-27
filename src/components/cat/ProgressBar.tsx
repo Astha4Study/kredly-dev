@@ -26,18 +26,8 @@ export default function ProgressBar({
       <div className="flex items-center justify-between text-xs text-muted-foreground font-medium">
         <span>
           Soal <strong className="text-foreground">{currentQuestion}</strong>{' '}
-          dari <span className="text-foreground">~{maxQuestions}</span>
+          dari <span className="text-foreground">{maxQuestions}</span>
         </span>
-        {currentQuestion >= minQuestions ? (
-          <span className="text-emerald-500 font-semibold bg-emerald-500/10 px-1.5 py-0.5 rounded-sm">
-            Ambang Batas Minimum Terlampaui
-          </span>
-        ) : (
-          <span>
-            Min. <strong className="text-foreground">{minQuestions}</strong>{' '}
-            untuk evaluasi
-          </span>
-        )}
       </div>
 
       <div className="relative h-2 w-full overflow-hidden rounded-full bg-foreground/5 border border-foreground/5">

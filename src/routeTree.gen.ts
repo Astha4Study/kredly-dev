@@ -14,24 +14,28 @@ import { Route as PublicRouteRouteImport } from './routes/_public/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
-import { Route as ResultSessionIdRouteImport } from './routes/result.$sessionId'
-import { Route as QuizSessionIdRouteImport } from './routes/quiz.$sessionId'
+import { Route as StatementOfAccomplishmentSessionIdRouteImport } from './routes/statement-of-accomplishment/$sessionId'
 import { Route as AuthVerificationRouteImport } from './routes/_auth/verification'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthOnboardingRouteImport } from './routes/_auth/onboarding'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppAppRouteRouteImport } from './routes/_app/app/route'
+import { Route as PublicTermsIndexRouteImport } from './routes/_public/terms/index'
 import { Route as PublicFeaturesIndexRouteImport } from './routes/_public/features/index'
 import { Route as PublicAboutUsIndexRouteImport } from './routes/_public/about-us/index'
 import { Route as AppAppIndexRouteImport } from './routes/_app/app/index'
+import { Route as CatQuizSessionIdIndexRouteImport } from './routes/_cat/quiz/$sessionId/index'
 import { Route as AppAppParseCvIndexRouteImport } from './routes/_app/app/parse-cv/index'
+import { Route as AppAppJobsIndexRouteImport } from './routes/_app/app/jobs/index'
 import { Route as AppAppHistoryIndexRouteImport } from './routes/_app/app/history/index'
 import { Route as AppAppCertificationIndexRouteImport } from './routes/_app/app/certification/index'
+import { Route as AppAppCertificationTestIndexRouteImport } from './routes/_app/app/certification-test/index'
 import { Route as AppAppCertificateVerificationIndexRouteImport } from './routes/_app/app/certificate-verification/index'
 import { Route as AppAppAssessmentIndexRouteImport } from './routes/_app/app/assessment/index'
 import { Route as AppAppAccountSettingsIndexRouteImport } from './routes/_app/app/account-settings/index'
 import { Route as AppAppAssessmentAssessmentIdRouteRouteImport } from './routes/_app/app/assessment/$assessmentId/route'
+import { Route as AppAppCertificationIdIndexRouteImport } from './routes/_app/app/certification/$id/index'
 import { Route as AppAppAssessmentAssessmentIdIndexRouteImport } from './routes/_app/app/assessment/$assessmentId/index'
 
 const ParseCVRoute = ParseCVRouteImport.update({
@@ -56,16 +60,12 @@ const PublicIndexRoute = PublicIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PublicRouteRoute,
 } as any)
-const ResultSessionIdRoute = ResultSessionIdRouteImport.update({
-  id: '/result/$sessionId',
-  path: '/result/$sessionId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const QuizSessionIdRoute = QuizSessionIdRouteImport.update({
-  id: '/quiz/$sessionId',
-  path: '/quiz/$sessionId',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const StatementOfAccomplishmentSessionIdRoute =
+  StatementOfAccomplishmentSessionIdRouteImport.update({
+    id: '/statement-of-accomplishment/$sessionId',
+    path: '/statement-of-accomplishment/$sessionId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthVerificationRoute = AuthVerificationRouteImport.update({
   id: '/verification',
   path: '/verification',
@@ -96,6 +96,11 @@ const AppAppRouteRoute = AppAppRouteRouteImport.update({
   path: '/app',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const PublicTermsIndexRoute = PublicTermsIndexRouteImport.update({
+  id: '/terms/',
+  path: '/terms/',
+  getParentRoute: () => PublicRouteRoute,
+} as any)
 const PublicFeaturesIndexRoute = PublicFeaturesIndexRouteImport.update({
   id: '/features/',
   path: '/features/',
@@ -111,9 +116,19 @@ const AppAppIndexRoute = AppAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppAppRouteRoute,
 } as any)
+const CatQuizSessionIdIndexRoute = CatQuizSessionIdIndexRouteImport.update({
+  id: '/_cat/quiz/$sessionId/',
+  path: '/quiz/$sessionId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppAppParseCvIndexRoute = AppAppParseCvIndexRouteImport.update({
   id: '/parse-cv/',
   path: '/parse-cv/',
+  getParentRoute: () => AppAppRouteRoute,
+} as any)
+const AppAppJobsIndexRoute = AppAppJobsIndexRouteImport.update({
+  id: '/jobs/',
+  path: '/jobs/',
   getParentRoute: () => AppAppRouteRoute,
 } as any)
 const AppAppHistoryIndexRoute = AppAppHistoryIndexRouteImport.update({
@@ -125,6 +140,12 @@ const AppAppCertificationIndexRoute =
   AppAppCertificationIndexRouteImport.update({
     id: '/certification/',
     path: '/certification/',
+    getParentRoute: () => AppAppRouteRoute,
+  } as any)
+const AppAppCertificationTestIndexRoute =
+  AppAppCertificationTestIndexRouteImport.update({
+    id: '/certification-test/',
+    path: '/certification-test/',
     getParentRoute: () => AppAppRouteRoute,
   } as any)
 const AppAppCertificateVerificationIndexRoute =
@@ -150,6 +171,12 @@ const AppAppAssessmentAssessmentIdRouteRoute =
     path: '/assessment/$assessmentId',
     getParentRoute: () => AppAppRouteRoute,
   } as any)
+const AppAppCertificationIdIndexRoute =
+  AppAppCertificationIdIndexRouteImport.update({
+    id: '/certification/$id/',
+    path: '/certification/$id/',
+    getParentRoute: () => AppAppRouteRoute,
+  } as any)
 const AppAppAssessmentAssessmentIdIndexRoute =
   AppAppAssessmentAssessmentIdIndexRouteImport.update({
     id: '/',
@@ -166,19 +193,23 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthOnboardingRoute
   '/register': typeof AuthRegisterRoute
   '/verification': typeof AuthVerificationRoute
-  '/quiz/$sessionId': typeof QuizSessionIdRoute
-  '/result/$sessionId': typeof ResultSessionIdRoute
+  '/statement-of-accomplishment/$sessionId': typeof StatementOfAccomplishmentSessionIdRoute
   '/app/': typeof AppAppIndexRoute
   '/about-us/': typeof PublicAboutUsIndexRoute
   '/features/': typeof PublicFeaturesIndexRoute
+  '/terms/': typeof PublicTermsIndexRoute
   '/app/assessment/$assessmentId': typeof AppAppAssessmentAssessmentIdRouteRouteWithChildren
   '/app/account-settings/': typeof AppAppAccountSettingsIndexRoute
   '/app/assessment/': typeof AppAppAssessmentIndexRoute
   '/app/certificate-verification/': typeof AppAppCertificateVerificationIndexRoute
+  '/app/certification-test/': typeof AppAppCertificationTestIndexRoute
   '/app/certification/': typeof AppAppCertificationIndexRoute
   '/app/history/': typeof AppAppHistoryIndexRoute
+  '/app/jobs/': typeof AppAppJobsIndexRoute
   '/app/parse-cv/': typeof AppAppParseCvIndexRoute
+  '/quiz/$sessionId/': typeof CatQuizSessionIdIndexRoute
   '/app/assessment/$assessmentId/': typeof AppAppAssessmentAssessmentIdIndexRoute
+  '/app/certification/$id/': typeof AppAppCertificationIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
@@ -188,18 +219,22 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthOnboardingRoute
   '/register': typeof AuthRegisterRoute
   '/verification': typeof AuthVerificationRoute
-  '/quiz/$sessionId': typeof QuizSessionIdRoute
-  '/result/$sessionId': typeof ResultSessionIdRoute
+  '/statement-of-accomplishment/$sessionId': typeof StatementOfAccomplishmentSessionIdRoute
   '/app': typeof AppAppIndexRoute
   '/about-us': typeof PublicAboutUsIndexRoute
   '/features': typeof PublicFeaturesIndexRoute
+  '/terms': typeof PublicTermsIndexRoute
   '/app/account-settings': typeof AppAppAccountSettingsIndexRoute
   '/app/assessment': typeof AppAppAssessmentIndexRoute
   '/app/certificate-verification': typeof AppAppCertificateVerificationIndexRoute
+  '/app/certification-test': typeof AppAppCertificationTestIndexRoute
   '/app/certification': typeof AppAppCertificationIndexRoute
   '/app/history': typeof AppAppHistoryIndexRoute
+  '/app/jobs': typeof AppAppJobsIndexRoute
   '/app/parse-cv': typeof AppAppParseCvIndexRoute
+  '/quiz/$sessionId': typeof CatQuizSessionIdIndexRoute
   '/app/assessment/$assessmentId': typeof AppAppAssessmentAssessmentIdIndexRoute
+  '/app/certification/$id': typeof AppAppCertificationIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -213,20 +248,24 @@ export interface FileRoutesById {
   '/_auth/onboarding': typeof AuthOnboardingRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_auth/verification': typeof AuthVerificationRoute
-  '/quiz/$sessionId': typeof QuizSessionIdRoute
-  '/result/$sessionId': typeof ResultSessionIdRoute
+  '/statement-of-accomplishment/$sessionId': typeof StatementOfAccomplishmentSessionIdRoute
   '/_public/': typeof PublicIndexRoute
   '/_app/app/': typeof AppAppIndexRoute
   '/_public/about-us/': typeof PublicAboutUsIndexRoute
   '/_public/features/': typeof PublicFeaturesIndexRoute
+  '/_public/terms/': typeof PublicTermsIndexRoute
   '/_app/app/assessment/$assessmentId': typeof AppAppAssessmentAssessmentIdRouteRouteWithChildren
   '/_app/app/account-settings/': typeof AppAppAccountSettingsIndexRoute
   '/_app/app/assessment/': typeof AppAppAssessmentIndexRoute
   '/_app/app/certificate-verification/': typeof AppAppCertificateVerificationIndexRoute
+  '/_app/app/certification-test/': typeof AppAppCertificationTestIndexRoute
   '/_app/app/certification/': typeof AppAppCertificationIndexRoute
   '/_app/app/history/': typeof AppAppHistoryIndexRoute
+  '/_app/app/jobs/': typeof AppAppJobsIndexRoute
   '/_app/app/parse-cv/': typeof AppAppParseCvIndexRoute
+  '/_cat/quiz/$sessionId/': typeof CatQuizSessionIdIndexRoute
   '/_app/app/assessment/$assessmentId/': typeof AppAppAssessmentAssessmentIdIndexRoute
+  '/_app/app/certification/$id/': typeof AppAppCertificationIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -239,19 +278,23 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/register'
     | '/verification'
-    | '/quiz/$sessionId'
-    | '/result/$sessionId'
+    | '/statement-of-accomplishment/$sessionId'
     | '/app/'
     | '/about-us/'
     | '/features/'
+    | '/terms/'
     | '/app/assessment/$assessmentId'
     | '/app/account-settings/'
     | '/app/assessment/'
     | '/app/certificate-verification/'
+    | '/app/certification-test/'
     | '/app/certification/'
     | '/app/history/'
+    | '/app/jobs/'
     | '/app/parse-cv/'
+    | '/quiz/$sessionId/'
     | '/app/assessment/$assessmentId/'
+    | '/app/certification/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -261,18 +304,22 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/register'
     | '/verification'
-    | '/quiz/$sessionId'
-    | '/result/$sessionId'
+    | '/statement-of-accomplishment/$sessionId'
     | '/app'
     | '/about-us'
     | '/features'
+    | '/terms'
     | '/app/account-settings'
     | '/app/assessment'
     | '/app/certificate-verification'
+    | '/app/certification-test'
     | '/app/certification'
     | '/app/history'
+    | '/app/jobs'
     | '/app/parse-cv'
+    | '/quiz/$sessionId'
     | '/app/assessment/$assessmentId'
+    | '/app/certification/$id'
   id:
     | '__root__'
     | '/_app'
@@ -285,20 +332,24 @@ export interface FileRouteTypes {
     | '/_auth/onboarding'
     | '/_auth/register'
     | '/_auth/verification'
-    | '/quiz/$sessionId'
-    | '/result/$sessionId'
+    | '/statement-of-accomplishment/$sessionId'
     | '/_public/'
     | '/_app/app/'
     | '/_public/about-us/'
     | '/_public/features/'
+    | '/_public/terms/'
     | '/_app/app/assessment/$assessmentId'
     | '/_app/app/account-settings/'
     | '/_app/app/assessment/'
     | '/_app/app/certificate-verification/'
+    | '/_app/app/certification-test/'
     | '/_app/app/certification/'
     | '/_app/app/history/'
+    | '/_app/app/jobs/'
     | '/_app/app/parse-cv/'
+    | '/_cat/quiz/$sessionId/'
     | '/_app/app/assessment/$assessmentId/'
+    | '/_app/app/certification/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -306,8 +357,8 @@ export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   PublicRouteRoute: typeof PublicRouteRouteWithChildren
   ParseCVRoute: typeof ParseCVRoute
-  QuizSessionIdRoute: typeof QuizSessionIdRoute
-  ResultSessionIdRoute: typeof ResultSessionIdRoute
+  StatementOfAccomplishmentSessionIdRoute: typeof StatementOfAccomplishmentSessionIdRoute
+  CatQuizSessionIdIndexRoute: typeof CatQuizSessionIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -347,18 +398,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicIndexRouteImport
       parentRoute: typeof PublicRouteRoute
     }
-    '/result/$sessionId': {
-      id: '/result/$sessionId'
-      path: '/result/$sessionId'
-      fullPath: '/result/$sessionId'
-      preLoaderRoute: typeof ResultSessionIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/quiz/$sessionId': {
-      id: '/quiz/$sessionId'
-      path: '/quiz/$sessionId'
-      fullPath: '/quiz/$sessionId'
-      preLoaderRoute: typeof QuizSessionIdRouteImport
+    '/statement-of-accomplishment/$sessionId': {
+      id: '/statement-of-accomplishment/$sessionId'
+      path: '/statement-of-accomplishment/$sessionId'
+      fullPath: '/statement-of-accomplishment/$sessionId'
+      preLoaderRoute: typeof StatementOfAccomplishmentSessionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth/verification': {
@@ -403,6 +447,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppRouteRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_public/terms/': {
+      id: '/_public/terms/'
+      path: '/terms'
+      fullPath: '/terms/'
+      preLoaderRoute: typeof PublicTermsIndexRouteImport
+      parentRoute: typeof PublicRouteRoute
+    }
     '/_public/features/': {
       id: '/_public/features/'
       path: '/features'
@@ -424,11 +475,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
+    '/_cat/quiz/$sessionId/': {
+      id: '/_cat/quiz/$sessionId/'
+      path: '/quiz/$sessionId'
+      fullPath: '/quiz/$sessionId/'
+      preLoaderRoute: typeof CatQuizSessionIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app/app/parse-cv/': {
       id: '/_app/app/parse-cv/'
       path: '/parse-cv'
       fullPath: '/app/parse-cv/'
       preLoaderRoute: typeof AppAppParseCvIndexRouteImport
+      parentRoute: typeof AppAppRouteRoute
+    }
+    '/_app/app/jobs/': {
+      id: '/_app/app/jobs/'
+      path: '/jobs'
+      fullPath: '/app/jobs/'
+      preLoaderRoute: typeof AppAppJobsIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
     '/_app/app/history/': {
@@ -443,6 +508,13 @@ declare module '@tanstack/react-router' {
       path: '/certification'
       fullPath: '/app/certification/'
       preLoaderRoute: typeof AppAppCertificationIndexRouteImport
+      parentRoute: typeof AppAppRouteRoute
+    }
+    '/_app/app/certification-test/': {
+      id: '/_app/app/certification-test/'
+      path: '/certification-test'
+      fullPath: '/app/certification-test/'
+      preLoaderRoute: typeof AppAppCertificationTestIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
     '/_app/app/certificate-verification/': {
@@ -471,6 +543,13 @@ declare module '@tanstack/react-router' {
       path: '/assessment/$assessmentId'
       fullPath: '/app/assessment/$assessmentId'
       preLoaderRoute: typeof AppAppAssessmentAssessmentIdRouteRouteImport
+      parentRoute: typeof AppAppRouteRoute
+    }
+    '/_app/app/certification/$id/': {
+      id: '/_app/app/certification/$id/'
+      path: '/certification/$id'
+      fullPath: '/app/certification/$id/'
+      preLoaderRoute: typeof AppAppCertificationIdIndexRouteImport
       parentRoute: typeof AppAppRouteRoute
     }
     '/_app/app/assessment/$assessmentId/': {
@@ -504,9 +583,12 @@ interface AppAppRouteRouteChildren {
   AppAppAccountSettingsIndexRoute: typeof AppAppAccountSettingsIndexRoute
   AppAppAssessmentIndexRoute: typeof AppAppAssessmentIndexRoute
   AppAppCertificateVerificationIndexRoute: typeof AppAppCertificateVerificationIndexRoute
+  AppAppCertificationTestIndexRoute: typeof AppAppCertificationTestIndexRoute
   AppAppCertificationIndexRoute: typeof AppAppCertificationIndexRoute
   AppAppHistoryIndexRoute: typeof AppAppHistoryIndexRoute
+  AppAppJobsIndexRoute: typeof AppAppJobsIndexRoute
   AppAppParseCvIndexRoute: typeof AppAppParseCvIndexRoute
+  AppAppCertificationIdIndexRoute: typeof AppAppCertificationIdIndexRoute
 }
 
 const AppAppRouteRouteChildren: AppAppRouteRouteChildren = {
@@ -517,9 +599,12 @@ const AppAppRouteRouteChildren: AppAppRouteRouteChildren = {
   AppAppAssessmentIndexRoute: AppAppAssessmentIndexRoute,
   AppAppCertificateVerificationIndexRoute:
     AppAppCertificateVerificationIndexRoute,
+  AppAppCertificationTestIndexRoute: AppAppCertificationTestIndexRoute,
   AppAppCertificationIndexRoute: AppAppCertificationIndexRoute,
   AppAppHistoryIndexRoute: AppAppHistoryIndexRoute,
+  AppAppJobsIndexRoute: AppAppJobsIndexRoute,
   AppAppParseCvIndexRoute: AppAppParseCvIndexRoute,
+  AppAppCertificationIdIndexRoute: AppAppCertificationIdIndexRoute,
 }
 
 const AppAppRouteRouteWithChildren = AppAppRouteRoute._addFileChildren(
@@ -562,12 +647,14 @@ interface PublicRouteRouteChildren {
   PublicIndexRoute: typeof PublicIndexRoute
   PublicAboutUsIndexRoute: typeof PublicAboutUsIndexRoute
   PublicFeaturesIndexRoute: typeof PublicFeaturesIndexRoute
+  PublicTermsIndexRoute: typeof PublicTermsIndexRoute
 }
 
 const PublicRouteRouteChildren: PublicRouteRouteChildren = {
   PublicIndexRoute: PublicIndexRoute,
   PublicAboutUsIndexRoute: PublicAboutUsIndexRoute,
   PublicFeaturesIndexRoute: PublicFeaturesIndexRoute,
+  PublicTermsIndexRoute: PublicTermsIndexRoute,
 }
 
 const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(
@@ -579,8 +666,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   PublicRouteRoute: PublicRouteRouteWithChildren,
   ParseCVRoute: ParseCVRoute,
-  QuizSessionIdRoute: QuizSessionIdRoute,
-  ResultSessionIdRoute: ResultSessionIdRoute,
+  StatementOfAccomplishmentSessionIdRoute:
+    StatementOfAccomplishmentSessionIdRoute,
+  CatQuizSessionIdIndexRoute: CatQuizSessionIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
