@@ -249,8 +249,15 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 		return
 	}
 
-	// Update User (fullName dan username)
+	// Cek duplicate username sebelum update
 	userColl := database.DB.Collection("user")
+	var existingUser models.User
+	if err := userColl.FindOne(context.Background(), bson.M{"username": username, "_id": bson.M{"$ne": userID}}).Decode(&existingUser); err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "Username sudah digunakan"})
+		return
+	}
+
+	// Update User (fullName dan username)
 	_, err = userColl.UpdateOne(
 		context.Background(),
 		bson.M{"_id": userID},

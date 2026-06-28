@@ -141,6 +141,9 @@ func main() {
 			onboarding.POST("/complete", onboardingHandler.HandleCompleteOnboarding)
 		}
 
+		// Username check (public, used by onboarding step 1)
+		api.GET("/check-username", profileHandler.HandleCheckUsername)
+
 		// Profile endpoints - Protected
 		api.GET("/profile", middleware.AuthMiddleware(cfg, authService), profileHandler.HandleGetProfile)
 

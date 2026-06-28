@@ -1,6 +1,11 @@
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Loader2, Check, X } from 'lucide-react';
+import { toast } from 'sonner';
+
+type UsernameStatus = 'idle' | 'checking' | 'available' | 'taken';
 
 interface StepOneOnboardingProps {
   fullName: string;
@@ -17,11 +22,47 @@ export function StepOneOnboarding({
   setUsername,
   onNext,
 }: StepOneOnboardingProps) {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (fullName.trim() && username.trim()) {
-      onNext();
+  const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>('idle');
+
+  useEffect(() => {
+    if (!username.trim()) {
+      setUsernameStatus('idle');
+      return;
     }
+
+    setUsernameStatus('checking');
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`);
+        setUsernameStatus(res.status === 409 ? 'taken' : 'available');
+      } catch {
+        setUsernameStatus('idle');
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [username]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fullName.trim() || !username.trim()) return;
+
+    if (usernameStatus === 'taken') {
+      toast.error('Username sudah digunakan');
+      return;
+    }
+
+    if (usernameStatus !== 'available') {
+      const res = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`);
+      if (res.status === 409) {
+        setUsernameStatus('taken');
+        toast.error('Username sudah digunakan');
+        return;
+      }
+      setUsernameStatus('available');
+    }
+
+    onNext();
   };
 
   return (
@@ -66,8 +107,32 @@ export function StepOneOnboarding({
               }
               placeholder="username"
               required
+              className={
+                usernameStatus === 'taken'
+                  ? 'border-destructive pr-10'
+                  : usernameStatus === 'available'
+                    ? 'border-green-500 pr-10'
+                    : undefined
+              }
             />
+            {username.trim() && usernameStatus !== 'idle' && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                {usernameStatus === 'checking' && (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+                {usernameStatus === 'available' && (
+                  <Check className="h-4 w-4 text-green-500" />
+                )}
+                {usernameStatus === 'taken' && (
+                  <X className="h-4 w-4 text-destructive" />
+                )}
+              </span>
+            )}
           </div>
+
+          {usernameStatus === 'taken' && (
+            <p className="text-xs text-destructive">Username sudah digunakan</p>
+          )}
 
           <div className="rounded-lg border border-dashed border-border px-3 py-3">
             <p className="text-xs text-muted-foreground">Public profile URL</p>
@@ -82,7 +147,12 @@ export function StepOneOnboarding({
           type="submit"
           size="lg"
           className="w-full"
-          disabled={!fullName.trim() || !username.trim()}
+          disabled={
+            !fullName.trim() ||
+            !username.trim() ||
+            usernameStatus === 'checking' ||
+            usernameStatus === 'taken'
+          }
         >
           Simpan dan Lanjutkan
         </Button>
