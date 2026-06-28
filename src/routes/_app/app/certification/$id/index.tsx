@@ -118,13 +118,13 @@ function RouteComponent() {
           certificateId: data.verification_id,
         });
 
-        const imgData = canvas.toDataURL('image/png', 1.0);
+        const imgData = canvas.toDataURL('image/jpeg', 0.85);
 
         const pdf = new jsPDF({
           orientation: 'landscape',
           unit: 'mm',
           format: 'a4',
-          compress: false,
+          compress: true,
         });
 
         pdf.setCreationDate(new Date('2026-01-01T00:00:00Z'));
@@ -149,13 +149,13 @@ function RouteComponent() {
 
         pdf.addImage(
           imgData,
-          'PNG',
+          'JPEG',
           x,
           y,
           imgWidth,
           imgHeight,
           undefined,
-          'NONE',
+          'FAST',
         );
 
         // Get PDF as ArrayBuffer for hash calculation
