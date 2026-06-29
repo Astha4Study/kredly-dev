@@ -155,6 +155,7 @@ func main() {
 		user.Use(middleware.AuthMiddleware(cfg, authService))
 		{
 			user.GET("/me/token-balance", tokenHandler.HandleGetTokenBalance)
+			user.POST("/me/topup", tokenHandler.HandleSimulateTopup)
 			user.PUT("/update-profile", profileHandler.HandleUpdateProfile)
 			user.POST("/upload-cv", profileHandler.HandleUploadCV)
 			user.DELETE("/delete-account", profileHandler.HandleDeleteAccount)

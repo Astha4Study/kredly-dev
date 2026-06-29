@@ -469,9 +469,8 @@ function RouteComponent() {
                           Tambah Asesmen Kustom
                         </CardTitle>
                         <CardDescription>
-                          Pilih secara spesifik skill yang ingin
-                          Anda uji secara mandiri di luar hasil ekstraksi CV
-                          Anda.
+                          Pilih secara spesifik skill yang ingin Anda uji secara
+                          mandiri di luar hasil ekstraksi CV Anda.
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="pt-0">

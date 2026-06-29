@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import {
   DropdownMenuContent,
   DropdownMenuLabel,
@@ -55,6 +56,7 @@ const topupPackages: TopupPackage[] = [
 ];
 
 export default function CreditTopup({ kredit }: CreditTopupProps) {
+  const navigate = useNavigate();
   const [isTopupOpen, setIsTopupOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<TopupPackage>(
     topupPackages.find((pkg) => pkg.popular) ?? topupPackages[0],
@@ -209,7 +211,20 @@ export default function CreditTopup({ kredit }: CreditTopupProps) {
 
           {/* Actions */}
           <div className="px-7 pb-6 flex gap-2.5">
-            <Button size="lg" variant="default" className="flex-1">
+            <Button
+              size="lg"
+              variant="default"
+              className="flex-1"
+              onClick={() => {
+                setIsTopupOpen(false);
+                navigate({
+                  to: '/app/checkout',
+                  search: {
+                    credits: selectedPackage.credits,
+                  },
+                });
+              }}
+            >
               Bayar sekarang
             </Button>
             <Button

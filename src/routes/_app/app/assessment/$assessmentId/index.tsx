@@ -15,10 +15,8 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Plus,
   Loader2,
   AlertCircle,
   BookOpen,
@@ -72,7 +70,9 @@ function TestOverviewPage() {
   const [profileLoading, setProfileLoading] = React.useState(true);
   const [assessment, setAssessment] = React.useState<CVAssessment | null>(null);
   const [tokenLoading, setTokenLoading] = React.useState(true);
-  const [tokenBalance, setTokenBalance] = React.useState<{ current: number } | null>(null);
+  const [tokenBalance, setTokenBalance] = React.useState<{
+    current: number;
+  } | null>(null);
 
   React.useEffect(() => {
     async function fetchProfile() {
@@ -152,7 +152,6 @@ function TestOverviewPage() {
       </div>
     );
   }
-
 
   if (!user) {
     return (
@@ -236,7 +235,6 @@ function TestOverviewPage() {
     setSkills((prev) => prev.filter((s) => s !== skill));
   };
 
-
   const handleStartExam = async () => {
     if (skills.length === 0) {
       toast.error('Pilih minimal 1 skill untuk diuji');
@@ -291,14 +289,18 @@ function TestOverviewPage() {
                         Saldo Kredit Tidak Mencukupi
                       </h4>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Anda membutuhkan minimal 1 kredit untuk memulai asesmen baru. Saldo kredit Anda saat ini adalah <strong>0</strong>.
+                        Anda membutuhkan minimal 1 kredit untuk memulai asesmen
+                        baru. Saldo kredit Anda saat ini adalah{' '}
+                        <strong>0</strong>.
                       </p>
                     </div>
                   </div>
-                  <Button asChild variant="default" className="w-full sm:w-auto shrink-0 bg-rose-600 hover:bg-rose-700 text-white border-0">
-                    <Link to="/app/pricing">
-                      Top Up Kredit
-                    </Link>
+                  <Button
+                    asChild
+                    variant="default"
+                    className="w-full sm:w-auto shrink-0 bg-rose-600 hover:bg-rose-700 text-white border-0"
+                  >
+                    <Link to="/app/pricing">Top Up Kredit</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -444,10 +446,11 @@ function TestOverviewPage() {
                                     !isDisabled && toggleSkill(skill)
                                   }
                                   disabled={isDisabled}
-                                  className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all ${isDisabled
+                                  className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
+                                    isDisabled
                                       ? 'opacity-40 border-border bg-muted/20 cursor-not-allowed text-muted-foreground'
                                       : 'border-border hover:border-primary/50 hover:bg-muted/50 text-foreground cursor-pointer'
-                                    }`}
+                                  }`}
                                 >
                                   {skill}
                                 </button>
@@ -571,7 +574,11 @@ function TestOverviewPage() {
                   <Button
                     size="lg"
                     onClick={handleStartExam}
-                    disabled={skills.length === 0 || isCreatingSession || (tokenBalance !== null && tokenBalance.current < 1)}
+                    disabled={
+                      skills.length === 0 ||
+                      isCreatingSession ||
+                      (tokenBalance !== null && tokenBalance.current < 1)
+                    }
                     className="w-full group cursor-pointer"
                   >
                     {isCreatingSession ? (

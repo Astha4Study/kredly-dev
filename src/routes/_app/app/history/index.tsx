@@ -31,7 +31,9 @@ function RouteComponent() {
       const data = await getUserActivities();
       setActivities(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load activities');
+      setError(
+        err instanceof Error ? err.message : 'Failed to load activities',
+      );
     } finally {
       setLoading(false);
     }
