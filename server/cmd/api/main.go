@@ -62,6 +62,9 @@ func main() {
 	// 10. Initialize Activity Handler
 	activityHandler := handlers.NewActivityHandler(database.DB)
 
+	// 11. Initialize Token Handler
+	tokenHandler := handlers.NewTokenHandler()
+
 	// Set Gin mode
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
@@ -151,6 +154,7 @@ func main() {
 		user := api.Group("/user")
 		user.Use(middleware.AuthMiddleware(cfg, authService))
 		{
+			user.GET("/me/token-balance", tokenHandler.HandleGetTokenBalance)
 			user.PUT("/update-profile", profileHandler.HandleUpdateProfile)
 			user.POST("/upload-cv", profileHandler.HandleUploadCV)
 			user.DELETE("/delete-account", profileHandler.HandleDeleteAccount)

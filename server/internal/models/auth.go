@@ -15,6 +15,13 @@ import (
 // 1. DEFINISI STRUCT (MODEL DATABASE)
 // ==========================================
 
+// TokenBalance menyimpan saldo kredit/token user
+type TokenBalance struct {
+	Current     int `bson:"current" json:"current"`
+	TotalEarned int `bson:"totalEarned" json:"totalEarned"`
+	TotalSpent  int `bson:"totalSpent" json:"totalSpent"`
+}
+
 type User struct {
 	ID            string    `bson:"_id" json:"id"`
 	Name          string    `bson:"name" json:"name"`
@@ -24,6 +31,9 @@ type User struct {
 	Image         *string   `bson:"image,omitempty" json:"image,omitempty"`
 	CreatedAt     time.Time `bson:"createdAt" json:"createdAt"`
 	UpdatedAt     time.Time `bson:"updatedAt" json:"updatedAt"`
+
+	// Token/Credit balance
+	TokenBalance *TokenBalance `bson:"tokenBalance,omitempty" json:"tokenBalance,omitempty"`
 
 	// CV parsed fields
 	CVRole     *string    `bson:"cvRole,omitempty" json:"cvRole,omitempty"`
