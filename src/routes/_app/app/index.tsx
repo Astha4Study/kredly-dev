@@ -120,15 +120,15 @@ function RouteComponent() {
   }, []);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="flex items-start gap-4">
+    <main className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:px-8">
+      <div className="flex items-start gap-4 lg:gap-6">
         <div className="min-w-0 flex-1">
-          <div className="border-b border-border px-1 pb-5">
-            <h1 className="text-2xl font-semibold text-foreground">
+          <div className="border-b border-border px-1 pb-3 sm:pb-4 md:pb-5">
+            <h1 className="text-xl font-semibold text-foreground sm:text-2xl">
               Selamat datang kembali, {user?.name?.split(' ')[0]}
             </h1>
 
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
               Lanjutkan asesmen Anda dan bangun kredensial yang dapat
               diverifikasi.
             </p>
@@ -140,7 +140,7 @@ function RouteComponent() {
             <div className="overflow-hidden rounded-xl border border-border bg-background">
               {/* Hero Stats */}
               <section className="border-b border-border">
-                <div className="grid grid-cols-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3">
                   {[
                     {
                       value: stats.totalCredentials.toString(),
@@ -160,17 +160,17 @@ function RouteComponent() {
                   ].map((item, index) => (
                     <div
                       key={item.label}
-                      className={`p-6 ${
-                        index !== 2 ? 'border-r border-border' : ''
+                      className={`p-4 sm:p-6 ${
+                        index !== 2 ? 'border-b sm:border-b-0 sm:border-r border-border' : ''
                       }`}
                     >
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         {item.label}
                       </p>
 
-                      <p className="mt-2 text-4xl font-bold">{item.value}</p>
+                      <p className="mt-1.5 sm:mt-2 text-3xl sm:text-4xl font-bold">{item.value}</p>
 
-                      <p className="mt-2 text-xs text-muted-foreground">
+                      <p className="mt-1.5 sm:mt-2 text-xs text-muted-foreground">
                         {item.description}
                       </p>
                     </div>
@@ -180,16 +180,16 @@ function RouteComponent() {
 
               {/* Available Assessments */}
               <section className="border-b border-border">
-                <div className="p-6">
-                  <div className="mb-4">
-                    <h2 className="text-lg font-semibold">Asesmen tersedia</h2>
-                    <p className="text-sm text-muted-foreground">
+                <div className="p-4 sm:p-5 md:p-6">
+                  <div className="mb-3 sm:mb-4">
+                    <h2 className="text-base sm:text-lg font-semibold">Asesmen tersedia</h2>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       Pilih asesmen untuk memulai validasi skill Anda
                     </p>
                   </div>
 
                   {availableAssessments.length > 0 ? (
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
                       {availableAssessments.map((assessment) => (
                         <Link
                           key={assessment.id}
@@ -197,10 +197,10 @@ function RouteComponent() {
                           params={{ assessmentId: assessment.id }}
                           className="block h-full"
                         >
-                          <div className="group space-y-4 relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-linear-to-br from-background to-muted/20 p-2.5 shadow-xs transition-all hover:shadow-sm hover:border-primary/50">
+                          <div className="group space-y-3 sm:space-y-4 relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-linear-to-br from-background to-muted/20 p-2.5 shadow-xs transition-all hover:shadow-sm hover:border-primary/50">
                             {/* Type badge */}
-                            <div className="flex items-center justify-between">
-                              <Badge variant="default">
+                            <div className="flex items-center justify-between gap-2">
+                              <Badge variant="default" className="text-xs">
                                 {assessment.type === 'general' ? (
                                   <>
                                     <Layers className="h-3 w-3" />
@@ -218,52 +218,52 @@ function RouteComponent() {
                                   </>
                                 )}
                               </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                {assessment.category && (
+                              {assessment.category && (
+                                <Badge variant="outline" className="text-xs">
                                   <p className="text-xs font-medium text-muted-foreground/80">
                                     {assessment.category}
                                   </p>
-                                )}
-                              </Badge>
+                                </Badge>
+                              )}
                             </div>
 
                             {/* Content */}
-                            <div className="flex-1 space-y-2">
-                              <h3 className="text-lg font-semibold leading-tight text-foreground transition-colors group-hover:text-primary">
+                            <div className="flex-1 space-y-1.5 sm:space-y-2">
+                              <h3 className="text-base sm:text-lg font-semibold leading-tight text-foreground transition-colors group-hover:text-primary">
                                 {assessment.title}
                               </h3>
-                              <p className="line-clamp-2 text-sm text-muted-foreground">
+                              <p className="line-clamp-2 text-xs sm:text-sm text-muted-foreground">
                                 {assessment.description ||
                                   'Uji kemampuan Anda dalam topik ini'}
                               </p>
                             </div>
 
                             {/* Footer */}
-                            <div className="flex items-center justify-between border-t border-border/50 pt-4">
-                              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                <div className="flex items-center gap-1.5">
-                                  <Clock className="h-3.5 w-3.5" />
-                                  {assessment.estimatedTime}
+                            <div className="flex items-center justify-between border-t border-border/50 pt-3 sm:pt-4">
+                              <div className="flex items-center gap-3 sm:gap-4 text-xs text-muted-foreground">
+                                <div className="flex items-center gap-1 sm:gap-1.5">
+                                  <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                                  <span className="text-xs">{assessment.estimatedTime}</span>
                                 </div>
-                                <div className="flex items-center gap-1.5">
-                                  <FileText className="h-3.5 w-3.5" />
-                                  {assessment.questionCount} soal
+                                <div className="flex items-center gap-1 sm:gap-1.5">
+                                  <FileText className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                                  <span className="text-xs">{assessment.questionCount} soal</span>
                                 </div>
                               </div>
-                              <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+                              <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                             </div>
                           </div>
                         </Link>
                       ))}
                     </div>
                   ) : (
-                    <div className="rounded-lg border border-border bg-muted/20 p-6 text-center">
-                      <p className="text-sm text-muted-foreground">
+                    <div className="rounded-lg border border-border bg-muted/20 p-4 sm:p-6 text-center">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         Unggah CV Anda untuk mendapatkan rekomendasi asesmen
                         yang sesuai dengan profil Anda.
                       </p>
                       <Link to="/app/parse-cv" className="mt-3 inline-block">
-                        <Button>Unggah CV</Button>
+                        <Button size="sm" className="sm:text-sm">Unggah CV</Button>
                       </Link>
                     </div>
                   )}
@@ -272,19 +272,19 @@ function RouteComponent() {
 
               {/* Credentials */}
               <section>
-                <div className="flex items-center justify-between border-b border-border p-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-border p-4 sm:p-5 md:p-6">
                   <div>
-                    <h2 className="text-lg font-semibold">
+                    <h2 className="text-base sm:text-lg font-semibold">
                       Kredensial terbaru
                     </h2>
 
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       Pencapaian yang telah diverifikasi
                     </p>
                   </div>
 
                   <Link to="/app/credentials" preload="intent">
-                    <Button variant="ghost">Lihat semua</Button>
+                    <Button variant="ghost" size="sm" className="sm:text-sm">Lihat semua</Button>
                   </Link>
                 </div>
 
@@ -304,25 +304,25 @@ function RouteComponent() {
                       return (
                         <div
                           key={cred.id}
-                          className="p-6 transition-colors hover:bg-muted/40"
+                          className="p-4 sm:p-5 md:p-6 transition-colors hover:bg-muted/40"
                         >
-                          <div className="flex items-start justify-between">
-                            <div>
+                          <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3 sm:gap-4">
+                            <div className="flex-1">
                               <p className="text-xs text-muted-foreground">
                                 {cred.level}
                               </p>
 
-                              <h3 className="mt-1 text-base font-semibold">
+                              <h3 className="mt-1 text-sm sm:text-base font-semibold">
                                 {cred.role}
                               </h3>
 
-                              <p className="mt-3 text-xs text-muted-foreground">
+                              <p className="mt-2 sm:mt-3 text-xs text-muted-foreground">
                                 {date}
                               </p>
                             </div>
 
-                            <div className="text-right">
-                              <p className="text-3xl font-bold">{score}</p>
+                            <div className="text-left sm:text-right">
+                              <p className="text-2xl sm:text-3xl font-bold">{score}</p>
 
                               <p className="text-xs text-muted-foreground">
                                 skor akhir
@@ -330,9 +330,9 @@ function RouteComponent() {
                             </div>
                           </div>
 
-                          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                          <div className="mt-3 sm:mt-4 inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-primary/10 px-2.5 sm:px-3 py-1 text-xs font-medium text-primary">
                             <svg
-                              className="h-3.5 w-3.5"
+                              className="h-3 w-3 sm:h-3.5 sm:w-3.5"
                               fill="currentColor"
                               viewBox="0 0 20 20"
                             >
@@ -348,7 +348,7 @@ function RouteComponent() {
                       );
                     })
                   ) : (
-                    <div className="p-6 text-center text-sm text-muted-foreground">
+                    <div className="p-4 sm:p-5 md:p-6 text-center text-xs sm:text-sm text-muted-foreground">
                       Belum ada kredensial. Selesaikan asesmen pertama Anda
                       untuk mendapatkan kredensial.
                     </div>
