@@ -158,10 +158,10 @@ function RouteComponent() {
           'FAST',
         );
 
-        // Get PDF as ArrayBuffer for hash calculation
+        // Get PDF bytes ONCE (single pdf.output() call)
         const pdfArrayBuffer = pdf.output('arraybuffer');
 
-        // Calculate SHA256 hash from PDF bytes (SAME METHOD as verification page)
+        // Calculate SHA256 hash from PDF bytes
         const hashBuffer = await crypto.subtle.digest(
           'SHA-256',
           pdfArrayBuffer,
@@ -172,8 +172,13 @@ function RouteComponent() {
 
         console.log('[Issue] PDF Hash calculated in frontend:', pdfHash);
 
-        // Convert PDF to base64 for upload
-        const pdfBase64 = pdf.output('dataurlstring').split(',')[1];
+        // Convert from the SAME ArrayBuffer to base64 for upload
+        const pdfBytes = new Uint8Array(pdfArrayBuffer);
+        let binary = '';
+        for (let i = 0; i < pdfBytes.length; i++) {
+          binary += String.fromCharCode(pdfBytes[i]);
+        }
+        const pdfBase64 = btoa(binary);
 
         // Upload to backend (backend will upload to Pinata + issue to blockchain)
         setLoadingMessage('Mengupload ke IPFS dan blockchain...');
