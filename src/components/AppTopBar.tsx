@@ -10,7 +10,6 @@ import {
   History,
   ShieldCheck,
   Briefcase,
-  BarChart3,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';

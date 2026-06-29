@@ -28,6 +28,25 @@ func NewProfileHandler(groqClient *groq.Client) *ProfileHandler {
 	}
 }
 
+// HandleCheckUsername checks if a username is already taken
+func (h *ProfileHandler) HandleCheckUsername(c *gin.Context) {
+	username := c.Query("username")
+	if username == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Username is required"})
+		return
+	}
+
+	userColl := database.DB.Collection("user")
+	var existingUser models.User
+	err := userColl.FindOne(c.Request.Context(), bson.M{"username": username}).Decode(&existingUser)
+	if err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "Username sudah digunakan"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"available": true})
+}
+
 // HandleGetProfile returns the UserProfile for the authenticated user
 func (h *ProfileHandler) HandleGetProfile(c *gin.Context) {
 	// Ambil user dari context (sudah di-set oleh middleware)

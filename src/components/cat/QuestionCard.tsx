@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,7 +16,7 @@ export default function QuestionCard({
   return (
     <Card className="relative overflow-hidden border border-foreground/10 bg-background/50 backdrop-blur-md transition-all duration-300 hover:border-foreground/20">
       {/* Decorative top border gradient */}
-      <div className="absolute top-0 left-0 h-[2px] w-full bg-gradient-to-r from-primary/50 via-primary to-primary/50" />
+      <div className="absolute top-0 left-0 h-0.5 w-full bg-linear-to-r from-primary/50 via-primary to-primary/50" />
 
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="flex items-center gap-2">
@@ -26,8 +25,7 @@ export default function QuestionCard({
           </span>
         </div>
         <Badge
-          variant="outline"
-          className="border-primary/30 bg-primary/5 text-primary text-[10px] font-medium tracking-wide"
+          variant="default"
         >
           {topic}
         </Badge>
@@ -42,7 +40,9 @@ export default function QuestionCard({
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           >
-            <p className="text-lg md:text-xl font-medium leading-relaxed text-foreground antialiased">
+            <p
+              className="select-none text-lg font-medium leading-relaxed text-foreground antialiased md:text-xl"
+            >
               {question}
             </p>
           </motion.div>

@@ -38,7 +38,7 @@ export default function StatisticsCertificationCard({
           <TrendingUp className="h-4 w-4 text-primary" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{average}/100</div>
+          <div className="text-2xl font-bold">{average}/1000</div>
           <p className="text-xs text-muted-foreground">
             Across all credentials
           </p>

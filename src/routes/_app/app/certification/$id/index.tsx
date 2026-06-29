@@ -118,13 +118,13 @@ function RouteComponent() {
           certificateId: data.verification_id,
         });
 
-        const imgData = canvas.toDataURL('image/png', 1.0);
+        const imgData = canvas.toDataURL('image/jpeg', 0.85);
 
         const pdf = new jsPDF({
           orientation: 'landscape',
           unit: 'mm',
           format: 'a4',
-          compress: false,
+          compress: true,
         });
 
         pdf.setCreationDate(new Date('2026-01-01T00:00:00Z'));
@@ -149,19 +149,19 @@ function RouteComponent() {
 
         pdf.addImage(
           imgData,
-          'PNG',
+          'JPEG',
           x,
           y,
           imgWidth,
           imgHeight,
           undefined,
-          'NONE',
+          'FAST',
         );
 
-        // Get PDF as ArrayBuffer for hash calculation
+        // Get PDF bytes ONCE (single pdf.output() call)
         const pdfArrayBuffer = pdf.output('arraybuffer');
 
-        // Calculate SHA256 hash from PDF bytes (SAME METHOD as verification page)
+        // Calculate SHA256 hash from PDF bytes
         const hashBuffer = await crypto.subtle.digest(
           'SHA-256',
           pdfArrayBuffer,
@@ -172,8 +172,13 @@ function RouteComponent() {
 
         console.log('[Issue] PDF Hash calculated in frontend:', pdfHash);
 
-        // Convert PDF to base64 for upload
-        const pdfBase64 = pdf.output('dataurlstring').split(',')[1];
+        // Convert from the SAME ArrayBuffer to base64 for upload
+        const pdfBytes = new Uint8Array(pdfArrayBuffer);
+        let binary = '';
+        for (let i = 0; i < pdfBytes.length; i++) {
+          binary += String.fromCharCode(pdfBytes[i]);
+        }
+        const pdfBase64 = btoa(binary);
 
         // Upload to backend (backend will upload to Pinata + issue to blockchain)
         setLoadingMessage('Mengupload ke IPFS dan blockchain...');
@@ -187,6 +192,9 @@ function RouteComponent() {
             sessionId: certId,
             pdfBuffer: pdfBase64,
             pdfHash: pdfHash, // Send hash calculated in frontend
+            recipientName: user?.name || 'User',
+            assessmentName: data.role,
+            score: data.score,
           }),
         });
 

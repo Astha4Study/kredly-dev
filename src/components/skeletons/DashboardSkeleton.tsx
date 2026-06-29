@@ -1,4 +1,4 @@
-export default function DashboardSkeleton() {
+export function DashboardSkeleton() {
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-background">
       {/* Hero Stats Skeleton */}

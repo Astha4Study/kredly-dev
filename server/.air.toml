@@ -3,14 +3,14 @@
 env_files = []
 root = "."
 testdata_dir = "testdata"
-tmp_dir = "C:\\Windows\\Temp\\kredly-air"
+tmp_dir = "tmp"
 
 [build]
   args_bin = []
-  bin = "C:\\Windows\\Temp\\kredly-air\\main.exe"
-  cmd = "go build -o C:\\Windows\\Temp\\kredly-air\\main.exe ."
+  bin = "./tmp/main"
+  cmd = "go build -o ./tmp/main ./cmd/api"
   delay = 1000
-  entrypoint = ["C:\\Windows\\Temp\\kredly-air\\main.exe"]
+  entrypoint = ["./tmp/main"]
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []
   exclude_regex = ["_test.go"]
@@ -34,9 +34,9 @@ tmp_dir = "C:\\Windows\\Temp\\kredly-air"
 
   [build.windows]
     args_bin = []
-    bin = "C:\\Windows\\Temp\\kredly-air\\main.exe"
-    cmd = "go build -o C:\\Windows\\Temp\\kredly-air\\main.exe ."
-    entrypoint = ["C:\\Windows\\Temp\\kredly-air\\main.exe"]
+    bin = "tmp\\main.exe"
+    cmd = "go build -o ./tmp/main.exe ./cmd/api"
+    entrypoint = ["tmp\\main.exe"]
     full_bin = ""
     post_cmd = []
     pre_cmd = []

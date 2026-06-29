@@ -4,8 +4,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AssessmentCard } from '@/pages/dashboard/assessment/AssessmentCard';
 import { GeneralAssessmentCard } from '@/pages/dashboard/assessment/GeneralAssessmentCard';
+import { RelatedSkilAsessmentsSection } from '@/pages/dashboard/assessment/RelatedSkilAsessmentsSection';
+import { CustomizationAndReuploadSection } from '@/pages/dashboard/assessment/CustomizationAndReuploadSection';
+import { FinishedTab } from '@/pages/dashboard/assessment/FinishedTab';
 import { AssessmentCardSkeleton } from '@/components/skeletons/AssessmentCardSkeleton';
 import { GeneralAssessmentCardSkeleton } from '@/components/skeletons/GeneralAssessmentCardSkeleton';
+import { RelatedSkilAsessmentsSectionSkeleton } from '@/components/skeletons/RelatedSkilAsessmentsSectionSkeleton';
+import { CustomizationAndReuploadSectionSkeleton } from '@/components/skeletons/CustomizationAndReuploadSectionSkeleton';
 
 export const Route = createFileRoute('/_app/app/assessment/')({
   component: RouteComponent,
@@ -45,7 +50,7 @@ interface GeneralAssessment {
 
 interface CVAssessmentFromAPI {
   id: string;
-  type: 'general' | 'skill';
+  type: 'general' | 'skill' | 'related_skill';
   title: string;
   description?: string;
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
@@ -64,12 +69,16 @@ function RouteComponent() {
   const [availableAssessments, setAvailableAssessments] = React.useState<
     Assessment[]
   >([]);
+  const [relatedAssessments, setRelatedAssessments] = React.useState<
+    Assessment[]
+  >([]);
   const [completedAssessments, setCompletedAssessments] = React.useState<
     Assessment[]
   >([]);
   const [generalAssessments, setGeneralAssessments] = React.useState<
     GeneralAssessment[]
   >([]);
+  const [allSkillsCompleted, setAllSkillsCompleted] = React.useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = React.useState(true);
   const [profileExists, setProfileExists] = React.useState(true);
 
@@ -99,6 +108,11 @@ function RouteComponent() {
               (a: CVAssessmentFromAPI) =>
                 a.type === 'skill' && (a.status === 'available' || !a.status),
             );
+            const relatedSkills = allAssessments.filter(
+              (a: CVAssessmentFromAPI) =>
+                a.type === 'related_skill' &&
+                (a.status === 'available' || !a.status),
+            );
             const completed = allAssessments.filter(
               (a: CVAssessmentFromAPI) => a.status === 'completed',
             );
@@ -111,8 +125,8 @@ function RouteComponent() {
                   a.description ||
                   'Menguji kompetensi komprehensif terkait role.',
                 difficulty: a.difficulty || 'Intermediate',
-                estimatedTime: a.estimatedTime || '60 menit',
-                questionCount: a.questionCount || 40,
+                estimatedTime: a.estimatedTime || '90 menit',
+                questionCount: a.questionCount || 50,
                 topics: a.topics || [],
                 isRecommended: a.isRecommended,
                 status: a.status,
@@ -127,8 +141,21 @@ function RouteComponent() {
                 id: a.id,
                 skillName: a.title,
                 difficulty: a.difficulty || 'Intermediate',
-                estimatedTime: a.estimatedTime || '30 menit',
-                questionCount: a.questionCount || 20,
+                estimatedTime: a.estimatedTime || '45 menit',
+                questionCount: a.questionCount || 30,
+                isRecommended: a.isRecommended,
+                category: a.category || 'General',
+                status: 'available',
+              })),
+            );
+
+            setRelatedAssessments(
+              relatedSkills.map((a: CVAssessmentFromAPI) => ({
+                id: a.id,
+                skillName: a.title,
+                difficulty: a.difficulty || 'Intermediate',
+                estimatedTime: a.estimatedTime || '45 menit',
+                questionCount: a.questionCount || 30,
                 isRecommended: a.isRecommended,
                 category: a.category || 'General',
                 status: 'available',
@@ -140,8 +167,8 @@ function RouteComponent() {
                 id: a.id,
                 skillName: a.title,
                 difficulty: a.difficulty || 'Intermediate',
-                estimatedTime: a.estimatedTime || '30 menit',
-                questionCount: a.questionCount || 20,
+                estimatedTime: a.estimatedTime || '45 menit',
+                questionCount: a.questionCount || 30,
                 isRecommended: a.isRecommended,
                 category:
                   a.category || (a.type === 'general' ? 'General' : 'Skill'),
@@ -151,6 +178,12 @@ function RouteComponent() {
                 level: a.level,
               })),
             );
+
+            const hasUncompletedSkills = allAssessments.some(
+              (a: CVAssessmentFromAPI) =>
+                a.type === 'skill' && a.status !== 'completed',
+            );
+            setAllSkillsCompleted(!hasUncompletedSkills);
 
             setProfileExists(true);
             setIsLoadingProfile(false);
@@ -163,8 +196,10 @@ function RouteComponent() {
 
       // No mock data if user profile or cvAssessments does not exist in MongoDB
       setAvailableAssessments([]);
+      setRelatedAssessments([]);
       setCompletedAssessments([]);
       setGeneralAssessments([]);
+      setAllSkillsCompleted(false);
       setProfileExists(false);
       setIsLoadingProfile(false);
     }
@@ -183,7 +218,7 @@ function RouteComponent() {
             </p>
           </div>
 
-          {/* Tabs Skeleton */}
+          {/* Tabs */}
           <Tabs defaultValue="available" className="w-full space-y-4">
             <TabsList className="grid w-full grid-cols-2 bg-muted p-1 h-auto">
               <TabsTrigger
@@ -204,9 +239,7 @@ function RouteComponent() {
               {/* General Assessments Section */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b">
-                  <h3 className="text-lg font-bold">
-                    Asesmen General (Role-based)
-                  </h3>
+                  <h3 className="text-lg font-bold">Asesmen Role-based</h3>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {[...Array(3)].map((_, i) => (
@@ -226,6 +259,12 @@ function RouteComponent() {
                   ))}
                 </div>
               </div>
+
+              {/* Related Skill Assessments Section */}
+              <RelatedSkilAsessmentsSectionSkeleton />
+
+              {/* Customization & Re-upload Section */}
+              <CustomizationAndReuploadSectionSkeleton />
             </TabsContent>
           </Tabs>
         </div>
@@ -253,7 +292,9 @@ function RouteComponent() {
             >
               <span>Tersedia</span>
               <span className="rounded-full border px-2 py-0.5 text-xs bg-background data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                {availableAssessments.length + generalAssessments.length}
+                {availableAssessments.length +
+                  generalAssessments.length +
+                  relatedAssessments.length}
               </span>
             </TabsTrigger>
 
@@ -304,9 +345,7 @@ function RouteComponent() {
                 {/* General Assessments Section */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b">
-                    <h3 className="text-lg font-bold">
-                      Asesmen General (Role-based)
-                    </h3>
+                    <h3 className="text-lg font-bold">Asesmen Role-based</h3>
                     <span className="text-sm font-medium text-muted-foreground">
                       {generalAssessments.length} Asesmen
                     </span>
@@ -350,56 +389,26 @@ function RouteComponent() {
                     </Card>
                   )}
                 </div>
+
+                {/* Related Skill Assessments Section */}
+                <RelatedSkilAsessmentsSection
+                  relatedAssessments={relatedAssessments}
+                  allSkillsCompleted={allSkillsCompleted}
+                />
+
+                {/* Customization & Re-upload Section */}
+                <CustomizationAndReuploadSection
+                  allSkillsCompleted={allSkillsCompleted}
+                />
               </>
             )}
           </TabsContent>
 
           {/* Tab: Selesai */}
-          <TabsContent value="completed" className="space-y-6 mt-6">
-            {!profileExists ? (
-              <Card className="py-12 border">
-                <CardContent className="text-center space-y-4">
-                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
-                    <svg
-                      className="w-8 h-8 text-muted-foreground"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">
-                      Belum ada data skill
-                    </h3>
-                    <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-                      Silakan unggah CV Anda terlebih dahulu.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : completedAssessments.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {completedAssessments.map((assessment) => (
-                  <AssessmentCard key={assessment.id} assessment={assessment} />
-                ))}
-              </div>
-            ) : (
-              <Card className="py-12 border">
-                <CardContent className="text-center">
-                  <p className="text-muted-foreground">
-                    Anda belum menyelesaikan assessment apapun.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
+          <FinishedTab
+            completedAssessments={completedAssessments}
+            profileExists={profileExists}
+          />
         </Tabs>
       </div>
     </main>

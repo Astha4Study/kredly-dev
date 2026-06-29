@@ -69,6 +69,23 @@ func (c *Client) GenerateItemBatch(ctx context.Context, req GenerateItemBatchReq
 
 Setiap pertanyaan, pilihan jawaban, kunci jawaban, dan penjelasan HARUS ditulis dalam Bahasa Indonesia yang baik dan profesional.
 
+─── KOMPOSISI SOAL ───
+- 70%% dari batch soal harus berbentuk studi kasus/skenario kerja nyata.
+- 30%% dari batch soal harus menguji pemahaman konsep teknis secara langsung.
+- Ketentuan distribusi ini berlaku secara konsisten untuk SEMUA jenis role/skill (tidak hanya programming, melainkan juga desain, marketing, manajemen, dll.).
+
+─── CIRI SOAL STUDI KASUS (70%%) ───
+- Soal HARUS dimulai dengan konteks situasi kerja nyata (2-3 kalimat).
+- Minta kandidat mengambil keputusan atau menyelesaikan masalah berdasarkan situasi tersebut.
+- HINDARI menanyakan definisi/hafalan. Fokuslah pada "apa yang akan kamu lakukan" atau "mana solusi yang tepat".
+- Contoh Backend Engineer: "Tim kamu menerima laporan bahwa endpoint /api/orders mengalami response time 8 detik saat traffic tinggi, padahal normal di bawah 500ms. Setelah dicek, query database-nya melakukan full table scan. Apa langkah PERTAMA yang paling tepat?"
+- Contoh Digital Marketer: "Campaign Google Ads kamu sudah berjalan 2 minggu dengan CTR 1.2%% (di bawah rata-rata industri 3-5%%) tapi conversion rate justru tinggi di 4%%. Apa yang sebaiknya jadi fokus optimasi selanjutnya?"
+
+─── CIRI SOAL KONSEP TEKNIS (30%%) ───
+- Harus tetap relevan dengan aplikasi praktis sehari-hari, bukan hafalan mentah atau definisi teoretis kosong.
+- Contoh yang BAIK: "Kapan sebaiknya pakai index composite vs index tunggal di database?"
+- Contoh yang DIHINDARI: "Apa kepanjangan dari ACID dalam database?"
+
 Untuk setiap soal dalam batch, Anda harus memilih secara dinamis untuk menghasilkan salah satu format berikut:
 
 1. Untuk PILIHAN GANDA ("type": "multiple_choice"):
@@ -135,8 +152,8 @@ Respons harus berupa array JSON objek pertanyaan yang valid. Jangan bungkus deng
 	// Parse the response
 	content := resp.Choices[0].Message.Content
 
-	// Sometimes models return the array directly, sometimes wrapped in a root object.
-	// We'll handle both.
+	// Sometimes models return the array directly, sometimes wrapped in a root object, or as a single object.
+	// We'll handle all three cases.
 	var items []GeneratedItem
 	if err := json.Unmarshal([]byte(content), &items); err != nil {
 		// Try parsing if wrapped in a key like "questions" or "items"
@@ -149,7 +166,13 @@ Respons harus berupa array JSON objek pertanyaan yang valid. Jangan bungkus deng
 				}
 			}
 		} else {
-			return nil, fmt.Errorf("failed to parse groq response JSON: %w (content: %s)", err, content)
+			// Try parsing as single object and wrap it in array
+			var singleItem GeneratedItem
+			if errSingle := json.Unmarshal([]byte(content), &singleItem); errSingle == nil {
+				items = []GeneratedItem{singleItem}
+			} else {
+				return nil, fmt.Errorf("failed to parse groq response JSON: %w (content: %s)", err, content)
+			}
 		}
 	}
 

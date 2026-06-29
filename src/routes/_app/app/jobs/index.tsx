@@ -9,6 +9,7 @@ import { LinkedInJobCard } from '@/components/LinkedInJobCard';
 import { IndeedJobCard } from '@/components/IndeedJobCard';
 import { GlassdoorJobCard } from '@/components/GlassdoorJobCard';
 import { UpworkJobCard } from '@/components/UpworkJobCard';
+import { JobCardSkeleton } from '@/components/skeletons/JobCardSkeleton';
 
 export const Route = createFileRoute('/_app/app/jobs/')({
   component: RouteComponent,
@@ -122,8 +123,10 @@ function RouteComponent() {
             {/* Job List */}
             <div>
               {loading ? (
-                <div className="flex items-center justify-center p-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <div>
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <JobCardSkeleton key={index} />
+                  ))}
                 </div>
               ) : jobs.length === 0 ? (
                 <div className="flex flex-col items-center justify-center p-12 text-center">

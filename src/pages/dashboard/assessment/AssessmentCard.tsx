@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, FileText } from 'lucide-react';
+import { Clock, FileText, Lock } from 'lucide-react';
 
 interface Assessment {
   id: string;
@@ -29,10 +29,16 @@ interface Assessment {
 
 interface AssessmentCardProps {
   assessment: Assessment;
+  isLocked?: boolean;
 }
 
-export const AssessmentCard = ({ assessment }: AssessmentCardProps) => (
-  <Card className="h-full border transition-all duration-300 shadow-xs hover:shadow-sm flex flex-col">
+export const AssessmentCard = ({
+  assessment,
+  isLocked,
+}: AssessmentCardProps) => (
+  <Card
+    className={`h-full border transition-all duration-300 shadow-xs hover:shadow-sm flex flex-col ${isLocked ? 'opacity-65 bg-muted/10' : ''}`}
+  >
     <CardHeader className="space-y-3">
       <div>
         <CardTitle className="text-xl font-bold">
@@ -44,7 +50,15 @@ export const AssessmentCard = ({ assessment }: AssessmentCardProps) => (
         </CardDescription>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 text-xs">
+      <div className="flex flex-wrap items-center gap-2.5 text-xs">
+        {isLocked && (
+          <Badge
+            variant="outline"
+            className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 gap-1 py-0.5 px-2"
+          >
+            <Lock className="h-3 w-3" /> Terkunci
+          </Badge>
+        )}
         <div className="flex items-center gap-1 text-muted-foreground">
           <Clock className="h-3.5 w-3.5" />
           {assessment.estimatedTime}
@@ -57,7 +71,7 @@ export const AssessmentCard = ({ assessment }: AssessmentCardProps) => (
     </CardHeader>
 
     <CardContent className="flex-1">
-      {assessment.status !== 'available' && (
+      {!isLocked && assessment.status !== 'available' && (
         <div className="border-t pt-3 space-y-3">
           {assessment.status === 'in-progress' &&
             assessment.progress !== undefined && (
@@ -99,21 +113,31 @@ export const AssessmentCard = ({ assessment }: AssessmentCardProps) => (
     </CardContent>
 
     <CardContent>
-      {assessment.status === 'available' && (
-        <Button className="w-full" asChild>
-          <Link
-            to="/app/assessment/$assessmentId"
-            params={{ assessmentId: assessment.id }}
-            preload="intent"
-          >
-            Mulai Assessment
-          </Link>
+      {isLocked ? (
+        <Button
+          className="w-full text-xs font-semibold gap-2"
+          disabled
+          variant="secondary"
+        >
+          <Lock className="h-3.5 w-3.5" /> Selesaikan Asesmen Skill
         </Button>
+      ) : (
+        assessment.status === 'available' && (
+          <Button className="w-full" asChild>
+            <Link
+              to="/app/assessment/$assessmentId"
+              params={{ assessmentId: assessment.id }}
+              preload="intent"
+            >
+              Mulai Assessment
+            </Link>
+          </Button>
+        )
       )}
-      {assessment.status === 'in-progress' && (
+      {!isLocked && assessment.status === 'in-progress' && (
         <Button className="w-full">Lanjutkan Assessment</Button>
       )}
-      {assessment.status === 'completed' && (
+      {!isLocked && assessment.status === 'completed' && (
         <div className="flex gap-2">
           {assessment.sessionId ? (
             <Button className="w-full font-semibold" asChild>
