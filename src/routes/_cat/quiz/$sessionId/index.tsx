@@ -193,7 +193,7 @@ function RouteComponent() {
         onBack={() => setShowExitWarning(true)}
       />
       <div className="flex-1 flex flex-col items-center justify-start p-4 md:p-8">
-        <div className="w-full max-w-3xl space-y-6 md:space-y-8 my-auto">
+        <div className="w-full max-w-4xl space-y-6 md:space-y-8 my-auto">
           <ProgressBar
             currentQuestion={questionNumber}
             minQuestions={minQuestions}

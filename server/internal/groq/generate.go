@@ -152,8 +152,8 @@ Respons harus berupa array JSON objek pertanyaan yang valid. Jangan bungkus deng
 	// Parse the response
 	content := resp.Choices[0].Message.Content
 
-	// Sometimes models return the array directly, sometimes wrapped in a root object.
-	// We'll handle both.
+	// Sometimes models return the array directly, sometimes wrapped in a root object, or as a single object.
+	// We'll handle all three cases.
 	var items []GeneratedItem
 	if err := json.Unmarshal([]byte(content), &items); err != nil {
 		// Try parsing if wrapped in a key like "questions" or "items"
@@ -166,7 +166,13 @@ Respons harus berupa array JSON objek pertanyaan yang valid. Jangan bungkus deng
 				}
 			}
 		} else {
-			return nil, fmt.Errorf("failed to parse groq response JSON: %w (content: %s)", err, content)
+			// Try parsing as single object and wrap it in array
+			var singleItem GeneratedItem
+			if errSingle := json.Unmarshal([]byte(content), &singleItem); errSingle == nil {
+				items = []GeneratedItem{singleItem}
+			} else {
+				return nil, fmt.Errorf("failed to parse groq response JSON: %w (content: %s)", err, content)
+			}
 		}
 	}
 

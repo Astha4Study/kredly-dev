@@ -20,11 +20,11 @@ export default function JobsBanner() {
         <div className="max-w-lg space-y-2">
           <Badge variant="outline">AI Job Matching</Badge>
 
-          <h3 className="text-3xl font-bold tracking-tight">
+          <h3 className="text-2xl sm:text-3xl font-bold tracking-tight">
             Dapatkan <span className="text-[#f59e0b]">Kerja Lebih Cepat</span>
           </h3>
 
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
             Optimalkan CV Anda dengan AI dan tingkatkan peluang diterima kerja.
             Temukan kekuatan profil Anda dan raih peluang karier yang lebih
             baik.

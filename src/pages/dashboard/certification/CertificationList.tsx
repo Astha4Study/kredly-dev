@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import { Search, Award } from 'lucide-react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import certPlaceholder from '@/assets/certification/certplaceholder.png';
 
@@ -96,8 +96,8 @@ export default function CertificationList({
             <div
               className={`relative flex items-center justify-center overflow-hidden bg-gray-100 ${
                 viewMode === 'list'
-                  ? 'w-48 shrink-0 aspect-[4/3]'
-                  : 'w-full aspect-[4/3]'
+                  ? 'w-48 shrink-0 aspect-4/3'
+                  : 'w-full aspect-4/3'
               }`}
             >
               <img
@@ -191,61 +191,50 @@ export default function CertificationList({
 
   if (searchQuery || filterStatus !== 'all') {
     return (
-      <Card className="py-16">
-        <CardContent className="text-center">
-          <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-gray-100">
-            <Search className="h-12 w-12 text-gray-400" />
-          </div>
-          <h3 className="mb-2 text-lg font-semibold text-gray-900">
-            Tidak Ada Hasil
-          </h3>
-          <p className="mx-auto mb-6 max-w-md text-gray-600">
+      <Empty className="bg-white">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <Search />
+          </EmptyMedia>
+          <EmptyTitle>Tidak Ada Hasil</EmptyTitle>
+          <EmptyDescription>
             Tidak ada kredensial yang sesuai dengan filter pencarian Anda. Coba
             ubah kata kunci atau filter.
-          </p>
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
           <Button
-            variant="outline"
+            variant="default"
             onClick={() => {
               setSearchQuery('');
               setFilterStatus('all');
             }}
+            size="sm"
           >
             Reset Filter
           </Button>
-        </CardContent>
-      </Card>
+        </EmptyContent>
+      </Empty>
     );
   }
 
   return (
-    <Card className="py-16">
-      <CardContent className="text-center">
-        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg
-            className="w-12 h-12 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-            />
-          </svg>
-        </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Belum Ada Kredensial
-        </h3>
-        <p className="text-gray-600 mb-6 max-w-md mx-auto">
+    <Empty className="bg-white">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <Award />
+        </EmptyMedia>
+        <EmptyTitle>Belum Ada Kredensial</EmptyTitle>
+        <EmptyDescription>
           Selesaikan assessment untuk mendapatkan kredensial pertama Anda! Semua
           kredensial akan tersimpan di blockchain dan dapat diverifikasi.
-        </p>
-        <Link to="/app/assessment">
-          <Button>Mulai Assessment</Button>
-        </Link>
-      </CardContent>
-    </Card>
+        </EmptyDescription>
+      </EmptyHeader>
+        <EmptyContent>
+          <Link to="/app/assessment">
+            <Button size="sm">Mulai Assessment</Button>
+          </Link>
+        </EmptyContent>
+    </Empty>
   );
 }

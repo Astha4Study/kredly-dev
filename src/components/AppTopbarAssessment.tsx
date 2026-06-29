@@ -89,9 +89,8 @@ export default function AppTopbarAssessment({
           <Separator orientation="vertical" />
 
           {isLoading && !title ? (
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <Skeleton className="h-5 w-32" />
-              <Skeleton className="h-5 w-20 hidden sm:block" />
+            <div className="min-w-0 flex-1">
+              <Skeleton className="h-6 w-48 sm:w-64" />
             </div>
           ) : title ? (
             <div className="min-w-0 flex-1">
@@ -114,11 +113,18 @@ export default function AppTopbarAssessment({
           )}
         </div>
 
-        {assessment && (
-          <div className="flex md:hidden items-center gap-2 text-xs text-muted-foreground shrink-0">
-            <Clock className="h-3 w-3" />
-            <span className="font-medium">{assessment.estimatedTime}</span>
+        {isLoading && !title ? (
+          <div className="flex md:hidden items-center gap-2 shrink-0">
+            <Skeleton className="h-3 w-3 rounded" />
+            <Skeleton className="h-4 w-16" />
           </div>
+        ) : (
+          assessment && (
+            <div className="flex md:hidden items-center gap-2 text-xs text-muted-foreground shrink-0">
+              <Clock className="h-3 w-3" />
+              <span className="font-medium">{assessment.estimatedTime}</span>
+            </div>
+          )
         )}
       </div>
     </header>

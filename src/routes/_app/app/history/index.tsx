@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import {
   Download,
   CheckCircle2,
@@ -113,7 +114,7 @@ function RouteComponent() {
                 Timeline aktivitas Anda di platform
               </p>
             </div>
-            <Button variant="outline" className="gap-2">
+            <Button variant="default" className="gap-2">
               <Download className="h-4 w-4" />
               Export PDF
             </Button>
@@ -249,17 +250,17 @@ function RouteComponent() {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center p-12 text-center">
-                <div className="rounded-full bg-muted p-3 mb-4">
-                  <History className="h-6 w-6 text-muted-foreground" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">
-                  Belum Ada Aktivitas
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Aktivitas Anda akan muncul di sini
-                </p>
-              </div>
+              <Empty className="bg-white">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <History />
+                  </EmptyMedia>
+                  <EmptyTitle>Belum Ada Aktivitas</EmptyTitle>
+                  <EmptyDescription>
+                    Aktivitas Anda akan muncul di sini
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
             )}
           </div>
         </div>

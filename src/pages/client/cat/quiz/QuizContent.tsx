@@ -1,6 +1,5 @@
-import * as React from 'react';
 import { motion } from 'motion/react';
-import type { QuizItem, AnswerResponse } from './types';
+import type { AnswerResponse, QuizItem } from '../types';
 import QuestionCard from '@/components/cat/QuestionCard';
 import AnswerOptions from '@/components/cat/AnswerOptions';
 
@@ -54,7 +53,7 @@ export default function QuizContent({
             value={selectedAnswer || ''}
             onChange={(e) => setSelectedAnswer(e.target.value)}
             placeholder="Ketik jawaban Anda di sini"
-            className="w-full min-h-[160px] p-4 rounded-2xl border border-foreground/10 bg-background/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-300 resize-y text-sm leading-relaxed"
+            className="w-full min-h-40 p-4 rounded-2xl border border-foreground/10 bg-background/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-300 resize-y text-sm leading-relaxed"
           />
         </motion.div>
       ) : (

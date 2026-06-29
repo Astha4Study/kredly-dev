@@ -19,8 +19,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Plus,
-  Loader2,
-  AlertCircle,
   BookOpen,
   Clock,
   Award,
@@ -31,6 +29,8 @@ import {
 } from 'lucide-react';
 import { sessionService } from '@/services/sessionService';
 import { toast } from 'sonner';
+import { AsideAssessmentActionCard } from '@/components/AsideAssessmentActionCard';
+import { AssessmentDetailSkeleton } from '@/components/skeletons/AssessmentDetailSkeleton';
 
 interface CVAssessment {
   id: string;
@@ -120,16 +120,7 @@ function TestOverviewPage() {
   }, [assessmentId]);
 
   if (isLoading || profileLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground text-sm font-medium">
-            Memuat profil Anda...
-          </p>
-        </div>
-      </div>
-    );
+    return <AssessmentDetailSkeleton />;
   }
 
   if (!user) {
@@ -300,7 +291,7 @@ function TestOverviewPage() {
                       {assessment.estimatedTime}
                     </Badge>
 
-                    <Badge variant="outline" className="gap-1.5 font-normal">
+                    <Badge variant="default" className="gap-1.5 font-normal">
                       <BookOpen className="h-3.5 w-3.5" />
                       {assessment.questionCount} Soal
                     </Badge>
@@ -332,7 +323,7 @@ function TestOverviewPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
-                        <BookOpen className="h-5 w-5 text-primary" />
+                        <BookOpen className="h-5 w-5 text-emerald-500" />
                         {assessment
                           ? 'Materi yang Akan Diuji'
                           : 'Pilih Skill untuk Diuji'}
@@ -364,7 +355,7 @@ function TestOverviewPage() {
                           key={idx}
                           className="flex items-center gap-3 px-4 py-3 rounded-lg border border-border/60 bg-muted/30"
                         >
-                          <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                           <span className="text-sm font-medium text-foreground truncate">
                             {topic}
                           </span>
@@ -516,69 +507,14 @@ function TestOverviewPage() {
 
             {/* Right: Action Card */}
             <div className="lg:col-span-1">
-              <Card className="border-border/50 sticky top-20">
-                <CardHeader>
-                  <CardTitle className="text-base sm:text-lg font-semibold">
-                    Siap Memulai?
-                  </CardTitle>
-                  <CardDescription>
-                    Pastikan Anda sudah siap sebelum memulai asesmen
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Summary Stats */}
-                  <div className="space-y-3 p-4 rounded-lg bg-muted/30 border border-border/50">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Role</span>
-                      <span className="font-medium text-foreground">
-                        {role || 'N/A'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Level</span>
-                      <span className="font-medium text-foreground">
-                        {level}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Skill Diuji</span>
-                      <span className="font-medium text-foreground">
-                        {skills.length} skill
-                      </span>
-                    </div>
-                  </div>
-
-                  {sessionError && (
-                    <div className="flex items-start gap-2 p-3 border border-rose-500/20 bg-rose-500/5 rounded-lg text-xs text-rose-600 dark:text-rose-400">
-                      <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                      <span>{sessionError}</span>
-                    </div>
-                  )}
-
-                  <Button
-                    size="lg"
-                    onClick={handleStartExam}
-                    disabled={skills.length === 0 || isCreatingSession}
-                    className="w-full group cursor-pointer"
-                  >
-                    {isCreatingSession ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Membuat Sesi...
-                      </>
-                    ) : (
-                      <>Mulai Asesmen</>
-                    )}
-                  </Button>
-
-                  <p className="text-xs text-center text-muted-foreground">
-                    Dengan memulai asesmen, Anda menyetujui{' '}
-                    <a href="#" className="text-primary hover:underline">
-                      syarat dan ketentuan
-                    </a>
-                  </p>
-                </CardContent>
-              </Card>
+              <AsideAssessmentActionCard
+                role={role}
+                level={level}
+                skills={skills}
+                sessionError={sessionError}
+                isCreatingSession={isCreatingSession}
+                onStartExam={handleStartExam}
+              />
             </div>
           </div>
         </div>

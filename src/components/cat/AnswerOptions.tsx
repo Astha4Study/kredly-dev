@@ -132,7 +132,7 @@ export default function AnswerOptions({
             <div className="flex items-center gap-4">
               <span
                 className={cn(
-                  'flex size-7 shrink-0 items-center justify-center rounded-lg border text-xs font-semibold uppercase transition-colors',
+                  'select-none flex size-7 shrink-0 items-center justify-center rounded-lg border text-xs font-semibold uppercase transition-colors',
                   badgeClass,
                 )}
               >
@@ -140,7 +140,7 @@ export default function AnswerOptions({
               </span>
               <span
                 className={cn(
-                  'text-sm md:text-base leading-relaxed',
+                  'select-none text-sm md:text-base leading-relaxed',
                   textClass,
                 )}
               >

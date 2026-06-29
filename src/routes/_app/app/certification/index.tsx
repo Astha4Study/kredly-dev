@@ -1,10 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
-import { Download, Loader2 } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import StatisticsCertificationCard from '@/pages/dashboard/certification/StatisticsCertificationCard';
 import SearchAndFiltersCertification from '@/pages/dashboard/certification/SearchAndFiltersCertification';
 import CertificationList from '@/pages/dashboard/certification/CertificationList';
+import { StatisticsCertificationCardSkeleton } from '@/components/skeletons/StatisticsCertificationCardSkeleton';
+import { SearchAndFiltersCertificationSkeleton } from '@/components/skeletons/SearchAndFiltersCertificationSkeleton';
+import { CertificationListSkeleton } from '@/components/skeletons/CertificationListSkeleton';
 
 export const Route = createFileRoute('/_app/app/certification/')({
   component: RouteComponent,
@@ -114,9 +117,34 @@ function RouteComponent() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 text-primary animate-spin" />
-      </div>
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="space-y-6">
+          {/* Header Section */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">
+                Kredensial Saya
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Lihat dan kelola seluruh kredensial yang telah Anda peroleh.
+              </p>
+            </div>
+            <Button variant="outline" className="gap-2" disabled>
+              <Download className="h-4 w-4" />
+              Export All
+            </Button>
+          </div>
+
+          {/* Statistics Cards Skeleton */}
+          <StatisticsCertificationCardSkeleton />
+
+          {/* Search and Filters Skeleton */}
+          <SearchAndFiltersCertificationSkeleton />
+
+          {/* Certification List Skeleton */}
+          <CertificationListSkeleton />
+        </div>
+      </main>
     );
   }
 
