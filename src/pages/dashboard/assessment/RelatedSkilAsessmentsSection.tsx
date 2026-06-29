@@ -1,5 +1,11 @@
 import { AssessmentCard } from './AssessmentCard';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
 import { FolderSearch } from 'lucide-react';
 
 interface Assessment {
@@ -41,16 +47,12 @@ export const RelatedSkilAsessmentsSection = ({
           ))}
         </div>
       ) : (
-        <Empty className='bg-white'>
+        <Empty className="bg-white">
           <EmptyHeader>
-            <EmptyMedia
-              variant="icon"
-            >
-              <FolderSearch className='h-12 w-12' />
+            <EmptyMedia variant="icon">
+              <FolderSearch className="h-12 w-12" />
             </EmptyMedia>
-            <EmptyTitle>
-              Belum Ada Asesmen Terkait
-            </EmptyTitle>
+            <EmptyTitle>Belum Ada Asesmen Terkait</EmptyTitle>
             <EmptyDescription>
               Belum ada asesmen terkait yang dapat direkomendasikan.
             </EmptyDescription>
