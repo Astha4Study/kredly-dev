@@ -8,16 +8,30 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { CheckCircle2, XCircle, Loader2, FileText, Shield } from 'lucide-react';
+import { CheckCircle2, XCircle, Loader2, FileText, Shield, Check, Copy, ExternalLink, Clock, Database, Link as LinkIcon } from 'lucide-react';
+
 
 export const Route = createFileRoute('/_app/app/certificate-verification/')({
   component: RouteComponent,
 });
 
+interface CertificateMetadata {
+  id?: string | { $oid: string };
+  sessionId: string;
+  certificateId: string;
+  pdfHash: string;
+  ipfsCID: string;
+  ipfsURL: string;
+  txHash: string;
+  createdAt: string | { $date: string };
+  updatedAt: string | { $date: string };
+}
+
 interface VerificationResult {
   isValid: boolean;
   status: string;
   message: string;
+  metadata?: CertificateMetadata;
 }
 
 function RouteComponent() {
@@ -25,6 +39,36 @@ function RouteComponent() {
   const [isVerifying, setIsVerifying] = React.useState(false);
   const [verificationResult, setVerificationResult] =
     useState<VerificationResult | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const handleCopy = (text: string, field: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
+
+  const getFormattedDate = (dateVal: any) => {
+    if (!dateVal) return '-';
+    const dString =
+      typeof dateVal === 'string'
+        ? dateVal
+        : dateVal.$date
+          ? dateVal.$date
+          : String(dateVal);
+    try {
+      return new Date(dString).toLocaleString('id-ID', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZoneName: 'short',
+      });
+    } catch {
+      return dString;
+    }
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -78,6 +122,7 @@ function RouteComponent() {
             isValid: data.isValid,
             status: data.status,
             message: data.message,
+            metadata: data.metadata,
           });
           setIsVerifying(false);
         } catch (error) {
@@ -259,16 +304,159 @@ function RouteComponent() {
                 </div>
               </div>
 
-              {verificationResult.isValid && (
-                <div className="rounded-lg border bg-blue-50 p-4">
-                  <p className="text-xs font-medium text-blue-900">
-                    ℹ️ Informasi
-                  </p>
-                  <p className="text-sm text-blue-700 mt-1">
-                    Sertifikat ini telah terverifikasi di blockchain dan
-                    terbukti asli. Hash PDF cocok dengan yang terdaftar untuk ID
-                    sertifikat ini.
-                  </p>
+
+              {verificationResult.isValid && verificationResult.metadata && (
+                <div className="rounded-lg border bg-white p-5 space-y-4 shadow-sm text-left">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                      <Database className="h-4.5 w-4.5 text-primary" />
+                      Detail Metadata Blockchain
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Informasi verifikasi kriptografis permanen
+                    </p>
+                  </div>
+
+                  <div className="space-y-3 divide-y divide-slate-100">
+                    {/* Certificate ID */}
+                    <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                      <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
+                        Certificate ID
+                      </span>
+                      <div className="flex items-center gap-1.5 flex-1 justify-end max-w-full overflow-hidden">
+                        <span className="font-mono text-xs text-slate-800 break-all select-all">
+                          {verificationResult.metadata.certificateId}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-slate-100 flex-shrink-0"
+                          onClick={() => handleCopy(verificationResult.metadata!.certificateId, 'certId')}
+                        >
+                          {copiedField === 'certId' ? (
+                            <Check className="h-3 w-3 text-green-600" />
+                          ) : (
+                            <Copy className="h-3 w-3" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Transaction Hash */}
+                    <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                      <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
+                        Transaction Hash
+                      </span>
+                      <div className="flex items-center gap-1.5 flex-1 justify-end max-w-full overflow-hidden">
+                        <span className="font-mono text-xs text-slate-800 break-all select-all">
+                          {verificationResult.metadata.txHash || '-'}
+                        </span>
+                        {verificationResult.metadata.txHash && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-slate-100 flex-shrink-0"
+                            onClick={() => handleCopy(verificationResult.metadata!.txHash, 'txHash')}
+                          >
+                            {copiedField === 'txHash' ? (
+                              <Check className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* IPFS CID & URL */}
+                    <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                      <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
+                        IPFS CID & URL
+                      </span>
+                      <div className="flex flex-col items-end gap-1 flex-1 max-w-full overflow-hidden">
+                        <div className="flex items-center gap-1.5 max-w-full">
+                          <span className="font-mono text-xs text-slate-800 break-all select-all">
+                            {verificationResult.metadata.ipfsCID}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-slate-100 flex-shrink-0"
+                            onClick={() => handleCopy(verificationResult.metadata!.ipfsCID, 'ipfsCID')}
+                          >
+                            {copiedField === 'ipfsCID' ? (
+                              <Check className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* PDF Hash */}
+                    <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                      <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
+                        PDF Hash (SHA-256)
+                      </span>
+                      <div className="flex items-center gap-1.5 flex-1 justify-end max-w-full overflow-hidden">
+                        <span className="font-mono text-[11px] text-slate-800 break-all select-all">
+                          {verificationResult.metadata.pdfHash}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-slate-100 flex-shrink-0"
+                          onClick={() => handleCopy(verificationResult.metadata!.pdfHash, 'pdfHash')}
+                        >
+                          {copiedField === 'pdfHash' ? (
+                            <Check className="h-3 w-3 text-green-600" />
+                          ) : (
+                            <Copy className="h-3 w-3" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Created At */}
+                    <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                      <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
+                        Waktu Dibuat
+                      </span>
+                      <div className="flex items-center gap-1.5 text-slate-700 justify-end">
+                        <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span className="text-xs font-medium">
+                          {getFormattedDate(verificationResult.metadata.createdAt)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-2 pt-3">
+                    <a
+                      href={`https://amoy.polygonscan.com/tx/${verificationResult.metadata.txHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1"
+                    >
+                      <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center gap-1.5 text-xs h-9">
+                        <LinkIcon className="h-3.5 w-3.5" />
+                        Buka Link Blockchain
+                      </Button>
+                    </a>
+                    <a
+                      href={verificationResult.metadata.ipfsURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1"
+                    >
+                      <Button variant="outline" className="w-full flex items-center justify-center gap-1.5 border-indigo-200 hover:bg-indigo-50 text-indigo-700 text-xs h-9">
+                        <FileText className="h-3.5 w-3.5" />
+                        Lihat PDF Asli
+                      </Button>
+                    </a>
+                  </div>
                 </div>
               )}
 

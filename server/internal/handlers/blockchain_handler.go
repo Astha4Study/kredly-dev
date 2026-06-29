@@ -92,9 +92,10 @@ func (h *BlockchainHandler) HandleGetCertificateMetadata(c *gin.Context) {
 
 // Request/Response structs for verification
 type VerifyResponse struct {
-	IsValid bool   `json:"isValid"`
-	Status  string `json:"status"`
-	Message string `json:"message"`
+	IsValid  bool                        `json:"isValid"`
+	Status   string                      `json:"status"`
+	Message  string                      `json:"message"`
+	Metadata *models.CertificateMetadata `json:"metadata,omitempty"`
 }
 
 // VerifyByHashOnlyRequest for verifying with only hash (no certificate ID needed)
@@ -166,9 +167,10 @@ func (h *BlockchainHandler) HandleVerifyByHashOnly(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, VerifyResponse{
-		IsValid: result.IsValid,
-		Status:  result.Status.String(),
-		Message: message,
+		IsValid:  result.IsValid,
+		Status:   result.Status.String(),
+		Message:  message,
+		Metadata: metadata,
 	})
 }
 
