@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { CheckCircle2, XCircle, Loader2, FileText, Shield, Check, Copy, ExternalLink, Clock, Database, Link as LinkIcon } from 'lucide-react';
+import { CheckCircle2, XCircle, Loader2, FileText, Shield, Check, Copy, Clock, Database, Link as LinkIcon } from 'lucide-react';
 
 
 export const Route = createFileRoute('/_app/app/certificate-verification/')({
@@ -19,6 +19,9 @@ interface CertificateMetadata {
   id?: string | { $oid: string };
   sessionId: string;
   certificateId: string;
+  recipientName: string;
+  assessmentName: string;
+  score: number;
   pdfHash: string;
   ipfsCID: string;
   ipfsURL: string;
@@ -318,6 +321,43 @@ function RouteComponent() {
                   </div>
 
                   <div className="space-y-3 divide-y divide-slate-100">
+                    {/* Recipient Name */}
+                    {verificationResult.metadata.recipientName && (
+                      <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
+                          Nama Lengkap
+                        </span>
+                        <span className="text-xs font-medium text-slate-800">
+                          {verificationResult.metadata.recipientName}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Assessment Name */}
+                    {verificationResult.metadata.assessmentName && (
+                      <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
+                          Assessment
+                        </span>
+                        <span className="text-xs font-medium text-slate-800">
+                          {verificationResult.metadata.assessmentName}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Score */}
+                    {verificationResult.metadata.score > 0 && (
+                      <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
+                          Score
+                        </span>
+                        <span className="text-xs font-semibold text-slate-800">
+                          {verificationResult.metadata.score}
+                          <span className="text-muted-foreground font-normal"> / 100</span>
+                        </span>
+                      </div>
+                    )}
+
                     {/* Certificate ID */}
                     <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                       <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">

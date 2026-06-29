@@ -187,6 +187,9 @@ function RouteComponent() {
             sessionId: certId,
             pdfBuffer: pdfBase64,
             pdfHash: pdfHash, // Send hash calculated in frontend
+            recipientName: user?.name || 'User',
+            assessmentName: data.role,
+            score: data.score,
           }),
         });
 

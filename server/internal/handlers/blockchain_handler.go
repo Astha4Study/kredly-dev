@@ -219,10 +219,13 @@ func (h *BlockchainHandler) HandleCheckCertificate(c *gin.Context) {
 
 // IssueCertificateRequest for issuing new certificate
 type IssueCertificateRequest struct {
-	CertificateID string `json:"certificateId" binding:"required"`
-	SessionID     string `json:"sessionId" binding:"required"`
-	PdfBuffer     string `json:"pdfBuffer" binding:"required"` // Base64 encoded PDF
-	PdfHash       string `json:"pdfHash" binding:"required"`    // SHA256 hash from frontend
+	CertificateID  string `json:"certificateId" binding:"required"`
+	SessionID      string `json:"sessionId" binding:"required"`
+	PdfBuffer      string `json:"pdfBuffer" binding:"required"` // Base64 encoded PDF
+	PdfHash        string `json:"pdfHash" binding:"required"`    // SHA256 hash from frontend
+	RecipientName  string `json:"recipientName"`
+	AssessmentName string `json:"assessmentName"`
+	Score          int    `json:"score"`
 }
 
 // HandleIssueCertificate issues a new certificate to blockchain
@@ -274,12 +277,15 @@ func (h *BlockchainHandler) HandleIssueCertificate(c *gin.Context) {
 			// This prevents re-trying on every reload
 			if h.metadataService != nil {
 				metadata := &models.CertificateMetadata{
-					SessionID:     req.SessionID,
-					CertificateID: req.CertificateID,
-					PdfHash:       pdfHash,
-					IpfsCID:       ipfsCID,
-					IpfsURL:       blockchain.GetIPFSUrl(ipfsCID),
-					TxHash:        "", // Empty since certificate already existed
+					SessionID:      req.SessionID,
+					CertificateID:  req.CertificateID,
+					RecipientName:  req.RecipientName,
+					AssessmentName: req.AssessmentName,
+					Score:          req.Score,
+					PdfHash:        pdfHash,
+					IpfsCID:        ipfsCID,
+					IpfsURL:        blockchain.GetIPFSUrl(ipfsCID),
+					TxHash:         "", // Empty since certificate already existed
 				}
 
 				if err := h.metadataService.Save(metadata); err != nil {
@@ -308,12 +314,15 @@ func (h *BlockchainHandler) HandleIssueCertificate(c *gin.Context) {
 	// Save metadata to database for future reference
 	if h.metadataService != nil {
 		metadata := &models.CertificateMetadata{
-			SessionID:     req.SessionID,
-			CertificateID: req.CertificateID,
-			PdfHash:       pdfHash,
-			IpfsCID:       ipfsCID,
-			IpfsURL:       blockchain.GetIPFSUrl(ipfsCID),
-			TxHash:        txHash,
+			SessionID:      req.SessionID,
+			CertificateID:  req.CertificateID,
+			RecipientName:  req.RecipientName,
+			AssessmentName: req.AssessmentName,
+			Score:          req.Score,
+			PdfHash:        pdfHash,
+			IpfsCID:        ipfsCID,
+			IpfsURL:        blockchain.GetIPFSUrl(ipfsCID),
+			TxHash:         txHash,
 		}
 
 		if err := h.metadataService.Save(metadata); err != nil {
