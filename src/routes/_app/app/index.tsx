@@ -272,7 +272,10 @@ function RouteComponent() {
                         Unggah CV Anda untuk mendapatkan rekomendasi asesmen
                         yang sesuai dengan profil Anda.
                       </p>
-                      <Link to="/app/parse-cv" className="mt-3 inline-block">
+                      <Link
+                        to="/app/new-assessment/upload-cv"
+                        className="mt-3 inline-block"
+                      >
                         <Button size="sm" className="sm:text-sm">
                           Unggah CV
                         </Button>

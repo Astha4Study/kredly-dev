@@ -1,27 +1,55 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { Link } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, FileText } from 'lucide-react';
 import { useCVParser } from '@/pages/client/parse-cv/useCVParser';
 import UploadView from '@/pages/client/parse-cv/UploadView';
 import LoadingSequence from '@/pages/client/parse-cv/LoadingSequence';
 import ParsedResultView from '@/pages/client/parse-cv/ParsedResultView';
+import Illustration1 from '@/assets/images/Illustration1.png';
+import * as React from 'react';
+import { useAppLayout } from '@/contexts/app-layout';
 
-export const Route = createFileRoute('/_app/app/parse-cv/')({
-  component: CVParserPage,
+export const Route = createFileRoute('/_app/app/new-assessment/upload-cv/')({
+  component: NewAssessmentUploadCVPage,
 });
 
-function CVParserPage() {
+function NewAssessmentUploadCVPage() {
+  const { setShowTopBar } = useAppLayout();
   const parserState = useCVParser();
 
+  // Hide top bar for onboarding look and feel
+  React.useEffect(() => {
+    setShowTopBar(false);
+    return () => setShowTopBar(true);
+  }, [setShowTopBar]);
+
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans overflow-x-hidden">
-      {/* Navbar */}
-      <header className="border-b border-border bg-background/60 backdrop-blur-md sticky top-0 z-40 relative">
-        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-12 bg-background text-foreground font-sans">
+      {/* Decorative Glow Left */}
+      <div className="pointer-events-none absolute -left-24 top-1/2 hidden h-96 w-96 -translate-y-1/2 rounded-full bg-primary/5 blur-3xl md:block" />
+
+      {/* Decorative Glow Right */}
+      <div className="pointer-events-none absolute -right-24 top-1/2 hidden h-96 w-96 -translate-y-1/2 rounded-full bg-primary/5 blur-3xl md:block" />
+
+      {/* Illustration */}
+      <div className="pointer-events-none absolute bottom-0 -left-3 hidden lg:block">
+        <img
+          src={Illustration1}
+          alt="Illustration"
+          width={400}
+          height={500}
+          className="w-100 h-auto aspect-6/5 object-contain select-none opacity-90 xl:w-125"
+          loading="lazy"
+        />
+      </div>
+
+      {/* Content Card */}
+      <div className="relative z-10 w-full max-w-2xl bg-card border border-border p-6 sm:p-8 rounded-2xl shadow-xl flex flex-col relative">
+        {/* Header with Back Button */}
+        <div className="flex items-center justify-between border-b border-border pb-4 mb-6">
+          <div className="flex items-center gap-3">
             <Link
-              to="/"
+              to="/app/assessment"
               preload="intent"
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
@@ -38,20 +66,17 @@ function CVParserPage() {
                 <FileText className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="font-semibold text-lg leading-none text-foreground">
-                  AI CV Parser
+                <h1 className="font-semibold text-base sm:text-lg leading-none text-foreground">
+                  Pembaruan Asesmen via CV
                 </h1>
                 <span className="text-xs text-muted-foreground">
-                  Ekstrak & Strukturkan CV Anda
+                  Dapatkan rekomendasi kompetensi baru
                 </span>
               </div>
             </div>
           </div>
         </div>
-      </header>
 
-      {/* Main Content Area */}
-      <div className="flex-1 container mx-auto px-6 py-8 flex flex-col items-center justify-center relative">
         {/* Step 1: Upload View */}
         {!parserState.isLoading && !parserState.isParsed && (
           <UploadView
@@ -87,6 +112,6 @@ function CVParserPage() {
           />
         )}
       </div>
-    </div>
+    </main>
   );
 }

@@ -1,9 +1,11 @@
 import * as React from 'react';
 import type { LevelType, ParsedCVData } from './types';
 import { useAuth } from '@/contexts/auth';
+import { useNavigate } from '@tanstack/react-router';
 
 export function useCVParser() {
-  const { user, refetch } = useAuth();
+  const { refetch } = useAuth();
+  const navigate = useNavigate();
   const [file, setFile] = React.useState<File | null>(null);
   const [isDragging, setIsDragging] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -21,16 +23,16 @@ export function useCVParser() {
   const [isExamReady, setIsExamReady] = React.useState(false);
 
   // Prefill states if user already has parsed CV in database
-  React.useEffect(() => {
-    if (user?.cvRole && user?.cvSkills && user.cvSkills.length > 0) {
-      setRole(user.cvRole);
-      setExtractedLevel((user.cvLevel as LevelType) || 'Mid');
-      setAllParsedSkills(user.cvSkills);
-      setSkills(user.cvSkills.slice(0, 5));
-      setIsParsed(true);
-      setIsExamReady(true);
-    }
-  }, [user]);
+  // React.useEffect(() => {
+  //   if (user?.cvRole && user?.cvSkills && user.cvSkills.length > 0) {
+  //     setRole(user.cvRole);
+  //     setExtractedLevel((user.cvLevel as LevelType) || 'Mid');
+  //     setAllParsedSkills(user.cvSkills);
+  //     setSkills(user.cvSkills.slice(0, 5));
+  //     setIsParsed(true);
+  //     setIsExamReady(true);
+  //   }
+  // }, [user]);
 
   const resetParser = () => {
     setFile(null);
@@ -142,17 +144,13 @@ export function useCVParser() {
       // Additional small delay so the loading text finishes before transitioning
       await new Promise((resolve) => setTimeout(resolve, 800));
 
-      setIsParsed(true);
-
       // Refetch user data so that the profile state gets the newly parsed CV fields
       await refetch().catch((err) =>
         console.error('failed to refetch user info:', err),
       );
 
-      // Delay start exam button
-      setTimeout(() => {
-        setIsExamReady(true);
-      }, 1500);
+      // Go directly to the assessment dashboard
+      navigate({ to: '/app/assessment' });
     } catch (err) {
       const msg =
         err instanceof Error

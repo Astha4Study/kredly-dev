@@ -163,4 +163,3 @@ func PickTopic(role string, skills []string, seenTopics []string) string {
 	idx := rand.Intn(len(available))
 	return available[idx]
 }
-

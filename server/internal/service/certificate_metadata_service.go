@@ -62,22 +62,22 @@ func (s *CertificateMetadataService) GetByPdfHash(pdfHash string) (*models.Certi
 // Save creates or updates certificate metadata
 func (s *CertificateMetadataService) Save(metadata *models.CertificateMetadata) error {
 	now := time.Now()
-	
+
 	if metadata.ID.IsZero() {
 		// Create new
 		metadata.ID = primitive.NewObjectID()
 		metadata.CreatedAt = now
 		metadata.UpdatedAt = now
-		
+
 		_, err := s.collection.InsertOne(context.Background(), metadata)
 		return err
 	}
-	
+
 	// Update existing
 	metadata.UpdatedAt = now
 	filter := bson.M{"_id": metadata.ID}
 	update := bson.M{"$set": metadata}
-	
+
 	_, err := s.collection.UpdateOne(context.Background(), filter, update)
 	return err
 }

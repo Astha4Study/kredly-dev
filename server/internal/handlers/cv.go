@@ -38,6 +38,16 @@ func (h *CVHandler) HandleParseCV(c *gin.Context) {
 		}
 	}
 
+	// Fetch existing profile to see if there's existing CV data and assessments
+	var existingProfile models.UserProfile
+	hasExistingProfile := false
+	if loggedInUserID != "" {
+		userProfileColl := database.DB.Collection("userProfile")
+		if err := userProfileColl.FindOne(c.Request.Context(), bson.M{"userId": loggedInUserID}).Decode(&existingProfile); err == nil {
+			hasExistingProfile = true
+		}
+	}
+
 	// 1. Get file from form
 	file, err := c.FormFile("cv")
 	if err != nil {
@@ -74,7 +84,76 @@ func (h *CVHandler) HandleParseCV(c *gin.Context) {
 	}
 
 	// 5. Build prompt for Groq
-	systemPrompt := `You are an expert ATS (Applicant Tracking System) CV parser. 
+	var systemPrompt string
+	if hasExistingProfile {
+		var role, level, summary string
+		if existingProfile.CVRole != nil {
+			role = *existingProfile.CVRole
+		}
+		if existingProfile.CVLevel != nil {
+			level = *existingProfile.CVLevel
+		}
+		if existingProfile.CVSummary != nil {
+			summary = *existingProfile.CVSummary
+		}
+
+		existingDataBytes, _ := json.Marshal(map[string]interface{}{
+			"role":        role,
+			"level":       level,
+			"skills":      existingProfile.CVSkills,
+			"summary":     summary,
+			"assessments": existingProfile.CVAssessments,
+		})
+		existingDataStr := string(existingDataBytes)
+
+		systemPrompt = `You are an expert ATS (Applicant Tracking System) CV parser. 
+Your task is to update or merge a candidate's existing CV profile data and recommended assessments with the text extracted from their newly uploaded CV.
+
+Here is the candidate's existing data and recommended assessments:
+` + existingDataStr + `
+
+Extract all information from the provided new CV text, merge it with the existing data, and output a structured JSON object.
+The JSON must follow this exact schema:
+{
+  "role": "Candidate's primary role or title (e.g., Backend Engineer)",
+  "level": "Candidate's seniority level (e.g., Junior, Mid, Senior, Lead)",
+  "skills": ["Skill 1", "Skill 2"],
+  "summary": "A concise, clean, and professional summary of the candidate's profile. Keep it brief (2-3 sentences max) as a single plain paragraph. Do NOT include any special characters, list bullet points, or symbols like '●' or '•'.",
+  "assessments": [
+    {
+      "id": "A unique slug/ID like gen-frontend, skill-typescript, or rel-deep-learning",
+      "type": "general", "skill", or "related_skill",
+      "title": "Assessment title (e.g. Front End, Backend, TypeScript, Go)",
+      "description": "Short description of what is tested",
+      "difficulty": "Beginner", "Intermediate", or "Advanced" based on candidate level,
+      "estimatedTime": "Estimated time (e.g. '90 menit' for general, '45 menit' for skill/related_skill)",
+      "questionCount": number of questions (e.g., 50 for general, 30 for skill/related_skill),
+      "topics": ["list of key topics/subjects tested"] (only for type "general", empty or null for other types),
+      "isRecommended": true,
+      "category": "Frontend", "Backend", "Mobile", "DevOps", "Database", "General" etc.,
+      "status": "available" | "in-progress" | "completed",
+      "progress": 0,
+      "sessionId": "",
+      "score": 0,
+      "level": ""
+    }
+  ]
+}
+
+CRITICAL RULES FOR MERGING/UPDATING "assessments":
+1. PRESERVE COMPLETED & IN-PROGRESS: Any assessment in the existing data with status "completed" or "in-progress" MUST be preserved EXACTLY as is. Do not modify its status, title, score, progress, id, sessionId, difficulty, or category. Include it in the final "assessments" list.
+2. MERGE RECOMMENDED ASSESSMENTS:
+   - Identify new skills or roles from the new CV.
+   - Generate exactly 1 "general" assessment matching the candidate's updated overall role (e.g., "Front End", "Backend"). The "questionCount" must be 50 and "estimatedTime" must be "90 menit". If a general assessment already exists and is completed/in-progress, keep it; otherwise update it.
+   - Generate 3-5 skill-related assessments matching their top skills: 2-3 matching top extracted skills ("type": "skill"), and 1-2 highly related/complementary ("type": "related_skill"). The "questionCount" for these must be 30 and "estimatedTime" must be "45 menit".
+   - If any new recommended assessment is already in the existing assessments list, keep its existing structure (especially if it is completed or in-progress).
+   - Add the new recommended assessments to the list. Avoid duplicate assessments (match by ID or Title).
+3. DIFFICULTY: Choose the "difficulty" matching their cv level (Junior -> Beginner/Intermediate, Mid -> Intermediate, Senior/Lead -> Advanced).
+4. Assign a unique slug/ID for each new assessment (e.g., "gen-frontend" for general, "skill-typescript" for skill, "rel-deep-learning" for related_skill).
+
+Ensure all fields are populated as accurately as possible based on the text. If a field is missing, set it to null or an empty array/string. Do not include any markdown format tags like ` + "`" + `json` + "`" + ` or any conversational intro/outro text. Return ONLY the raw JSON object.`
+	} else {
+		systemPrompt = `You are an expert ATS (Applicant Tracking System) CV parser. 
 Extract all information from the provided CV text and output it as a structured JSON object. 
 The JSON must follow this exact schema:
 {
@@ -108,6 +187,7 @@ For the "assessments" field:
 6. The "category" should align with the candidate's domain (e.g., "Frontend", "Backend", "Mobile", "DevOps", "Database", "General").
 
 Ensure all fields are populated as accurately as possible based on the text. If a field is missing, set it to null or an empty array/string. Do not include any markdown format tags like ` + "`" + `json` + "`" + ` or any conversational intro/outro text. Return ONLY the raw JSON object.`
+	}
 
 	// 6. Request Chat Completion from Groq with JSON Mode
 	groqReq := groq.ChatCompletionRequest{
@@ -153,70 +233,123 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 	cleanJSON = strings.TrimSpace(cleanJSON)
 
 	// 7. Save parsed results to the user profile if logged in
-	if loggedInUserID != "" {
-		type parsedCV struct {
-			Role        string                       `json:"role"`
-			Level       string                       `json:"level"`
-			Skills      []string                     `json:"skills"`
-			Summary     string                       `json:"summary"`
-			Assessments []models.GeneratedAssessment `json:"assessments"`
+	type parsedCV struct {
+		Role        string                       `json:"role"`
+		Level       string                       `json:"level"`
+		Skills      []string                     `json:"skills"`
+		Summary     string                       `json:"summary"`
+		Assessments []models.GeneratedAssessment `json:"assessments"`
+	}
+
+	var parsed parsedCV
+	if err := json.Unmarshal([]byte(cleanJSON), &parsed); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse Groq response: " + err.Error()})
+		return
+	}
+
+	cvSummary := parsed.Summary
+	if cvSummary == "" {
+		cleanedText := text
+		cleanedText = strings.ReplaceAll(cleanedText, "●", "")
+		cleanedText = strings.ReplaceAll(cleanedText, "•", "")
+		cleanedText = strings.ReplaceAll(cleanedText, "*", "")
+		words := strings.Fields(cleanedText)
+		cleanedText = strings.Join(words, " ")
+		if len(cleanedText) > 400 {
+			cleanedText = cleanedText[:397] + "..."
+		}
+		cvSummary = cleanedText
+	}
+	parsed.Summary = cvSummary
+
+	// Merge assessments in Go to prevent LLM mistakes from resetting status
+	if hasExistingProfile && len(existingProfile.CVAssessments) > 0 {
+		var finalAssessments []models.GeneratedAssessment
+		existingMap := make(map[string]models.GeneratedAssessment)
+		existingTitleMap := make(map[string]models.GeneratedAssessment)
+
+		// 1. First, preserve all completed and in-progress assessments
+		for _, a := range existingProfile.CVAssessments {
+			existingMap[a.ID] = a
+			cleanTitle := strings.ToLower(strings.TrimSpace(a.Title))
+			existingTitleMap[cleanTitle] = a
+
+			if a.Status == "completed" || a.Status == "in-progress" {
+				finalAssessments = append(finalAssessments, a)
+			}
 		}
 
-		var parsed parsedCV
-		if err := json.Unmarshal([]byte(cleanJSON), &parsed); err == nil {
-			userColl := database.DB.Collection("user")
-			now := time.Now()
+		// 2. Next, process recommendations from the new parser output
+		for _, newAst := range parsed.Assessments {
+			cleanNewTitle := strings.ToLower(strings.TrimSpace(newAst.Title))
 
-			cvSummary := parsed.Summary
-			if cvSummary == "" {
-				cleanedText := text
-				cleanedText = strings.ReplaceAll(cleanedText, "●", "")
-				cleanedText = strings.ReplaceAll(cleanedText, "•", "")
-				cleanedText = strings.ReplaceAll(cleanedText, "*", "")
-				words := strings.Fields(cleanedText)
-				cleanedText = strings.Join(words, " ")
-				if len(cleanedText) > 400 {
-					cleanedText = cleanedText[:397] + "..."
+			var existingAst models.GeneratedAssessment
+			found := false
+
+			if est, ok := existingMap[newAst.ID]; ok {
+				existingAst = est
+				found = true
+			} else if est, ok := existingTitleMap[cleanNewTitle]; ok {
+				existingAst = est
+				found = true
+			}
+
+			if found {
+				// If the existing one is completed or in-progress, we already added it, so skip
+				if existingAst.Status == "completed" || existingAst.Status == "in-progress" {
+					continue
 				}
-				cvSummary = cleanedText
+				// Otherwise, keep the existing one to preserve its fields
+				finalAssessments = append(finalAssessments, existingAst)
+			} else {
+				// Completely new recommendation. Ensure it starts as "available"
+				newAst.Status = "available"
+				finalAssessments = append(finalAssessments, newAst)
 			}
+		}
 
-			update := bson.M{
-				"$set": bson.M{
-					"cvRole":     parsed.Role,
-					"cvLevel":    parsed.Level,
-					"cvSkills":   parsed.Skills,
-					"cvSummary":  cvSummary,
-					"cvParsedAt": now,
-					"updatedAt":  now,
-				},
-			}
+		parsed.Assessments = finalAssessments
+	}
 
-			_, updateErr := userColl.UpdateOne(c.Request.Context(), bson.M{"_id": loggedInUserID}, update)
-			if updateErr != nil {
-				// Log the error but don't fail the request since parsing succeeded
-				c.Error(updateErr)
-			}
+	if loggedInUserID != "" {
+		userColl := database.DB.Collection("user")
+		now := time.Now()
 
-			// Update UserProfile document as well
-			userProfileColl := database.DB.Collection("userProfile")
-			profileUpdate := bson.M{
-				"$set": bson.M{
-					"cvRole":        parsed.Role,
-					"cvLevel":       parsed.Level,
-					"cvSkills":      parsed.Skills,
-					"cvSummary":     cvSummary,
-					"cvAssessments": parsed.Assessments,
-					"updatedAt":     now,
-				},
-			}
-			_, updateErrProfile := userProfileColl.UpdateOne(c.Request.Context(), bson.M{"userId": loggedInUserID}, profileUpdate)
-			if updateErrProfile != nil {
-				c.Error(updateErrProfile)
-			}
+		update := bson.M{
+			"$set": bson.M{
+				"cvRole":     parsed.Role,
+				"cvLevel":    parsed.Level,
+				"cvSkills":   parsed.Skills,
+				"cvSummary":  parsed.Summary,
+				"cvParsedAt": now,
+				"updatedAt":  now,
+			},
+		}
+
+		_, updateErr := userColl.UpdateOne(c.Request.Context(), bson.M{"_id": loggedInUserID}, update)
+		if updateErr != nil {
+			// Log the error but don't fail the request since parsing succeeded
+			c.Error(updateErr)
+		}
+
+		// Update UserProfile document as well
+		userProfileColl := database.DB.Collection("userProfile")
+		profileUpdate := bson.M{
+			"$set": bson.M{
+				"cvRole":        parsed.Role,
+				"cvLevel":       parsed.Level,
+				"cvSkills":      parsed.Skills,
+				"cvSummary":     parsed.Summary,
+				"cvAssessments": parsed.Assessments,
+				"updatedAt":     now,
+			},
+		}
+		_, updateErrProfile := userProfileColl.UpdateOne(c.Request.Context(), bson.M{"userId": loggedInUserID}, profileUpdate)
+		if updateErrProfile != nil {
+			c.Error(updateErrProfile)
 		}
 	}
 
-	// 8. Send the JSON string response directly
-	c.Data(http.StatusOK, "application/json", []byte(cleanJSON))
+	// 8. Send the JSON response directly
+	c.JSON(http.StatusOK, parsed)
 }

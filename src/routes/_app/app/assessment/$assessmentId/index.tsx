@@ -200,7 +200,7 @@ function TestOverviewPage() {
             <Link to="/app/assessment">
               <Button variant="outline">Kembali ke Asesmen</Button>
             </Link>
-            <Link to="/app/parse-cv">
+            <Link to="/app/new-assessment/upload-cv">
               <Button>Unggah CV</Button>
             </Link>
           </CardContent>

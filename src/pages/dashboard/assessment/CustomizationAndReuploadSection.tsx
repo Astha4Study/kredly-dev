@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Lock, Plus, Upload } from 'lucide-react';
 
+import { Link } from '@tanstack/react-router';
+
 interface CustomizationAndReuploadSectionProps {
   allSkillsCompleted: boolean;
 }
@@ -98,20 +100,26 @@ export const CustomizationAndReuploadSection = ({
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <Button
-              className="w-full gap-2 text-xs font-semibold"
+            <Link
+              to="/app/new-assessment/upload-cv"
               disabled={!allSkillsCompleted}
-              variant={!allSkillsCompleted ? 'secondary' : 'default'}
+              className="w-full block"
             >
-              {!allSkillsCompleted ? (
-                <Lock className="h-3.5 w-3.5" />
-              ) : (
-                <Upload className="h-3.5 w-3.5" />
-              )}
-              {!allSkillsCompleted
-                ? 'Selesaikan Asesmen Skill'
-                : 'Upload CV Baru'}
-            </Button>
+              <Button
+                className="w-full gap-2 text-xs font-semibold cursor-pointer"
+                disabled={!allSkillsCompleted}
+                variant={!allSkillsCompleted ? 'secondary' : 'default'}
+              >
+                {!allSkillsCompleted ? (
+                  <Lock className="h-3.5 w-3.5" />
+                ) : (
+                  <Upload className="h-3.5 w-3.5" />
+                )}
+                {!allSkillsCompleted
+                  ? 'Selesaikan Asesmen Skill'
+                  : 'Upload CV Baru'}
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
