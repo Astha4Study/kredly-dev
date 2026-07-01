@@ -97,6 +97,7 @@ func main() {
 		})
 
 		api.POST("/parse-cv", middleware.AuthMiddleware(cfg, authService), cvHandler.HandleParseCV)
+		api.POST("/profile/custom-assessment", middleware.AuthMiddleware(cfg, authService), cvHandler.HandleCreateCustomAssessment)
 
 		// Blockchain verification and issuance
 		api.POST("/blockchain/verify-by-hash", blockchainHandler.HandleVerifyByHashOnly) // Verify with hash only (search DB first)

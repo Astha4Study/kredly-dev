@@ -119,7 +119,7 @@ export const AssessmentCard = ({
           disabled
           variant="secondary"
         >
-          <Lock className="h-3.5 w-3.5" /> Selesaikan Asesmen Skill
+          <Lock className="h-3.5 w-3.5" /> Selesaikan Asesmen Role-based
         </Button>
       ) : (
         assessment.status === 'available' && (

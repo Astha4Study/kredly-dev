@@ -353,3 +353,183 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 	// 8. Send the JSON response directly
 	c.JSON(http.StatusOK, parsed)
 }
+
+type CustomAssessmentRequest struct {
+	SkillName string `json:"skillName" binding:"required"`
+}
+
+type CustomAssessmentResponse struct {
+	IsValid    bool                        `json:"isValid"`
+	Assessment *models.GeneratedAssessment `json:"assessment,omitempty"`
+}
+
+// HandleCreateCustomAssessment handles generating custom assessment recommendations
+func (h *CVHandler) HandleCreateCustomAssessment(c *gin.Context) {
+	// 1. Get logged-in user ID
+	var loggedInUserID string
+	if userVal, exists := c.Get("user"); exists {
+		if userMap, ok := userVal.(gin.H); ok {
+			if uid, ok := userMap["id"].(string); ok {
+				loggedInUserID = uid
+			}
+		}
+	}
+
+	if loggedInUserID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// 2. Parse request body
+	var req CustomAssessmentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Nama skill harus diisi"})
+		return
+	}
+
+	skillName := strings.TrimSpace(req.SkillName)
+	if skillName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Nama skill tidak boleh kosong"})
+		return
+	}
+
+	// 3. Fetch existing profile
+	userProfileColl := database.DB.Collection("userProfile")
+	var profile models.UserProfile
+	err := userProfileColl.FindOne(c.Request.Context(), bson.M{"userId": loggedInUserID}).Decode(&profile)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Profil user tidak ditemukan. Silakan upload CV terlebih dahulu."})
+		return
+	}
+
+	userLevel := "Mid"
+	if profile.CVLevel != nil && *profile.CVLevel != "" {
+		userLevel = *profile.CVLevel
+	}
+
+	// 4. Prompt Groq to validate and generate assessment recommendation
+	systemPrompt := "You are an AI assistant validating and generating custom assessment recommendations.\n" +
+		"The candidate wants to generate a custom assessment for the skill/topic: \"" + skillName + "\".\n\n" +
+		"First, analyze if the topic is a valid IT, programming language, framework, software tool, design concept, soft skill, or standard professional topic (to avoid nonsensical, offensive, or completely irrelevant topics).\n" +
+		"If the topic is NOT valid, nonsensical, or out of mind, return this JSON:\n" +
+		"{\n" +
+		"  \"isValid\": false\n" +
+		"}\n\n" +
+		"If the topic is valid, return this JSON:\n" +
+		"{\n" +
+		"  \"isValid\": true,\n" +
+		"  \"assessment\": {\n" +
+		"    \"id\": \"A unique slug/ID starting with 'skill-' followed by slugified name\",\n" +
+		"    \"type\": \"skill\",\n" +
+		"    \"title\": \"Properly capitalized skill/topic title\",\n" +
+		"    \"description\": \"Short description of what is tested in this assessment\",\n" +
+		"    \"difficulty\": \"Difficulty matching the user level (Junior -> Beginner/Intermediate, Mid -> Intermediate, Senior/Lead -> Advanced). The user level is: " + userLevel + "\",\n" +
+		"    \"estimatedTime\": \"45 menit\",\n" +
+		"    \"questionCount\": 30,\n" +
+		"    \"isRecommended\": true,\n" +
+		"    \"category\": \"Suitable category like Frontend, Backend, DevOps, Database, Mobile, Cloud, Design, Security, QA, Data Science, etc.\",\n" +
+		"    \"status\": \"available\",\n" +
+		"    \"progress\": 0,\n" +
+		"    \"sessionId\": \"\",\n" +
+		"    \"score\": 0,\n" +
+		"    \"level\": \"\"\n" +
+		"  }\n" +
+		"}\n\n" +
+		"Do NOT include any markdown format tags or code block formatting like triple backticks. Return ONLY the raw JSON object."
+
+	groqReq := groq.ChatCompletionRequest{
+		Messages: []groq.Message{
+			{Role: "system", Content: systemPrompt},
+			{Role: "user", Content: skillName},
+		},
+		Model: "qwen/qwen3-32b",
+		ResponseFormat: &groq.ResponseFormat{
+			Type: "json_object",
+		},
+	}
+
+	resp, err := h.groqClient.CreateChatCompletion(groqReq)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal terhubung dengan agen validasi"})
+		return
+	}
+
+	if len(resp.Choices) == 0 {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Agen validasi mengembalikan respon kosong"})
+		return
+	}
+
+	rawContent := resp.Choices[0].Message.Content
+	cleanJSON := strings.TrimSpace(rawContent)
+
+	if strings.HasPrefix(cleanJSON, "```") {
+		lines := strings.Split(cleanJSON, "\n")
+		var validLines []string
+		for _, line := range lines {
+			trimmed := strings.TrimSpace(line)
+			if !strings.HasPrefix(trimmed, "```") {
+				validLines = append(validLines, line)
+			}
+		}
+		cleanJSON = strings.Join(validLines, "\n")
+	}
+	cleanJSON = strings.TrimSpace(cleanJSON)
+
+	var validationResult CustomAssessmentResponse
+	if err := json.Unmarshal([]byte(cleanJSON), &validationResult); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengurai respon validasi"})
+		return
+	}
+
+	// 5. Fallback message if invalid
+	if !validationResult.IsValid || validationResult.Assessment == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Asesmen tidak bisa diproses"})
+		return
+	}
+
+	// 6. Check for duplicate assessment title/ID
+	assessmentToAdd := validationResult.Assessment
+	duplicateFound := false
+	for _, existing := range profile.CVAssessments {
+		if strings.ToLower(existing.Title) == strings.ToLower(assessmentToAdd.Title) || existing.ID == assessmentToAdd.ID {
+			duplicateFound = true
+			break
+		}
+	}
+
+	if duplicateFound {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Asesmen untuk skill ini sudah ada"})
+		return
+	}
+
+	// Initialize status and metadata fields
+	assessmentToAdd.Status = "available"
+	assessmentToAdd.Progress = 0
+	assessmentToAdd.SessionID = ""
+	assessmentToAdd.Score = 0
+	assessmentToAdd.Level = ""
+
+	// 7. Update UserProfile with the new assessment in MongoDB
+	profile.CVAssessments = append(profile.CVAssessments, *assessmentToAdd)
+
+	now := time.Now()
+	_, updateErr := userProfileColl.UpdateOne(
+		c.Request.Context(),
+		bson.M{"userId": loggedInUserID},
+		bson.M{
+			"$set": bson.M{
+				"cvAssessments": profile.CVAssessments,
+				"updatedAt":     now,
+			},
+		},
+	)
+	if updateErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menyimpan rekomendasi asesmen ke profil"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":    "Asesmen kustom berhasil ditambahkan",
+		"assessment": assessmentToAdd,
+	})
+}

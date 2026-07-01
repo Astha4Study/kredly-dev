@@ -21,12 +21,12 @@ interface Assessment {
 
 interface RelatedSkilAsessmentsSectionProps {
   relatedAssessments: Assessment[];
-  allSkillsCompleted: boolean;
+  roleAssessmentCompleted: boolean;
 }
 
 export const RelatedSkilAsessmentsSection = ({
   relatedAssessments,
-  allSkillsCompleted,
+  roleAssessmentCompleted,
 }: RelatedSkilAsessmentsSectionProps) => {
   return (
     <div className="space-y-4 pt-6">
@@ -42,7 +42,7 @@ export const RelatedSkilAsessmentsSection = ({
             <AssessmentCard
               key={assessment.id}
               assessment={assessment}
-              isLocked={!allSkillsCompleted}
+              isLocked={!roleAssessmentCompleted}
             />
           ))}
         </div>
