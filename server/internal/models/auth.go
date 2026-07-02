@@ -15,6 +15,13 @@ import (
 // 1. DEFINISI STRUCT (MODEL DATABASE)
 // ==========================================
 
+// TokenBalance menyimpan saldo kredit/token user
+type TokenBalance struct {
+	Current     int `bson:"current" json:"current"`
+	TotalEarned int `bson:"totalEarned" json:"totalEarned"`
+	TotalSpent  int `bson:"totalSpent" json:"totalSpent"`
+}
+
 type User struct {
 	ID            string    `bson:"_id" json:"id"`
 	Name          string    `bson:"name" json:"name"`
@@ -24,6 +31,9 @@ type User struct {
 	Image         *string   `bson:"image,omitempty" json:"image,omitempty"`
 	CreatedAt     time.Time `bson:"createdAt" json:"createdAt"`
 	UpdatedAt     time.Time `bson:"updatedAt" json:"updatedAt"`
+
+	// Token/Credit balance
+	TokenBalance *TokenBalance `bson:"tokenBalance,omitempty" json:"tokenBalance,omitempty"`
 
 	// CV parsed fields
 	CVRole     *string    `bson:"cvRole,omitempty" json:"cvRole,omitempty"`
@@ -79,13 +89,13 @@ type Verification struct {
 
 // UserProfile menyimpan data onboarding user (CV, pengalaman, status student)
 type UserProfile struct {
-	ID         string    `bson:"_id" json:"id"`
-	UserID     string    `bson:"userId" json:"userId"`                     // Relasi ke User._id
-	CVFileName string    `bson:"cvFileName" json:"cvFileName"`             // Nama file CV
-	CVFilePath string    `bson:"cvFilePath" json:"cvFilePath"`             // Path/URL file CV di server
-	Experience string    `bson:"experience" json:"experience"`             // "below-1", "1-2", "3-5", "not-working"
-	IsStudent  bool      `bson:"isStudent" json:"isStudent"`               // true/false
-	Degree     *string   `bson:"degree,omitempty" json:"degree,omitempty"` // Jurusan (opsional, jika student)
+	ID            string                `bson:"_id" json:"id"`
+	UserID        string                `bson:"userId" json:"userId"`                     // Relasi ke User._id
+	CVFileName    string                `bson:"cvFileName" json:"cvFileName"`             // Nama file CV
+	CVFilePath    string                `bson:"cvFilePath" json:"cvFilePath"`             // Path/URL file CV di server
+	Experience    string                `bson:"experience" json:"experience"`             // "below-1", "1-2", "3-5", "not-working"
+	IsStudent     bool                  `bson:"isStudent" json:"isStudent"`               // true/false
+	Degree        *string               `bson:"degree,omitempty" json:"degree,omitempty"` // Jurusan (opsional, jika student)
 	CVRole        *string               `bson:"cvRole,omitempty" json:"cvRole,omitempty"`
 	CVLevel       *string               `bson:"cvLevel,omitempty" json:"cvLevel,omitempty"`
 	CVSkills      []string              `bson:"cvSkills,omitempty" json:"cvSkills,omitempty"`
@@ -116,29 +126,29 @@ type GeneratedAssessment struct {
 }
 
 type Job struct {
-	ID              string     `bson:"_id" json:"id"`
-	UserID          string     `bson:"userId" json:"userId"`
-	Source          string     `bson:"source" json:"source"` // "linkedin", "indeed", "glassdoor", "upwork"
-	Title           string     `bson:"title" json:"title"`
-	Company         string     `bson:"company" json:"company"`
-	CompanyURL      *string    `bson:"companyUrl,omitempty" json:"companyUrl,omitempty"`
-	Location        string     `bson:"location" json:"location"`
-	RecruiterName   *string    `bson:"recruiterName,omitempty" json:"recruiterName,omitempty"`
-	RecruiterURL    *string    `bson:"recruiterUrl,omitempty" json:"recruiterUrl,omitempty"`
-	ExperienceLevel *string    `bson:"experienceLevel,omitempty" json:"experienceLevel,omitempty"`
-	JobType         *string    `bson:"jobType,omitempty" json:"type,omitempty"`
-	Sector          *string    `bson:"sector,omitempty" json:"sector,omitempty"`
-	Salary          *string    `bson:"salary,omitempty" json:"salary,omitempty"`
-	Description     *string    `bson:"description,omitempty" json:"description,omitempty"`
-	DescriptionHTML *string    `bson:"descriptionHtml,omitempty" json:"descriptionHtml,omitempty"`
-	URL             *string    `bson:"url,omitempty" json:"url,omitempty"`
-	PostedDate      *string    `bson:"postedDate,omitempty" json:"postedTime,omitempty"`
-	PostedDateExact *string    `bson:"postedDateExact,omitempty" json:"postedDate,omitempty"`
-	Logo            *string    `bson:"logo,omitempty" json:"logo,omitempty"`
-	Promoted        bool       `bson:"promoted" json:"promoted"`
-	EarlyApplicant  bool       `bson:"earlyApplicant" json:"earlyApplicant"`
-	CreatedAt       time.Time  `bson:"createdAt" json:"createdAt"`
-	UpdatedAt       time.Time  `bson:"updatedAt" json:"updatedAt"`
+	ID              string    `bson:"_id" json:"id"`
+	UserID          string    `bson:"userId" json:"userId"`
+	Source          string    `bson:"source" json:"source"` // "linkedin", "indeed", "glassdoor", "upwork"
+	Title           string    `bson:"title" json:"title"`
+	Company         string    `bson:"company" json:"company"`
+	CompanyURL      *string   `bson:"companyUrl,omitempty" json:"companyUrl,omitempty"`
+	Location        string    `bson:"location" json:"location"`
+	RecruiterName   *string   `bson:"recruiterName,omitempty" json:"recruiterName,omitempty"`
+	RecruiterURL    *string   `bson:"recruiterUrl,omitempty" json:"recruiterUrl,omitempty"`
+	ExperienceLevel *string   `bson:"experienceLevel,omitempty" json:"experienceLevel,omitempty"`
+	JobType         *string   `bson:"jobType,omitempty" json:"type,omitempty"`
+	Sector          *string   `bson:"sector,omitempty" json:"sector,omitempty"`
+	Salary          *string   `bson:"salary,omitempty" json:"salary,omitempty"`
+	Description     *string   `bson:"description,omitempty" json:"description,omitempty"`
+	DescriptionHTML *string   `bson:"descriptionHtml,omitempty" json:"descriptionHtml,omitempty"`
+	URL             *string   `bson:"url,omitempty" json:"url,omitempty"`
+	PostedDate      *string   `bson:"postedDate,omitempty" json:"postedTime,omitempty"`
+	PostedDateExact *string   `bson:"postedDateExact,omitempty" json:"postedDate,omitempty"`
+	Logo            *string   `bson:"logo,omitempty" json:"logo,omitempty"`
+	Promoted        bool      `bson:"promoted" json:"promoted"`
+	EarlyApplicant  bool      `bson:"earlyApplicant" json:"earlyApplicant"`
+	CreatedAt       time.Time `bson:"createdAt" json:"createdAt"`
+	UpdatedAt       time.Time `bson:"updatedAt" json:"updatedAt"`
 
 	User *User `bson:"-" json:"user,omitempty"`
 }

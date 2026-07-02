@@ -54,10 +54,10 @@ func (s *ApifyService) SearchAllJobs(
 	errors := make([]error, 4)
 
 	scrapers := []struct {
-		name   string
-		fn     func(string, string, string, int) ([]JobResult, error)
-		index  int
-		limit  int
+		name  string
+		fn    func(string, string, string, int) ([]JobResult, error)
+		index int
+		limit int
 	}{
 		{"linkedin", s.searchLinkedIn, 0, limits[0]},
 		{"indeed", s.searchIndeed, 1, limits[1]},
@@ -484,9 +484,9 @@ func (s *ApifyService) searchUpwork(
 		if contractorTier := getStringField(item, "contractorTier"); contractorTier != "" {
 			// Map Upwork contractor tiers to readable experience levels
 			experienceMap := map[string]string{
-				"EntryLevel":       "Entry Level",
+				"EntryLevel":        "Entry Level",
 				"IntermediateLevel": "Intermediate",
-				"ExpertLevel":      "Expert",
+				"ExpertLevel":       "Expert",
 			}
 			if mappedExp, ok := experienceMap[contractorTier]; ok {
 				job.ExperienceLevel = &mappedExp

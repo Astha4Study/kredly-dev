@@ -76,9 +76,32 @@ func (s *CATService) CreateSession(ctx context.Context, req CreateSessionReq) (*
 	// Fetch dynamic question count from UserProfile if UserID is provided
 	var resolvedAssessmentID string
 	if req.UserID != "" {
+		userColl := database.DB.Collection("user")
+		var u models.User
+		err := userColl.FindOne(ctx, bson.M{"_id": req.UserID}).Decode(&u)
+		if err != nil {
+			return nil, fmt.Errorf("user tidak ditemukan")
+		}
+
+		if u.TokenBalance == nil || u.TokenBalance.Current < 1 {
+			return nil, errors.New("insufficient_tokens")
+		}
+
+		// Deduct token (current - 1, totalSpent + 1)
+		update := bson.M{
+			"$inc": bson.M{
+				"tokenBalance.current":    -1,
+				"tokenBalance.totalSpent": 1,
+			},
+		}
+		_, err = userColl.UpdateOne(ctx, bson.M{"_id": req.UserID}, update)
+		if err != nil {
+			return nil, fmt.Errorf("gagal memotong saldo token: %w", err)
+		}
+
 		userProfileColl := database.DB.Collection("userProfile")
 		var userProfile models.UserProfile
-		err := userProfileColl.FindOne(ctx, bson.M{"userId": req.UserID}).Decode(&userProfile)
+		err = userProfileColl.FindOne(ctx, bson.M{"userId": req.UserID}).Decode(&userProfile)
 		if err == nil {
 			found := false
 			// 1. Try matching by AssessmentID if provided

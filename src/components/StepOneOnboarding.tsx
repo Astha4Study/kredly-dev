@@ -33,7 +33,9 @@ export function StepOneOnboarding({
     setUsernameStatus('checking');
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`);
+        const res = await fetch(
+          `/api/check-username?username=${encodeURIComponent(username)}`,
+        );
         setUsernameStatus(res.status === 409 ? 'taken' : 'available');
       } catch {
         setUsernameStatus('idle');
@@ -53,7 +55,9 @@ export function StepOneOnboarding({
     }
 
     if (usernameStatus !== 'available') {
-      const res = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`);
+      const res = await fetch(
+        `/api/check-username?username=${encodeURIComponent(username)}`,
+      );
       if (res.status === 409) {
         setUsernameStatus('taken');
         toast.error('Username sudah digunakan');

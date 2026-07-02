@@ -173,8 +173,8 @@ func (h *ProfileHandler) HandleUpdateProfile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Profil berhasil diperbarui",
-		"name":    req.Name,
+		"message":  "Profil berhasil diperbarui",
+		"name":     req.Name,
 		"username": req.Username,
 	})
 }
@@ -235,6 +235,15 @@ func (h *ProfileHandler) HandleUploadCV(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menyimpan file"})
 		return
 	}
+	ctx := c.Request.Context()
+	userProfileColl := database.DB.Collection("userProfile")
+
+	// Get existing profile to see if there's existing CV data to update/merge
+	var existingProfile models.UserProfile
+	hasExistingProfile := false
+	if err := userProfileColl.FindOne(ctx, bson.M{"userId": userID}).Decode(&existingProfile); err == nil {
+		hasExistingProfile = true
+	}
 
 	// Parse CV - extract text and analyze with Groq
 	var parsedRole, parsedLevel, parsedSummary string
@@ -242,8 +251,54 @@ func (h *ProfileHandler) HandleUploadCV(c *gin.Context) {
 
 	// This parsing is optional - if it fails, we still save the file
 	if text, err := pdf.ReadPDFText(filePath); err == nil && len(text) > 0 {
-		// Build prompt for Groq (simplified version focused on profile data)
-		systemPrompt := `You are an expert CV parser. Extract the following information from the CV text and output as JSON:
+		var existingDataStr string
+		if hasExistingProfile {
+			var role, level, summary string
+			var skills []string
+			if existingProfile.CVRole != nil {
+				role = *existingProfile.CVRole
+			}
+			if existingProfile.CVLevel != nil {
+				level = *existingProfile.CVLevel
+			}
+			if existingProfile.CVSummary != nil {
+				summary = *existingProfile.CVSummary
+			}
+			skills = existingProfile.CVSkills
+
+			existingDataBytes, _ := json.Marshal(map[string]interface{}{
+				"role":    role,
+				"level":   level,
+				"skills":  skills,
+				"summary": summary,
+			})
+			existingDataStr = string(existingDataBytes)
+		}
+
+		systemPrompt := `You are an expert CV parser. Your task is to update or merge a user's existing CV profile data with the text extracted from their newly uploaded CV.
+`
+		if existingDataStr != "" {
+			systemPrompt += fmt.Sprintf(`Here is the user's existing parsed CV profile data:
+%s
+
+Please review the new CV text, merge/update the fields accordingly:
+1. "role": Update the job title/role if the new CV indicates a more recent, updated, or prominent current role.
+2. "level": Update the seniority level (Junior, Mid, Senior, Lead) if the new CV shows that the user has advanced or changed levels.
+3. "skills": Combine/merge unique skills from both the existing data and the new CV. Add any new skills found in the new CV text while keeping existing ones that are still relevant. Do not duplicate skills.
+4. "summary": Rewrite or update the professional summary (2-3 sentences) to incorporate the new experiences, achievements, or highlight updated career directions.
+
+`, existingDataStr)
+		} else {
+			systemPrompt += `Extract the following information from the CV text:
+1. "role": Primary role or job title.
+2. "level": Seniority level (Junior, Mid, Senior, Lead).
+3. "skills": List of skills found in the CV text.
+4. "summary": Brief 2-3 sentence professional summary.
+
+`
+		}
+
+		systemPrompt += `Output the result as a single JSON object with these exact keys:
 {
   "role": "Primary role or job title",
   "level": "Seniority level (Junior, Mid, Senior, Lead)",
@@ -257,30 +312,42 @@ Return ONLY the JSON object, no markdown or extra text.`
 				{Role: "system", Content: systemPrompt},
 				{Role: "user", Content: text},
 			},
-			Model: "llama-3.3-70b-versatile",
+			Model: "qwen/qwen3-32b",
 			ResponseFormat: &groq.ResponseFormat{
 				Type: "json_object",
 			},
 		}
 
-		if resp, err := h.groqClient.CreateChatCompletion(groqReq); err == nil && len(resp.Choices) > 0 {
+		resp, err := h.groqClient.CreateChatCompletion(groqReq)
+		if err != nil {
+			println("❌ [DEBUG] Groq CreateChatCompletion error:", err.Error())
+		} else if len(resp.Choices) == 0 {
+			println("❌ [DEBUG] Groq returned 0 choices")
+		} else {
 			var parsed struct {
 				Role    string   `json:"role"`
 				Level   string   `json:"level"`
 				Skills  []string `json:"skills"`
 				Summary string   `json:"summary"`
 			}
-			if json.Unmarshal([]byte(resp.Choices[0].Message.Content), &parsed) == nil {
+			unmarshalErr := json.Unmarshal([]byte(resp.Choices[0].Message.Content), &parsed)
+			if unmarshalErr != nil {
+				println("❌ [DEBUG] Groq JSON unmarshal error:", unmarshalErr.Error(), "content:", resp.Choices[0].Message.Content)
+			} else {
 				parsedRole = parsed.Role
 				parsedLevel = parsed.Level
 				parsedSkills = parsed.Skills
 				parsedSummary = parsed.Summary
+				println("✅ [DEBUG] Groq successfully parsed CV data - Role:", parsedRole, "Level:", parsedLevel)
 			}
 		}
+	} else {
+		if err != nil {
+			println("❌ [DEBUG] ReadPDFText error:", err.Error())
+		} else {
+			println("❌ [DEBUG] ReadPDFText returned empty text")
+		}
 	}
-
-	ctx := c.Request.Context()
-	userProfileColl := database.DB.Collection("userProfile")
 
 	// Prepare update document
 	updateDoc := bson.M{

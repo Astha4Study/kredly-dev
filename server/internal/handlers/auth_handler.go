@@ -354,6 +354,7 @@ func (h *AuthHandler) HandleVerifyEmailOTP(c *gin.Context) {
 				Email:         req.Email,
 				EmailVerified: true,
 				Name:          req.Email[:strings.Index(req.Email, "@")], // nama dari email
+				TokenBalance:  &models.TokenBalance{Current: 50, TotalEarned: 50, TotalSpent: 0},
 				CreatedAt:     now,
 				UpdatedAt:     now,
 			}

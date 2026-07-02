@@ -62,7 +62,10 @@ func main() {
 	// 10. Initialize Activity Handler
 	activityHandler := handlers.NewActivityHandler(database.DB)
 
-	// 11. Initialize Chat Handler
+	// 11. Initialize Token Handler
+	tokenHandler := handlers.NewTokenHandler()
+
+	// 12. Initialize Chat Handler
 	chatHandler := handlers.NewChatHandler(groqClient)
 
 	// Set Gin mode
@@ -97,6 +100,7 @@ func main() {
 		})
 
 		api.POST("/parse-cv", middleware.AuthMiddleware(cfg, authService), cvHandler.HandleParseCV)
+		api.POST("/profile/custom-assessment", middleware.AuthMiddleware(cfg, authService), cvHandler.HandleCreateCustomAssessment)
 
 		// Blockchain verification and issuance
 		api.POST("/blockchain/verify-by-hash", blockchainHandler.HandleVerifyByHashOnly) // Verify with hash only (search DB first)
@@ -154,6 +158,8 @@ func main() {
 		user := api.Group("/user")
 		user.Use(middleware.AuthMiddleware(cfg, authService))
 		{
+			user.GET("/me/token-balance", tokenHandler.HandleGetTokenBalance)
+			user.POST("/me/topup", tokenHandler.HandleSimulateTopup)
 			user.PUT("/update-profile", profileHandler.HandleUpdateProfile)
 			user.POST("/upload-cv", profileHandler.HandleUploadCV)
 			user.DELETE("/delete-account", profileHandler.HandleDeleteAccount)

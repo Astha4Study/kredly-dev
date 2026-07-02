@@ -55,6 +55,12 @@ func (h *SessionHandler) HandleCreateSession(c *gin.Context) {
 
 	sess, err := h.catService.CreateSession(c.Request.Context(), req)
 	if err != nil {
+		if err.Error() == "insufficient_tokens" {
+			c.JSON(http.StatusPaymentRequired, gin.H{
+				"error": "Saldo kredit Anda tidak mencukupi untuk memulai asesmen baru. Silakan top up kredit terlebih dahulu.",
+			})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

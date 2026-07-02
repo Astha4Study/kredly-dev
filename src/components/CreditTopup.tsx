@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import {
   DropdownMenuContent,
   DropdownMenuLabel,
@@ -21,6 +22,7 @@ interface CreditTopupProps {
 }
 
 interface TopupPackage {
+  name: string;
   credits: number;
   price: string;
   priceNumeric: number;
@@ -31,30 +33,38 @@ interface TopupPackage {
 
 const topupPackages: TopupPackage[] = [
   {
-    credits: 300,
-    price: 'Rp 140.000',
-    priceNumeric: 140000,
-    pricePerCredit: 'Rp 467/kredit',
-    bonus: 10,
+    name: 'Starter',
+    credits: 5,
+    price: 'Rp 25.000',
+    priceNumeric: 25000,
+    pricePerCredit: 'Rp 5.000/kredit',
+  },
+  {
+    name: 'Explorer',
+    credits: 20,
+    price: 'Rp 79.000',
+    priceNumeric: 79000,
+    pricePerCredit: 'Rp 3.950/kredit',
+  },
+  {
+    name: 'Career',
+    credits: 50,
+    price: 'Rp 149.000',
+    priceNumeric: 149000,
+    pricePerCredit: 'Rp 2.980/kredit',
     popular: true,
   },
   {
-    credits: 500,
-    price: 'Rp 225.000',
-    priceNumeric: 225000,
-    pricePerCredit: 'Rp 450/kredit',
-    bonus: 25,
-  },
-  {
-    credits: 1000,
-    price: 'Rp 400.000',
-    priceNumeric: 400000,
-    pricePerCredit: 'Rp 400/kredit',
-    bonus: 100,
+    name: 'Pro',
+    credits: 100,
+    price: 'Rp 249.000',
+    priceNumeric: 249000,
+    pricePerCredit: 'Rp 2.490/kredit',
   },
 ];
 
 export default function CreditTopup({ kredit }: CreditTopupProps) {
+  const navigate = useNavigate();
   const [isTopupOpen, setIsTopupOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<TopupPackage>(
     topupPackages.find((pkg) => pkg.popular) ?? topupPackages[0],
@@ -132,49 +142,43 @@ export default function CreditTopup({ kredit }: CreditTopupProps) {
             <p className="text-[11px] tracking-widest text-muted-foreground uppercase mb-3.5">
               Pilih paket
             </p>
-            <div className="grid grid-cols-3 border border-border">
-              {topupPackages.map((pkg, i) => (
+            <div className="grid grid-cols-2 sm:grid-cols-4 border-l border-t border-border">
+              {topupPackages.map((pkg) => (
                 <button
                   key={pkg.credits}
                   onClick={() => setSelectedPackage(pkg)}
                   className={cn(
-                    'relative text-left px-3.5 py-4 transition-colors cursor-pointer',
+                    'relative text-left px-3.5 py-4 transition-colors cursor-pointer border-r border-b border-border flex flex-col justify-between h-[135px]',
                     'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
-                    i < topupPackages.length - 1 && 'border-r border-border',
                     selectedPackage.credits === pkg.credits
                       ? 'bg-white dark:bg-background'
                       : 'bg-zinc-100/50 hover:bg-zinc-100',
                   )}
                 >
-                  {pkg.popular && (
-                    <div className="absolute top-0 inset-x-0 bg-foreground text-background text-[10px] text-center py-0.5 tracking-widest">
-                      POPULER
-                    </div>
-                  )}
-                  <p
-                    className={cn(
-                      'text-[22px] font-medium leading-none',
-                      pkg.popular && 'mt-5',
-                    )}
-                  >
-                    {pkg.credits}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground mt-1 mb-3.5">
-                    kredit
-                    {pkg.bonus && (
-                      <>
-                        {' '}
-                        +{' '}
-                        <span className="font-medium text-foreground">
-                          {pkg.bonus} bonus
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-[10px] font-bold text-foreground uppercase tracking-wider">
+                        {pkg.name}
+                      </p>
+                      {pkg.popular && (
+                        <span className="bg-foreground text-background text-[8px] px-1 py-0.5 rounded font-sans font-extrabold tracking-wider leading-none">
+                          POPULER
                         </span>
-                      </>
-                    )}
-                  </p>
-                  <p className="text-[13px] font-medium">{pkg.price}</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {pkg.pricePerCredit}
-                  </p>
+                      )}
+                    </div>
+                    <p className="text-[22px] font-semibold leading-none mt-1">
+                      {pkg.credits}{' '}
+                      <span className="text-xs font-normal text-muted-foreground">
+                        kredit
+                      </span>
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-bold">{pkg.price}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      {pkg.pricePerCredit}
+                    </p>
+                  </div>
                 </button>
               ))}
             </div>
@@ -209,7 +213,20 @@ export default function CreditTopup({ kredit }: CreditTopupProps) {
 
           {/* Actions */}
           <div className="px-7 pb-6 flex gap-2.5">
-            <Button size="lg" variant="default" className="flex-1">
+            <Button
+              size="lg"
+              variant="default"
+              className="flex-1"
+              onClick={() => {
+                setIsTopupOpen(false);
+                navigate({
+                  to: '/app/checkout',
+                  search: {
+                    credits: selectedPackage.credits,
+                  },
+                });
+              }}
+            >
               Bayar sekarang
             </Button>
             <Button

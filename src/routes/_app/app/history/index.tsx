@@ -1,7 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
 import {
   Download,
   CheckCircle2,
@@ -32,7 +38,9 @@ function RouteComponent() {
       const data = await getUserActivities();
       setActivities(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load activities');
+      setError(
+        err instanceof Error ? err.message : 'Failed to load activities',
+      );
     } finally {
       setLoading(false);
     }

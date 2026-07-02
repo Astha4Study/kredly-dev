@@ -20,12 +20,18 @@ import {
 import { Link } from '@tanstack/react-router';
 import AppTopbarItem from './AppTopbarItem';
 import { AppMobileNav } from './AppMobileNav';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 export default function AppTopBar() {
-  // TODO: Fetch kredit dari API
-  const kredit = 150;
+  const [kredit, setKredit] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
+  useEffect(() => {
+    fetch('/api/user/me/token-balance', { credentials: 'include' })
+      .then((res) => res.json())
+      .then((data) => setKredit(data.current ?? 0))
+      .catch(() => setKredit(0));
+  }, []);
 
   const navItems = [
     { path: '/app', label: 'Beranda', icon: Home },
@@ -103,10 +109,12 @@ export default function AppTopBar() {
                   aria-label="Kredit"
                 >
                   <Coins className="h-4 w-4" />
-                  <span className="font-semibold">{kredit} Kredit</span>
+                  <span className="font-semibold">
+                    {kredit !== null ? kredit : '--'} Kredit
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
-              <CreditTopup kredit={kredit} />
+              <CreditTopup kredit={kredit ?? 0} />
             </DropdownMenu>
             <Button variant="default" asChild className="hidden md:flex">
               <Link to="/app/pricing" preload="intent">
@@ -125,7 +133,7 @@ export default function AppTopBar() {
             <Separator orientation="vertical" className="hidden md:block" />
             <UserAvatar />
             <AppMobileNav
-              kredit={kredit}
+              kredit={kredit ?? 0}
               open={mobileMenuOpen}
               setOpen={setMobileMenuOpen}
             />
