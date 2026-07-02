@@ -44,7 +44,7 @@ function NewAssessmentUploadCVPage() {
       </div>
 
       {/* Content Card */}
-      <div className="relative z-10 w-full max-w-2xl bg-card border border-border p-6 sm:p-8 rounded-2xl shadow-xl flex flex-col relative">
+      <div className="relative z-10 w-full max-w-2xl bg-card border border-border p-6 sm:p-8 rounded-2xl shadow-xl flex flex-col">
         {/* Header with Back Button */}
         <div className="flex items-center justify-between border-b border-border pb-4 mb-6">
           <div className="flex items-center gap-3">
