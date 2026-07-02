@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 
 interface TopupPackage {
+  name: string;
   credits: number;
   price: string;
   priceNumeric: number;
@@ -27,33 +28,40 @@ interface TopupPackage {
 
 const topupPackages: TopupPackage[] = [
   {
-    credits: 300,
-    price: 'Rp 140.000',
-    priceNumeric: 140000,
-    pricePerCredit: 'Rp 467/kredit',
-    bonus: 10,
+    name: 'Starter',
+    credits: 5,
+    price: 'Rp 25.000',
+    priceNumeric: 25000,
+    pricePerCredit: 'Rp 5.000/kredit',
+  },
+  {
+    name: 'Explorer',
+    credits: 20,
+    price: 'Rp 79.000',
+    priceNumeric: 79000,
+    pricePerCredit: 'Rp 3.950/kredit',
+  },
+  {
+    name: 'Career',
+    credits: 50,
+    price: 'Rp 149.000',
+    priceNumeric: 149000,
+    pricePerCredit: 'Rp 2.980/kredit',
     popular: true,
   },
   {
-    credits: 500,
-    price: 'Rp 225.000',
-    priceNumeric: 225000,
-    pricePerCredit: 'Rp 450/kredit',
-    bonus: 25,
-  },
-  {
-    credits: 1000,
-    price: 'Rp 400.000',
-    priceNumeric: 400000,
-    pricePerCredit: 'Rp 400/kredit',
-    bonus: 100,
+    name: 'Pro',
+    credits: 100,
+    price: 'Rp 249.000',
+    priceNumeric: 249000,
+    pricePerCredit: 'Rp 2.490/kredit',
   },
 ];
 
 export const Route = createFileRoute('/_app/app/checkout/')({
   validateSearch: (search: Record<string, unknown>) => {
     return {
-      credits: Number(search.credits) || 300,
+      credits: Number(search.credits) || 50,
     };
   },
   component: CheckoutComponent,

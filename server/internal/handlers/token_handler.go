@@ -88,12 +88,14 @@ func (h *TokenHandler) HandleSimulateTopup(c *gin.Context) {
 	// Tentukan bonus dan pastikan jumlah kredit valid
 	var bonus int
 	switch req.Credits {
-	case 300:
-		bonus = 10
-	case 500:
-		bonus = 25
-	case 1000:
-		bonus = 100
+	case 5:
+		bonus = 0
+	case 20:
+		bonus = 0
+	case 50:
+		bonus = 0
+	case 100:
+		bonus = 0
 	default:
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Paket kredit tidak valid"})
 		return
