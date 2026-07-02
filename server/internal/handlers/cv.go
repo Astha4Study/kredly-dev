@@ -48,6 +48,23 @@ func (h *CVHandler) HandleParseCV(c *gin.Context) {
 		}
 	}
 
+	// Validasi saldo token jika ini merupakan upload ulang (profil sudah ada)
+	if hasExistingProfile {
+		userColl := database.DB.Collection("user")
+		var dbUser models.User
+		if err := userColl.FindOne(c.Request.Context(), bson.M{"_id": loggedInUserID}).Decode(&dbUser); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "User tidak ditemukan"})
+			return
+		}
+
+		if dbUser.TokenBalance == nil || dbUser.TokenBalance.Current < 3 {
+			c.JSON(http.StatusPaymentRequired, gin.H{
+				"error": "Saldo kredit Anda tidak mencukupi untuk melakukan upload ulang CV. Silakan top up kredit terlebih dahulu (Dibutuhkan 3 token).",
+			})
+			return
+		}
+	}
+
 	// 1. Get file from form
 	file, err := c.FormFile("cv")
 	if err != nil {
@@ -315,15 +332,25 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 		userColl := database.DB.Collection("user")
 		now := time.Now()
 
+		userUpdateDoc := bson.M{
+			"cvRole":     parsed.Role,
+			"cvLevel":    parsed.Level,
+			"cvSkills":   parsed.Skills,
+			"cvSummary":  parsed.Summary,
+			"cvParsedAt": now,
+			"updatedAt":  now,
+		}
+
 		update := bson.M{
-			"$set": bson.M{
-				"cvRole":     parsed.Role,
-				"cvLevel":    parsed.Level,
-				"cvSkills":   parsed.Skills,
-				"cvSummary":  parsed.Summary,
-				"cvParsedAt": now,
-				"updatedAt":  now,
-			},
+			"$set": userUpdateDoc,
+		}
+
+		// Jika ini adalah re-upload (profil sudah ada), kurangi token
+		if hasExistingProfile {
+			update["$inc"] = bson.M{
+				"tokenBalance.current":    -3,
+				"tokenBalance.totalSpent": 3,
+			}
 		}
 
 		_, updateErr := userColl.UpdateOne(c.Request.Context(), bson.M{"_id": loggedInUserID}, update)
@@ -377,6 +404,21 @@ func (h *CVHandler) HandleCreateCustomAssessment(c *gin.Context) {
 
 	if loggedInUserID == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// Validasi saldo token (butuh 1 token untuk custom assessment)
+	userColl := database.DB.Collection("user")
+	var dbUser models.User
+	if err := userColl.FindOne(c.Request.Context(), bson.M{"_id": loggedInUserID}).Decode(&dbUser); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "User tidak ditemukan"})
+		return
+	}
+
+	if dbUser.TokenBalance == nil || dbUser.TokenBalance.Current < 1 {
+		c.JSON(http.StatusPaymentRequired, gin.H{
+			"error": "Saldo kredit Anda tidak mencukupi untuk menambahkan asesmen kustom. Silakan top up kredit terlebih dahulu (Dibutuhkan 1 token).",
+		})
 		return
 	}
 
@@ -508,6 +550,19 @@ func (h *CVHandler) HandleCreateCustomAssessment(c *gin.Context) {
 	assessmentToAdd.SessionID = ""
 	assessmentToAdd.Score = 0
 	assessmentToAdd.Level = ""
+
+	// Kurangi token (current - 1, totalSpent + 1)
+	updateToken := bson.M{
+		"$inc": bson.M{
+			"tokenBalance.current":    -1,
+			"tokenBalance.totalSpent": 1,
+		},
+	}
+	_, updateTokenErr := userColl.UpdateOne(c.Request.Context(), bson.M{"_id": loggedInUserID}, updateToken)
+	if updateTokenErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal memotong saldo token"})
+		return
+	}
 
 	// 7. Update UserProfile with the new assessment in MongoDB
 	profile.CVAssessments = append(profile.CVAssessments, *assessmentToAdd)

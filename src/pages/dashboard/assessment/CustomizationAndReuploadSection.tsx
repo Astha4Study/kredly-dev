@@ -7,9 +7,9 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Lock, Plus, Upload, Loader2 } from 'lucide-react';
-import { Link } from '@tanstack/react-router';
-import { useState } from 'react';
+import { Lock, Plus, Upload, Loader2, Coins } from 'lucide-react';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import {
@@ -33,6 +33,28 @@ export const CustomizationAndReuploadSection = ({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [skillInput, setSkillInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tokenBalance, setTokenBalance] = useState<{ current: number } | null>(
+    null,
+  );
+  const navigate = useNavigate();
+
+  const fetchTokenBalance = async () => {
+    try {
+      const response = await fetch('/api/user/me/token-balance', {
+        credentials: 'include',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setTokenBalance(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch token balance:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTokenBalance();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +82,7 @@ export const CustomizationAndReuploadSection = ({
       toast.success('Asesmen kustom berhasil ditambahkan');
       setSkillInput('');
       setIsDialogOpen(false);
+      fetchTokenBalance();
       if (onRefresh) {
         onRefresh();
       }
@@ -90,14 +113,22 @@ export const CustomizationAndReuploadSection = ({
               <div className="p-2 bg-primary/10 rounded-lg text-primary">
                 <Plus className="h-5 w-5" />
               </div>
-              {!roleAssessmentCompleted && (
+              <div className="flex gap-1.5 items-center">
                 <Badge
                   variant="outline"
-                  className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 gap-1 py-0.5 px-2"
+                  className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 gap-1 py-0.5 px-2 font-sans"
                 >
-                  <Lock className="h-3 w-3" /> Terkunci
+                  <Coins className="h-3 w-3" /> 1 Kredit
                 </Badge>
-              )}
+                {!roleAssessmentCompleted && (
+                  <Badge
+                    variant="outline"
+                    className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 gap-1 py-0.5 px-2"
+                  >
+                    <Lock className="h-3 w-3" /> Terkunci
+                  </Badge>
+                )}
+              </div>
             </div>
             <CardTitle className="text-lg font-bold mt-2">
               Tambah Asesmen Kustom
@@ -111,17 +142,36 @@ export const CustomizationAndReuploadSection = ({
             <Button
               className="w-full gap-2 text-xs font-semibold cursor-pointer"
               disabled={!roleAssessmentCompleted}
-              variant={!roleAssessmentCompleted ? 'secondary' : 'default'}
-              onClick={() => setIsDialogOpen(true)}
+              variant={
+                !roleAssessmentCompleted
+                  ? 'secondary'
+                  : tokenBalance && tokenBalance.current < 1
+                    ? 'outline'
+                    : 'default'
+              }
+              onClick={() => {
+                if (tokenBalance && tokenBalance.current < 1) {
+                  toast.warning(
+                    'Kredit tidak cukup (butuh 1 kredit). Mengalihkan ke halaman Top Up...',
+                  );
+                  navigate({ to: '/app/pricing' });
+                } else {
+                  setIsDialogOpen(true);
+                }
+              }}
             >
               {!roleAssessmentCompleted ? (
                 <Lock className="h-3.5 w-3.5" />
+              ) : tokenBalance && tokenBalance.current < 1 ? (
+                <Coins className="h-3.5 w-3.5" />
               ) : (
                 <Plus className="h-3.5 w-3.5" />
               )}
               {!roleAssessmentCompleted
                 ? 'Selesaikan Asesmen Role-based'
-                : 'Pilih Skill Baru'}
+                : tokenBalance && tokenBalance.current < 1
+                  ? 'Top Up Kredit (Kurang Kredit)'
+                  : 'Pilih Skill Baru'}
             </Button>
           </CardContent>
         </Card>
@@ -135,14 +185,22 @@ export const CustomizationAndReuploadSection = ({
               <div className="p-2 bg-primary/10 rounded-lg text-primary">
                 <Upload className="h-5 w-5" />
               </div>
-              {!roleAssessmentCompleted && (
+              <div className="flex gap-1.5 items-center">
                 <Badge
                   variant="outline"
-                  className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 gap-1 py-0.5 px-2"
+                  className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 gap-1 py-0.5 px-2 font-sans"
                 >
-                  <Lock className="h-3 w-3" /> Terkunci
+                  <Coins className="h-3 w-3" /> 3 Kredit
                 </Badge>
-              )}
+                {!roleAssessmentCompleted && (
+                  <Badge
+                    variant="outline"
+                    className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 gap-1 py-0.5 px-2"
+                  >
+                    <Lock className="h-3 w-3" /> Terkunci
+                  </Badge>
+                )}
+              </div>
             </div>
             <CardTitle className="text-lg font-bold mt-2">
               Upload Ulang CV
@@ -154,23 +212,45 @@ export const CustomizationAndReuploadSection = ({
           </CardHeader>
           <CardContent className="pt-0">
             <Link
-              to="/app/new-assessment/upload-cv"
+              to={
+                tokenBalance && tokenBalance.current < 3
+                  ? '/app/pricing'
+                  : '/app/new-assessment/upload-cv'
+              }
               disabled={!roleAssessmentCompleted}
               className="w-full block"
+              onClick={() => {
+                if (!roleAssessmentCompleted) return;
+                if (tokenBalance && tokenBalance.current < 3) {
+                  toast.warning(
+                    'Kredit tidak cukup untuk upload ulang (butuh 3 kredit). Mengalihkan ke halaman Top Up...',
+                  );
+                }
+              }}
             >
               <Button
                 className="w-full gap-2 text-xs font-semibold cursor-pointer"
                 disabled={!roleAssessmentCompleted}
-                variant={!roleAssessmentCompleted ? 'secondary' : 'default'}
+                variant={
+                  !roleAssessmentCompleted
+                    ? 'secondary'
+                    : tokenBalance && tokenBalance.current < 3
+                      ? 'outline'
+                      : 'default'
+                }
               >
                 {!roleAssessmentCompleted ? (
                   <Lock className="h-3.5 w-3.5" />
+                ) : tokenBalance && tokenBalance.current < 3 ? (
+                  <Coins className="h-3.5 w-3.5" />
                 ) : (
                   <Upload className="h-3.5 w-3.5" />
                 )}
                 {!roleAssessmentCompleted
                   ? 'Selesaikan Asesmen Role-based'
-                  : 'Upload CV Baru'}
+                  : tokenBalance && tokenBalance.current < 3
+                    ? 'Top Up Kredit (Kurang Kredit)'
+                    : 'Upload CV Baru'}
               </Button>
             </Link>
           </CardContent>
@@ -186,6 +266,9 @@ export const CustomizationAndReuploadSection = ({
               <DialogDescription>
                 Masukkan nama skill atau teknologi (misal: React, Go, Docker,
                 dll.) untuk membuat asesmen baru.
+                <span className="block mt-2 text-xs font-semibold text-primary">
+                  Biaya: 1 Kredit
+                </span>
               </DialogDescription>
             </DialogHeader>
             <div className="py-4">
