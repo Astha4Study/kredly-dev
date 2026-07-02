@@ -533,7 +533,7 @@ func (h *CVHandler) HandleCreateCustomAssessment(c *gin.Context) {
 	assessmentToAdd := validationResult.Assessment
 	duplicateFound := false
 	for _, existing := range profile.CVAssessments {
-		if strings.ToLower(existing.Title) == strings.ToLower(assessmentToAdd.Title) || existing.ID == assessmentToAdd.ID {
+		if strings.EqualFold(existing.Title, assessmentToAdd.Title) || existing.ID == assessmentToAdd.ID {
 			duplicateFound = true
 			break
 		}
