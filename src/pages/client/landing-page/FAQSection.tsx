@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import GridBorder from '@/components/GridBorder';
+import { Link } from '@tanstack/react-router';
 
 const faqs = [
   {
@@ -91,9 +92,11 @@ export default function FAQSection() {
                 </p>
               </div>
             </div>
-            <Button size="sm">
+            <Button size="sm" asChild>
+              <Link to="chat">
               Ajukan Pertanyaan
               <ArrowRight />
+              </Link>
             </Button>
           </div>
         </div>

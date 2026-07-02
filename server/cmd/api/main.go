@@ -62,6 +62,9 @@ func main() {
 	// 10. Initialize Activity Handler
 	activityHandler := handlers.NewActivityHandler(database.DB)
 
+	// 11. Initialize Chat Handler
+	chatHandler := handlers.NewChatHandler(groqClient)
+
 	// Set Gin mode
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
@@ -166,6 +169,9 @@ func main() {
 
 		// Activity endpoints - Protected
 		api.GET("/activities", middleware.AuthMiddleware(cfg, authService), activityHandler.GetUserActivities)
+
+		// Chat endpoint - Public for now (add auth if needed)
+		api.POST("/chat", chatHandler.HandleChat)
 	}
 
 	// 9. Start Server

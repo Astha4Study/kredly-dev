@@ -61,6 +61,11 @@ func NewClient(apiKey, baseURL string) *Client {
 	}
 }
 
+// GetAPIKey returns the API key for external use
+func (c *Client) GetAPIKey() string {
+	return c.apiKey
+}
+
 // CreateChatCompletion sends a request to Groq's chat completion endpoint
 func (c *Client) CreateChatCompletion(req ChatCompletionRequest) (*ChatCompletionResponse, error) {
 	return c.createChatCompletionGeneric(req)
