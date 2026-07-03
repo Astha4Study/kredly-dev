@@ -8,7 +8,6 @@ import {
   Award,
   FileText,
   History,
-  ShieldCheck,
   Briefcase,
 } from 'lucide-react';
 import { Button } from './ui/button';
@@ -97,11 +96,6 @@ export default function AppTopBar() {
     //   label: 'Contoh Sertifikasi',
     //   icon: BarChart3,
     // },
-    {
-      path: '/app/certificate-verification',
-      label: 'Verifikasi',
-      icon: ShieldCheck,
-    },
     {
       path: '/app/history',
       label: 'Riwayat',
