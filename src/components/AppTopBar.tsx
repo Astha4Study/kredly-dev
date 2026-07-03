@@ -33,7 +33,7 @@ export default function AppTopBar() {
 
   // Notification states
   const [activities, setActivities] = useState<Activity[]>([]);
-  const [notifLoading, setNotifLoading] = useState(false);
+  const [notifLoading, setNotifLoading] = useState(true);
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
 
   useEffect(() => {
