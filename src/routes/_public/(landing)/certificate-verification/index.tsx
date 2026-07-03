@@ -21,7 +21,7 @@ import {
   Link as LinkIcon,
 } from 'lucide-react';
 
-export const Route = createFileRoute('/_app/app/certificate-verification/')({
+export const Route = createFileRoute('/_public/(landing)/certificate-verification/')({
   component: RouteComponent,
 });
 

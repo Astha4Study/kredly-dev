@@ -7,7 +7,6 @@ import {
   Home,
   Award,
   FileText,
-  ShieldCheck,
   History,
   Coins,
   Upload,
@@ -25,11 +24,6 @@ export function AppMobileNav({ kredit, open, setOpen }: AppMobileNavProps) {
     { path: '/app/assessment', label: 'Asesmen', icon: FileText },
     { path: '/app/certification', label: 'Kredensial', icon: Award },
     { path: '/app/jobs', label: 'Karier', icon: Briefcase },
-    {
-      path: '/app/certificate-verification',
-      label: 'Verifikasi',
-      icon: ShieldCheck,
-    },
     {
       path: '/app/history',
       label: 'Riwayat',
