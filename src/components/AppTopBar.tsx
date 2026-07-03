@@ -1,8 +1,8 @@
 import Kredly from '@/assets/logo.png';
 import UserAvatar from '@/components/UserAvatar';
 import CreditTopup from '@/components/CreditTopup';
+import { NotificationDropdown } from '@/components/NotificationDropdown';
 import {
-  BellIcon,
   Coins,
   Home,
   Award,
@@ -21,10 +21,20 @@ import { Link } from '@tanstack/react-router';
 import AppTopbarItem from './AppTopbarItem';
 import { AppMobileNav } from './AppMobileNav';
 import React, { useEffect, useState } from 'react';
+import { getUserActivities, type Activity } from '@/lib/history-client';
+import {
+  getImportantActivities,
+  getRecentActivities,
+} from '@/lib/notification-utils';
 
 export default function AppTopBar() {
   const [kredit, setKredit] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
+  // Notification states
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const [lastFetched, setLastFetched] = useState<Date | null>(null);
 
   useEffect(() => {
     fetch('/api/user/me/token-balance', { credentials: 'include' })
@@ -32,6 +42,46 @@ export default function AppTopBar() {
       .then((data) => setKredit(data.current ?? 0))
       .catch(() => setKredit(0));
   }, []);
+
+  // Fetch notifications on mount
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  // Re-fetch on window focus (if stale > 5 minutes)
+  useEffect(() => {
+    const handleFocus = () => {
+      const now = new Date();
+      if (
+        !lastFetched ||
+        now.getTime() - lastFetched.getTime() > 5 * 60 * 1000
+      ) {
+        fetchNotifications();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [lastFetched]);
+
+  // Fetch notifications function
+  const fetchNotifications = async () => {
+    setNotifLoading(true);
+    try {
+      const data = await getUserActivities();
+      setActivities(data);
+      setLastFetched(new Date());
+    } catch (error) {
+      console.error('Failed to load notifications:', error);
+    } finally {
+      setNotifLoading(false);
+    }
+  };
+
+  // Filter notifications: recent (24h) + important types only
+  const notifications = getImportantActivities(
+    getRecentActivities(activities, 24),
+  );
 
   const navItems = [
     { path: '/app', label: 'Beranda', icon: Home },
@@ -122,14 +172,11 @@ export default function AppTopBar() {
               </Link>
             </Button>
             <Separator orientation="vertical" className="hidden md:block" />
-            <Button
-              aria-label="Notifications"
-              size="icon"
-              variant="outline"
-              className="hidden md:flex"
-            >
-              <BellIcon />
-            </Button>
+            <NotificationDropdown
+              notifications={notifications}
+              loading={notifLoading}
+              onRefresh={fetchNotifications}
+            />
             <Separator orientation="vertical" className="hidden md:block" />
             <UserAvatar />
             <AppMobileNav

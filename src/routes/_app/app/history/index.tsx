@@ -8,22 +8,10 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
-import {
-  Download,
-  CheckCircle2,
-  Award,
-  Clock,
-  ShieldCheck,
-  Info,
-  Loader2,
-  History,
-  LogIn,
-  UserPlus,
-  Upload,
-  XCircle,
-} from 'lucide-react';
+import { Download, Loader2, History } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { getUserActivities, type Activity } from '@/lib/history-client';
+import { getActivityIcon } from '@/lib/activity-icons';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -55,74 +43,6 @@ function RouteComponent() {
   useEffect(() => {
     loadActivities();
   }, []);
-
-  const getActivityIcon = (type: Activity['type']) => {
-    switch (type) {
-      case 'user_login':
-        return (
-          <div className="w-10 h-10 flex items-center justify-center">
-            <LogIn className="w-5 h-5 text-primary" />
-          </div>
-        );
-      case 'user_register':
-        return (
-          <div className="w-10 h-10 flex items-center justify-center">
-            <UserPlus className="w-5 h-5 text-primary" />
-          </div>
-        );
-      case 'onboarding_completed':
-        return (
-          <div className="w-10 h-10 flex items-center justify-center">
-            <CheckCircle2 className="w-5 h-5 text-primary" />
-          </div>
-        );
-      case 'assessment_completed':
-        return (
-          <div className="w-10 h-10 flex items-center justify-center">
-            <CheckCircle2 className="w-5 h-5 text-primary" />
-          </div>
-        );
-      case 'credential_earned':
-        return (
-          <div className="w-10 h-10 flex items-center justify-center">
-            <Award className="w-5 h-5 text-primary" />
-          </div>
-        );
-      case 'cv_updated':
-      case 'cv_uploaded':
-      case 'cv_parsed':
-        return (
-          <div className="w-10 h-10 flex items-center justify-center">
-            <Upload className="w-5 h-5 text-foreground" />
-          </div>
-        );
-      case 'assessment_started':
-        return (
-          <div className="w-10 h-10 flex items-center justify-center">
-            <Clock className="w-5 h-5 text-muted-foreground" />
-          </div>
-        );
-      case 'assessment_abandoned':
-        return (
-          <div className="w-10 h-10 flex items-center justify-center">
-            <XCircle className="w-5 h-5 text-destructive" />
-          </div>
-        );
-      case 'blockchain_verified':
-      case 'blockchain_issued':
-        return (
-          <div className="w-10 h-10 flex items-center justify-center">
-            <ShieldCheck className="w-5 h-5 text-primary" />
-          </div>
-        );
-      default:
-        return (
-          <div className="w-10 h-10 flex items-center justify-center">
-            <Info className="w-5 h-5 text-muted-foreground" />
-          </div>
-        );
-    }
-  };
 
   const getActivityTypeBadge = (type: Activity['type']) => {
     switch (type) {
@@ -305,7 +225,9 @@ function RouteComponent() {
                   <div key={activity.id} className="flex gap-4">
                     {/* Icon & Line */}
                     <div className="flex flex-col items-center">
-                      {getActivityIcon(activity.type)}
+                      <div className="w-10 h-10 flex items-center justify-center">
+                        {getActivityIcon(activity.type)}
+                      </div>
                       {index !== activities.length - 1 && (
                         <div className="w-0.5 h-full bg-border mt-2"></div>
                       )}
