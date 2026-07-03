@@ -1,13 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
 import AppSidebarAccountSettings from '@/components/AppSidebarAccountSettings';
-import ProfileTab from '@/pages/dashboard/account-settings/ProfileTab';
-import AccountTab from '@/pages/dashboard/account-settings/AccountTab';
-import SecurityTab from '@/pages/dashboard/account-settings/SecurityTab';
-import NotificationsTab from '@/pages/dashboard/account-settings/NotificationsTab';
-import DangerTab from '@/pages/dashboard/account-settings/DangerTab';
+import ProfileTab from '@/pages/dashboard/settings/ProfileTab';
+import PublicProfileTab from '@/pages/dashboard/settings/PublicProfileTab';
+import AccountTab from '@/pages/dashboard/settings/AccountTab';
+import SecurityTab from '@/pages/dashboard/settings/SecurityTab';
+import NotificationsTab from '@/pages/dashboard/settings/NotificationsTab';
+import DangerTab from '@/pages/dashboard/settings/DangerTab';
 
-export const Route = createFileRoute('/_app/app/account-settings/')({
+export const Route = createFileRoute('/_app/app/settings/')({
   component: RouteComponent,
 });
 
@@ -23,6 +24,8 @@ function RouteComponent() {
     switch (activeMenu) {
       case 'profile':
         return <ProfileTab />;
+      case 'public-profile':
+        return <PublicProfileTab />;
       case 'account':
         return <AccountTab />;
       case 'security':

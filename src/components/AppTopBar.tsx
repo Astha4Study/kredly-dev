@@ -42,6 +42,20 @@ export default function AppTopBar() {
       .catch(() => setKredit(0));
   }, []);
 
+  // Fetch notifications function
+  const fetchNotifications = async () => {
+    setNotifLoading(true);
+    try {
+      const data = await getUserActivities();
+      setActivities(data);
+      setLastFetched(new Date());
+    } catch (error) {
+      console.error('Failed to load notifications:', error);
+    } finally {
+      setNotifLoading(false);
+    }
+  };
+
   // Fetch notifications on mount
   useEffect(() => {
     fetchNotifications();
@@ -62,20 +76,6 @@ export default function AppTopBar() {
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, [lastFetched]);
-
-  // Fetch notifications function
-  const fetchNotifications = async () => {
-    setNotifLoading(true);
-    try {
-      const data = await getUserActivities();
-      setActivities(data);
-      setLastFetched(new Date());
-    } catch (error) {
-      console.error('Failed to load notifications:', error);
-    } finally {
-      setNotifLoading(false);
-    }
-  };
 
   // Filter notifications: recent (24h) + important types only
   const notifications = getImportantActivities(
@@ -161,7 +161,7 @@ export default function AppTopBar() {
               <CreditTopup kredit={kredit ?? 0} />
             </DropdownMenu>
             <Button variant="default" asChild className="hidden md:flex">
-              <Link to="/app/pricing" preload="intent">
+              <Link to="/pricing" preload="intent">
                 Daftar Harga
               </Link>
             </Button>

@@ -1,4 +1,4 @@
-import { User, Mail, Bell, Shield, Trash2 } from 'lucide-react';
+import { User, Mail, Bell, Shield, Trash2, Globe } from 'lucide-react';
 
 interface SidebarProps {
   activeMenu: string;
@@ -7,6 +7,7 @@ interface SidebarProps {
 
 const menuItems = [
   { id: 'profile', label: 'Profil', icon: User },
+  { id: 'public-profile', label: 'Profil Publik', icon: Globe },
   { id: 'account', label: 'Akun', icon: Mail },
   { id: 'security', label: 'Keamanan', icon: Shield },
   { id: 'notifications', label: 'Notifikasi', icon: Bell },

@@ -148,7 +148,7 @@ export default function CreditTopup({ kredit }: CreditTopupProps) {
                   key={pkg.credits}
                   onClick={() => setSelectedPackage(pkg)}
                   className={cn(
-                    'relative text-left px-3.5 py-4 transition-colors cursor-pointer border-r border-b border-border flex flex-col justify-between h-[135px]',
+                    'relative text-left px-3.5 py-4 transition-colors cursor-pointer border-r border-b border-border flex flex-col justify-between h-33.75',
                     'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
                     selectedPackage.credits === pkg.credits
                       ? 'bg-white dark:bg-background'

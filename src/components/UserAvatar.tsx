@@ -71,7 +71,7 @@ export default function UserAvatar() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => navigate({ to: '/app/account-settings' })}
+          onClick={() => navigate({ to: '/app/profile' })}
         >
           <User className="mr-2 h-4 w-4" />
           <span>Profil</span>
