@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"kredly/internal/blockchain"
+	"kredly/internal/database"
 	"kredly/internal/models"
 	"kredly/internal/service"
 
@@ -328,6 +329,25 @@ func (h *BlockchainHandler) HandleIssueCertificate(c *gin.Context) {
 		if err := h.metadataService.Save(metadata); err != nil {
 			// Log error but don't fail request (metadata save is optional)
 			fmt.Printf("Warning: Failed to save certificate metadata: %v\n", err)
+		}
+	}
+
+	// Log blockchain issued activity (get userID from context)
+	if userInterface, exists := c.Get("user"); exists {
+		if userMap, ok := userInterface.(gin.H); ok {
+			if userID, ok := userMap["id"].(string); ok {
+				models.LogActivityAsync(
+					database.DB,
+					userID,
+					models.ActivityBlockchainIssued,
+					fmt.Sprintf("Sertifikat %s Diterbitkan ke Blockchain", req.AssessmentName),
+					fmt.Sprintf("Sertifikat Anda untuk %s telah diterbitkan ke blockchain dan tersimpan di IPFS", req.AssessmentName),
+					&models.ActivityMetadata{
+						TxHash: &txHash,
+						Score:  &req.Score,
+					},
+				)
+			}
 		}
 	}
 

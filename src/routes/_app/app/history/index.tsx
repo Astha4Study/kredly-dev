@@ -12,12 +12,15 @@ import {
   Download,
   CheckCircle2,
   Award,
-  FileText,
   Clock,
   ShieldCheck,
   Info,
   Loader2,
   History,
+  LogIn,
+  UserPlus,
+  Upload,
+  XCircle,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { getUserActivities, type Activity } from '@/lib/history-client';
@@ -52,6 +55,24 @@ function RouteComponent() {
 
   const getActivityIcon = (type: Activity['type']) => {
     switch (type) {
+      case 'user_login':
+        return (
+          <div className="w-10 h-10 flex items-center justify-center">
+            <LogIn className="w-5 h-5 text-primary" />
+          </div>
+        );
+      case 'user_register':
+        return (
+          <div className="w-10 h-10 flex items-center justify-center">
+            <UserPlus className="w-5 h-5 text-primary" />
+          </div>
+        );
+      case 'onboarding_completed':
+        return (
+          <div className="w-10 h-10 flex items-center justify-center">
+            <CheckCircle2 className="w-5 h-5 text-primary" />
+          </div>
+        );
       case 'assessment_completed':
         return (
           <div className="w-10 h-10 flex items-center justify-center">
@@ -65,9 +86,11 @@ function RouteComponent() {
           </div>
         );
       case 'cv_updated':
+      case 'cv_uploaded':
+      case 'cv_parsed':
         return (
           <div className="w-10 h-10 flex items-center justify-center">
-            <FileText className="w-5 h-5 text-foreground" />
+            <Upload className="w-5 h-5 text-foreground" />
           </div>
         );
       case 'assessment_started':
@@ -76,7 +99,14 @@ function RouteComponent() {
             <Clock className="w-5 h-5 text-muted-foreground" />
           </div>
         );
+      case 'assessment_abandoned':
+        return (
+          <div className="w-10 h-10 flex items-center justify-center">
+            <XCircle className="w-5 h-5 text-destructive" />
+          </div>
+        );
       case 'blockchain_verified':
+      case 'blockchain_issued':
         return (
           <div className="w-10 h-10 flex items-center justify-center">
             <ShieldCheck className="w-5 h-5 text-primary" />
@@ -93,15 +123,27 @@ function RouteComponent() {
 
   const getActivityTypeBadge = (type: Activity['type']) => {
     switch (type) {
+      case 'user_login':
+        return <Badge variant="secondary">Login</Badge>;
+      case 'user_register':
+        return <Badge variant="default">Registrasi</Badge>;
+      case 'onboarding_completed':
+        return <Badge variant="default">Onboarding</Badge>;
       case 'assessment_completed':
         return <Badge variant="default">Assessment</Badge>;
       case 'credential_earned':
         return <Badge variant="default">Kredensial</Badge>;
       case 'cv_updated':
+      case 'cv_uploaded':
+      case 'cv_parsed':
         return <Badge variant="secondary">CV</Badge>;
       case 'assessment_started':
         return <Badge variant="secondary">Assessment</Badge>;
+      case 'assessment_abandoned':
+        return <Badge variant="destructive">Dibatalkan</Badge>;
       case 'blockchain_verified':
+        return <Badge variant="default">Blockchain</Badge>;
+      case 'blockchain_issued':
         return <Badge variant="default">Blockchain</Badge>;
       default:
         return <Badge variant="outline">Lainnya</Badge>;

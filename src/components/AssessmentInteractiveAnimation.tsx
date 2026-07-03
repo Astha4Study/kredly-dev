@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/set-state-in-effect */
+ 
 import { motion } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
 import { Check, X } from 'lucide-react';
