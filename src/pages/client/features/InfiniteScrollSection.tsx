@@ -1,5 +1,6 @@
 import GridBorder from '@/components/GridBorder';
 import { Badge } from '@/components/ui/badge';
+import { Building2 } from 'lucide-react';
 import { motion } from 'motion/react';
 
 const TECH_ITEMS = [
@@ -68,7 +69,7 @@ export default function InfiniteScrollSection() {
                 TRUST
               </span>
 
-              <Badge variant="default">Enterprise Technology</Badge>
+              <Badge variant="default"><Building2 /> Enterprise Technology</Badge>
 
               <motion.h2
                 initial={{ opacity: 0, y: 16 }}

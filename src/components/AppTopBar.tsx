@@ -117,7 +117,7 @@ export default function AppTopBar() {
               <CreditTopup kredit={kredit ?? 0} />
             </DropdownMenu>
             <Button variant="default" asChild className="hidden md:flex">
-              <Link to="/app/pricing" preload="intent">
+              <Link to="/pricing" preload="intent">
                 Daftar Harga
               </Link>
             </Button>

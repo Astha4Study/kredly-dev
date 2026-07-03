@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import GridBorder from '@/components/GridBorder';
-import { Brain, Shield, Zap, Eye, Target, Cpu } from 'lucide-react';
+import { Brain, Shield, Zap, Eye, Target, Cpu, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 const FEATURES = [
@@ -47,6 +47,7 @@ export default function CoreFeaturesSection() {
       <GridBorder className="mx-auto w-full max-w-7xl" paddingY="py-6 sm:py-8">
         <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
           <Badge variant="default" className="shadow-sm">
+            <Sparkles />
             Fitur Utama
           </Badge>
 
