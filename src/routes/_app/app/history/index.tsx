@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { getUserActivities, type Activity } from '@/lib/history-client';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export const Route = createFileRoute('/_app/app/history/')({
   component: RouteComponent,
@@ -33,6 +35,7 @@ function RouteComponent() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   const loadActivities = async () => {
     try {
@@ -150,6 +153,111 @@ function RouteComponent() {
     }
   };
 
+  const exportToPDF = () => {
+    if (activities.length === 0) {
+      alert('Tidak ada aktivitas untuk diekspor');
+      return;
+    }
+
+    setExporting(true);
+
+    try {
+      // Create new PDF document
+      const doc = new jsPDF();
+
+      // Add title
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Riwayat Aktivitas Kredly', 14, 20);
+
+      // Add subtitle with date
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(100);
+      doc.text(`Diekspor pada: ${new Date().toLocaleString('id-ID')}`, 14, 28);
+
+      // Prepare table data
+      const tableData = activities.map((activity) => {
+        const metadata: string[] = [];
+        
+        if (activity.metadata?.score) {
+          metadata.push(`Score: ${activity.metadata.score}/100`);
+        }
+        if (activity.metadata?.progress) {
+          metadata.push(`Progress: ${activity.metadata.progress}`);
+        }
+        if (activity.metadata?.fileName) {
+          metadata.push(`File: ${activity.metadata.fileName}`);
+        }
+        if (activity.metadata?.skills && activity.metadata.skills.length > 0) {
+          metadata.push(`Skills: ${activity.metadata.skills.join(', ')}`);
+        }
+        if (activity.metadata?.txHash) {
+          metadata.push(`TxHash: ${activity.metadata.txHash.substring(0, 20)}...`);
+        }
+
+        return [
+          activity.date,
+          activity.time,
+          activity.title,
+          activity.description,
+          metadata.join('\n') || '-',
+        ];
+      });
+
+      // Add table with autoTable
+      autoTable(doc, {
+        head: [['Tanggal', 'Waktu', 'Aktivitas', 'Deskripsi', 'Detail']],
+        body: tableData,
+        startY: 35,
+        styles: {
+          fontSize: 8,
+          cellPadding: 3,
+          overflow: 'linebreak',
+        },
+        headStyles: {
+          fillColor: [59, 130, 246], // Blue color
+          textColor: 255,
+          fontStyle: 'bold',
+          halign: 'left',
+        },
+        columnStyles: {
+          0: { cellWidth: 25 }, // Date
+          1: { cellWidth: 15 }, // Time
+          2: { cellWidth: 45 }, // Activity
+          3: { cellWidth: 60 }, // Description
+          4: { cellWidth: 45 }, // Details
+        },
+        alternateRowStyles: {
+          fillColor: [245, 247, 250],
+        },
+        margin: { top: 35, left: 14, right: 14 },
+      });
+
+      // Add footer with page numbers
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text(
+          `Halaman ${i} dari ${pageCount}`,
+          doc.internal.pageSize.width / 2,
+          doc.internal.pageSize.height - 10,
+          { align: 'center' }
+        );
+      }
+
+      // Save the PDF
+      doc.save(`Kredly-Activity-History-${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      alert('Gagal mengekspor PDF. Silakan coba lagi.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="space-y-6">
@@ -164,9 +272,9 @@ function RouteComponent() {
                 Timeline aktivitas Anda di platform
               </p>
             </div>
-            <Button variant="default" className="gap-2">
+            <Button variant="default" className="gap-2" onClick={exportToPDF} disabled={exporting || loading || activities.length === 0}>
               <Download className="h-4 w-4" />
-              Export PDF
+              {exporting ? 'Mengekspor...' : 'Export PDF'}
             </Button>
           </div>
         </div>
