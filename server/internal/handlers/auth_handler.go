@@ -155,6 +155,30 @@ func (h *AuthHandler) HandleGoogleCallback(c *gin.Context) {
 	var userProfile models.UserProfile
 	err = userProfileColl.FindOne(c.Request.Context(), bson.M{"userId": user.ID}).Decode(&userProfile)
 
+	// Detect if this is a new user registration or existing user login
+	isNewUser := time.Since(user.CreatedAt) < 5*time.Second
+
+	// Log activity
+	if isNewUser {
+		models.LogActivityAsync(
+			database.DB,
+			user.ID,
+			models.ActivityUserRegister,
+			"Registrasi Akun Baru",
+			"Selamat datang! Akun Anda berhasil dibuat melalui Google OAuth",
+			nil,
+		)
+	} else {
+		models.LogActivityAsync(
+			database.DB,
+			user.ID,
+			models.ActivityUserLogin,
+			"Login via Google",
+			"Anda berhasil login menggunakan akun Google",
+			nil,
+		)
+	}
+
 	// Get frontend URL from env, default to localhost:3000 for development
 	frontendURL := h.config.FrontendURL
 
@@ -346,6 +370,7 @@ func (h *AuthHandler) HandleVerifyEmailOTP(c *gin.Context) {
 	err = userColl.FindOne(c.Request.Context(), bson.M{"email": req.Email}).Decode(&user)
 
 	// Jika user tidak ditemukan dan type adalah sign-up, buat user baru
+	isNewUser := false
 	if err != nil {
 		if req.Type == "sign-up" {
 			now := time.Now()
@@ -367,6 +392,7 @@ func (h *AuthHandler) HandleVerifyEmailOTP(c *gin.Context) {
 				})
 				return
 			}
+			isNewUser = true
 		} else {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success": false,
@@ -412,6 +438,27 @@ func (h *AuthHandler) HandleVerifyEmailOTP(c *gin.Context) {
 	err = userProfileColl.FindOne(c.Request.Context(), bson.M{"userId": user.ID}).Decode(&userProfile)
 	if err == nil {
 		hasCompletedOnboarding = true
+	}
+
+	// Log activity
+	if isNewUser {
+		models.LogActivityAsync(
+			database.DB,
+			user.ID,
+			models.ActivityUserRegister,
+			"Registrasi Akun Baru",
+			"Selamat datang! Akun Anda berhasil dibuat melalui Email OTP",
+			nil,
+		)
+	} else {
+		models.LogActivityAsync(
+			database.DB,
+			user.ID,
+			models.ActivityUserLogin,
+			"Login via Email OTP",
+			"Anda berhasil login menggunakan kode OTP",
+			nil,
+		)
 	}
 
 	c.JSON(http.StatusOK, gin.H{

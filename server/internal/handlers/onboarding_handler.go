@@ -301,6 +301,20 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 		return
 	}
 
+	// Log onboarding completed activity
+	skillsCount := len(parsedSkills)
+	models.LogActivityAsync(
+		database.DB,
+		userID,
+		models.ActivityOnboardingCompleted,
+		"Onboarding Selesai",
+		"Anda telah menyelesaikan proses onboarding dan mengunggah CV",
+		&models.ActivityMetadata{
+			FileName: &cvFileName,
+			Skills:   parsedSkills[:min(5, skillsCount)], // Top 5 skills
+		},
+	)
+
 	// Return parsed data untuk validasi di frontend
 	response := gin.H{
 		"success": true,
@@ -314,4 +328,12 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+// Helper function to get minimum of two integers
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

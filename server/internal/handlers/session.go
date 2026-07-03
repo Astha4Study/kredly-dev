@@ -1,9 +1,12 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
+	"kredly/internal/database"
+	"kredly/internal/models"
 	"kredly/internal/service"
 
 	"github.com/gin-gonic/gin"
@@ -63,6 +66,25 @@ func (h *SessionHandler) HandleCreateSession(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
+	}
+
+	// Log assessment started activity
+	if req.UserID != "" {
+		assessmentName := req.Role
+		if req.Level != "" {
+			assessmentName = fmt.Sprintf("%s - %s", req.Role, req.Level)
+		}
+		
+		models.LogActivityAsync(
+			database.DB,
+			req.UserID,
+			models.ActivityAssessmentStarted,
+			fmt.Sprintf("Memulai Assessment %s", req.Role),
+			fmt.Sprintf("Anda telah memulai assessment untuk %s", assessmentName),
+			&models.ActivityMetadata{
+				Progress: strPtr(fmt.Sprintf("0/%d soal", sess.MaxItems)),
+			},
+		)
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
@@ -141,6 +163,50 @@ func (h *SessionHandler) HandleSubmitAnswer(c *gin.Context) {
 		return
 	}
 
+	// Log assessment completed activity when exam finishes
+	if result.Completed {
+		sess, err := h.catService.GetSession(c.Request.Context(), sessionID)
+		if err == nil && sess.UserID != "" {
+			// Get session result to log score
+			sessionResult, err := h.catService.GetResult(c.Request.Context(), sessionID)
+			if err == nil {
+				assessmentName := sess.Role
+				if sess.Level != "" {
+					assessmentName = fmt.Sprintf("%s - %s", sess.Role, sess.Level)
+				}
+
+				score := sessionResult.Score
+				passed := score >= 60 // Passing threshold
+
+				models.LogActivityAsync(
+					database.DB,
+					sess.UserID,
+					models.ActivityAssessmentCompleted,
+					fmt.Sprintf("Menyelesaikan Assessment %s", sess.Role),
+					fmt.Sprintf("Anda telah menyelesaikan assessment %s dengan skor %d/100", assessmentName, score),
+					&models.ActivityMetadata{
+						Score:    &score,
+						Progress: strPtr(fmt.Sprintf("%d/%d soal", sess.TotalItems, sess.MaxItems)),
+					},
+				)
+
+				// Log credential earned if passed
+				if passed {
+					models.LogActivityAsync(
+						database.DB,
+						sess.UserID,
+						models.ActivityCredentialEarned,
+						fmt.Sprintf("Mendapatkan Kredensial %s", sess.Role),
+						fmt.Sprintf("Selamat! Anda telah mendapatkan kredensial untuk %s dengan skor %d/100", assessmentName, score),
+						&models.ActivityMetadata{
+							Score: &score,
+						},
+					)
+				}
+			}
+		}
+	}
+
 	c.JSON(http.StatusOK, result)
 }
 
@@ -177,7 +243,27 @@ func (h *SessionHandler) HandleAbandonSession(c *gin.Context) {
 		return
 	}
 
-	err := h.catService.AbandonSession(c.Request.Context(), sessionID)
+	// Get session before abandoning to log activity
+	sess, err := h.catService.GetSession(c.Request.Context(), sessionID)
+	if err == nil && sess.UserID != "" {
+		assessmentName := sess.Role
+		if sess.Level != "" {
+			assessmentName = fmt.Sprintf("%s - %s", sess.Role, sess.Level)
+		}
+
+		models.LogActivityAsync(
+			database.DB,
+			sess.UserID,
+			models.ActivityAssessmentAbandoned,
+			fmt.Sprintf("Membatalkan Assessment %s", sess.Role),
+			fmt.Sprintf("Anda telah keluar dari assessment %s", assessmentName),
+			&models.ActivityMetadata{
+				Progress: strPtr(fmt.Sprintf("%d/%d soal", sess.TotalItems, sess.MaxItems)),
+			},
+		)
+	}
+
+	err = h.catService.AbandonSession(c.Request.Context(), sessionID)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
@@ -218,4 +304,9 @@ func (h *SessionHandler) HandleGetSession(c *gin.Context) {
 		"min_items":     sess.MinItems,
 		"completed":     sess.Completed,
 	})
+}
+
+// Helper function to create string pointer
+func strPtr(s string) *string {
+	return &s
 }

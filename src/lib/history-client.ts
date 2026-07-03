@@ -4,11 +4,19 @@ const API_BASE_URL =
 export interface Activity {
   id: string;
   type:
+    | 'user_login'
+    | 'user_logout'
+    | 'user_register'
+    | 'onboarding_completed'
     | 'assessment_completed'
     | 'credential_earned'
     | 'cv_updated'
+    | 'cv_uploaded'
+    | 'cv_parsed'
     | 'assessment_started'
-    | 'blockchain_verified';
+    | 'assessment_abandoned'
+    | 'blockchain_verified'
+    | 'blockchain_issued';
   title: string;
   description: string;
   date: string;
