@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import GridBorder from '@/components/GridBorder';
+import { motion } from 'motion/react';
+import { fadeInUp, fadeInUpDelayed, createStaggerAnimation } from '@/lib/animations';
 
 export const Route = createFileRoute('/_public/(landing)/pricing/')({
   component: RouteComponent,
@@ -87,21 +89,29 @@ function RouteComponent() {
         <GridBorder className="mx-auto w-full max-w-7xl" paddingY="py-6 sm:py-8">
           <div className="mx-auto flex  flex-col items-center text-center">
             <div className="max-w-6xl">
-            <Badge variant="default" className="shadow-sm">
-              <Coins />
-              Paket Kredit
-            </Badge>
+            <motion.div {...fadeInUp}>
+              <Badge variant="default" className="shadow-sm">
+                <Coins />
+                Paket Kredit
+              </Badge>
+            </motion.div>
 
             <div className="mt-4 max-w-3xl space-y-4 md:space-y-8">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
+              <motion.h2
+                {...fadeInUpDelayed(0.1)}
+                className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight"
+              >
                 Pilih paket yang sesuai dengan{' '}
                 <span className="text-primary">kebutuhanmu</span>
-              </h2>
+              </motion.h2>
 
-              <p className="mx-auto max-w-2xl text-muted-foreground">
+              <motion.p
+                {...fadeInUpDelayed(0.2)}
+                className="mx-auto max-w-2xl text-muted-foreground"
+              >
                 Dapatkan kredit untuk mengakses assessment berbasis AI dan
                 dapatkan sertifikat terverifikasi blockchain
-              </p>
+              </motion.p>
               </div>
             </div>
 
@@ -121,9 +131,11 @@ function RouteComponent() {
                   />
 
                   <div className="relative z-10 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
-                    {topupPackages.map((pkg) => (
-                      <div
+                    {topupPackages.map((pkg, index) => (
+                      <motion.div
                         key={pkg.credits}
+                        {...createStaggerAnimation(index)}
+                        whileHover={{ y: -4, transition: { duration: 0.2 } }}
                         className={cn(
                           'relative flex flex-col border bg-background transition-colors overflow-hidden',
                           pkg.popular
@@ -207,7 +219,7 @@ function RouteComponent() {
                                 : 'Login & Pilih Paket'}
                           </Button>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 </div>

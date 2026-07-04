@@ -20,6 +20,8 @@ import {
   Database,
   Link as LinkIcon,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { fadeInUp, scaleIn, blurTransition, createStaggerAnimation, fadeInUpDelayed } from '@/lib/animations';
 
 export const Route = createFileRoute('/_public/(landing)/certificate-verification/')({
   component: RouteComponent,
@@ -177,17 +179,18 @@ function RouteComponent() {
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="space-y-6">
         {/* Header Section */}
-        <div>
+        <motion.div {...fadeInUp}>
           <h1 className="text-2xl font-bold tracking-tight">
             Verifikasi Sertifikat
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Verifikasi keaslian sertifikat dengan mengupload file PDF
           </p>
-        </div>
+        </motion.div>
 
         {/* Verification Form */}
-        <Card>
+        <motion.div {...scaleIn}>
+          <Card>
           <CardHeader>
             <CardTitle>Upload Sertifikat</CardTitle>
             <CardDescription>
@@ -258,9 +261,12 @@ function RouteComponent() {
             </div>
           </CardContent>
         </Card>
+        </motion.div>
 
         {/* Verification Result */}
+        <AnimatePresence mode="wait">
         {verificationResult && (
+          <motion.div {...blurTransition}>
           <Card
             className={
               verificationResult.isValid
@@ -548,10 +554,13 @@ function RouteComponent() {
               </div>
             </CardContent>
           </Card>
+          </motion.div>
         )}
+        </AnimatePresence>
 
         {/* Info Section */}
-        <Card>
+        <motion.div {...scaleIn}>
+          <Card>
           <CardHeader>
             <CardTitle className="text-base">
               Tentang Verifikasi Sertifikat
@@ -575,6 +584,7 @@ function RouteComponent() {
             </ul>
           </CardContent>
         </Card>
+        </motion.div>
       </div>
     </main>
   );

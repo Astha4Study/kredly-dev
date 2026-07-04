@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import GridBorder from '@/components/GridBorder';
 import { Link } from '@tanstack/react-router';
+import { motion } from 'motion/react';
+import { fadeInUp, fadeInUpDelayed, scaleIn } from '@/lib/animations';
 
 const faqs = [
   {
@@ -51,23 +53,32 @@ export default function FAQSection() {
     <section className="px-4 sm:px-6">
       <GridBorder className="mx-auto w-full max-w-7xl" paddingY="py-6 sm:py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center text-center">
-          <Badge variant="default" className="shadow-sm">
-            <CircleHelp />
-            FAQ
-          </Badge>
+          <motion.div {...fadeInUp}>
+            <Badge variant="default" className="shadow-sm">
+              <CircleHelp />
+              FAQ
+            </Badge>
+          </motion.div>
 
           <div className="mt-4 max-w-3xl space-y-4 md:space-y-8">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
+            <motion.h2
+              {...fadeInUpDelayed(0.1)}
+              className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight"
+            >
               Pertanyaan yang sering ditanyakan
-            </h2>
-            <p className="mx-auto max-w-2xl text-muted-foreground">
+            </motion.h2>
+            <motion.p
+              {...fadeInUpDelayed(0.2)}
+              className="mx-auto max-w-2xl text-muted-foreground"
+            >
               Pelajari bagaimana Kredly membantu membuktikan kemampuan melalui
               assessment berbasis AI, sandbox interaktif, dan credential yang
               dapat diverifikasi secara publik.
-            </p>
+            </motion.p>
           </div>
 
-          <Accordion type="single" collapsible className="mt-12">
+          <motion.div {...scaleIn} className="w-full">
+            <Accordion type="single" collapsible className="mt-12">
             {faqs.map((f, i) => (
               <AccordionItem key={f.q} value={`item-${i}`}>
                 <AccordionTrigger>{f.q}</AccordionTrigger>
@@ -76,9 +87,13 @@ export default function FAQSection() {
                 </AccordionContent>
               </AccordionItem>
             ))}
-          </Accordion>
+            </Accordion>
+          </motion.div>
 
-          <div className="mt-10 flex flex-col items-center justify-between gap-3 rounded-2xl border border-dashed border-border bg-muted/30 p-5 sm:flex-row">
+          <motion.div
+            {...fadeInUpDelayed(0.4)}
+            className="mt-10 flex flex-col items-center justify-between gap-3 rounded-2xl border border-dashed border-border bg-muted/30 p-5 sm:flex-row"
+          >
             <div className="flex items-center gap-3">
               <span className="grid size-9 shrink-0 place-items-center  bg-foreground text-background">
                 <MessageCircle className="size-4" />
@@ -98,7 +113,7 @@ export default function FAQSection() {
               <ArrowRight />
               </Link>
             </Button>
-          </div>
+          </motion.div>
         </div>
       </GridBorder>
     </section>

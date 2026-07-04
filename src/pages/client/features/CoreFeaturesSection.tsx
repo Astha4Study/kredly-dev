@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import GridBorder from '@/components/GridBorder';
 import { Brain, Shield, Zap, Eye, Target, Cpu, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { createStaggerAnimation } from '@/lib/animations';
 
 const FEATURES = [
   {
@@ -69,13 +70,7 @@ export default function CoreFeaturesSection() {
               return (
                 <motion.div
                   key={feature.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{
-                    duration: 0.4,
-                    delay: index * 0.08,
-                  }}
+                  {...createStaggerAnimation(index)}
                   className="
                   group
                   relative

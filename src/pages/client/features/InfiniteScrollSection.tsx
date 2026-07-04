@@ -2,6 +2,7 @@ import GridBorder from '@/components/GridBorder';
 import { Badge } from '@/components/ui/badge';
 import { Building2 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { fadeInUp, fadeInUpDelayed } from '@/lib/animations';
 
 const TECH_ITEMS = [
   'BLOCKCHAIN VERIFIED',
@@ -72,10 +73,7 @@ export default function InfiniteScrollSection() {
               <Badge variant="default"><Building2 /> Enterprise Technology</Badge>
 
               <motion.h2
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
+                {...fadeInUp}
                 className="
                   relative
                   z-10
@@ -95,13 +93,7 @@ export default function InfiniteScrollSection() {
               </motion.h2>
 
               <motion.p
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{
-                  delay: 0.1,
-                  duration: 0.5,
-                }}
+                {...fadeInUpDelayed(0.1)}
                 className="
                   relative
                   z-10
