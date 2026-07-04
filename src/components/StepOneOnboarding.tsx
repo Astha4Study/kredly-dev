@@ -87,6 +87,7 @@ export function StepOneOnboarding({
 
           <Input
             id="fullName"
+            className='bg-white'
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Masukkan nama lengkap"
@@ -99,6 +100,7 @@ export function StepOneOnboarding({
 
           <div className="relative">
             <Input
+
               id="username"
               value={username}
               onChange={(e) =>
@@ -115,7 +117,7 @@ export function StepOneOnboarding({
                 usernameStatus === 'taken'
                   ? 'border-destructive pr-10'
                   : usernameStatus === 'available'
-                    ? 'border-green-500 pr-10'
+                    ? 'border-green-500 pr-10 bg-white'
                     : undefined
               }
             />
@@ -138,7 +140,7 @@ export function StepOneOnboarding({
             <p className="text-xs text-destructive">Username sudah digunakan</p>
           )}
 
-          <div className="rounded-lg border border-dashed border-border px-3 py-3">
+          <div className="rounded-lg border border-dashed border-border px-3 py-3 bg-white">
             <p className="text-xs text-muted-foreground">Public profile URL</p>
 
             <p className="mt-1 text-sm font-medium">

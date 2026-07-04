@@ -4,11 +4,15 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"kredly/internal/groq"
+	"log"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -177,25 +181,63 @@ func (h *ChatHandler) streamChatCompletion(w gin.ResponseWriter, messages []groq
 		return fmt.Errorf("failed to marshal payload: %w", err)
 	}
 
-	req, err := http.NewRequest("POST", "https://api.groq.com/openai/v1/chat/completions", bytes.NewBuffer(payloadBytes))
-	if err != nil {
-		return fmt.Errorf("failed to create request: %w", err)
+	var resp *http.Response
+	var lastErr error
+	maxRetries := 6 // Try up to 6 times (with multiple keys and delays if needed)
+
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		apiKey := h.groqClient.GetAPIKey()
+		if apiKey == "" {
+			return errors.New("no api key available")
+		}
+
+		req, err := http.NewRequest("POST", "https://api.groq.com/openai/v1/chat/completions", bytes.NewBuffer(payloadBytes))
+		if err != nil {
+			return fmt.Errorf("failed to create request: %w", err)
+		}
+
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+apiKey)
+
+		client := &http.Client{}
+		resp, err = client.Do(req)
+		if err != nil {
+			lastErr = fmt.Errorf("failed to send request: %w", err)
+			log.Printf("[ChatHandler] Attempt %d/%d failed: %v", attempt+1, maxRetries, lastErr)
+			continue
+		}
+
+		if resp.StatusCode == http.StatusTooManyRequests { // 429
+			retryAfter := resp.Header.Get("Retry-After")
+			resp.Body.Close()
+			
+			// Sleep if we have cycled through a couple of times
+			var sleepDuration time.Duration
+			if attempt >= 2 {
+				sleepDuration = getRetryDelay(retryAfter, attempt-2)
+				log.Printf("[ChatHandler] Rate limit 429 hit. Sleeping %v before retry... (attempt %d/%d)", sleepDuration, attempt+1, maxRetries)
+				time.Sleep(sleepDuration)
+			} else {
+				log.Printf("[ChatHandler] Rate limit 429 hit. Trying next key immediately... (attempt %d/%d)", attempt+1, maxRetries)
+			}
+			lastErr = fmt.Errorf("groq rate limit (429)")
+			continue
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			body, _ := io.ReadAll(resp.Body)
+			resp.Body.Close()
+			return fmt.Errorf("groq api error %d: %s", resp.StatusCode, string(body))
+		}
+
+		// Success
+		break
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+h.groqClient.GetAPIKey())
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return fmt.Errorf("failed to send request: %w", err)
+	if resp == nil || resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("all stream attempts failed. Last error: %w", lastErr)
 	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("groq api error: %s", string(body))
-	}
 
 	reader := bufio.NewReader(resp.Body)
 	w.WriteHeaderNow()
@@ -226,4 +268,21 @@ func (h *ChatHandler) streamChatCompletion(w gin.ResponseWriter, messages []groq
 func formatStreamEvent(eventType string, data interface{}) string {
 	jsonData, _ := json.Marshal(data)
 	return fmt.Sprintf("event: %s\ndata: %s\n\n", eventType, string(jsonData))
+}
+
+// getRetryDelay returns the sleep duration based on the Retry-After header or default backoff
+func getRetryDelay(retryAfterHeader string, attempt int) time.Duration {
+	if retryAfterHeader != "" {
+		if seconds, err := strconv.Atoi(retryAfterHeader); err == nil && seconds > 0 {
+			if seconds > 5 {
+				return 5 * time.Second
+			}
+			return time.Duration(seconds) * time.Second
+		}
+	}
+	delay := time.Duration(1<<attempt) * time.Second
+	if delay > 5*time.Second {
+		return 5 * time.Second
+	}
+	return delay
 }

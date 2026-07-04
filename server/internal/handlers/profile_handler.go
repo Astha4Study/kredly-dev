@@ -16,6 +16,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type ProfileHandler struct {
@@ -512,5 +513,266 @@ func (h *ProfileHandler) HandleDeleteAccount(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Account successfully deleted",
+	})
+}
+
+// HandleGetPublicProfileSettings returns public profile settings for authenticated user
+func (h *ProfileHandler) HandleGetPublicProfileSettings(c *gin.Context) {
+	userInterface, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userMap, ok := userInterface.(gin.H)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user data"})
+		return
+	}
+
+	userID, ok := userMap["id"].(string)
+	if !ok || userID == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	settingsColl := database.DB.Collection("publicProfileSettings")
+
+	var settings models.PublicProfileSettings
+	err := settingsColl.FindOne(ctx, bson.M{"userId": userID}).Decode(&settings)
+	if err != nil {
+		// Return default settings if not found
+		defaultSettings := models.PublicProfileSettings{
+			ID:               uuid.New().String(),
+			UserID:           userID,
+			Headline:         "",
+			Bio:              "",
+			ShowCertificates: true,
+			ShowAssessments:  true,
+			ShowSkills:       true,
+			ShowCVData:       false,
+			SocialLinks: models.SocialLinks{
+				Linkedin:  "",
+				Github:    "",
+				Portfolio: "",
+				Twitter:   "",
+			},
+			CreatedAt:        time.Now(),
+			UpdatedAt:        time.Now(),
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"settings": defaultSettings,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"settings": settings,
+	})
+}
+
+// HandleUpdatePublicProfileSettings updates public profile settings for authenticated user
+func (h *ProfileHandler) HandleUpdatePublicProfileSettings(c *gin.Context) {
+	userInterface, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userMap, ok := userInterface.(gin.H)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user data"})
+		return
+	}
+
+	userID, ok := userMap["id"].(string)
+	if !ok || userID == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	var req struct {
+		Headline         string             `json:"headline"`
+		Bio              string             `json:"bio"`
+		ShowCertificates bool               `json:"showCertificates"`
+		ShowAssessments  bool               `json:"showAssessments"`
+		ShowSkills       bool               `json:"showSkills"`
+		ShowCVData       bool               `json:"showCVData"`
+		SocialLinks      models.SocialLinks `json:"socialLinks"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	settingsColl := database.DB.Collection("publicProfileSettings")
+
+	filter := bson.M{"userId": userID}
+	update := bson.M{
+		"$set": bson.M{
+			"headline":         req.Headline,
+			"bio":              req.Bio,
+			"showCertificates": req.ShowCertificates,
+			"showAssessments":  req.ShowAssessments,
+			"showSkills":       req.ShowSkills,
+			"showCVData":       req.ShowCVData,
+			"socialLinks":      req.SocialLinks,
+			"updatedAt":        time.Now(),
+		},
+	}
+
+	opts := options.Update().SetUpsert(true)
+	_, err := settingsColl.UpdateOne(ctx, filter, update, opts)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menyimpan pengaturan"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Pengaturan profil publik berhasil disimpan",
+	})
+}
+
+// HandleGetPublicProfileByUsername returns public profile data by username
+func (h *ProfileHandler) HandleGetPublicProfileByUsername(c *gin.Context) {
+	username := c.Param("username")
+	if username == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Username is required"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	userColl := database.DB.Collection("user")
+
+	var user models.User
+	err := userColl.FindOne(ctx, bson.M{"username": username}).Decode(&user)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User tidak ditemukan"})
+		return
+	}
+
+	userProfileColl := database.DB.Collection("userProfile")
+	var userProfile models.UserProfile
+	_ = userProfileColl.FindOne(ctx, bson.M{"userId": user.ID}).Decode(&userProfile)
+
+	settingsColl := database.DB.Collection("publicProfileSettings")
+	var settings models.PublicProfileSettings
+	err = settingsColl.FindOne(ctx, bson.M{"userId": user.ID}).Decode(&settings)
+	if err != nil {
+		settings = models.PublicProfileSettings{
+			ShowCertificates: true,
+			ShowAssessments:  true,
+			ShowSkills:       true,
+			ShowCVData:       false,
+		}
+	}
+
+	var sessionIDs []string
+	sessionColl := database.DB.Collection("session")
+	cursor, err := sessionColl.Find(ctx, bson.M{"userId": user.ID, "completed": true})
+	if err == nil {
+		defer cursor.Close(ctx)
+		for cursor.Next(ctx) {
+			var sess models.Session
+			if err := cursor.Decode(&sess); err == nil {
+				sessionIDs = append(sessionIDs, sess.ID)
+			}
+		}
+	}
+
+	var certs []map[string]interface{}
+	if settings.ShowCertificates && len(sessionIDs) > 0 {
+		certColl := database.DB.Collection("certificate_metadata")
+		certCursor, err := certColl.Find(ctx, bson.M{"session_id": bson.M{"$in": sessionIDs}})
+		if err == nil {
+			defer certCursor.Close(ctx)
+			for certCursor.Next(ctx) {
+				var cert models.CertificateMetadata
+				if err := certCursor.Decode(&cert); err == nil {
+					certs = append(certs, map[string]interface{}{
+						"id":              cert.CertificateID,
+						"title":           cert.AssessmentName,
+						"issuedAt":        cert.CreatedAt.Format(time.RFC3339),
+						"verificationUrl": cert.IpfsURL,
+					})
+				}
+			}
+		}
+	}
+
+	var completedAssessments []map[string]interface{}
+	if settings.ShowAssessments {
+		cursor, err := sessionColl.Find(ctx, bson.M{
+			"userId":    user.ID,
+			"completed": true,
+			"result":    bson.M{"$exists": true},
+		})
+		if err == nil {
+			defer cursor.Close(ctx)
+			for cursor.Next(ctx) {
+				var sess models.Session
+				if err := cursor.Decode(&sess); err == nil {
+					completedAt := sess.CreatedAt
+					if sess.CompletedAt != nil {
+						completedAt = *sess.CompletedAt
+					}
+					score := 0
+					if sess.Result != nil {
+						score = sess.Result.Score
+					}
+					completedAssessments = append(completedAssessments, map[string]interface{}{
+						"id":          sess.ID,
+						"title":       fmt.Sprintf("%s Assessment (%s)", sess.Role, sess.Level),
+						"score":       score,
+						"completedAt": completedAt.Format(time.RFC3339),
+						"status":      "completed",
+					})
+				}
+			}
+		}
+	}
+
+	var cvSkills []string
+	if settings.ShowSkills {
+		cvSkills = userProfile.CVSkills
+	}
+
+	var emailVal string
+	if user.Email != "" {
+		emailVal = user.Email
+	}
+
+	var imageVal string
+	if user.Image != nil {
+		imageVal = *user.Image
+	}
+
+	profileResponse := gin.H{
+		"id":           user.ID,
+		"name":         user.Name,
+		"username":     username,
+		"email":        emailVal,
+		"image":        imageVal,
+		"headline":     settings.Headline,
+		"bio":          settings.Bio,
+		"cvRole":       userProfile.CVRole,
+		"cvLevel":      userProfile.CVLevel,
+		"cvSkills":     cvSkills,
+		"certificates": certs,
+		"assessments":  completedAssessments,
+		"socialLinks":  settings.SocialLinks,
+		"displaySettings": gin.H{
+			"showCertificates": settings.ShowCertificates,
+			"showAssessments":  settings.ShowAssessments,
+			"showSkills":       settings.ShowSkills,
+			"showCVData":       settings.ShowCVData,
+		},
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"profile": profileResponse,
 	})
 }

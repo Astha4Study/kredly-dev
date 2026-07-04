@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import GridBorder from '@/components/GridBorder';
-import { Loader2, ExternalLink, Mail, Award, CheckCircle2 } from 'lucide-react';
+import { Loader2, ExternalLink, Award, CheckCircle2 } from 'lucide-react';
 
 export const Route = createFileRoute('/_public/@$username')({
   component: PublicProfilePage,

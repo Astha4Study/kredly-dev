@@ -32,7 +32,7 @@ func main() {
 	// ==========================================
 
 	// 2. Initialize Groq API Client
-	groqClient := groq.NewClient(cfg.GroqAPIKey, cfg.GroqBaseURL)
+	groqClient := groq.NewClient(cfg.GroqAPIKeys, cfg.GroqBaseURL)
 
 	// 3. Initialize CAT system
 	sessionStore := store.NewSessionStore(database.DB)
@@ -95,7 +95,7 @@ func main() {
 			c.JSON(http.StatusOK, gin.H{
 				"status":      "ok",
 				"environment": cfg.Environment,
-				"groq_loaded": cfg.GroqAPIKey != "",
+				"groq_loaded": len(cfg.GroqAPIKeys) > 0,
 			})
 		})
 
@@ -151,8 +151,9 @@ func main() {
 		// Username check (public, used by onboarding step 1)
 		api.GET("/check-username", profileHandler.HandleCheckUsername)
 
-		// Profile endpoints - Protected
+		// Profile endpoints - Protected/Public
 		api.GET("/profile", middleware.AuthMiddleware(cfg, authService), profileHandler.HandleGetProfile)
+		api.GET("/profile/public/:username", profileHandler.HandleGetPublicProfileByUsername)
 
 		// User account management - Protected
 		user := api.Group("/user")
@@ -163,6 +164,8 @@ func main() {
 			user.PUT("/update-profile", profileHandler.HandleUpdateProfile)
 			user.POST("/upload-cv", profileHandler.HandleUploadCV)
 			user.DELETE("/delete-account", profileHandler.HandleDeleteAccount)
+			user.GET("/public-profile-settings", profileHandler.HandleGetPublicProfileSettings)
+			user.PUT("/public-profile-settings", profileHandler.HandleUpdatePublicProfileSettings)
 		}
 
 		// Job endpoints - Protected
