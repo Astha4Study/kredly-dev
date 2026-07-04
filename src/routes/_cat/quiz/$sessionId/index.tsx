@@ -41,6 +41,10 @@ function RouteComponent() {
   const [assessmentId, setAssessmentId] = React.useState<string | undefined>(
     undefined,
   );
+  const [retryAttempt, setRetryAttempt] = React.useState(0);
+  const [loadingMessage, setLoadingMessage] = React.useState('Memuat soal...');
+  const [submitRetryAttempt, setSubmitRetryAttempt] = React.useState(0);
+  const [submitLoadingMessage, setSubmitLoadingMessage] = React.useState('Mengirim jawaban...');
 
   // Countdown timer: 0 means no time limit
   const [estimatedSeconds, setEstimatedSeconds] = React.useState(0);
@@ -94,19 +98,42 @@ function RouteComponent() {
     setShowResult(false);
     setFeedback(null);
     setCountdown(3);
+    setRetryAttempt(0);
+    setLoadingMessage('Memuat soal...');
 
-    try {
-      const res = await sessionService.getNextItem(sessionId);
-      setCurrentItem(res.item);
-      setQuestionNumber(res.question_number);
-      if (res.max_questions !== undefined) setMaxQuestions(res.max_questions);
-      if (res.min_questions !== undefined) setMinQuestions(res.min_questions);
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || 'Gagal memuat soal berikutnya.');
-    } finally {
-      setIsLoading(false);
-    }
+    const maxRetries = 3;
+    let attempt = 0;
+
+    const tryFetch = async (): Promise<void> => {
+      try {
+        if (attempt > 0) {
+          setLoadingMessage(`Menghubungkan ke server Kredly${'.'.repeat((attempt % 3) + 1)}`);
+        }
+        
+        const res = await sessionService.getNextItem(sessionId, attempt, maxRetries);
+        setCurrentItem(res.item);
+        setQuestionNumber(res.question_number);
+        if (res.max_questions !== undefined) setMaxQuestions(res.max_questions);
+        if (res.min_questions !== undefined) setMinQuestions(res.min_questions);
+        setIsLoading(false);
+      } catch (err: any) {
+        attempt++;
+        setRetryAttempt(attempt);
+        
+        if (attempt <= maxRetries) {
+          const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+          setLoadingMessage(`Menghubungkan ke server Kredly, mencoba kembali...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return tryFetch();
+        } else {
+          console.error(err);
+          setError(err.message || 'Gagal memuat soal berikutnya.');
+          setIsLoading(false);
+        }
+      }
+    };
+
+    await tryFetch();
   }, [sessionId]);
 
   // Fetch session details and first question on mount
@@ -174,30 +201,57 @@ function RouteComponent() {
 
     setIsSubmitting(true);
     setError(null);
+    setSubmitRetryAttempt(0);
+    setSubmitLoadingMessage('Mengirim jawaban...');
 
-    try {
-      const res = await sessionService.submitAnswer(
-        sessionId,
-        finalAnswer || '',
-      );
-      setFeedback(res);
-      setShowResult(true);
+    const maxRetries = 3;
+    let attempt = 0;
 
-      let counter = 3;
-      const interval = setInterval(() => {
-        counter -= 1;
-        setCountdown(counter);
-        if (counter <= 0) {
-          clearInterval(interval);
-          handleNextStep(res);
+    const trySubmit = async (): Promise<void> => {
+      try {
+        if (attempt > 0) {
+          setSubmitLoadingMessage(`Menghubungkan ke server Kredly${'.'.repeat((attempt % 3) + 1)}`);
         }
-      }, 1000);
-      setCountdownIntervalId(interval);
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || 'Gagal mengirimkan jawaban.');
-      setIsSubmitting(false);
-    }
+
+        const res = await sessionService.submitAnswer(
+          sessionId,
+          finalAnswer || '',
+          attempt,
+          maxRetries,
+        );
+        
+        setFeedback(res);
+        setShowResult(true);
+
+        let counter = 3;
+        const interval = setInterval(() => {
+          counter -= 1;
+          setCountdown(counter);
+          if (counter <= 0) {
+            clearInterval(interval);
+            handleNextStep(res);
+          }
+        }, 1000);
+        setCountdownIntervalId(interval);
+        setIsSubmitting(false);
+      } catch (err: any) {
+        attempt++;
+        setSubmitRetryAttempt(attempt);
+        
+        if (attempt <= maxRetries) {
+          const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+          setSubmitLoadingMessage(`Menghubungkan ke server Kredly, mencoba kembali...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return trySubmit();
+        } else {
+          console.error(err);
+          setError(err.message || 'Gagal mengirimkan jawaban.');
+          setIsSubmitting(false);
+        }
+      }
+    };
+
+    await trySubmit();
   };
 
   const handleNextStep = (answerRes: AnswerResponse) => {
@@ -222,11 +276,11 @@ function RouteComponent() {
   };
 
   if (isLoading && !currentItem) {
-    return <QuizSkeleton />;
+    return <QuizSkeleton loadingMessage={loadingMessage} />;
   }
 
   if (error && !currentItem) {
-    return <QuizErrorView error={error} onRetry={loadNextQuestion} />;
+    return <QuizErrorView error={error} onRetry={loadNextQuestion} retryAttempt={retryAttempt} />;
   }
 
   return (
@@ -283,6 +337,7 @@ function RouteComponent() {
                 onContinue={handleFastForward}
                 countdown={countdown}
                 error={error}
+                submitLoadingMessage={submitLoadingMessage}
               />
             </div>
           )}
