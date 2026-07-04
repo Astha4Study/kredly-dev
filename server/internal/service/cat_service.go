@@ -17,6 +17,12 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+// ErrNoPendingQuestion is returned when SubmitAnswer is called but there is no
+// active question in the session. This typically happens due to a duplicate
+// submit request (double-click / network retry). The caller should treat this
+// as a no-op and not show it as a fatal error to the user.
+var ErrNoPendingQuestion = errors.New("no active pending question to answer")
+
 type CATService struct {
 	sessions *store.SessionStore
 	groq     *groq.Client
@@ -298,8 +304,13 @@ func (s *CATService) SubmitAnswer(ctx context.Context, sessionID, answer string)
 		return nil, errors.New("session already completed")
 	}
 
+	// Guard: PendingItem == nil paling sering disebabkan oleh double-submit
+	// (frontend mengirim request kedua sebelum response pertama selesai).
+	// Kembalikan sentinel error agar handler HTTP bisa merespons dengan 409 Conflict
+	// daripada 500 Internal Server Error.
 	if sess.PendingItem == nil {
-		return nil, errors.New("no active pending question to answer")
+		log.Printf("[CAT] SubmitAnswer called with no PendingItem for session %s (possible double-submit). TotalItems: %d", sessionID, sess.TotalItems)
+		return nil, ErrNoPendingQuestion
 	}
 
 	var correct bool

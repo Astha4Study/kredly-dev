@@ -23,6 +23,8 @@ export interface SessionDetails {
   min_items: number;
   completed: boolean;
   assessment_id?: string;
+  /** Total seconds for the exam timer. 0 means no time limit. */
+  estimated_time_seconds?: number;
 }
 
 export interface QuizItem {
