@@ -32,7 +32,7 @@ func main() {
 	// ==========================================
 
 	// 2. Initialize Groq API Client
-	groqClient := groq.NewClient(cfg.GroqAPIKey, cfg.GroqBaseURL)
+	groqClient := groq.NewClient(cfg.GroqAPIKeys, cfg.GroqBaseURL)
 
 	// 3. Initialize CAT system
 	sessionStore := store.NewSessionStore(database.DB)
@@ -95,7 +95,7 @@ func main() {
 			c.JSON(http.StatusOK, gin.H{
 				"status":      "ok",
 				"environment": cfg.Environment,
-				"groq_loaded": cfg.GroqAPIKey != "",
+				"groq_loaded": len(cfg.GroqAPIKeys) > 0,
 			})
 		})
 

@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -10,7 +11,7 @@ import (
 type Config struct {
 	Port               string
 	Environment        string
-	GroqAPIKey         string
+	GroqAPIKeys        []string
 	GroqBaseURL        string
 	DatabaseURL        string
 	APIURL             string
@@ -28,7 +29,24 @@ func LoadConfig() *Config {
 
 	port := getEnv("PORT", "8080")
 	env := getEnv("ENVIRONMENT", "development")
-	groqAPIKey := getEnv("GROQ_API_KEY", "")
+	
+	// Read keys with fallback support
+	rawKeys := getEnv("GROQ_API_KEYS", "")
+	if rawKeys == "" {
+		rawKeys = getEnv("GROQ_API_KEY", "")
+	}
+
+	var groqAPIKeys []string
+	if rawKeys != "" {
+		parts := strings.Split(rawKeys, ",")
+		for _, part := range parts {
+			trimmed := strings.TrimSpace(part)
+			if trimmed != "" && trimmed != "gsk_your_api_key_here" {
+				groqAPIKeys = append(groqAPIKeys, trimmed)
+			}
+		}
+	}
+
 	groqBaseURL := getEnv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
 	databaseURL := getEnv("DATABASE_URL", "mongodb://localhost:27017/kredly")
 	apiURL := getEnv("API_URL", "http://localhost:8080")
@@ -37,14 +55,14 @@ func LoadConfig() *Config {
 	googleClientSecret := getEnv("GOOGLE_CLIENT_SECRET", "")
 	resendAPIKey := getEnv("RESEND_API_KEY", "")
 
-	if groqAPIKey == "" || groqAPIKey == "gsk_your_api_key_here" {
-		log.Println("Warning: GROQ_API_KEY is not set or still set to default placeholder value. Please update it in your .env file.")
+	if len(groqAPIKeys) == 0 {
+		log.Println("Warning: GROQ_API_KEYS is not set or still set to default placeholder value. Please update it in your .env file.")
 	}
 
 	return &Config{
 		Port:               port,
 		Environment:        env,
-		GroqAPIKey:         groqAPIKey,
+		GroqAPIKeys:        groqAPIKeys,
 		GroqBaseURL:        groqBaseURL,
 		DatabaseURL:        databaseURL,
 		APIURL:             apiURL,
