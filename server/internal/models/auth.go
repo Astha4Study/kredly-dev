@@ -153,6 +153,27 @@ type Job struct {
 	User *User `bson:"-" json:"user,omitempty"`
 }
 
+type SocialLinks struct {
+	Linkedin  string `bson:"linkedin" json:"linkedin"`
+	Github    string `bson:"github" json:"github"`
+	Portfolio string `bson:"portfolio" json:"portfolio"`
+	Twitter   string `bson:"twitter" json:"twitter"`
+}
+
+type PublicProfileSettings struct {
+	ID               string      `bson:"_id" json:"id"`
+	UserID           string      `bson:"userId" json:"userId"`
+	Headline         string      `bson:"headline" json:"headline"`
+	Bio              string      `bson:"bio" json:"bio"`
+	ShowCertificates bool        `bson:"showCertificates" json:"showCertificates"`
+	ShowAssessments  bool        `bson:"showAssessments" json:"showAssessments"`
+	ShowSkills       bool        `bson:"showSkills" json:"showSkills"`
+	ShowCVData       bool        `bson:"showCVData" json:"showCVData"`
+	SocialLinks      SocialLinks `bson:"socialLinks" json:"socialLinks"`
+	CreatedAt        time.Time   `bson:"createdAt" json:"createdAt"`
+	UpdatedAt        time.Time   `bson:"updatedAt" json:"updatedAt"`
+}
+
 // ==========================================
 // 2. SETUP UNIQUE INDEXES
 // ==========================================
@@ -219,6 +240,21 @@ func SetupIndexes(db *mongo.Database) error {
 			log.Println("⚠️ Index unik untuk UserProfile UserID sudah ada, proses diabaikan.")
 		} else {
 			log.Printf("❌ Gagal membuat index unik untuk UserProfile UserID: %v", err)
+			return err
+		}
+	}
+
+	// 4. Index unik untuk PublicProfileSettings (UserID)
+	publicProfileSettingsCollection := db.Collection("publicProfileSettings")
+	_, err = publicProfileSettingsCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys:    bson.D{{Key: "userId", Value: 1}},
+		Options: options.Index().SetUnique(true),
+	})
+	if err != nil {
+		if strings.Contains(err.Error(), "IndexOptionsConflict") || strings.Contains(err.Error(), "already exists") {
+			log.Println("⚠️ Index unik untuk PublicProfileSettings UserID sudah ada, proses diabaikan.")
+		} else {
+			log.Printf("❌ Gagal membuat index unik untuk PublicProfileSettings UserID: %v", err)
 			return err
 		}
 	}

@@ -26,12 +26,14 @@ export default function QuizExitDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Keluar dari Ujian?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Apakah Anda yakin ingin keluar? Sesi ujian CAT ini akan dihentikan
-            sementara, namun progress Anda tetap tersimpan dan tidak akan
-            diselesaikan secara otomatis. Anda dapat melanjutkannya nanti.
-          </AlertDialogDescription>
         </AlertDialogHeader>
+        <AlertDialogDescription>
+          <p className='text-justify'>
+            Apakah Anda yakin ingin keluar? Ujian CAT ini akan dibatalkan,
+            progress Anda saat ini akan di-reset, dan Anda harus mengulangnya
+            kembali dari awal.
+          </p>
+        </AlertDialogDescription>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => onOpenChange(false)}>
             Batal
