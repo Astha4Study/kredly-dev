@@ -25,6 +25,10 @@ export interface SessionDetails {
   assessment_id?: string;
   /** Total seconds for the exam timer. 0 means no time limit. */
   estimated_time_seconds?: number;
+  /** Resume TTL fields */
+  is_resumable: boolean;
+  expires_at: string; // ISO timestamp — when the 24h resume window closes
+  last_active_at?: string; // ISO timestamp — last answer submit time
 }
 
 export interface QuizItem {

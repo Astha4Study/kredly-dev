@@ -19,7 +19,10 @@ function formatTime(seconds: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-export default function QuizCountdown({ totalSeconds, onTimeUp }: QuizCountdownProps) {
+export default function QuizCountdown({
+  totalSeconds,
+  onTimeUp,
+}: QuizCountdownProps) {
   const [remaining, setRemaining] = React.useState(totalSeconds);
   const onTimeUpRef = React.useRef(onTimeUp);
 

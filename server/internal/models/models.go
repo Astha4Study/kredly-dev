@@ -41,6 +41,13 @@ type Session struct {
 	CreatedAt       time.Time       `bson:"createdAt" json:"created_at"`
 	CompletedAt     *time.Time      `bson:"completedAt,omitempty" json:"completed_at,omitempty"`
 	DurationSeconds int             `bson:"durationSeconds,omitempty" json:"duration_seconds,omitempty"`
+
+	// Resume TTL fields
+	// LastActiveAt is updated every time the user successfully submits an answer.
+	// ExpiresAt is set to LastActiveAt + 24h (sliding window) and determines
+	// how long an in-progress session can be resumed after the user exits.
+	LastActiveAt *time.Time `bson:"lastActiveAt,omitempty" json:"last_active_at,omitempty"`
+	ExpiresAt    time.Time  `bson:"expiresAt" json:"expires_at"`
 }
 
 type PendingItem struct {

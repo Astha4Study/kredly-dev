@@ -153,10 +153,14 @@ function PublicProfilePage() {
                   <h1 className="text-3xl md:text-4xl font-bold mb-2">
                     {profile.name}
                   </h1>
-                  <p className="text-muted-foreground mb-4">@{profile.username}</p>
+                  <p className="text-muted-foreground mb-4">
+                    @{profile.username}
+                  </p>
 
                   {profile.headline && (
-                    <p className="text-lg font-medium mb-4">{profile.headline}</p>
+                    <p className="text-lg font-medium mb-4">
+                      {profile.headline}
+                    </p>
                   )}
 
                   {profile.bio && (
@@ -166,11 +170,7 @@ function PublicProfilePage() {
                   {profile.socialLinks && (
                     <div className="flex flex-wrap gap-2">
                       {profile.socialLinks.linkedin && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          asChild
-                        >
+                        <Button variant="outline" size="sm" asChild>
                           <a
                             href={profile.socialLinks.linkedin}
                             target="_blank"
@@ -182,11 +182,7 @@ function PublicProfilePage() {
                         </Button>
                       )}
                       {profile.socialLinks.github && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          asChild
-                        >
+                        <Button variant="outline" size="sm" asChild>
                           <a
                             href={profile.socialLinks.github}
                             target="_blank"
@@ -198,11 +194,7 @@ function PublicProfilePage() {
                         </Button>
                       )}
                       {profile.socialLinks.portfolio && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          asChild
-                        >
+                        <Button variant="outline" size="sm" asChild>
                           <a
                             href={profile.socialLinks.portfolio}
                             target="_blank"
@@ -214,11 +206,7 @@ function PublicProfilePage() {
                         </Button>
                       )}
                       {profile.socialLinks.twitter && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          asChild
-                        >
+                        <Button variant="outline" size="sm" asChild>
                           <a
                             href={profile.socialLinks.twitter}
                             target="_blank"
@@ -250,20 +238,26 @@ function PublicProfilePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {profile.cvRole && (
                       <div>
-                        <p className="text-sm text-muted-foreground mb-1">Role</p>
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Role
+                        </p>
                         <p className="font-medium">{profile.cvRole}</p>
                       </div>
                     )}
                     {profile.cvLevel && (
                       <div>
-                        <p className="text-sm text-muted-foreground mb-1">Level</p>
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Level
+                        </p>
                         <p className="font-medium">{profile.cvLevel}</p>
                       </div>
                     )}
                   </div>
                   {profile.cvSkills && profile.cvSkills.length > 0 && (
                     <div>
-                      <p className="text-sm text-muted-foreground mb-2">Skills</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Skills
+                      </p>
                       <div className="flex flex-wrap gap-2">
                         {profile.cvSkills.map((skill, idx) => (
                           <Badge key={idx} variant="secondary">
@@ -302,7 +296,9 @@ function PublicProfilePage() {
                             <h3 className="font-medium">{cert.title}</h3>
                             <p className="text-sm text-muted-foreground">
                               Diterbitkan{' '}
-                              {new Date(cert.issuedAt).toLocaleDateString('id-ID')}
+                              {new Date(cert.issuedAt).toLocaleDateString(
+                                'id-ID',
+                              )}
                             </p>
                           </div>
                         </div>
@@ -346,13 +342,16 @@ function PublicProfilePage() {
                           <h3 className="font-medium">{assessment.title}</h3>
                           <p className="text-sm text-muted-foreground">
                             Diselesaikan{' '}
-                            {new Date(assessment.completedAt).toLocaleDateString(
-                              'id-ID',
-                            )}
+                            {new Date(
+                              assessment.completedAt,
+                            ).toLocaleDateString('id-ID')}
                           </p>
                         </div>
                         {assessment.score !== undefined && (
-                          <Badge variant="default" className="text-lg px-3 py-1">
+                          <Badge
+                            variant="default"
+                            className="text-lg px-3 py-1"
+                          >
                             {assessment.score}%
                           </Badge>
                         )}

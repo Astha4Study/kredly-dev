@@ -106,6 +106,25 @@ func (h *SessionHandler) HandleNextItem(c *gin.Context) {
 		return
 	}
 
+	// Check session exists and is still resumable before fetching next item
+	sess, err := h.catService.GetSession(c.Request.Context(), sessionID)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !h.catService.IsSessionResumable(sess) {
+		c.JSON(http.StatusGone, gin.H{
+			"error":   "session_expired",
+			"message": "Waktu resume sesi habis. Silakan mulai assessment baru.",
+		})
+		return
+	}
+
 	item, qNum, maxItems, minItems, err := h.catService.NextItem(c.Request.Context(), sessionID)
 	if err != nil {
 		// Detect if session is already completed to return appropriate status
@@ -331,6 +350,10 @@ func (h *SessionHandler) HandleGetSession(c *gin.Context) {
 		"min_items":              sess.MinItems,
 		"completed":              sess.Completed,
 		"estimated_time_seconds": estimatedTimeSeconds,
+		// Resume TTL fields
+		"last_active_at": sess.LastActiveAt,
+		"expires_at":     sess.ExpiresAt,
+		"is_resumable":   h.catService.IsSessionResumable(sess),
 	})
 }
 

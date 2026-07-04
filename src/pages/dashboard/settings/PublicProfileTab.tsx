@@ -14,12 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import {
-  Loader2,
-  Copy,
-  ExternalLink,
-  Globe,
-} from 'lucide-react';
+import { Loader2, Copy, ExternalLink, Globe } from 'lucide-react';
 
 interface PublicProfileSettings {
   headline: string;
@@ -170,225 +165,219 @@ export default function PublicProfileTab() {
       <Card>
         <CardHeader>
           <CardTitle>Informasi Publik</CardTitle>
-              <CardDescription>
-                Bio dan headline yang akan ditampilkan di profil publik
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="headline">Headline</Label>
-                <Input
-                  id="headline"
-                  placeholder="e.g., Full-stack Developer | React & Node.js"
-                  value={settings.headline}
-                  onChange={(e) =>
-                    setSettings({ ...settings, headline: e.target.value })
-                  }
-                  maxLength={100}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Tagline singkat tentang diri Anda (maks. 100 karakter)
-                </p>
+          <CardDescription>
+            Bio dan headline yang akan ditampilkan di profil publik
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="headline">Headline</Label>
+            <Input
+              id="headline"
+              placeholder="e.g., Full-stack Developer | React & Node.js"
+              value={settings.headline}
+              onChange={(e) =>
+                setSettings({ ...settings, headline: e.target.value })
+              }
+              maxLength={100}
+            />
+            <p className="text-xs text-muted-foreground">
+              Tagline singkat tentang diri Anda (maks. 100 karakter)
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="bio">Bio</Label>
+            <Textarea
+              id="bio"
+              placeholder="Ceritakan tentang pengalaman dan keahlian Anda..."
+              value={settings.bio}
+              onChange={(e) =>
+                setSettings({ ...settings, bio: e.target.value })
+              }
+              rows={4}
+              maxLength={500}
+            />
+            <p className="text-xs text-muted-foreground">
+              Deskripsi singkat tentang pengalaman profesional Anda (maks. 500
+              karakter)
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Pengaturan Tampilan</CardTitle>
+          <CardDescription>
+            Pilih informasi yang ingin ditampilkan di profil publik
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>Sertifikat Terverifikasi</Label>
+              <p className="text-sm text-muted-foreground">
+                Tampilkan sertifikat blockchain yang telah diterbitkan
+              </p>
+            </div>
+            <Switch
+              checked={settings.showCertificates}
+              onCheckedChange={(checked) =>
+                setSettings({ ...settings, showCertificates: checked })
+              }
+            />
+          </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>Hasil Assessment</Label>
+              <p className="text-sm text-muted-foreground">
+                Tampilkan assessment yang telah diselesaikan dan skornya
+              </p>
+            </div>
+            <Switch
+              checked={settings.showAssessments}
+              onCheckedChange={(checked) =>
+                setSettings({ ...settings, showAssessments: checked })
+              }
+            />
+          </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>Skills Terverifikasi</Label>
+              <p className="text-sm text-muted-foreground">
+                Tampilkan skills yang telah diverifikasi melalui assessment
+              </p>
+            </div>
+            <Switch
+              checked={settings.showSkills}
+              onCheckedChange={(checked) =>
+                setSettings({ ...settings, showSkills: checked })
+              }
+            />
+          </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>Data CV</Label>
+              <p className="text-sm text-muted-foreground">
+                Tampilkan role, level, dan summary dari CV Anda
+              </p>
+            </div>
+            <Switch
+              checked={settings.showCVData}
+              onCheckedChange={(checked) =>
+                setSettings({ ...settings, showCVData: checked })
+              }
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Social Links</CardTitle>
+          <CardDescription>
+            Tambahkan link ke profil profesional Anda
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="linkedin">
+              <div className="flex items-center gap-2">LinkedIn</div>
+            </Label>
+            <Input
+              id="linkedin"
+              type="url"
+              placeholder="https://linkedin.com/in/username"
+              value={settings.socialLinks.linkedin}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  socialLinks: {
+                    ...settings.socialLinks,
+                    linkedin: e.target.value,
+                  },
+                })
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="github">
+              <div className="flex items-center gap-2">GitHub</div>
+            </Label>
+            <Input
+              id="github"
+              type="url"
+              placeholder="https://github.com/username"
+              value={settings.socialLinks.github}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  socialLinks: {
+                    ...settings.socialLinks,
+                    github: e.target.value,
+                  },
+                })
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="portfolio">
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4" />
+                Portfolio Website
               </div>
+            </Label>
+            <Input
+              id="portfolio"
+              type="url"
+              placeholder="https://yourportfolio.com"
+              value={settings.socialLinks.portfolio}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  socialLinks: {
+                    ...settings.socialLinks,
+                    portfolio: e.target.value,
+                  },
+                })
+              }
+            />
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="bio">Bio</Label>
-                <Textarea
-                  id="bio"
-                  placeholder="Ceritakan tentang pengalaman dan keahlian Anda..."
-                  value={settings.bio}
-                  onChange={(e) =>
-                    setSettings({ ...settings, bio: e.target.value })
-                  }
-                  rows={4}
-                  maxLength={500}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Deskripsi singkat tentang pengalaman profesional Anda (maks.
-                  500 karakter)
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Pengaturan Tampilan</CardTitle>
-              <CardDescription>
-                Pilih informasi yang ingin ditampilkan di profil publik
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Sertifikat Terverifikasi</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Tampilkan sertifikat blockchain yang telah diterbitkan
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.showCertificates}
-                  onCheckedChange={(checked) =>
-                    setSettings({ ...settings, showCertificates: checked })
-                  }
-                />
-              </div>
-
-              <Separator />
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Hasil Assessment</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Tampilkan assessment yang telah diselesaikan dan skornya
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.showAssessments}
-                  onCheckedChange={(checked) =>
-                    setSettings({ ...settings, showAssessments: checked })
-                  }
-                />
-              </div>
-
-              <Separator />
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Skills Terverifikasi</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Tampilkan skills yang telah diverifikasi melalui assessment
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.showSkills}
-                  onCheckedChange={(checked) =>
-                    setSettings({ ...settings, showSkills: checked })
-                  }
-                />
-              </div>
-
-              <Separator />
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Data CV</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Tampilkan role, level, dan summary dari CV Anda
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.showCVData}
-                  onCheckedChange={(checked) =>
-                    setSettings({ ...settings, showCVData: checked })
-                  }
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Social Links</CardTitle>
-              <CardDescription>
-                Tambahkan link ke profil profesional Anda
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="linkedin">
-                  <div className="flex items-center gap-2">
-                    LinkedIn
-                  </div>
-                </Label>
-                <Input
-                  id="linkedin"
-                  type="url"
-                  placeholder="https://linkedin.com/in/username"
-                  value={settings.socialLinks.linkedin}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      socialLinks: {
-                        ...settings.socialLinks,
-                        linkedin: e.target.value,
-                      },
-                    })
-                  }
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="github">
-                  <div className="flex items-center gap-2">
-                    GitHub
-                  </div>
-                </Label>
-                <Input
-                  id="github"
-                  type="url"
-                  placeholder="https://github.com/username"
-                  value={settings.socialLinks.github}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      socialLinks: {
-                        ...settings.socialLinks,
-                        github: e.target.value,
-                      },
-                    })
-                  }
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="portfolio">
-                  <div className="flex items-center gap-2">
-                    <Globe className="h-4 w-4" />
-                    Portfolio Website
-                  </div>
-                </Label>
-                <Input
-                  id="portfolio"
-                  type="url"
-                  placeholder="https://yourportfolio.com"
-                  value={settings.socialLinks.portfolio}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      socialLinks: {
-                        ...settings.socialLinks,
-                        portfolio: e.target.value,
-                      },
-                    })
-                  }
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="twitter">
-                  <div className="flex items-center gap-2">
-                    Twitter / X
-                  </div>
-                </Label>
-                <Input
-                  id="twitter"
-                  type="url"
-                  placeholder="https://twitter.com/username"
-                  value={settings.socialLinks.twitter}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      socialLinks: {
-                        ...settings.socialLinks,
-                        twitter: e.target.value,
-                      },
-                    })
-                  }
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <div className="space-y-2">
+            <Label htmlFor="twitter">
+              <div className="flex items-center gap-2">Twitter / X</div>
+            </Label>
+            <Input
+              id="twitter"
+              type="url"
+              placeholder="https://twitter.com/username"
+              value={settings.socialLinks.twitter}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  socialLinks: {
+                    ...settings.socialLinks,
+                    twitter: e.target.value,
+                  },
+                })
+              }
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="flex justify-end">
         <Button onClick={handleSave} disabled={isSaving}>

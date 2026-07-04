@@ -69,7 +69,9 @@ export default function InfiniteScrollSection() {
                 TRUST
               </span>
 
-              <Badge variant="default"><Building2 /> Enterprise Technology</Badge>
+              <Badge variant="default">
+                <Building2 /> Enterprise Technology
+              </Badge>
 
               <motion.h2
                 initial={{ opacity: 0, y: 16 }}

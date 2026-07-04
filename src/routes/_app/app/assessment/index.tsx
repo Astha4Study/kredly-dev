@@ -31,6 +31,7 @@ interface Assessment {
   passed?: boolean;
   sessionId?: string;
   level?: string;
+  expiresAt?: string;
 }
 
 interface GeneralAssessment {
@@ -63,6 +64,8 @@ interface CVAssessmentFromAPI {
   sessionId?: string;
   score?: number;
   level?: string;
+  expiresAt?: string;
+  progress?: number;
 }
 
 function RouteComponent() {
@@ -70,6 +73,9 @@ function RouteComponent() {
     Assessment[]
   >([]);
   const [relatedAssessments, setRelatedAssessments] = React.useState<
+    Assessment[]
+  >([]);
+  const [inProgressAssessments, setInProgressAssessments] = React.useState<
     Assessment[]
   >([]);
   const [completedAssessments, setCompletedAssessments] = React.useState<
@@ -115,6 +121,9 @@ function RouteComponent() {
           );
           const completed = allAssessments.filter(
             (a: CVAssessmentFromAPI) => a.status === 'completed',
+          );
+          const inProgress = allAssessments.filter(
+            (a: CVAssessmentFromAPI) => a.status === 'in-progress',
           );
 
           setGeneralAssessments(
@@ -162,6 +171,23 @@ function RouteComponent() {
             })),
           );
 
+          setInProgressAssessments(
+            inProgress.map((a: CVAssessmentFromAPI) => ({
+              id: a.id,
+              skillName: a.title,
+              difficulty: a.difficulty || 'Intermediate',
+              estimatedTime: a.estimatedTime || '45 menit',
+              questionCount: a.questionCount || 30,
+              isRecommended: a.isRecommended,
+              category:
+                a.category || (a.type === 'general' ? 'General Role' : 'Skill'),
+              status: 'in-progress',
+              sessionId: a.sessionId,
+              expiresAt: a.expiresAt,
+              progress: a.progress,
+            })),
+          );
+
           setCompletedAssessments(
             completed.map((a: CVAssessmentFromAPI) => ({
               id: a.id,
@@ -197,6 +223,7 @@ function RouteComponent() {
     // No mock data if user profile or cvAssessments does not exist in MongoDB
     setAvailableAssessments([]);
     setRelatedAssessments([]);
+    setInProgressAssessments([]);
     setCompletedAssessments([]);
     setGeneralAssessments([]);
     setRoleAssessmentCompleted(false);
@@ -287,18 +314,34 @@ function RouteComponent() {
 
         {/* Tabs */}
         <Tabs defaultValue="available" className="w-full space-y-4">
-          <TabsList className="grid w-full grid-cols-2 bg-muted p-1 h-auto">
+          <TabsList
+            className={`grid w-full bg-muted p-1 h-auto ${
+              inProgressAssessments.length > 0 ? 'grid-cols-3' : 'grid-cols-2'
+            }`}
+          >
             <TabsTrigger
               value="available"
               className="flex items-center gap-2 transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm hover:bg-background/50"
             >
               <span>Tersedia</span>
-              <span className="rounded-full border px-2 py-0.5 text-xs bg-background data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full border text-xs bg-background data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 {availableAssessments.length +
                   generalAssessments.length +
                   relatedAssessments.length}
               </span>
             </TabsTrigger>
+
+            {inProgressAssessments.length > 0 && (
+              <TabsTrigger
+                value="in-progress"
+                className="flex items-center gap-2 transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm hover:bg-background/50"
+              >
+                <span>Berjalan</span>
+                <span className="rounded-full border bg-background px-2 py-0.5 text-xs">
+                  {inProgressAssessments.length}
+                </span>
+              </TabsTrigger>
+            )}
 
             <TabsTrigger
               value="completed"
@@ -406,6 +449,30 @@ function RouteComponent() {
               </>
             )}
           </TabsContent>
+
+          {/* Tab: Berjalan */}
+          {inProgressAssessments.length > 0 && (
+            <TabsContent value="in-progress" className="space-y-3">
+              {!profileExists ? (
+                <Card className="py-12 border">
+                  <CardContent className="text-center">
+                    <p className="text-muted-foreground text-sm">
+                      Silakan unggah CV Anda terlebih dahulu.
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {inProgressAssessments.map((assessment) => (
+                    <AssessmentCard
+                      key={assessment.id}
+                      assessment={assessment}
+                    />
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          )}
 
           {/* Tab: Selesai */}
           <FinishedTab

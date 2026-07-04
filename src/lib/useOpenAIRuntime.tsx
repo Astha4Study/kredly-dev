@@ -1,94 +1,108 @@
-import { useLocalRuntime } from "@assistant-ui/react";
-import type { ChatModelAdapter } from "@assistant-ui/react";
+import { useLocalRuntime } from '@assistant-ui/react';
+import type { ChatModelAdapter } from '@assistant-ui/react';
 
 export function useOpenAIRuntime() {
   const adapter: ChatModelAdapter = {
     async *run({ messages, abortSignal }) {
-      console.log("🚀 [OpenAI Runtime] Starting chat request");
-      console.log("📤 [OpenAI Runtime] Messages:", messages);
+      console.log('🚀 [OpenAI Runtime] Starting chat request');
+      console.log('📤 [OpenAI Runtime] Messages:', messages);
 
       const requestBody = {
         messages: messages.map((m) => ({
           role: m.role,
           content:
             m.content
-              .filter((c) => c.type === "text")
-              .map((c) => (c.type === "text" ? c.text : ""))
-              .join("") || "",
+              .filter((c) => c.type === 'text')
+              .map((c) => (c.type === 'text' ? c.text : ''))
+              .join('') || '',
         })),
         system: KREDLY_SYSTEM_PROMPT,
       };
 
-      console.log("📦 [OpenAI Runtime] Request body:", requestBody);
+      console.log('📦 [OpenAI Runtime] Request body:', requestBody);
 
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody),
         signal: abortSignal,
       });
 
-      console.log("📥 [OpenAI Runtime] Response status:", response.status);
-      console.log("📥 [OpenAI Runtime] Response headers:", Object.fromEntries(response.headers.entries()));
+      console.log('📥 [OpenAI Runtime] Response status:', response.status);
+      console.log(
+        '📥 [OpenAI Runtime] Response headers:',
+        Object.fromEntries(response.headers.entries()),
+      );
 
       if (!response.ok) {
-        console.error("❌ [OpenAI Runtime] HTTP error!", response.status);
+        console.error('❌ [OpenAI Runtime] HTTP error!', response.status);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const reader = response.body?.getReader();
       if (!reader) {
-        console.error("❌ [OpenAI Runtime] No response body");
-        throw new Error("No response body");
+        console.error('❌ [OpenAI Runtime] No response body');
+        throw new Error('No response body');
       }
 
       const decoder = new TextDecoder();
-      let buffer = "";
+      let buffer = '';
       let chunkCount = 0;
 
       try {
         while (true) {
           const { done, value } = await reader.read();
           if (done) {
-            console.log("✅ [OpenAI Runtime] Stream finished. Total chunks:", chunkCount);
+            console.log(
+              '✅ [OpenAI Runtime] Stream finished. Total chunks:',
+              chunkCount,
+            );
             break;
           }
 
           buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || "";
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
 
           for (const line of lines) {
-            if (!line.trim() || !line.startsWith("data: ")) continue;
+            if (!line.trim() || !line.startsWith('data: ')) continue;
 
             const data = line.slice(6);
-            console.log("📨 [OpenAI Runtime] Received line:", data);
+            console.log('📨 [OpenAI Runtime] Received line:', data);
 
-            if (data === "[DONE]") {
-              console.log("✅ [OpenAI Runtime] Received [DONE] signal");
+            if (data === '[DONE]') {
+              console.log('✅ [OpenAI Runtime] Received [DONE] signal');
               return;
             }
 
             try {
               const parsed = JSON.parse(data);
-              console.log("📊 [OpenAI Runtime] Parsed JSON:", parsed);
+              console.log('📊 [OpenAI Runtime] Parsed JSON:', parsed);
 
               const content = parsed.choices?.[0]?.delta?.content;
               if (content) {
                 chunkCount++;
-                console.log(`📝 [OpenAI Runtime] Text chunk #${chunkCount}:`, content);
-                yield { type: "text-delta", textDelta: content };
+                console.log(
+                  `📝 [OpenAI Runtime] Text chunk #${chunkCount}:`,
+                  content,
+                );
+                yield { type: 'text-delta', textDelta: content };
               } else {
-                console.log("⚠️ [OpenAI Runtime] No content in chunk");
+                console.log('⚠️ [OpenAI Runtime] No content in chunk');
               }
             } catch (e) {
-              console.error("❌ [OpenAI Runtime] JSON parse error:", e, "Line:", data);
+              console.error(
+                '❌ [OpenAI Runtime] JSON parse error:',
+                e,
+                'Line:',
+                data,
+              );
               continue;
             }
           }
         }
       } catch (error) {
-        console.error("❌ [OpenAI Runtime] Stream error:", error);
+        console.error('❌ [OpenAI Runtime] Stream error:', error);
         throw error;
       } finally {
         reader.releaseLock();

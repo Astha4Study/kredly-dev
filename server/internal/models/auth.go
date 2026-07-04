@@ -108,21 +108,22 @@ type UserProfile struct {
 }
 
 type GeneratedAssessment struct {
-	ID            string   `bson:"id" json:"id"`
-	Type          string   `bson:"type" json:"type"` // "general" or "skill"
-	Title         string   `bson:"title" json:"title"`
-	Description   string   `bson:"description,omitempty" json:"description,omitempty"`
-	Difficulty    string   `bson:"difficulty" json:"difficulty"`
-	EstimatedTime string   `bson:"estimatedTime" json:"estimatedTime"`
-	QuestionCount int      `bson:"questionCount" json:"questionCount"`
-	Topics        []string `bson:"topics,omitempty" json:"topics,omitempty"`
-	IsRecommended bool     `bson:"isRecommended" json:"isRecommended"`
-	Category      string   `bson:"category" json:"category"`
-	Status        string   `bson:"status" json:"status"` // "available", "in-progress", "completed"
-	Progress      int      `bson:"progress,omitempty" json:"progress,omitempty"`
-	SessionID     string   `bson:"sessionId,omitempty" json:"sessionId,omitempty"`
-	Score         int      `bson:"score,omitempty" json:"score,omitempty"`
-	Level         string   `bson:"level,omitempty" json:"level,omitempty"`
+	ID            string     `bson:"id" json:"id"`
+	Type          string     `bson:"type" json:"type"` // "general" or "skill"
+	Title         string     `bson:"title" json:"title"`
+	Description   string     `bson:"description,omitempty" json:"description,omitempty"`
+	Difficulty    string     `bson:"difficulty" json:"difficulty"`
+	EstimatedTime string     `bson:"estimatedTime" json:"estimatedTime"`
+	QuestionCount int        `bson:"questionCount" json:"questionCount"`
+	Topics        []string   `bson:"topics,omitempty" json:"topics,omitempty"`
+	IsRecommended bool       `bson:"isRecommended" json:"isRecommended"`
+	Category      string     `bson:"category" json:"category"`
+	Status        string     `bson:"status" json:"status"` // "available", "in-progress", "completed"
+	Progress      int        `bson:"progress,omitempty" json:"progress,omitempty"`
+	SessionID     string     `bson:"sessionId,omitempty" json:"sessionId,omitempty"`
+	Score         int        `bson:"score,omitempty" json:"score,omitempty"`
+	Level         string     `bson:"level,omitempty" json:"level,omitempty"`
+	ExpiresAt     *time.Time `bson:"expiresAt,omitempty" json:"expiresAt,omitempty"`
 }
 
 type Job struct {

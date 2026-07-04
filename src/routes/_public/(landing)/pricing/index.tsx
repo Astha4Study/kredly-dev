@@ -84,24 +84,27 @@ function RouteComponent() {
   return (
     <div className="min-h-screen">
       <section className="px-4 sm:px-6 pt-4">
-        <GridBorder className="mx-auto w-full max-w-7xl" paddingY="py-6 sm:py-8">
+        <GridBorder
+          className="mx-auto w-full max-w-7xl"
+          paddingY="py-6 sm:py-8"
+        >
           <div className="mx-auto flex  flex-col items-center text-center">
             <div className="max-w-6xl">
-            <Badge variant="default" className="shadow-sm">
-              <Coins />
-              Paket Kredit
-            </Badge>
+              <Badge variant="default" className="shadow-sm">
+                <Coins />
+                Paket Kredit
+              </Badge>
 
-            <div className="mt-4 max-w-3xl space-y-4 md:space-y-8">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
-                Pilih paket yang sesuai dengan{' '}
-                <span className="text-primary">kebutuhanmu</span>
-              </h2>
+              <div className="mt-4 max-w-3xl space-y-4 md:space-y-8">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
+                  Pilih paket yang sesuai dengan{' '}
+                  <span className="text-primary">kebutuhanmu</span>
+                </h2>
 
-              <p className="mx-auto max-w-2xl text-muted-foreground">
-                Dapatkan kredit untuk mengakses assessment berbasis AI dan
-                dapatkan sertifikat terverifikasi blockchain
-              </p>
+                <p className="mx-auto max-w-2xl text-muted-foreground">
+                  Dapatkan kredit untuk mengakses assessment berbasis AI dan
+                  dapatkan sertifikat terverifikasi blockchain
+                </p>
               </div>
             </div>
 

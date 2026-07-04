@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"kredly/internal/config"
 	"kredly/internal/database" // Tambahan import database
@@ -38,6 +41,12 @@ func main() {
 	sessionStore := store.NewSessionStore(database.DB)
 	catService := service.NewCATService(sessionStore, groqClient)
 	sessionHandler := handlers.NewSessionHandler(catService)
+
+	// Start background session expiration job
+	// Runs every hour; marks in-progress sessions as expired when ExpiresAt < now.
+	jobCtx, jobCancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer jobCancel()
+	go catService.RunExpirationJob(jobCtx)
 
 	// 4. Initialize Auth system
 	authService := service.NewAuthService()
