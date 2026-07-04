@@ -115,7 +115,7 @@ function RouteComponent() {
   };
 
   const profileUrl = user?.username
-    ? `${window.location.origin}/@${user.username}`
+    ? `${window.location.origin}/app/profile/${user.username}`
     : '';
 
   if (loading) {

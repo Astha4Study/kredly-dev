@@ -546,6 +546,7 @@ func (h *ProfileHandler) HandleGetPublicProfileSettings(c *gin.Context) {
 		defaultSettings := models.PublicProfileSettings{
 			ID:               uuid.New().String(),
 			UserID:           userID,
+			IsPublic:         false,
 			Headline:         "",
 			Bio:              "",
 			ShowCertificates: true,
@@ -593,6 +594,7 @@ func (h *ProfileHandler) HandleUpdatePublicProfileSettings(c *gin.Context) {
 	}
 
 	var req struct {
+		IsPublic         bool               `json:"isPublic"`
 		Headline         string             `json:"headline"`
 		Bio              string             `json:"bio"`
 		ShowCertificates bool               `json:"showCertificates"`
@@ -613,6 +615,7 @@ func (h *ProfileHandler) HandleUpdatePublicProfileSettings(c *gin.Context) {
 	filter := bson.M{"userId": userID}
 	update := bson.M{
 		"$set": bson.M{
+			"isPublic":         req.IsPublic,
 			"headline":         req.Headline,
 			"bio":              req.Bio,
 			"showCertificates": req.ShowCertificates,
@@ -667,7 +670,14 @@ func (h *ProfileHandler) HandleGetPublicProfileByUsername(c *gin.Context) {
 			ShowAssessments:  true,
 			ShowSkills:       true,
 			ShowCVData:       false,
+			IsPublic:         false,
 		}
+	}
+
+	// Check if profile is public
+	if !settings.IsPublic {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Profil tidak ditemukan atau tidak publik"})
+		return
 	}
 
 	var sessionIDs []string

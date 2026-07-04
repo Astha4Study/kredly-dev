@@ -163,6 +163,7 @@ type SocialLinks struct {
 type PublicProfileSettings struct {
 	ID               string      `bson:"_id" json:"id"`
 	UserID           string      `bson:"userId" json:"userId"`
+	IsPublic         bool        `bson:"isPublic" json:"isPublic"`
 	Headline         string      `bson:"headline" json:"headline"`
 	Bio              string      `bson:"bio" json:"bio"`
 	ShowCertificates bool        `bson:"showCertificates" json:"showCertificates"`

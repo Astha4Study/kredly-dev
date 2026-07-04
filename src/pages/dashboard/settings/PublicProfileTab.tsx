@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 
 interface PublicProfileSettings {
+  isPublic: boolean;
   headline: string;
   bio: string;
   showCertificates: boolean;
@@ -41,6 +42,7 @@ export default function PublicProfileTab() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [settings, setSettings] = useState<PublicProfileSettings>({
+    isPublic: false,
     headline: '',
     bio: '',
     showCertificates: true,
@@ -56,7 +58,7 @@ export default function PublicProfileTab() {
   });
 
   const profileUrl = user?.username
-    ? `${window.location.origin}/@${user.username}`
+    ? `${window.location.origin}/app/profile/${user.username}`
     : '';
 
   useEffect(() => {
@@ -164,6 +166,32 @@ export default function PublicProfileTab() {
               Set username di tab Profil untuk mendapatkan URL publik
             </p>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Visibilitas Profil</CardTitle>
+          <CardDescription>
+            Kontrol apakah profil Anda dapat diakses oleh publik
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="isPublic">Aktifkan Profil Publik</Label>
+              <p className="text-sm text-muted-foreground">
+                Jika diaktifkan, profil Anda dapat dilihat oleh siapa saja yang mengetahui username Anda
+              </p>
+            </div>
+            <Switch
+              id="isPublic"
+              checked={settings.isPublic}
+              onCheckedChange={(checked) =>
+                setSettings({ ...settings, isPublic: checked })
+              }
+            />
+          </div>
         </CardContent>
       </Card>
 
