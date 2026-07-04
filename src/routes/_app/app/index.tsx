@@ -74,11 +74,16 @@ function RouteComponent() {
           if (data.profile?.cvAssessments) {
             const assessments = data.profile.cvAssessments as CVAssessment[];
 
-            // Separate by type
-            const generalAssessments = assessments.filter(
+            // Filter out completed assessments
+            const availableOnly = assessments.filter(
+              (a) => a.status !== 'completed' && a.status !== 'finished',
+            );
+
+            // Separate by type (only from available assessments)
+            const generalAssessments = availableOnly.filter(
               (a) => a.type === 'general',
             );
-            const skillAssessments = assessments.filter(
+            const skillAssessments = availableOnly.filter(
               (a) => a.type === 'skill' || a.type === 'related_skill',
             );
 
@@ -99,7 +104,7 @@ function RouteComponent() {
             setStats({
               totalCredentials: 0,
               averageScore: 0,
-              activeAssessments: assessments.length,
+              activeAssessments: availableOnly.length,
             });
           } else {
             setStats({
@@ -117,6 +122,19 @@ function RouteComponent() {
     }
 
     fetchDashboardData();
+
+    // Refresh data when page becomes visible (e.g., returning from assessment)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchDashboardData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   return (

@@ -43,7 +43,7 @@ function RouteComponent() {
   // Feedback States
   const [showResult, setShowResult] = React.useState(false);
   const [feedback, setFeedback] = React.useState<AnswerResponse | null>(null);
-  const [countdown, setCountdown] = React.useState(5);
+  const [countdown, setCountdown] = React.useState(3);
   const [countdownIntervalId, setCountdownIntervalId] =
     React.useState<ReturnType<typeof setInterval> | null>(null);
 
@@ -83,7 +83,7 @@ function RouteComponent() {
     setSelectedAnswer(null);
     setShowResult(false);
     setFeedback(null);
-    setCountdown(5);
+    setCountdown(3);
 
     try {
       const res = await sessionService.getNextItem(sessionId);
@@ -140,7 +140,7 @@ function RouteComponent() {
       setFeedback(res);
       setShowResult(true);
 
-      let counter = 5;
+      let counter = 3;
       const interval = setInterval(() => {
         counter -= 1;
         setCountdown(counter);

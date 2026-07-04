@@ -74,7 +74,7 @@ func (h *SessionHandler) HandleCreateSession(c *gin.Context) {
 		if req.Level != "" {
 			assessmentName = fmt.Sprintf("%s - %s", req.Role, req.Level)
 		}
-		
+
 		models.LogActivityAsync(
 			database.DB,
 			req.UserID,
@@ -183,7 +183,7 @@ func (h *SessionHandler) HandleSubmitAnswer(c *gin.Context) {
 					sess.UserID,
 					models.ActivityAssessmentCompleted,
 					fmt.Sprintf("Menyelesaikan Assessment %s", sess.Role),
-					fmt.Sprintf("Anda telah menyelesaikan assessment %s dengan skor %d/100", assessmentName, score),
+					fmt.Sprintf("Anda telah menyelesaikan assessment %s dengan skor %d/1000", assessmentName, score),
 					&models.ActivityMetadata{
 						Score:    &score,
 						Progress: strPtr(fmt.Sprintf("%d/%d soal", sess.TotalItems, sess.MaxItems)),

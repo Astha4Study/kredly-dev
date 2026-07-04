@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'motion/react';

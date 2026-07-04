@@ -322,7 +322,7 @@ func (s *CATService) SubmitAnswer(ctx context.Context, sessionID, answer string)
 		} else {
 			score = float64(gradeRes.Score) / 100.0
 			correct = score >= 0.6
-			explanation = fmt.Sprintf("Skor Jawaban: %d/100. %s\n\n**Contoh Jawaban Acuan:**\n%s", gradeRes.Score, gradeRes.Explanation, sess.PendingItem.Penjelasan)
+			explanation = fmt.Sprintf("Skor Jawaban: %d/1000. %s\n\n**Contoh Jawaban Acuan:**\n%s", gradeRes.Score, gradeRes.Explanation, sess.PendingItem.Penjelasan)
 		}
 		correctAnswer = "Sesuai Rubrik"
 		savedAnswer = answer

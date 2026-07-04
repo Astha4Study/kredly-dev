@@ -34,7 +34,7 @@ export function NotificationItem({ activity, onClose }: NotificationItemProps) {
     >
       <div className="flex gap-3 w-full">
         {/* Icon */}
-        <div className="flex-shrink-0 mt-1">{icon}</div>
+        <div className="shrink-0 mt-1">{icon}</div>
 
         {/* Content */}
         <div className="flex-1 min-w-0 space-y-1">
@@ -56,7 +56,7 @@ export function NotificationItem({ activity, onClose }: NotificationItemProps) {
           {/* Metadata - show score if available */}
           {activity.metadata?.score && (
             <p className="text-xs text-primary font-medium">
-              Skor: {activity.metadata.score}/100
+              Skor: {activity.metadata.score}/1000
             </p>
           )}
 

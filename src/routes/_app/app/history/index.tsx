@@ -101,7 +101,7 @@ function RouteComponent() {
         const metadata: string[] = [];
         
         if (activity.metadata?.score) {
-          metadata.push(`Score: ${activity.metadata.score}/100`);
+          metadata.push(`Score: ${activity.metadata.score}/1000`);
         }
         if (activity.metadata?.progress) {
           metadata.push(`Progress: ${activity.metadata.progress}`);
@@ -262,7 +262,7 @@ function RouteComponent() {
                                 Score:
                               </span>
                               <span className="text-sm text-foreground font-semibold">
-                                {activity.metadata.score}/100
+                                {activity.metadata.score}/1000
                               </span>
                             </div>
                           )}
