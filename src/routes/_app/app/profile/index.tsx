@@ -4,11 +4,14 @@ import { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
-import { ExternalLink, Award, ArrowUpRight, FileText, Clock } from 'lucide-react';
+  ExternalLink,
+  Award,
+  ArrowUpRight,
+  FileText,
+  Clock,
+} from 'lucide-react';
 import { ProfileSkeleton } from '@/components/skeletons/ProfileSkeleton';
 
 export const Route = createFileRoute('/_app/app/profile/')({
@@ -54,7 +57,8 @@ interface Assessment {
 function RouteComponent() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [publicSettings, setPublicSettings] = useState<PublicProfileSettings | null>(null);
+  const [publicSettings, setPublicSettings] =
+    useState<PublicProfileSettings | null>(null);
   const [certificates] = useState<Certificate[]>([]);
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +68,9 @@ function RouteComponent() {
       try {
         const [profileRes, settingsRes] = await Promise.all([
           fetch('/api/profile', { credentials: 'include' }),
-          fetch('/api/user/public-profile-settings', { credentials: 'include' }),
+          fetch('/api/user/public-profile-settings', {
+            credentials: 'include',
+          }),
         ]);
 
         if (profileRes.ok) {
@@ -80,7 +86,8 @@ function RouteComponent() {
                   id: a.id,
                   title: a.title,
                   score: a.score,
-                  completedAt: a.updatedAt || a.createdAt || new Date().toISOString(),
+                  completedAt:
+                    a.updatedAt || a.createdAt || new Date().toISOString(),
                   status: a.status,
                 }));
               setAssessments(completedAssessments);
@@ -139,10 +146,14 @@ function RouteComponent() {
                   <div>
                     <h2 className="text-2xl font-bold mb-1">{user?.name}</h2>
                     {user?.username && (
-                      <p className="text-muted-foreground mb-2">@{user.username}</p>
+                      <p className="text-muted-foreground mb-2">
+                        @{user.username}
+                      </p>
                     )}
                     {user?.email && (
-                      <p className="text-sm text-muted-foreground mb-3">{user.email}</p>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        {user.email}
+                      </p>
                     )}
                     {publicSettings?.headline && (
                       <p className="text-base font-medium text-foreground">
@@ -151,18 +162,24 @@ function RouteComponent() {
                     )}
                   </div>
                 </div>
-                <div className='flex items-center gap-4'>
-                {user?.username && (
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={profileUrl} target="_blank" rel="noopener noreferrer">
-                      Lihat Profil Publik
-                      <ExternalLink className="ml-2 h-3 w-3" />
-                    </a>
-                  </Button>
+                <div className="flex items-center gap-4">
+                  {user?.username && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a
+                        href={profileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Lihat Profil Publik
+                        <ExternalLink className="ml-2 h-3 w-3" />
+                      </a>
+                    </Button>
                   )}
-                <Button variant="default" size="sm" asChild>
-                    <Link to='/app/settings'>Edit Profil <ArrowUpRight /></Link>
-                </Button>
+                  <Button variant="default" size="sm" asChild>
+                    <Link to="/app/settings">
+                      Edit Profil <ArrowUpRight />
+                    </Link>
+                  </Button>
                 </div>
               </div>
 
@@ -190,15 +207,22 @@ function RouteComponent() {
                 </div>
                 <div className="space-y-2">
                   {assessments.slice(0, 3).map((assessment) => (
-                    <div key={assessment.id} className="flex items-center justify-between border p-3">
+                    <div
+                      key={assessment.id}
+                      className="flex items-center justify-between border p-3"
+                    >
                       <div className="flex items-center gap-3">
                         <div className="h-8 w-8 bg-primary/10 flex items-center justify-center">
                           <FileText className="h-4 w-4 text-primary" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium">{assessment.title}</p>
+                          <p className="text-sm font-medium">
+                            {assessment.title}
+                          </p>
                           <p className="text-xs text-muted-foreground">
-                            {new Date(assessment.completedAt).toLocaleDateString('id-ID')}
+                            {new Date(
+                              assessment.completedAt,
+                            ).toLocaleDateString('id-ID')}
                           </p>
                         </div>
                       </div>
@@ -213,64 +237,71 @@ function RouteComponent() {
               </div>
             )}
 
-            {assessments.length === 0 && profile?.cvAssessments && profile.cvAssessments.length > 0 && (
-              <div className="p-6 border-b space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                      Rekomendasi Assessment
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Berdasarkan profil dan keahlian Anda
-                    </p>
+            {assessments.length === 0 &&
+              profile?.cvAssessments &&
+              profile.cvAssessments.length > 0 && (
+                <div className="p-6 border-b space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                        Rekomendasi Assessment
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Berdasarkan profil dan keahlian Anda
+                      </p>
+                    </div>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to="/app/assessment">
+                        Lihat Semua
+                        <ArrowUpRight className="ml-1 h-3 w-3" />
+                      </Link>
+                    </Button>
                   </div>
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link to="/app/assessment">
-                      Lihat Semua
-                      <ArrowUpRight className="ml-1 h-3 w-3" />
-                    </Link>
-                  </Button>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {profile.cvAssessments
-                    .filter((a: any) => a.status !== 'completed')
-                    .slice(0, 4)
-                    .map((assessment: any) => (
-                      <div key={assessment.id} className="border p-4 space-y-3 hover:bg-muted/50 transition-colors">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-sm mb-1">{assessment.title}</h4>
-                            {assessment.description && (
-                              <p className="text-xs text-muted-foreground line-clamp-2">
-                                {assessment.description}
-                              </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {profile.cvAssessments
+                      .filter((a: any) => a.status !== 'completed')
+                      .slice(0, 4)
+                      .map((assessment: any) => (
+                        <div
+                          key={assessment.id}
+                          className="border p-4 space-y-3 hover:bg-muted/50 transition-colors"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-sm mb-1">
+                                {assessment.title}
+                              </h4>
+                              {assessment.description && (
+                                <p className="text-xs text-muted-foreground line-clamp-2">
+                                  {assessment.description}
+                                </p>
+                              )}
+                            </div>
+                            {assessment.isRecommended && (
+                              <Badge variant="default" className="ml-2 text-xs">
+                                Rekomendasi
+                              </Badge>
                             )}
                           </div>
-                          {assessment.isRecommended && (
-                            <Badge variant="default" className="ml-2 text-xs">
-                              Rekomendasi
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              {assessment.estimatedTime}
-                            </span>
-                            <span>{assessment.questionCount} soal</span>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {assessment.estimatedTime}
+                              </span>
+                              <span>{assessment.questionCount} soal</span>
+                            </div>
+                            <Button variant="outline" size="sm" asChild>
+                              <Link to={`/app/assessment/${assessment.id}`}>
+                                Mulai
+                              </Link>
+                            </Button>
                           </div>
-                          <Button variant="outline" size="sm" asChild>
-                            <Link to={`/app/assessment/${assessment.id}`}>
-                              Mulai
-                            </Link>
-                          </Button>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {profile && (profile.cvRole || profile.cvLevel) && (
               <div className="p-6 border-b space-y-4">
@@ -286,7 +317,9 @@ function RouteComponent() {
                   )}
                   {profile.cvLevel && (
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">Level</p>
+                      <p className="text-xs text-muted-foreground mb-1">
+                        Level
+                      </p>
                       <p className="font-semibold">{profile.cvLevel}</p>
                     </div>
                   )}
@@ -311,65 +344,65 @@ function RouteComponent() {
 
             {publicSettings?.socialLinks &&
               (publicSettings.socialLinks.linkedin ||
-               publicSettings.socialLinks.github ||
-               publicSettings.socialLinks.portfolio ||
-               publicSettings.socialLinks.twitter) && (
-              <div className="p-6 border-b space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Social Links
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {publicSettings.socialLinks.linkedin && (
-                    <Button variant="outline" size="sm" asChild>
-                      <a
-                        href={publicSettings.socialLinks.linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        LinkedIn
-                        <ExternalLink className="ml-2 h-3 w-3" />
-                      </a>
-                    </Button>
-                  )}
-                  {publicSettings.socialLinks.github && (
-                    <Button variant="outline" size="sm" asChild>
-                      <a
-                        href={publicSettings.socialLinks.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        GitHub
-                        <ExternalLink className="ml-2 h-3 w-3" />
-                      </a>
-                    </Button>
-                  )}
-                  {publicSettings.socialLinks.portfolio && (
-                    <Button variant="outline" size="sm" asChild>
-                      <a
-                        href={publicSettings.socialLinks.portfolio}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Portfolio
-                        <ExternalLink className="ml-2 h-3 w-3" />
-                      </a>
-                    </Button>
-                  )}
-                  {publicSettings.socialLinks.twitter && (
-                    <Button variant="outline" size="sm" asChild>
-                      <a
-                        href={publicSettings.socialLinks.twitter}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Twitter
-                        <ExternalLink className="ml-2 h-3 w-3" />
-                      </a>
-                    </Button>
-                  )}
+                publicSettings.socialLinks.github ||
+                publicSettings.socialLinks.portfolio ||
+                publicSettings.socialLinks.twitter) && (
+                <div className="p-6 border-b space-y-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Social Links
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {publicSettings.socialLinks.linkedin && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a
+                          href={publicSettings.socialLinks.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          LinkedIn
+                          <ExternalLink className="ml-2 h-3 w-3" />
+                        </a>
+                      </Button>
+                    )}
+                    {publicSettings.socialLinks.github && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a
+                          href={publicSettings.socialLinks.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          GitHub
+                          <ExternalLink className="ml-2 h-3 w-3" />
+                        </a>
+                      </Button>
+                    )}
+                    {publicSettings.socialLinks.portfolio && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a
+                          href={publicSettings.socialLinks.portfolio}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Portfolio
+                          <ExternalLink className="ml-2 h-3 w-3" />
+                        </a>
+                      </Button>
+                    )}
+                    {publicSettings.socialLinks.twitter && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a
+                          href={publicSettings.socialLinks.twitter}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Twitter
+                          <ExternalLink className="ml-2 h-3 w-3" />
+                        </a>
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             <div className="p-6">
               <div className="flex items-start justify-between">

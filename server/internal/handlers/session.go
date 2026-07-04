@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"kredly/internal/database"
@@ -10,6 +12,7 @@ import (
 	"kredly/internal/service"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type SessionHandler struct {
@@ -103,6 +106,25 @@ func (h *SessionHandler) HandleNextItem(c *gin.Context) {
 		return
 	}
 
+	// Check session exists and is still resumable before fetching next item
+	sess, err := h.catService.GetSession(c.Request.Context(), sessionID)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !h.catService.IsSessionResumable(sess) {
+		c.JSON(http.StatusGone, gin.H{
+			"error":   "session_expired",
+			"message": "Waktu resume sesi habis. Silakan mulai assessment baru.",
+		})
+		return
+	}
+
 	item, qNum, maxItems, minItems, err := h.catService.NextItem(c.Request.Context(), sessionID)
 	if err != nil {
 		// Detect if session is already completed to return appropriate status
@@ -153,6 +175,15 @@ func (h *SessionHandler) HandleSubmitAnswer(c *gin.Context) {
 	if err != nil {
 		if strings.Contains(err.Error(), "already completed") {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "completed": true})
+			return
+		}
+		// Double-submit guard: PendingItem was already cleared by a previous request.
+		// Return 409 Conflict so the frontend can silently ignore or refresh state.
+		if errors.Is(err, service.ErrNoPendingQuestion) {
+			c.JSON(http.StatusConflict, gin.H{
+				"error": "Jawaban sudah dikirim sebelumnya. Silakan lanjut ke soal berikutnya.",
+				"code":  "already_submitted",
+			})
 			return
 		}
 		if strings.Contains(err.Error(), "not found") {
@@ -294,16 +325,62 @@ func (h *SessionHandler) HandleGetSession(c *gin.Context) {
 		return
 	}
 
+	// Resolve estimatedTime from the matching cvAssessment → convert to seconds
+	estimatedTimeSeconds := 0
+	if sess.AssessmentID != "" && sess.UserID != "" {
+		userProfileColl := database.DB.Collection("userProfile")
+		var userProfile models.UserProfile
+		if findErr := userProfileColl.FindOne(c.Request.Context(), bson.M{"userId": sess.UserID}).Decode(&userProfile); findErr == nil {
+			for _, a := range userProfile.CVAssessments {
+				if a.ID == sess.AssessmentID {
+					estimatedTimeSeconds = parseEstimatedTimeToSeconds(a.EstimatedTime)
+					break
+				}
+			}
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"id":            sess.ID,
-		"assessment_id": sess.AssessmentID,
-		"role":          sess.Role,
-		"level":         sess.Level,
-		"total_items":   sess.TotalItems,
-		"max_items":     sess.MaxItems,
-		"min_items":     sess.MinItems,
-		"completed":     sess.Completed,
+		"id":                     sess.ID,
+		"assessment_id":          sess.AssessmentID,
+		"role":                   sess.Role,
+		"level":                  sess.Level,
+		"total_items":            sess.TotalItems,
+		"max_items":              sess.MaxItems,
+		"min_items":              sess.MinItems,
+		"completed":              sess.Completed,
+		"estimated_time_seconds": estimatedTimeSeconds,
+		// Resume TTL fields
+		"last_active_at": sess.LastActiveAt,
+		"expires_at":     sess.ExpiresAt,
+		"is_resumable":   h.catService.IsSessionResumable(sess),
 	})
+}
+
+// parseEstimatedTimeToSeconds converts strings like "30 menit", "1 jam", "90 menit" to seconds.
+// Returns 0 if the format is not recognised.
+func parseEstimatedTimeToSeconds(s string) int {
+	s = strings.ToLower(strings.TrimSpace(s))
+	if s == "" {
+		return 0
+	}
+	parts := strings.Fields(s)
+	if len(parts) < 2 {
+		return 0
+	}
+	n, err := strconv.Atoi(parts[0])
+	if err != nil {
+		return 0
+	}
+	switch {
+	case strings.HasPrefix(parts[1], "jam") || strings.HasPrefix(parts[1], "hour"):
+		return n * 3600
+	case strings.HasPrefix(parts[1], "menit") || strings.HasPrefix(parts[1], "min"):
+		return n * 60
+	case strings.HasPrefix(parts[1], "detik") || strings.HasPrefix(parts[1], "sec"):
+		return n
+	}
+	return 0
 }
 
 // Helper function to create string pointer

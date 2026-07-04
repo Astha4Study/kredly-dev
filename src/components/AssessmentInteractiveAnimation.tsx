@@ -1,4 +1,3 @@
- 
 import { motion } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
 import { Check, X } from 'lucide-react';

@@ -1,4 +1,3 @@
- 
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
 import { Check, Sparkles, ScanLine } from 'lucide-react';

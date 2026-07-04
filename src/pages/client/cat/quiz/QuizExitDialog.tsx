@@ -28,7 +28,7 @@ export default function QuizExitDialog({
           <AlertDialogTitle>Keluar dari Ujian?</AlertDialogTitle>
         </AlertDialogHeader>
         <AlertDialogDescription>
-          <p className='text-justify'>
+          <p className="text-justify">
             Apakah Anda yakin ingin keluar? Ujian CAT ini akan dibatalkan,
             progress Anda saat ini akan di-reset, dan Anda harus mengulangnya
             kembali dari awal.

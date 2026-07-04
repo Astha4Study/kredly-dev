@@ -99,7 +99,7 @@ function RouteComponent() {
       // Prepare table data
       const tableData = activities.map((activity) => {
         const metadata: string[] = [];
-        
+
         if (activity.metadata?.score) {
           metadata.push(`Score: ${activity.metadata.score}/1000`);
         }
@@ -113,7 +113,9 @@ function RouteComponent() {
           metadata.push(`Skills: ${activity.metadata.skills.join(', ')}`);
         }
         if (activity.metadata?.txHash) {
-          metadata.push(`TxHash: ${activity.metadata.txHash.substring(0, 20)}...`);
+          metadata.push(
+            `TxHash: ${activity.metadata.txHash.substring(0, 20)}...`,
+          );
         }
 
         return [
@@ -164,12 +166,14 @@ function RouteComponent() {
           `Halaman ${i} dari ${pageCount}`,
           doc.internal.pageSize.width / 2,
           doc.internal.pageSize.height - 10,
-          { align: 'center' }
+          { align: 'center' },
         );
       }
 
       // Save the PDF
-      doc.save(`Kredly-Activity-History-${new Date().toISOString().split('T')[0]}.pdf`);
+      doc.save(
+        `Kredly-Activity-History-${new Date().toISOString().split('T')[0]}.pdf`,
+      );
     } catch (error) {
       console.error('Error exporting PDF:', error);
       alert('Gagal mengekspor PDF. Silakan coba lagi.');
@@ -192,7 +196,12 @@ function RouteComponent() {
                 Timeline aktivitas Anda di platform
               </p>
             </div>
-            <Button variant="default" className="gap-2" onClick={exportToPDF} disabled={exporting || loading || activities.length === 0}>
+            <Button
+              variant="default"
+              className="gap-2"
+              onClick={exportToPDF}
+              disabled={exporting || loading || activities.length === 0}
+            >
               <Download className="h-4 w-4" />
               {exporting ? 'Mengekspor...' : 'Export PDF'}
             </Button>

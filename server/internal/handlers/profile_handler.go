@@ -91,6 +91,18 @@ func (h *ProfileHandler) HandleGetProfile(c *gin.Context) {
 		return
 	}
 
+	// Enrich in-progress assessments with the latest ExpiresAt from cat_sessions
+	catSessionsColl := database.DB.Collection("cat_sessions")
+	for i, ast := range userProfile.CVAssessments {
+		if ast.Status == "in-progress" && ast.SessionID != "" {
+			var sess models.Session
+			err := catSessionsColl.FindOne(c.Request.Context(), bson.M{"_id": ast.SessionID}).Decode(&sess)
+			if err == nil {
+				userProfile.CVAssessments[i].ExpiresAt = &sess.ExpiresAt
+			}
+		}
+	}
+
 	// Debug log
 	println("✅ [DEBUG] UserProfile found:", userProfile.ID)
 

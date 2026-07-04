@@ -7,6 +7,8 @@ import {
 import { sessionService } from '@/services/sessionService';
 import type { QuizItem, AnswerResponse } from '@/pages/client/cat/types';
 import ProgressBar from '@/components/cat/ProgressBar';
+import QuizCountdown from '@/components/cat/QuizCountdown';
+import ResumeSessionBanner from '@/components/cat/ResumeSessionBanner';
 import AppTopbarAssessment from '@/components/AppTopbarAssessment';
 
 // Section components
@@ -39,6 +41,14 @@ function RouteComponent() {
   const [assessmentId, setAssessmentId] = React.useState<string | undefined>(
     undefined,
   );
+
+  // Countdown timer: 0 means no time limit
+  const [estimatedSeconds, setEstimatedSeconds] = React.useState(0);
+
+  // Resume session state
+  const [isResumingSession, setIsResumingSession] = React.useState(false);
+  const [sessionExpiresAt, setSessionExpiresAt] = React.useState<string>('');
+  const [resumedQuestionsCount, setResumedQuestionsCount] = React.useState(0);
 
   // Feedback States
   const [showResult, setShowResult] = React.useState(false);
@@ -110,9 +120,32 @@ function RouteComponent() {
     async function initSession() {
       try {
         const sess = await sessionService.getSession(sessionId);
+
+        // --- Resume TTL check ---
+        // If the session can no longer be resumed (expired or abandoned),
+        // redirect the user to the dashboard with an informative message.
+        if (!sess.is_resumable) {
+          navigate({
+            to: '/app',
+            search: { sessionExpired: '1' } as any,
+          });
+          return;
+        }
+
+        // If the user already answered some questions, show the resume banner
+        if (sess.total_items > 0) {
+          setIsResumingSession(true);
+          setResumedQuestionsCount(sess.total_items);
+          setSessionExpiresAt(sess.expires_at);
+        }
+        // --- End resume TTL check ---
+
         setMaxQuestions(sess.max_items);
         setMinQuestions(sess.min_items);
         setAssessmentId(sess.assessment_id);
+        if (sess.estimated_time_seconds && sess.estimated_time_seconds > 0) {
+          setEstimatedSeconds(sess.estimated_time_seconds);
+        }
       } catch (err: any) {
         console.error('Failed to pre-fetch session metadata:', err);
       }
@@ -121,6 +154,16 @@ function RouteComponent() {
 
     initSession();
   }, [sessionId, loadNextQuestion]);
+
+  /**
+   * Called when the exam countdown reaches zero.
+   * Navigates to the result/certification page.
+   * The backend GetResult handler will force-complete the session if min items are met.
+   */
+  const handleTimeUp = React.useCallback(() => {
+    isNavigatingAway.current = true;
+    navigate({ to: `/app/certification/${sessionId}` });
+  }, [navigate, sessionId]);
 
   const handleSubmit = async (overrideAnswer?: string) => {
     if (isSubmitting || showResult) return;
@@ -194,11 +237,30 @@ function RouteComponent() {
       />
       <div className="flex-1 flex flex-col items-center justify-start p-4 md:p-8">
         <div className="w-full max-w-4xl space-y-6 md:space-y-8 my-auto">
-          <ProgressBar
-            currentQuestion={questionNumber}
-            minQuestions={minQuestions}
-            maxQuestions={maxQuestions}
-          />
+          {/* Resume banner — shown when user returns to an in-progress session */}
+          {isResumingSession && sessionExpiresAt && (
+            <ResumeSessionBanner
+              questionsAnswered={resumedQuestionsCount}
+              expiresAt={sessionExpiresAt}
+            />
+          )}
+
+          {/* Progress bar + Countdown timer row */}
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <ProgressBar
+                currentQuestion={questionNumber}
+                minQuestions={minQuestions}
+                maxQuestions={maxQuestions}
+              />
+            </div>
+            {estimatedSeconds > 0 && (
+              <QuizCountdown
+                totalSeconds={estimatedSeconds}
+                onTimeUp={handleTimeUp}
+              />
+            )}
+          </div>
 
           {currentItem && (
             <div className="space-y-6">

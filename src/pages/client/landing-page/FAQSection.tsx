@@ -109,8 +109,8 @@ export default function FAQSection() {
             </div>
             <Button size="sm" asChild>
               <Link to="chat">
-              Ajukan Pertanyaan
-              <ArrowRight />
+                Ajukan Pertanyaan
+                <ArrowRight />
               </Link>
             </Button>
           </motion.div>

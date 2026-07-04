@@ -54,7 +54,10 @@ export default function TeamSection() {
             transition={{ duration: 0.5 }}
             className="mx-auto flex max-w-6xl flex-col items-center text-center"
           >
-            <Badge variant="default"><Users />Tim Kami</Badge>
+            <Badge variant="default">
+              <Users />
+              Tim Kami
+            </Badge>
 
             <div className="mt-4 max-w-3xl space-y-4 md:space-y-8">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">

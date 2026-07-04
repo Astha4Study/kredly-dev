@@ -1,126 +1,133 @@
-import { useState, useCallback, useRef, useEffect } from "react";
-import type { ThreadRuntimeCore } from "@assistant-ui/react";
-import { makeAssistantToolUI } from "@assistant-ui/react";
+import { useState, useCallback, useRef, useEffect } from 'react';
+import type { ThreadRuntimeCore } from '@assistant-ui/react';
+import { makeAssistantToolUI } from '@assistant-ui/react';
 
 export function useCustomChatRuntime(): ThreadRuntimeCore {
   const [messages, setMessages] = useState<any[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const append = useCallback(async (message: any) => {
-    console.log("🔵 [Runtime] Append called with message:", message);
+  const append = useCallback(
+    async (message: any) => {
+      console.log('🔵 [Runtime] Append called with message:', message);
 
-    // Add user message immediately
-    const userMessage = {
-      id: `msg-${Date.now()}`,
-      role: "user",
-      content: [{ type: "text", text: message.content }],
-      createdAt: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setIsRunning(true);
-
-    // Prepare assistant message
-    const assistantMessageId = `msg-${Date.now()}-assistant`;
-    let assistantContent = "";
-
-    // Add empty assistant message
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: assistantMessageId,
-        role: "assistant",
-        content: [{ type: "text", text: "" }],
+      // Add user message immediately
+      const userMessage = {
+        id: `msg-${Date.now()}`,
+        role: 'user',
+        content: [{ type: 'text', text: message.content }],
         createdAt: new Date(),
-      },
-    ]);
+      };
 
-    try {
-      abortControllerRef.current = new AbortController();
+      setMessages((prev) => [...prev, userMessage]);
+      setIsRunning(true);
 
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: messages
-            .concat(userMessage)
-            .map((m) => ({
+      // Prepare assistant message
+      const assistantMessageId = `msg-${Date.now()}-assistant`;
+      let assistantContent = '';
+
+      // Add empty assistant message
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: assistantMessageId,
+          role: 'assistant',
+          content: [{ type: 'text', text: '' }],
+          createdAt: new Date(),
+        },
+      ]);
+
+      try {
+        abortControllerRef.current = new AbortController();
+
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: messages.concat(userMessage).map((m) => ({
               role: m.role,
               content:
                 m.content
-                  .filter((c: any) => c.type === "text")
+                  .filter((c: any) => c.type === 'text')
                   .map((c: any) => c.text)
-                  .join("") || "",
+                  .join('') || '',
             })),
-          system: KREDLY_SYSTEM_PROMPT,
-        }),
-        signal: abortControllerRef.current.signal,
-      });
+            system: KREDLY_SYSTEM_PROMPT,
+          }),
+          signal: abortControllerRef.current.signal,
+        });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("No response body");
+        const reader = response.body?.getReader();
+        if (!reader) throw new Error('No response body');
 
-      const decoder = new TextDecoder();
-      let buffer = "";
+        const decoder = new TextDecoder();
+        let buffer = '';
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
 
-        for (const line of lines) {
-          if (!line.trim() || !line.startsWith("data: ")) continue;
+          for (const line of lines) {
+            if (!line.trim() || !line.startsWith('data: ')) continue;
 
-          const data = line.slice(6);
-          if (data === "[DONE]") break;
+            const data = line.slice(6);
+            if (data === '[DONE]') break;
 
-          try {
-            const parsed = JSON.parse(data);
-            const content = parsed.choices?.[0]?.delta?.content;
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices?.[0]?.delta?.content;
 
-            if (content) {
-              assistantContent += content;
-              console.log("💬 [Runtime] Updating assistant message:", assistantContent.slice(0, 50) + "...");
+              if (content) {
+                assistantContent += content;
+                console.log(
+                  '💬 [Runtime] Updating assistant message:',
+                  assistantContent.slice(0, 50) + '...',
+                );
 
-              // Update assistant message with new content
-              setMessages((prev) =>
-                prev.map((msg) =>
-                  msg.id === assistantMessageId
-                    ? {
-                        ...msg,
-                        content: [{ type: "text", text: assistantContent }],
-                      }
-                    : msg
-                )
-              );
+                // Update assistant message with new content
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === assistantMessageId
+                      ? {
+                          ...msg,
+                          content: [{ type: 'text', text: assistantContent }],
+                        }
+                      : msg,
+                  ),
+                );
+              }
+            } catch (e) {
+              console.error('Parse error:', e);
             }
-          } catch (e) {
-            console.error("Parse error:", e);
           }
         }
-      }
 
-      console.log("✅ [Runtime] Stream complete. Final message:", assistantContent);
-    } catch (error: any) {
-      if (error.name !== "AbortError") {
-        console.error("❌ [Runtime] Error:", error);
+        console.log(
+          '✅ [Runtime] Stream complete. Final message:',
+          assistantContent,
+        );
+      } catch (error: any) {
+        if (error.name !== 'AbortError') {
+          console.error('❌ [Runtime] Error:', error);
+        }
+      } finally {
+        setIsRunning(false);
+        abortControllerRef.current = null;
       }
-    } finally {
-      setIsRunning(false);
-      abortControllerRef.current = null;
-    }
-  }, [messages]);
+    },
+    [messages],
+  );
 
   const cancel = useCallback(() => {
-    console.log("🛑 [Runtime] Cancel called");
+    console.log('🛑 [Runtime] Cancel called');
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       setIsRunning(false);
@@ -131,14 +138,14 @@ export function useCustomChatRuntime(): ThreadRuntimeCore {
   const runtime: ThreadRuntimeCore = {
     messages,
     isRunning,
-    getBranches: () => [{ id: "main", messages }],
+    getBranches: () => [{ id: 'main', messages }],
     switchToBranch: () => {},
     append,
     startRun: () => {},
     cancelRun: cancel,
     addToolResult: () => {},
     composer: {
-      text: "",
+      text: '',
       setText: () => {},
       reset: () => {},
       send: () => {},

@@ -86,7 +86,10 @@ function RouteComponent() {
   return (
     <div className="min-h-screen">
       <section className="px-4 sm:px-6 pt-4">
-        <GridBorder className="mx-auto w-full max-w-7xl" paddingY="py-6 sm:py-8">
+        <GridBorder
+          className="mx-auto w-full max-w-7xl"
+          paddingY="py-6 sm:py-8"
+        >
           <div className="mx-auto flex  flex-col items-center text-center">
             <div className="max-w-6xl">
             <motion.div {...fadeInUp}>

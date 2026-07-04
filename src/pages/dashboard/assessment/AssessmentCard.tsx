@@ -8,7 +8,20 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, FileText, Lock } from 'lucide-react';
+import { Clock, FileText, Lock, AlertTriangle } from 'lucide-react';
+
+const calculateHoursLeft = (expiresAtStr: string): string => {
+  const expiresAt = new Date(expiresAtStr);
+  const now = new Date();
+  const diffMs = expiresAt.getTime() - now.getTime();
+  if (diffMs <= 0) return '0 jam';
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  if (diffHours > 0) {
+    return `${diffHours} jam ${diffMins} menit`;
+  }
+  return `${diffMins} menit`;
+};
 
 interface Assessment {
   id: string;
@@ -25,6 +38,7 @@ interface Assessment {
   passed?: boolean;
   sessionId?: string;
   level?: string;
+  expiresAt?: string;
 }
 
 interface AssessmentCardProps {
@@ -73,21 +87,33 @@ export const AssessmentCard = ({
     <CardContent className="flex-1">
       {!isLocked && assessment.status !== 'available' && (
         <div className="border-t pt-3 space-y-3">
-          {assessment.status === 'in-progress' &&
-            assessment.progress !== undefined && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Progress</span>
-                  <span className="font-medium">{assessment.progress}%</span>
+          {assessment.status === 'in-progress' && (
+            <div className="space-y-2">
+              {assessment.progress !== undefined && (
+                <>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Progress</span>
+                    <span className="font-medium">{assessment.progress}%</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                    <div
+                      className="bg-primary h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${assessment.progress}%` }}
+                    />
+                  </div>
+                </>
+              )}
+              {assessment.expiresAt && (
+                <div className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400 font-medium mt-1.5">
+                  <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
+                  <span>
+                    Sesi kedaluwarsa dalam{' '}
+                    {calculateHoursLeft(assessment.expiresAt)}
+                  </span>
                 </div>
-                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-primary h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${assessment.progress}%` }}
-                  />
-                </div>
-              </div>
-            )}
+              )}
+            </div>
+          )}
 
           {assessment.status === 'completed' && (
             <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
@@ -135,7 +161,14 @@ export const AssessmentCard = ({
         )
       )}
       {!isLocked && assessment.status === 'in-progress' && (
-        <Button className="w-full">Lanjutkan Assessment</Button>
+        <Button className="w-full" asChild>
+          <Link
+            to="/quiz/$sessionId"
+            params={{ sessionId: assessment.sessionId || '' }}
+          >
+            Lanjutkan Assessment
+          </Link>
+        </Button>
       )}
       {!isLocked && assessment.status === 'completed' && (
         <div className="flex gap-2">

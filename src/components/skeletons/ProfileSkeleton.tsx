@@ -52,7 +52,10 @@ export function ProfileSkeleton() {
 
               <div className="space-y-2">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center justify-between border p-3">
+                  <div
+                    key={i}
+                    className="flex items-center justify-between border p-3"
+                  >
                     <div className="flex items-center gap-3">
                       {/* Icon Skeleton */}
                       <div className="h-8 w-8 bg-muted animate-pulse rounded" />
@@ -141,7 +144,10 @@ export function ProfileSkeleton() {
 
               <div className="flex flex-wrap gap-2">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-9 w-24 bg-muted animate-pulse rounded" />
+                  <div
+                    key={i}
+                    className="h-9 w-24 bg-muted animate-pulse rounded"
+                  />
                 ))}
               </div>
             </div>

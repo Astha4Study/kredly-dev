@@ -97,7 +97,10 @@ export function NotificationDropdown({
         {notifications.length > 0 && (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild className="p-3 text-center cursor-pointer">
+            <DropdownMenuItem
+              asChild
+              className="p-3 text-center cursor-pointer"
+            >
               <Link
                 to="/app/history"
                 className="text-sm text-primary hover:underline w-full block"

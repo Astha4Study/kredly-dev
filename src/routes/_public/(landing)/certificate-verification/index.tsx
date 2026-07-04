@@ -23,7 +23,9 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { fadeInUp, scaleIn, blurTransition, createStaggerAnimation, fadeInUpDelayed } from '@/lib/animations';
 
-export const Route = createFileRoute('/_public/(landing)/certificate-verification/')({
+export const Route = createFileRoute(
+  '/_public/(landing)/certificate-verification/',
+)({
   component: RouteComponent,
 });
 

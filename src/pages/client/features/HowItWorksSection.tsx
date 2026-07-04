@@ -55,7 +55,10 @@ export default function HowItWorksSection() {
             transition={{ duration: 0.6 }}
             className="mx-auto max-w-3xl"
           >
-            <Badge variant="default"><CircleHelp />How It Works</Badge>
+            <Badge variant="default">
+              <CircleHelp />
+              How It Works
+            </Badge>
 
             <div className="mt-6 space-y-4">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight">

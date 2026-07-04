@@ -87,7 +87,7 @@ export function StepOneOnboarding({
 
           <Input
             id="fullName"
-            className='bg-white'
+            className="bg-white"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Masukkan nama lengkap"
@@ -100,7 +100,6 @@ export function StepOneOnboarding({
 
           <div className="relative">
             <Input
-
               id="username"
               value={username}
               onChange={(e) =>

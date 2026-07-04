@@ -1,9 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { SimpleChat } from "@/components/SimpleChat"
+import { createFileRoute } from '@tanstack/react-router';
+import { SimpleChat } from '@/components/SimpleChat';
 
 export const Route = createFileRoute('/_public/chat/')({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
   return (
@@ -12,5 +12,5 @@ function RouteComponent() {
         <SimpleChat />
       </main>
     </div>
-  )
+  );
 }
