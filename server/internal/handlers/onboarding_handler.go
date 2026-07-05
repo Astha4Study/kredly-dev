@@ -104,7 +104,7 @@ func (h *OnboardingHandler) HandleCompleteOnboarding(c *gin.Context) {
 	defer os.Remove(tempPath)
 
 	// 2. Simpan file yang diupload ke temp path
-	if err := c.SaveUploadedFile(header, tempPath); err != nil {
+	if err := saveUploadedFile(header, tempPath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file: " + err.Error()})
 		return
 	}

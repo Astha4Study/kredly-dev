@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"strings"
@@ -84,7 +86,7 @@ func (h *CVHandler) HandleParseCV(c *gin.Context) {
 	defer os.Remove(tempPath)
 
 	// 3. Save uploaded file to temp path
-	if err := c.SaveUploadedFile(file, tempPath); err != nil {
+	if err := saveUploadedFile(file, tempPath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file: " + err.Error()})
 		return
 	}
@@ -608,3 +610,22 @@ func (h *CVHandler) HandleCreateCustomAssessment(c *gin.Context) {
 		"assessment": assessmentToAdd,
 	})
 }
+
+// saveUploadedFile saves the uploaded file to dst manually without calling os.Chmod on the parent directory
+func saveUploadedFile(file *multipart.FileHeader, dst string) error {
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, src)
+	return err
+}
+

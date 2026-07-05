@@ -236,6 +236,9 @@ func (h *ProfileHandler) HandleUploadCV(c *gin.Context) {
 
 	// Create uploads directory if not exists
 	uploadDir := "./uploads/cv"
+	if os.Getenv("VERCEL") == "1" {
+		uploadDir = "/tmp/uploads/cv"
+	}
 	if err := os.MkdirAll(uploadDir, 0755); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuat direktori upload"})
 		return
@@ -247,7 +250,7 @@ func (h *ProfileHandler) HandleUploadCV(c *gin.Context) {
 	filePath := filepath.Join(uploadDir, fileName)
 
 	// Save the file permanently
-	if err := c.SaveUploadedFile(file, filePath); err != nil {
+	if err := saveUploadedFile(file, filePath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menyimpan file"})
 		return
 	}
