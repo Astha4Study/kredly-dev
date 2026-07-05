@@ -730,7 +730,7 @@ func (h *ProfileHandler) HandleGetPublicProfileByUsername(c *gin.Context) {
 		}
 	}
 
-	var certs []map[string]interface{}
+	certs := []map[string]interface{}{}
 	if settings.ShowCertificates && len(sessionIDs) > 0 {
 		certColl := database.DB.Collection("certificate_metadata")
 		certCursor, err := certColl.Find(ctx, bson.M{"session_id": bson.M{"$in": sessionIDs}})
@@ -787,11 +787,6 @@ func (h *ProfileHandler) HandleGetPublicProfileByUsername(c *gin.Context) {
 		cvSkills = userProfile.CVSkills
 	}
 
-	var emailVal string
-	if user.Email != "" {
-		emailVal = user.Email
-	}
-
 	var imageVal string
 	if user.Image != nil {
 		imageVal = *user.Image
@@ -801,7 +796,6 @@ func (h *ProfileHandler) HandleGetPublicProfileByUsername(c *gin.Context) {
 		"id":           user.ID,
 		"name":         user.Name,
 		"username":     username,
-		"email":        emailVal,
 		"image":        imageVal,
 		"headline":     settings.Headline,
 		"bio":          settings.Bio,

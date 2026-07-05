@@ -113,7 +113,7 @@ function RouteComponent() {
         <Card className="overflow-hidden">
           <CardContent className="p-0">
             {/* Header Section */}
-            <div className="p-6 bg-linear-to-br from-background to-muted/20">
+            <div className="p-6 bg-gradient-to-br from-background to-muted/20">
               <div className="flex flex-col sm:flex-row items-start gap-6">
                 <Avatar className="h-24 w-24 border-2 border-primary/20 shadow-lg">
                   <AvatarImage src={profile.image} alt={profile.name} />
@@ -204,11 +204,11 @@ function RouteComponent() {
             <Separator />
 
             {/* Stats Overview */}
-            <div className="px-6 py-4 bg-linear-to-br from-muted/20 to-background">
+            <div className="px-6 py-4 bg-gradient-to-br from-muted/20 to-background">
               <div className="grid grid-cols-3 gap-3">
                 <div className="group relative overflow-hidden rounded-lg border bg-background p-3 transition-all hover:shadow-sm hover:border-primary/40">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-primary/10 to-primary/5">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/10 to-primary/5">
                       <Award className="h-5 w-5 text-primary" />
                     </div>
                     <div className="min-w-0">
@@ -220,7 +220,7 @@ function RouteComponent() {
 
                 <div className="group relative overflow-hidden rounded-lg border bg-background p-3 transition-all hover:shadow-sm hover:border-primary/40">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-primary/10 to-primary/5">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/10 to-primary/5">
                       <FileText className="h-5 w-5 text-primary" />
                     </div>
                     <div className="min-w-0">
@@ -232,7 +232,7 @@ function RouteComponent() {
 
                 <div className="group relative overflow-hidden rounded-lg border bg-background p-3 transition-all hover:shadow-sm hover:border-primary/40">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-primary/10 to-primary/5">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/10 to-primary/5">
                       <Target className="h-5 w-5 text-primary" />
                     </div>
                     <div className="min-w-0">
@@ -247,7 +247,7 @@ function RouteComponent() {
             <Separator />
 
             {/* Assessments */}
-            {profile.assessments && profile.assessments.length > 0 && (
+            {profile.assessments && profile.assessments.length > 0 && profile.displaySettings?.showAssessments && (
               <>
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-4">
@@ -292,7 +292,7 @@ function RouteComponent() {
             )}
 
             {/* Professional Info */}
-            {(profile.cvRole || profile.cvLevel) && (
+            {(profile.cvRole || profile.cvLevel) && profile.displaySettings?.showCVData && (
               <>
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-4">
@@ -325,7 +325,7 @@ function RouteComponent() {
             )}
 
             {/* Skills */}
-            {profile.cvSkills && profile.cvSkills.length > 0 && (
+            {profile.cvSkills && profile.cvSkills.length > 0 && profile.displaySettings?.showSkills && (
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-4">
                   <Target className="h-4 w-4 text-muted-foreground" />
