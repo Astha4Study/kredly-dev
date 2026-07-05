@@ -374,6 +374,7 @@ function RouteComponent() {
           onDownload={handleDownloadCertificate}
           onNewTest={() => navigate({ to: '/app/assessment' })}
           onHome={() => navigate({ to: '/app' })}
+          isOwner={isOwner}
         />
 
         <div className="relative border border-foreground/10 p-6 rounded-2xl overflow-hidden bg-card/40 backdrop-blur-md">

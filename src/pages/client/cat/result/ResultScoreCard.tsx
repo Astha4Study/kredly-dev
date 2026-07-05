@@ -15,6 +15,7 @@ interface ResultScoreCardProps {
   onDownload: () => void;
   onNewTest: () => void;
   onHome: () => void;
+  isOwner?: boolean;
 }
 
 export default function ResultScoreCard({
@@ -24,6 +25,7 @@ export default function ResultScoreCard({
   onDownload,
   onNewTest,
   onHome,
+  isOwner = true,
 }: ResultScoreCardProps) {
   const { user } = useAuth();
 
@@ -99,6 +101,7 @@ export default function ResultScoreCard({
               onDownload={onDownload}
               onNewTest={onNewTest}
               onHome={onHome}
+              showDownload={isOwner}
             />
           </div>
         </div>

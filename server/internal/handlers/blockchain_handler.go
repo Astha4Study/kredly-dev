@@ -242,6 +242,15 @@ func (h *BlockchainHandler) HandleIssueCertificate(c *gin.Context) {
 		return
 	}
 
+	var userID string
+	if userInterface, exists := c.Get("user"); exists {
+		if userMap, ok := userInterface.(gin.H); ok {
+			if id, ok := userMap["id"].(string); ok {
+				userID = id
+			}
+		}
+	}
+
 	// Decode base64 PDF buffer
 	pdfBytes, err := base64.StdEncoding.DecodeString(req.PdfBuffer)
 	if err != nil {
@@ -280,6 +289,7 @@ func (h *BlockchainHandler) HandleIssueCertificate(c *gin.Context) {
 				metadata := &models.CertificateMetadata{
 					SessionID:      req.SessionID,
 					CertificateID:  req.CertificateID,
+					UserID:         userID,
 					RecipientName:  req.RecipientName,
 					AssessmentName: req.AssessmentName,
 					Score:          req.Score,
@@ -317,6 +327,7 @@ func (h *BlockchainHandler) HandleIssueCertificate(c *gin.Context) {
 		metadata := &models.CertificateMetadata{
 			SessionID:      req.SessionID,
 			CertificateID:  req.CertificateID,
+			UserID:         userID,
 			RecipientName:  req.RecipientName,
 			AssessmentName: req.AssessmentName,
 			Score:          req.Score,

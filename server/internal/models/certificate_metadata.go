@@ -11,6 +11,7 @@ type CertificateMetadata struct {
 	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	SessionID      string             `bson:"session_id" json:"sessionId"`
 	CertificateID  string             `bson:"certificate_id" json:"certificateId"`
+	UserID         string             `bson:"user_id" json:"userId"`
 	RecipientName  string             `bson:"recipient_name" json:"recipientName"`
 	AssessmentName string             `bson:"assessment_name" json:"assessmentName"`
 	Score          int                `bson:"score" json:"score"`

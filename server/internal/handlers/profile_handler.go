@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -585,7 +586,7 @@ func (h *ProfileHandler) HandleGetPublicProfileSettings(c *gin.Context) {
 		defaultSettings := models.PublicProfileSettings{
 			ID:               uuid.New().String(),
 			UserID:           userID,
-			IsPublic:         false,
+			IsPublic:         true,
 			Headline:         "",
 			Bio:              "",
 			ShowCertificates: true,
@@ -709,7 +710,7 @@ func (h *ProfileHandler) HandleGetPublicProfileByUsername(c *gin.Context) {
 			ShowAssessments:  true,
 			ShowSkills:       true,
 			ShowCVData:       false,
-			IsPublic:         false,
+			IsPublic:         true,
 		}
 	}
 
@@ -734,9 +735,21 @@ func (h *ProfileHandler) HandleGetPublicProfileByUsername(c *gin.Context) {
 	log.Printf("[DEBUG] User %s (%s) has %d completed sessions", user.Name, user.ID, len(sessionIDs))
 
 	certs := []map[string]interface{}{}
-	if settings.ShowCertificates && len(sessionIDs) > 0 {
+	if settings.ShowCertificates {
 		certColl := database.DB.Collection("certificate_metadata")
-		certCursor, err := certColl.Find(ctx, bson.M{"session_id": bson.M{"$in": sessionIDs}})
+		var filter bson.M
+		if len(sessionIDs) > 0 {
+			filter = bson.M{
+				"$or": []bson.M{
+					{"user_id": user.ID},
+					{"session_id": bson.M{"$in": sessionIDs}},
+				},
+			}
+		} else {
+			filter = bson.M{"user_id": user.ID}
+		}
+		
+		certCursor, err := certColl.Find(ctx, filter)
 		if err == nil {
 			defer certCursor.Close(ctx)
 			for certCursor.Next(ctx) {
