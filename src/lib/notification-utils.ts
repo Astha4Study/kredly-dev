@@ -73,6 +73,36 @@ export function isNew(timestamp: string): boolean {
   return diffMinutes <= 60;
 }
 
+const LAST_SEEN_KEY = 'notifications_last_seen';
+
+/**
+ * Get the timestamp when notifications were last seen
+ */
+export function getLastSeenTimestamp(): number | null {
+  const stored = localStorage.getItem(LAST_SEEN_KEY);
+  return stored ? parseInt(stored, 10) : null;
+}
+
+/**
+ * Mark all current notifications as seen
+ */
+export function markNotificationsAsSeen(): void {
+  localStorage.setItem(LAST_SEEN_KEY, Date.now().toString());
+}
+
+/**
+ * Filter activities to only those that are unread (newer than last seen)
+ */
+export function getUnreadActivities(activities: Activity[], lastSeenOverride?: number | null): Activity[] {
+  const lastSeen = lastSeenOverride !== undefined ? lastSeenOverride : getLastSeenTimestamp();
+  if (!lastSeen) return activities;
+
+  return activities.filter((activity) => {
+    const activityTime = new Date(activity.date + ' ' + activity.time).getTime();
+    return activityTime > lastSeen;
+  });
+}
+
 /**
  * Get the navigation target path for a given activity
  */

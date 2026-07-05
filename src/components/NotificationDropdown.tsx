@@ -5,7 +5,6 @@ import type { Activity } from '@/lib/history-client';
 import { NotificationItem } from '@/components/NotificationItem';
 import { NotificationSkeleton } from '@/components/skeletons/NotificationSkeleton';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { getUnreadActivities, markNotificationsAsSeen, getLastSeenTimestamp } from '@/lib/notification-utils';
 
 interface NotificationDropdownProps {
   notifications: Activity[];
@@ -27,33 +27,42 @@ export function NotificationDropdown({
   onRefresh,
 }: NotificationDropdownProps) {
   const [open, setOpen] = useState(false);
-  const unreadCount = notifications.length;
+  const [lastSeen, setLastSeen] = useState<number | null>(getLastSeenTimestamp());
+  const unreadCount = getUnreadActivities(notifications, lastSeen).length;
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (newOpen) {
+      const now = Date.now();
+      markNotificationsAsSeen();
+      setLastSeen(now);
+    }
+  };
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
           size="icon"
-          className="relative hidden md:flex"
+          className="relative flex"
           aria-label="Notifikasi"
         >
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
-            <Badge
-              variant="destructive"
-              className="absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 text-xs"
+            <div
+              className="absolute -top-2 -right-2 h-5 min-w-5 flex items-center justify-center px-1 text-xs rounded-full bg-primary"
             >
               {unreadCount > 9 ? '9+' : unreadCount}
-            </Badge>
+            </div>
           )}
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-96">
+      <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] sm:w-96 max-w-96">
         {/* Header */}
-        <div className="flex items-center justify-between p-3 border-b">
-          <DropdownMenuLabel className="p-0">
+        <div className="flex items-center justify-between p-2 sm:p-3 border-b gap-2">
+          <DropdownMenuLabel className="p-0 text-sm truncate">
             Notifikasi {unreadCount > 0 && `(${unreadCount} baru)`}
           </DropdownMenuLabel>
 
@@ -62,19 +71,19 @@ export function NotificationDropdown({
             variant="ghost"
             size="sm"
             onClick={onRefresh}
-            className="h-7 text-xs"
+            className="h-7 text-xs shrink-0"
           >
             Refresh
           </Button>
         </div>
 
         {/* Content */}
-        <div className="max-h-100 overflow-y-auto">
+        <div className="max-h-[60vh] sm:max-h-100 overflow-y-auto">
           {loading ? (
             <NotificationSkeleton />
           ) : notifications.length === 0 ? (
-            <div className="p-8 text-center">
-              <Bell className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+            <div className="p-6 sm:p-8 text-center">
+              <Bell className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-3" />
               <p className="text-sm font-medium text-foreground">
                 Tidak ada notifikasi baru
               </p>
@@ -99,7 +108,7 @@ export function NotificationDropdown({
             <DropdownMenuSeparator />
             <DropdownMenuItem
               asChild
-              className="p-3 text-center cursor-pointer"
+              className="p-2 sm:p-3 text-center cursor-pointer"
             >
               <Link
                 to="/app/history"
