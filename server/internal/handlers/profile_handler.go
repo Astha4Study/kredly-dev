@@ -3,11 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
 
+	"kredly/internal/blockchain"
 	"kredly/internal/database"
 	"kredly/internal/groq"
 	"kredly/internal/models"
@@ -815,5 +817,135 @@ func (h *ProfileHandler) HandleGetPublicProfileByUsername(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"profile": profileResponse,
+	})
+}
+
+// HandleUploadProfilePhoto handles profile photo upload to Pinata IPFS
+func (h *ProfileHandler) HandleUploadProfilePhoto(c *gin.Context) {
+	userInterface, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userMap, ok := userInterface.(gin.H)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user data"})
+		return
+	}
+
+	userID, ok := userMap["id"].(string)
+	if !ok || userID == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	// Get uploaded file
+	file, err := c.FormFile("photo")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "File foto tidak ditemukan"})
+		return
+	}
+
+	// Validate file type (only images)
+	contentType := file.Header.Get("Content-Type")
+	allowedTypes := []string{"image/jpeg", "image/png", "image/gif", "image/webp"}
+	isValidType := false
+	for _, t := range allowedTypes {
+		if contentType == t {
+			isValidType = true
+			break
+		}
+	}
+	if !isValidType {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "File harus berformat JPG, PNG, GIF, atau WebP"})
+		return
+	}
+
+	// Validate file size (max 2MB)
+	if file.Size > 2*1024*1024 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Ukuran file maksimal 2MB"})
+		return
+	}
+
+	// Read file buffer
+	openedFile, err := file.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membaca file"})
+		return
+	}
+	defer openedFile.Close()
+
+	imageBuffer, err := io.ReadAll(openedFile)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membaca file"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	userColl := database.DB.Collection("user")
+
+	// Get current user to check for old image
+	var currentUser models.User
+	err = userColl.FindOne(ctx, bson.M{"_id": userID}).Decode(&currentUser)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "User tidak ditemukan"})
+		return
+	}
+
+	// Upload to Pinata
+	pinataClient := blockchain.NewPinataClient()
+	if pinataClient == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Pinata service not available - check PINATA_JWT"})
+		return
+	}
+
+	// Generate filename
+	filename := fmt.Sprintf("profile_%s_%d%s", userID, time.Now().Unix(), filepath.Ext(file.Filename))
+	ipfsCID, err := pinataClient.UploadImage(imageBuffer, filename, contentType)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengupload foto: " + err.Error()})
+		return
+	}
+
+	// Generate IPFS gateway URL
+	imageURL := blockchain.GetIPFSUrl(ipfsCID)
+
+	// Delete old image from Pinata if exists
+	if currentUser.Image != nil && *currentUser.Image != "" {
+		oldCID := blockchain.ExtractCIDFromURL(*currentUser.Image)
+		if oldCID != "" {
+			go func() {
+				if err := pinataClient.DeleteFile(oldCID); err != nil {
+					println("⚠️ [DEBUG] Failed to delete old profile photo from IPFS:", err.Error())
+				} else {
+					println("✅ [DEBUG] Old profile photo deleted from IPFS:", oldCID)
+				}
+			}()
+		}
+	}
+
+	// Update user.image in database
+	_, err = userColl.UpdateOne(
+		ctx,
+		bson.M{"_id": userID},
+		bson.M{
+			"$set": bson.M{
+				"image":     imageURL,
+				"updatedAt": time.Now(),
+			},
+		},
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menyimpan URL foto"})
+		return
+	}
+
+	println("✅ [DEBUG] Profile photo uploaded successfully - CID:", ipfsCID)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "Foto profil berhasil diupload",
+		"imageUrl": imageURL,
+		"ipfsCID":  ipfsCID,
 	})
 }

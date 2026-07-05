@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import { useState, useEffect, useRef } from 'react';
 import { Loader2, Upload, FileText } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 
 interface UserProfile {
   id: string;
@@ -33,12 +34,14 @@ interface UserProfile {
 }
 
 export default function ProfileTab() {
-  const { user } = useAuth();
+  const { user, refetch } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const hasInitializedRef = useRef(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingCV, setIsUploadingCV] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [formData, setFormData] = useState({
     fullName: '',
@@ -81,6 +84,68 @@ export default function ProfileTab() {
 
     fetchProfile();
   }, []);
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('File harus berformat JPG, PNG, GIF, atau WebP');
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Ukuran file maksimal 2MB');
+      return;
+    }
+
+    setIsUploadingPhoto(true);
+
+    try {
+      // Compress image to max 512px
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 512,
+        useWebWorker: true,
+      };
+      const compressedFile = await imageCompression(file, options);
+
+      const formData = new FormData();
+      formData.append('photo', compressedFile);
+
+      const response = await fetch('/api/user/upload-profile-photo', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Gagal mengupload foto');
+      }
+
+      const data = await response.json();
+
+      // Refresh auth context to update user image
+      await refetch();
+
+      toast.success('Foto profil berhasil diupload ke IPFS!');
+
+      // Reset file input
+      if (photoInputRef.current) {
+        photoInputRef.current.value = '';
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Gagal mengupload foto',
+      );
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
 
   const handleSaveProfile = async () => {
     setIsSaving(true);
@@ -199,7 +264,7 @@ export default function ProfileTab() {
         <CardHeader>
           <CardTitle>Foto Profil</CardTitle>
           <CardDescription>
-            Update foto profil Anda yang akan ditampilkan di kredensial
+            Update foto profil Anda yang akan ditampilkan di kredensial dan profil publik
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -211,11 +276,33 @@ export default function ProfileTab() {
               </AvatarFallback>
             </Avatar>
             <div className="space-y-2">
-              <Button variant="outline" size="sm" disabled>
-                Upload Foto
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                onChange={handlePhotoUpload}
+                className="hidden"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => photoInputRef.current?.click()}
+                disabled={isUploadingPhoto}
+              >
+                {isUploadingPhoto ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Mengupload...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Foto
+                  </>
+                )}
               </Button>
               <p className="text-xs text-muted-foreground">
-                JPG, PNG atau GIF. Max 2MB
+                JPG, PNG, GIF, atau WebP. Max 2MB. Auto-resize ke 512px
               </p>
             </div>
           </div>

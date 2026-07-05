@@ -172,6 +172,7 @@ func main() {
 			user.POST("/me/topup", tokenHandler.HandleSimulateTopup)
 			user.PUT("/update-profile", profileHandler.HandleUpdateProfile)
 			user.POST("/upload-cv", profileHandler.HandleUploadCV)
+			user.POST("/upload-profile-photo", profileHandler.HandleUploadProfilePhoto)
 			user.DELETE("/delete-account", profileHandler.HandleDeleteAccount)
 			user.GET("/public-profile-settings", profileHandler.HandleGetPublicProfileSettings)
 			user.PUT("/public-profile-settings", profileHandler.HandleUpdatePublicProfileSettings)
