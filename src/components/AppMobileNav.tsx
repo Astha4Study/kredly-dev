@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Portal, PortalBackdrop } from '@/components/ui/portal';
 import { XIcon, MenuIcon, Briefcase } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
-import { Home, Award, FileText, History, Coins, Upload } from 'lucide-react';
+import { Home, Award, FileText, History, Coins, Upload, Shield } from 'lucide-react';
 
 interface AppMobileNavProps {
   kredit: number;
@@ -21,6 +21,11 @@ export function AppMobileNav({ kredit, open, setOpen }: AppMobileNavProps) {
       path: '/app/history',
       label: 'Riwayat',
       icon: History,
+    },
+    {
+      path: '/app/certificate-verification',
+      label: 'Verifikasi',
+      icon: Shield,
     },
   ];
 

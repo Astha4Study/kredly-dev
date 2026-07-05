@@ -11,6 +11,7 @@ interface QuizActionsProps {
   onContinue: () => void;
   countdown: number;
   error: string | null;
+  submitLoadingMessage?: string;
 }
 
 export default function QuizActions({
@@ -21,6 +22,7 @@ export default function QuizActions({
   onContinue,
   countdown,
   error,
+  submitLoadingMessage = 'Mengirim jawaban...',
 }: QuizActionsProps) {
   return (
     <div className="space-y-4">
@@ -37,7 +39,7 @@ export default function QuizActions({
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 size-4 animate-spin" /> Menyerahkan...
+                <Loader2 className="mr-2 size-4 animate-spin" /> {submitLoadingMessage}
               </>
             ) : (
               <>
