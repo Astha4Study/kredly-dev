@@ -14,6 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type CVHandler struct {
@@ -170,40 +171,58 @@ CRITICAL RULES FOR MERGING/UPDATING "assessments":
 
 Ensure all fields are populated as accurately as possible based on the text. If a field is missing, set it to null or an empty array/string. Do not include any markdown format tags like ` + "`" + `json` + "`" + ` or any conversational intro/outro text. Return ONLY the raw JSON object.`
 	} else {
-		systemPrompt = `You are an expert ATS (Applicant Tracking System) CV parser. 
-Extract all information from the provided CV text and output it as a structured JSON object. 
-The JSON must follow this exact schema:
+		systemPrompt = `You are an expert ATS (Applicant Tracking System) CV parser.
+Your PRIMARY TASK is to accurately extract information ONLY from the CV text provided. Do NOT make assumptions or add skills that are not explicitly mentioned in the CV.
+
+CRITICAL RULES:
+1. Extract ONLY skills that are explicitly written in the CV text
+2. Identify the candidate's actual field/domain from their education, experience, and listed skills
+3. Do NOT assume programming/software development unless clearly stated in the CV
+4. Match the role and category to the candidate's actual domain (e.g., Data Analyst, Mathematician, Marketing, Finance, etc.)
+
+Extract all information and output a structured JSON object following this exact schema:
 {
-  "role": "Candidate's primary role or title (e.g., Backend Engineer)",
-  "level": "Candidate's seniority level (e.g., Junior, Mid, Senior, Lead)",
-  "skills": ["Skill 1", "Skill 2"],
-  "summary": "A concise, clean, and professional summary of the candidate's profile, key experience, and education. Keep it brief (2-3 sentences max) as a single plain paragraph. Do NOT include any special characters, list bullet points, or symbols like '●' or '•'.",
+  "role": "Candidate's PRIMARY role based on their education, experience, and skills (e.g., Data Analyst, Software Engineer, Marketing Manager, Financial Analyst, Mathematician)",
+  "level": "Candidate's seniority level based on experience (e.g., Entry Level, Junior, Mid, Senior, Lead)",
+  "skills": ["ONLY skills explicitly mentioned in the CV - do NOT add programming skills if not present"],
+  "summary": "A concise summary of the candidate's ACTUAL profile based on CV content. Keep it brief (2-3 sentences max) as plain paragraph. Do NOT include special characters or bullet points.",
   "assessments": [
     {
-      "id": "A unique slug/ID like gen-frontend, skill-typescript, or rel-deep-learning",
+      "id": "unique-slug-based-on-actual-domain",
       "type": "general", "skill", or "related_skill",
-      "title": "Assessment title (e.g. Front End, Backend, TypeScript, Go)",
-      "description": "Short description of what is tested",
+      "title": "Assessment title matching candidate's ACTUAL domain",
+      "description": "What is tested in this assessment",
       "difficulty": "Beginner", "Intermediate", or "Advanced" based on candidate level,
-      "estimatedTime": "Estimated time (e.g. '90 menit' for general, '45 menit' for skill/related_skill)",
-      "questionCount": number of questions (e.g., 50 for general, 30 for skill/related_skill),
-      "topics": ["list of key topics/subjects tested"] (only for type "general", empty or null for other types),
+      "estimatedTime": "90 menit for general, 45 menit for skill/related_skill",
+      "questionCount": 50 for general, 30 for skill/related_skill,
+      "topics": ["relevant topics from candidate's domain"] (only for "general" type),
       "isRecommended": true,
-      "category": "Frontend", "Backend", "Mobile", "DevOps", "Database", "General" etc.,
+      "category": "Match candidate's actual domain (e.g., Data Analysis, Mathematics, Marketing, Finance, Software Development, Design, etc.)",
       "status": "available"
     }
   ]
 }
 
-For the "assessments" field:
-1. Generate exactly 1 "general" assessment matching the candidate's overall role (e.g., "Front End", "Backend", "Mobile Developer", "DevOps") with 3-5 relevant "topics" to be tested. The "questionCount" must be 50 and "estimatedTime" must be "90 menit".
-2. Generate 3-5 skill-related assessments: 2-3 of these must directly match the candidate's top extracted skills (e.g., "TypeScript", "Node.js", "Docker") and have "type": "skill". In addition, generate 1-2 assessments that are outside their direct skills list but highly related or complementary to their domain (e.g., if they have "Machine Learning", add "Deep Learning" or "NLP"; if they have "React", add "Next.js" or "TypeScript") and have "type": "related_skill". The "questionCount" for all these must be 30 and "estimatedTime" must be "45 menit".
-3. Choose the "difficulty" matching their cv level (Junior -> Beginner/Intermediate, Mid -> Intermediate, Senior/Lead -> Advanced).
-4. Assign a unique slug/ID for each assessment (e.g., "gen-frontend" for general, "skill-typescript" for skill, "rel-deep-learning" for related_skill).
-5. The "status" of each assessment should be "available".
-6. The "category" should align with the candidate's domain (e.g., "Frontend", "Backend", "Mobile", "DevOps", "Database", "General").
+ASSESSMENT GENERATION RULES:
+1. Generate 1 "general" assessment matching the candidate's ACTUAL overall domain with 3-5 relevant topics. questionCount=50, estimatedTime="90 menit"
+2. Generate 3-5 skill assessments based on ACTUAL skills from the CV:
+   - 2-3 assessments matching their TOP extracted skills (type="skill")
+   - 1-2 complementary skills within their ACTUAL domain (type="related_skill")
+   - questionCount=30, estimatedTime="45 menit"
+3. Set difficulty based on cv level: Entry/Junior -> Beginner/Intermediate, Mid -> Intermediate, Senior/Lead -> Advanced
+4. Use appropriate category based on ACTUAL domain:
+   - Data/Statistics: "Data Analysis", "Statistics", "Mathematics"
+   - Software: "Frontend", "Backend", "Mobile", "DevOps"
+   - Business: "Marketing", "Finance", "Management"
+   - Design: "UI/UX", "Graphic Design"
+   - etc.
 
-Ensure all fields are populated as accurately as possible based on the text. If a field is missing, set it to null or an empty array/string. Do not include any markdown format tags like ` + "`" + `json` + "`" + ` or any conversational intro/outro text. Return ONLY the raw JSON object.`
+EXAMPLE FOR NON-PROGRAMMING CV:
+If CV shows: "S1 Matematika, skills: Analisis Data, Statistika, R, Excel"
+Then generate: role="Data Analyst", skills=["Analisis Data", "Statistika", "R", "Excel"], category="Data Analysis"
+NOT: role="Backend Engineer", skills=["Python", "JavaScript"], category="Backend"
+
+Return ONLY valid JSON object without markdown tags or explanatory text.`
 	}
 
 	// 6. Request Chat Completion from Groq with JSON Mode
@@ -371,7 +390,8 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 				"updatedAt":     now,
 			},
 		}
-		_, updateErrProfile := userProfileColl.UpdateOne(c.Request.Context(), bson.M{"userId": loggedInUserID}, profileUpdate)
+		opts := options.Update().SetUpsert(true)
+		_, updateErrProfile := userProfileColl.UpdateOne(c.Request.Context(), bson.M{"userId": loggedInUserID}, profileUpdate, opts)
 		if updateErrProfile != nil {
 			c.Error(updateErrProfile)
 		}

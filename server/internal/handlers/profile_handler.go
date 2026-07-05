@@ -261,6 +261,7 @@ func (h *ProfileHandler) HandleUploadCV(c *gin.Context) {
 	// Parse CV - extract text and analyze with Groq
 	var parsedRole, parsedLevel, parsedSummary string
 	var parsedSkills []string
+	var parsedAssessments []models.GeneratedAssessment
 
 	// This parsing is optional - if it fails, we still save the file
 	if text, err := pdf.ReadPDFText(filePath); err == nil && len(text) > 0 {
@@ -280,45 +281,67 @@ func (h *ProfileHandler) HandleUploadCV(c *gin.Context) {
 			skills = existingProfile.CVSkills
 
 			existingDataBytes, _ := json.Marshal(map[string]interface{}{
-				"role":    role,
-				"level":   level,
-				"skills":  skills,
-				"summary": summary,
+				"role":        role,
+				"level":       level,
+				"skills":      skills,
+				"summary":     summary,
+				"assessments": existingProfile.CVAssessments,
 			})
 			existingDataStr = string(existingDataBytes)
 		}
 
-		systemPrompt := `You are an expert CV parser. Your task is to update or merge a user's existing CV profile data with the text extracted from their newly uploaded CV.
+		// Use improved system prompt without programming bias
+		systemPrompt := `You are an expert ATS (Applicant Tracking System) CV parser.
+Your PRIMARY TASK is to accurately extract information ONLY from the CV text provided. Do NOT make assumptions or add skills that are not explicitly mentioned in the CV.
+
+CRITICAL RULES:
+1. Extract ONLY skills that are explicitly written in the CV text
+2. Identify the candidate's actual field/domain from their education, experience, and listed skills
+3. Do NOT assume programming/software development unless clearly stated in the CV
+4. Match the role and category to the candidate's actual domain (e.g., Data Analyst, Mathematician, Marketing, Finance, etc.)
 `
+
 		if existingDataStr != "" {
-			systemPrompt += fmt.Sprintf(`Here is the user's existing parsed CV profile data:
+			systemPrompt += fmt.Sprintf(`Here is the user's existing parsed CV profile data and assessments:
 %s
 
-Please review the new CV text, merge/update the fields accordingly:
-1. "role": Update the job title/role if the new CV indicates a more recent, updated, or prominent current role.
-2. "level": Update the seniority level (Junior, Mid, Senior, Lead) if the new CV shows that the user has advanced or changed levels.
-3. "skills": Combine/merge unique skills from both the existing data and the new CV. Add any new skills found in the new CV text while keeping existing ones that are still relevant. Do not duplicate skills.
-4. "summary": Rewrite or update the professional summary (2-3 sentences) to incorporate the new experiences, achievements, or highlight updated career directions.
-
+Please review the new CV text, merge/update the fields accordingly while preserving completed/in-progress assessments.
 `, existingDataStr)
-		} else {
-			systemPrompt += `Extract the following information from the CV text:
-1. "role": Primary role or job title.
-2. "level": Seniority level (Junior, Mid, Senior, Lead).
-3. "skills": List of skills found in the CV text.
-4. "summary": Brief 2-3 sentence professional summary.
-
-`
 		}
 
-		systemPrompt += `Output the result as a single JSON object with these exact keys:
+		systemPrompt += `Extract all information and output a structured JSON object following this exact schema:
 {
-  "role": "Primary role or job title",
-  "level": "Seniority level (Junior, Mid, Senior, Lead)",
-  "skills": ["skill1", "skill2", ...],
-  "summary": "Brief 2-3 sentence professional summary"
+  "role": "Candidate's PRIMARY role based on their education, experience, and skills (e.g., Data Analyst, Software Engineer, Marketing Manager, Financial Analyst, Mathematician)",
+  "level": "Candidate's seniority level based on experience (e.g., Entry Level, Junior, Mid, Senior, Lead)",
+  "skills": ["ONLY skills explicitly mentioned in the CV - do NOT add programming skills if not present"],
+  "summary": "A concise summary of the candidate's ACTUAL profile based on CV content. Keep it brief (2-3 sentences max) as plain paragraph.",
+  "assessments": [
+    {
+      "id": "unique-slug-based-on-actual-domain",
+      "type": "general", "skill", or "related_skill",
+      "title": "Assessment title matching candidate's ACTUAL domain",
+      "description": "What is tested in this assessment",
+      "difficulty": "Beginner", "Intermediate", or "Advanced" based on candidate level,
+      "estimatedTime": "90 menit for general, 45 menit for skill/related_skill",
+      "questionCount": 50 for general, 30 for skill/related_skill,
+      "topics": ["relevant topics from candidate's domain"] (only for "general" type),
+      "isRecommended": true,
+      "category": "Match candidate's actual domain (e.g., Data Analysis, Mathematics, Marketing, Finance, Software Development, Design, etc.)",
+      "status": "available"
+    }
+  ]
 }
-Return ONLY the JSON object, no markdown or extra text.`
+
+ASSESSMENT GENERATION RULES:
+1. Generate 1 "general" assessment matching the candidate's ACTUAL overall domain. questionCount=50, estimatedTime="90 menit"
+2. Generate 3-5 skill assessments based on ACTUAL skills from the CV:
+   - 2-3 assessments matching their TOP extracted skills (type="skill")
+   - 1-2 complementary skills within their ACTUAL domain (type="related_skill")
+   - questionCount=30, estimatedTime="45 menit"
+3. If existing data has completed/in-progress assessments, PRESERVE them in the output
+4. Use appropriate category based on ACTUAL domain
+
+Return ONLY valid JSON object without markdown tags.`
 
 		groqReq := groq.ChatCompletionRequest{
 			Messages: []groq.Message{
@@ -338,10 +361,11 @@ Return ONLY the JSON object, no markdown or extra text.`
 			println("❌ [DEBUG] Groq returned 0 choices")
 		} else {
 			var parsed struct {
-				Role    string   `json:"role"`
-				Level   string   `json:"level"`
-				Skills  []string `json:"skills"`
-				Summary string   `json:"summary"`
+				Role        string                       `json:"role"`
+				Level       string                       `json:"level"`
+				Skills      []string                     `json:"skills"`
+				Summary     string                       `json:"summary"`
+				Assessments []models.GeneratedAssessment `json:"assessments"`
 			}
 			unmarshalErr := json.Unmarshal([]byte(resp.Choices[0].Message.Content), &parsed)
 			if unmarshalErr != nil {
@@ -351,7 +375,8 @@ Return ONLY the JSON object, no markdown or extra text.`
 				parsedLevel = parsed.Level
 				parsedSkills = parsed.Skills
 				parsedSummary = parsed.Summary
-				println("✅ [DEBUG] Groq successfully parsed CV data - Role:", parsedRole, "Level:", parsedLevel)
+				parsedAssessments = parsed.Assessments
+				println("✅ [DEBUG] Groq successfully parsed CV data - Role:", parsedRole, "Level:", parsedLevel, "Assessments:", len(parsedAssessments))
 			}
 		}
 	} else {
@@ -382,15 +407,19 @@ Return ONLY the JSON object, no markdown or extra text.`
 	if parsedSummary != "" {
 		updateDoc["cvSummary"] = parsedSummary
 	}
+	if len(parsedAssessments) > 0 {
+		updateDoc["cvAssessments"] = parsedAssessments
+	}
 
-	// Update or insert UserProfile
+	// Update or insert UserProfile with upsert
 	filter := bson.M{"userId": userID}
 	update := bson.M{"$set": updateDoc}
+	opts := options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After)
 
-	var userProfile models.UserProfile
-	err = userProfileColl.FindOneAndUpdate(ctx, filter, update).Decode(&userProfile)
+	var updatedProfile models.UserProfile
+	err = userProfileColl.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedProfile)
 
-	// If profile doesn't exist, create new one
+	// If still error after upsert, try manual insert
 	if err != nil {
 		newProfile := models.UserProfile{
 			ID:         uuid.New().String(),
@@ -415,32 +444,28 @@ Return ONLY the JSON object, no markdown or extra text.`
 		if parsedSummary != "" {
 			newProfile.CVSummary = &parsedSummary
 		}
+		if len(parsedAssessments) > 0 {
+			newProfile.CVAssessments = parsedAssessments
+		}
 
 		_, err = userProfileColl.InsertOne(ctx, newProfile)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menyimpan profil"})
 			return
 		}
+		updatedProfile = newProfile
 	}
 
-	// Return response
+	// Return response with assessments
 	response := gin.H{
-		"message":    "CV berhasil diupload",
+		"message":    "CV berhasil diupload dan diparse",
 		"cvFileName": file.Filename,
 		"cvFilePath": filePath,
-	}
-
-	if parsedRole != "" {
-		response["cvRole"] = parsedRole
-	}
-	if parsedLevel != "" {
-		response["cvLevel"] = parsedLevel
-	}
-	if len(parsedSkills) > 0 {
-		response["cvSkills"] = parsedSkills
-	}
-	if parsedSummary != "" {
-		response["cvSummary"] = parsedSummary
+		"role":       parsedRole,
+		"level":      parsedLevel,
+		"skills":     parsedSkills,
+		"summary":    parsedSummary,
+		"assessments": parsedAssessments,
 	}
 
 	c.JSON(http.StatusOK, response)

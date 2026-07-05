@@ -228,17 +228,17 @@ function RouteComponent() {
                                 {assessment.type === 'general' ? (
                                   <>
                                     <Layers className="h-3 w-3" />
-                                    General
+                                    Umum
                                   </>
                                 ) : assessment.type === 'related_skill' ? (
                                   <>
                                     <Zap className="h-3 w-3" />
-                                    Related Skill
+                                    Keterampilan Terkait
                                   </>
                                 ) : (
                                   <>
                                     <Zap className="h-3 w-3" />
-                                    Skill
+                                    Keterampilan
                                   </>
                                 )}
                               </Badge>
@@ -258,7 +258,9 @@ function RouteComponent() {
                               </h3>
                               <p className="line-clamp-2 text-xs sm:text-sm text-muted-foreground">
                                 {assessment.description ||
-                                  'Uji kemampuan Anda dalam topik ini'}
+                                  (assessment.type === 'general'
+                                    ? 'Menguji kompetensi komprehensif terkait role.'
+                                    : 'Uji kemampuan Anda dalam keterampilan ini')}
                               </p>
                             </div>
 

@@ -27,6 +27,7 @@ interface UserProfile {
   cvLevel?: string;
   cvSkills?: string[];
   cvSummary?: string;
+  cvAssessments?: any[];
   createdAt: string;
   updatedAt: string;
 }
@@ -143,22 +144,23 @@ export default function ProfileTab() {
 
       const data = await response.json();
 
-      // Update local profile state
+      // Update local profile state with newly parsed CV data including assessments
       setUserProfile((prev) =>
         prev
           ? {
               ...prev,
               cvFileName: data.cvFileName,
               cvFilePath: data.cvFilePath,
-              cvRole: data.cvRole,
-              cvLevel: data.cvLevel,
-              cvSkills: data.cvSkills,
-              cvSummary: data.cvSummary,
+              cvRole: data.role,
+              cvLevel: data.level,
+              cvSkills: data.skills,
+              cvSummary: data.summary,
+              cvAssessments: data.assessments,
             }
           : null,
       );
 
-      toast.success('CV berhasil diupload dan diparse');
+      toast.success('CV berhasil diupload dan diparse. Role, skills, dan assessments telah diperbarui!');
 
       // Reset file input
       if (fileInputRef.current) {

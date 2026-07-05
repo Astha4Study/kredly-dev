@@ -205,7 +205,7 @@ function RouteComponent() {
           {currentStep > 1 && (
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={() => {
                 if (currentStep > 1) {

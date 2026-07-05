@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 	"time"
 
@@ -91,29 +92,35 @@ func AuthMiddleware(cfg *config.Config, authService *service.AuthService) gin.Ha
 		// Auto-refresh token jika mendekati expired (2 hari sebelum habis)
 		if authService.ShouldRefreshSession(session.ExpiresAt) {
 			newSession, err := authService.RefreshSession(c.Request.Context(), token, user.ID)
-			if err == nil {
-				// Update cookie dengan token baru
-				maxAge := 7 * 24 * 60 * 60
-				isSecure := cfg.Environment == "production"
-				sameSite := http.SameSiteLaxMode
-				if isSecure {
-					sameSite = http.SameSiteStrictMode
-				}
-
-				c.SetSameSite(sameSite)
-				c.SetCookie(
-					"auth_session",
-					newSession.Token,
-					maxAge,
-					"/",
-					"",
-					isSecure,
-					true,
-				)
-
-				// Update session di context juga
-				c.Set("session", *newSession)
+			if err != nil {
+				// Session refresh failed - force re-authentication
+				log.Printf("Session refresh failed for user %s: %v", user.ID, err)
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Session refresh failed, please login again"})
+				c.Abort()
+				return
 			}
+
+			// Update cookie dengan token baru
+			maxAge := 7 * 24 * 60 * 60
+			isSecure := cfg.Environment == "production"
+			sameSite := http.SameSiteLaxMode
+			if isSecure {
+				sameSite = http.SameSiteStrictMode
+			}
+
+			c.SetSameSite(sameSite)
+			c.SetCookie(
+				"auth_session",
+				newSession.Token,
+				maxAge,
+				"/",
+				"",
+				isSecure,
+				true,
+			)
+
+			// Update session di context juga
+			c.Set("session", *newSession)
 		}
 
 		c.Next()
