@@ -8,10 +8,12 @@ export const Route = createFileRoute('/_public/(landing)')({
 
 function LandingLayout() {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <Outlet />
+      <div className="flex-grow">
+        <Outlet />
+      </div>
       <Footer />
-    </>
+    </div>
   );
 }
