@@ -5,13 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import {
-  ExternalLink,
-  Award,
-  FileText,
-  Briefcase,
-  Target,
-} from 'lucide-react';
+import { ExternalLink, Award, FileText, Briefcase, Target } from 'lucide-react';
 import { ProfileSkeleton } from '@/components/skeletons/ProfileSkeleton';
 
 export const Route = createFileRoute('/_app/app/profile/$profileId/')({
@@ -126,7 +120,9 @@ function RouteComponent() {
                   <h1 className="text-2xl md:text-3xl font-bold mb-1">
                     {profile.name}
                   </h1>
-                  <p className="text-muted-foreground mb-3">@{profile.username}</p>
+                  <p className="text-muted-foreground mb-3">
+                    @{profile.username}
+                  </p>
 
                   {profile.headline && (
                     <p className="text-base font-medium text-foreground mb-3">
@@ -212,8 +208,12 @@ function RouteComponent() {
                       <Award className="h-5 w-5 text-primary" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-2xl font-bold leading-none mb-1">{certificateCount}</p>
-                      <p className="text-xs text-muted-foreground">Sertifikat</p>
+                      <p className="text-2xl font-bold leading-none mb-1">
+                        {certificateCount}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Sertifikat
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -224,8 +224,12 @@ function RouteComponent() {
                       <FileText className="h-5 w-5 text-primary" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-2xl font-bold leading-none mb-1">{assessmentCount}</p>
-                      <p className="text-xs text-muted-foreground">Assessment</p>
+                      <p className="text-2xl font-bold leading-none mb-1">
+                        {assessmentCount}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Assessment
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -236,7 +240,9 @@ function RouteComponent() {
                       <Target className="h-5 w-5 text-primary" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-2xl font-bold leading-none mb-1">{skillCount}</p>
+                      <p className="text-2xl font-bold leading-none mb-1">
+                        {skillCount}
+                      </p>
                       <p className="text-xs text-muted-foreground">Skills</p>
                     </div>
                   </div>
@@ -271,10 +277,13 @@ function RouteComponent() {
                               {assessment.title}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {new Date(assessment.completedAt).toLocaleDateString(
-                                'id-ID',
-                                { day: 'numeric', month: 'short', year: 'numeric' }
-                              )}
+                              {new Date(
+                                assessment.completedAt,
+                              ).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
                             </p>
                           </div>
                         </div>
@@ -307,7 +316,9 @@ function RouteComponent() {
                         <p className="text-xs text-muted-foreground mb-1 font-medium">
                           Role
                         </p>
-                        <p className="text-sm font-semibold">{profile.cvRole}</p>
+                        <p className="text-sm font-semibold">
+                          {profile.cvRole}
+                        </p>
                       </div>
                     )}
                     {profile.cvLevel && (
@@ -315,7 +326,9 @@ function RouteComponent() {
                         <p className="text-xs text-muted-foreground mb-1 font-medium">
                           Level
                         </p>
-                        <p className="text-sm font-semibold">{profile.cvLevel}</p>
+                        <p className="text-sm font-semibold">
+                          {profile.cvLevel}
+                        </p>
                       </div>
                     )}
                   </div>

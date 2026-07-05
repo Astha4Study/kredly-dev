@@ -14,12 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import {
-  Loader2,
-  Copy,
-  ExternalLink,
-  Globe,
-} from 'lucide-react';
+import { Loader2, Copy, ExternalLink, Globe } from 'lucide-react';
 import PublicProfileSkeleton from '@/components/skeletons/PublicProfileSkeleton';
 
 interface PublicProfileSettings {
@@ -178,7 +173,8 @@ export default function PublicProfileTab() {
             <div className="space-y-0.5">
               <Label htmlFor="isPublic">Aktifkan Profil Publik</Label>
               <p className="text-sm text-muted-foreground">
-                Jika diaktifkan, profil Anda dapat dilihat oleh siapa saja yang mengetahui username Anda
+                Jika diaktifkan, profil Anda dapat dilihat oleh siapa saja yang
+                mengetahui username Anda
               </p>
             </div>
             <Switch

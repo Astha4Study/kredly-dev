@@ -21,7 +21,13 @@ import {
   Link as LinkIcon,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { fadeInUp, scaleIn, blurTransition, createStaggerAnimation, fadeInUpDelayed } from '@/lib/animations';
+import {
+  fadeInUp,
+  scaleIn,
+  blurTransition,
+  createStaggerAnimation,
+  fadeInUpDelayed,
+} from '@/lib/animations';
 
 export const Route = createFileRoute(
   '/_public/(landing)/certificate-verification/',
@@ -193,399 +199,400 @@ function RouteComponent() {
         {/* Verification Form */}
         <motion.div {...scaleIn}>
           <Card>
-          <CardHeader>
-            <CardTitle>Upload Sertifikat</CardTitle>
-            <CardDescription>
-              Upload file PDF sertifikat untuk memverifikasi keasliannya melalui
-              blockchain
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  id="file-upload"
-                />
-                <label
-                  htmlFor="file-upload"
-                  className="cursor-pointer flex flex-col items-center gap-3"
-                >
-                  <div className="rounded-full bg-primary/10 p-4">
-                    <FileText className="h-8 w-8 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">
-                      {selectedFile
-                        ? selectedFile.name
-                        : 'Klik untuk upload sertifikat PDF'}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Format: PDF, Maksimal 5MB
-                    </p>
-                  </div>
-                </label>
-              </div>
+            <CardHeader>
+              <CardTitle>Upload Sertifikat</CardTitle>
+              <CardDescription>
+                Upload file PDF sertifikat untuk memverifikasi keasliannya
+                melalui blockchain
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <label
+                    htmlFor="file-upload"
+                    className="cursor-pointer flex flex-col items-center gap-3"
+                  >
+                    <div className="rounded-full bg-primary/10 p-4">
+                      <FileText className="h-8 w-8 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">
+                        {selectedFile
+                          ? selectedFile.name
+                          : 'Klik untuk upload sertifikat PDF'}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Format: PDF, Maksimal 5MB
+                      </p>
+                    </div>
+                  </label>
+                </div>
 
-              {selectedFile && (
-                <>
-                  <div className="flex gap-3">
-                    <Button
-                      onClick={verifyByFile}
-                      disabled={isVerifying}
-                      className="flex-1"
-                    >
-                      {isVerifying ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Memverifikasi...
-                        </>
-                      ) : (
-                        <>
-                          <Shield className="mr-2 h-4 w-4" />
-                          Verifikasi Sertifikat
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={resetVerification}
-                      disabled={isVerifying}
-                    >
-                      Reset
-                    </Button>
-                  </div>
-                </>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                {selectedFile && (
+                  <>
+                    <div className="flex gap-3">
+                      <Button
+                        onClick={verifyByFile}
+                        disabled={isVerifying}
+                        className="flex-1"
+                      >
+                        {isVerifying ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Memverifikasi...
+                          </>
+                        ) : (
+                          <>
+                            <Shield className="mr-2 h-4 w-4" />
+                            Verifikasi Sertifikat
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={resetVerification}
+                        disabled={isVerifying}
+                      >
+                        Reset
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
         {/* Verification Result */}
         <AnimatePresence mode="wait">
-        {verificationResult && (
-          <motion.div {...blurTransition}>
-          <Card
-            className={
-              verificationResult.isValid
-                ? 'border-green-200 bg-green-50/50'
-                : 'border-red-200 bg-red-50/50'
-            }
-          >
-            <CardHeader>
-              <div className="flex items-start gap-3">
-                {verificationResult.isValid ? (
-                  <CheckCircle2 className="h-6 w-6 text-green-600 mt-0.5" />
-                ) : (
-                  <XCircle className="h-6 w-6 text-red-600 mt-0.5" />
-                )}
-                <div className="flex-1">
-                  <CardTitle
-                    className={
-                      verificationResult.isValid
-                        ? 'text-green-900'
-                        : 'text-red-900'
-                    }
-                  >
-                    {verificationResult.isValid
-                      ? 'Sertifikat Valid ✓'
-                      : 'Sertifikat Tidak Valid ✗'}
-                  </CardTitle>
-                  <CardDescription
-                    className={
-                      verificationResult.isValid
-                        ? 'text-green-700'
-                        : 'text-red-700'
-                    }
-                  >
-                    {verificationResult.message}
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              <div className="rounded-lg border bg-white p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground">
-                      Status Blockchain
-                    </p>
-                    <p className="text-sm font-semibold mt-1">
-                      {verificationResult.status}
-                    </p>
+          {verificationResult && (
+            <motion.div {...blurTransition}>
+              <Card
+                className={
+                  verificationResult.isValid
+                    ? 'border-green-200 bg-green-50/50'
+                    : 'border-red-200 bg-red-50/50'
+                }
+              >
+                <CardHeader>
+                  <div className="flex items-start gap-3">
+                    {verificationResult.isValid ? (
+                      <CheckCircle2 className="h-6 w-6 text-green-600 mt-0.5" />
+                    ) : (
+                      <XCircle className="h-6 w-6 text-red-600 mt-0.5" />
+                    )}
+                    <div className="flex-1">
+                      <CardTitle
+                        className={
+                          verificationResult.isValid
+                            ? 'text-green-900'
+                            : 'text-red-900'
+                        }
+                      >
+                        {verificationResult.isValid
+                          ? 'Sertifikat Valid ✓'
+                          : 'Sertifikat Tidak Valid ✗'}
+                      </CardTitle>
+                      <CardDescription
+                        className={
+                          verificationResult.isValid
+                            ? 'text-green-700'
+                            : 'text-red-700'
+                        }
+                      >
+                        {verificationResult.message}
+                      </CardDescription>
+                    </div>
                   </div>
-                  <Shield
-                    className={`h-8 w-8 ${verificationResult.isValid ? 'text-green-600' : 'text-red-600'}`}
-                  />
-                </div>
-              </div>
+                </CardHeader>
 
-              {verificationResult.isValid && verificationResult.metadata && (
-                <div className="rounded-lg border bg-white p-5 space-y-4 shadow-sm text-left">
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                      <Database className="h-4.5 w-4.5 text-primary" />
-                      Detail Metadata Blockchain
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Informasi verifikasi kriptografis permanen
-                    </p>
+                <CardContent className="space-y-4">
+                  <div className="rounded-lg border bg-white p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">
+                          Status Blockchain
+                        </p>
+                        <p className="text-sm font-semibold mt-1">
+                          {verificationResult.status}
+                        </p>
+                      </div>
+                      <Shield
+                        className={`h-8 w-8 ${verificationResult.isValid ? 'text-green-600' : 'text-red-600'}`}
+                      />
+                    </div>
                   </div>
 
-                  <div className="space-y-3 divide-y divide-slate-100">
-                    {/* Recipient Name */}
-                    {verificationResult.metadata.recipientName && (
-                      <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                        <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
-                          Nama Lengkap
-                        </span>
-                        <span className="text-xs font-medium text-slate-800">
-                          {verificationResult.metadata.recipientName}
-                        </span>
-                      </div>
-                    )}
+                  {verificationResult.isValid &&
+                    verificationResult.metadata && (
+                      <div className="rounded-lg border bg-white p-5 space-y-4 shadow-sm text-left">
+                        <div>
+                          <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                            <Database className="h-4.5 w-4.5 text-primary" />
+                            Detail Metadata Blockchain
+                          </h3>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Informasi verifikasi kriptografis permanen
+                          </p>
+                        </div>
 
-                    {/* Assessment Name */}
-                    {verificationResult.metadata.assessmentName && (
-                      <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                        <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
-                          Assessment
-                        </span>
-                        <span className="text-xs font-medium text-slate-800">
-                          {verificationResult.metadata.assessmentName}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Score */}
-                    {verificationResult.metadata.score > 0 && (
-                      <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                        <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
-                          Score
-                        </span>
-                        <span className="text-xs font-semibold text-slate-800">
-                          {verificationResult.metadata.score}
-                          <span className="text-muted-foreground font-normal">
-                            {' '}
-                            / 100
-                          </span>
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Certificate ID */}
-                    <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                      <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
-                        Certificate ID
-                      </span>
-                      <div className="flex items-center gap-1.5 flex-1 justify-end max-w-full overflow-hidden">
-                        <span className="font-mono text-xs text-slate-800 break-all select-all">
-                          {verificationResult.metadata.certificateId}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-slate-100 flex-shrink-0"
-                          onClick={() =>
-                            handleCopy(
-                              verificationResult.metadata!.certificateId,
-                              'certId',
-                            )
-                          }
-                        >
-                          {copiedField === 'certId' ? (
-                            <Check className="h-3 w-3 text-green-600" />
-                          ) : (
-                            <Copy className="h-3 w-3" />
+                        <div className="space-y-3 divide-y divide-slate-100">
+                          {/* Recipient Name */}
+                          {verificationResult.metadata.recipientName && (
+                            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                              <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
+                                Nama Lengkap
+                              </span>
+                              <span className="text-xs font-medium text-slate-800">
+                                {verificationResult.metadata.recipientName}
+                              </span>
+                            </div>
                           )}
-                        </Button>
-                      </div>
-                    </div>
 
-                    {/* Transaction Hash */}
-                    <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                      <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
-                        Transaction Hash
-                      </span>
-                      <div className="flex items-center gap-1.5 flex-1 justify-end max-w-full overflow-hidden">
-                        <span className="font-mono text-xs text-slate-800 break-all select-all">
-                          {verificationResult.metadata.txHash || '-'}
-                        </span>
-                        {verificationResult.metadata.txHash && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-slate-100 flex-shrink-0"
-                            onClick={() =>
-                              handleCopy(
-                                verificationResult.metadata!.txHash,
-                                'txHash',
-                              )
-                            }
-                          >
-                            {copiedField === 'txHash' ? (
-                              <Check className="h-3 w-3 text-green-600" />
-                            ) : (
-                              <Copy className="h-3 w-3" />
-                            )}
-                          </Button>
-                        )}
-                      </div>
-                    </div>
+                          {/* Assessment Name */}
+                          {verificationResult.metadata.assessmentName && (
+                            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                              <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
+                                Assessment
+                              </span>
+                              <span className="text-xs font-medium text-slate-800">
+                                {verificationResult.metadata.assessmentName}
+                              </span>
+                            </div>
+                          )}
 
-                    {/* IPFS CID & URL */}
-                    <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                      <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
-                        IPFS CID & URL
-                      </span>
-                      <div className="flex flex-col items-end gap-1 flex-1 max-w-full overflow-hidden">
-                        <div className="flex items-center gap-1.5 max-w-full">
-                          <span className="font-mono text-xs text-slate-800 break-all select-all">
-                            {verificationResult.metadata.ipfsCID}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-slate-100 flex-shrink-0"
-                            onClick={() =>
-                              handleCopy(
-                                verificationResult.metadata!.ipfsCID,
-                                'ipfsCID',
-                              )
-                            }
+                          {/* Score */}
+                          {verificationResult.metadata.score > 0 && (
+                            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                              <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
+                                Score
+                              </span>
+                              <span className="text-xs font-semibold text-slate-800">
+                                {verificationResult.metadata.score}
+                                <span className="text-muted-foreground font-normal">
+                                  {' '}
+                                  / 100
+                                </span>
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Certificate ID */}
+                          <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                            <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
+                              Certificate ID
+                            </span>
+                            <div className="flex items-center gap-1.5 flex-1 justify-end max-w-full overflow-hidden">
+                              <span className="font-mono text-xs text-slate-800 break-all select-all">
+                                {verificationResult.metadata.certificateId}
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-slate-100 flex-shrink-0"
+                                onClick={() =>
+                                  handleCopy(
+                                    verificationResult.metadata!.certificateId,
+                                    'certId',
+                                  )
+                                }
+                              >
+                                {copiedField === 'certId' ? (
+                                  <Check className="h-3 w-3 text-green-600" />
+                                ) : (
+                                  <Copy className="h-3 w-3" />
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+
+                          {/* Transaction Hash */}
+                          <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                            <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
+                              Transaction Hash
+                            </span>
+                            <div className="flex items-center gap-1.5 flex-1 justify-end max-w-full overflow-hidden">
+                              <span className="font-mono text-xs text-slate-800 break-all select-all">
+                                {verificationResult.metadata.txHash || '-'}
+                              </span>
+                              {verificationResult.metadata.txHash && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-slate-100 flex-shrink-0"
+                                  onClick={() =>
+                                    handleCopy(
+                                      verificationResult.metadata!.txHash,
+                                      'txHash',
+                                    )
+                                  }
+                                >
+                                  {copiedField === 'txHash' ? (
+                                    <Check className="h-3 w-3 text-green-600" />
+                                  ) : (
+                                    <Copy className="h-3 w-3" />
+                                  )}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* IPFS CID & URL */}
+                          <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                            <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
+                              IPFS CID & URL
+                            </span>
+                            <div className="flex flex-col items-end gap-1 flex-1 max-w-full overflow-hidden">
+                              <div className="flex items-center gap-1.5 max-w-full">
+                                <span className="font-mono text-xs text-slate-800 break-all select-all">
+                                  {verificationResult.metadata.ipfsCID}
+                                </span>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-slate-100 flex-shrink-0"
+                                  onClick={() =>
+                                    handleCopy(
+                                      verificationResult.metadata!.ipfsCID,
+                                      'ipfsCID',
+                                    )
+                                  }
+                                >
+                                  {copiedField === 'ipfsCID' ? (
+                                    <Check className="h-3 w-3 text-green-600" />
+                                  ) : (
+                                    <Copy className="h-3 w-3" />
+                                  )}
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* PDF Hash */}
+                          <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                            <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
+                              PDF Hash (SHA-256)
+                            </span>
+                            <div className="flex items-center gap-1.5 flex-1 justify-end max-w-full overflow-hidden">
+                              <span className="font-mono text-[11px] text-slate-800 break-all select-all">
+                                {verificationResult.metadata.pdfHash}
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-slate-100 flex-shrink-0"
+                                onClick={() =>
+                                  handleCopy(
+                                    verificationResult.metadata!.pdfHash,
+                                    'pdfHash',
+                                  )
+                                }
+                              >
+                                {copiedField === 'pdfHash' ? (
+                                  <Check className="h-3 w-3 text-green-600" />
+                                ) : (
+                                  <Copy className="h-3 w-3" />
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+
+                          {/* Created At */}
+                          <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                            <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
+                              Waktu Dibuat
+                            </span>
+                            <div className="flex items-center gap-1.5 text-slate-700 justify-end">
+                              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                              <span className="text-xs font-medium">
+                                {getFormattedDate(
+                                  verificationResult.metadata.createdAt,
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-col sm:flex-row gap-2 pt-3">
+                          <a
+                            href={`https://amoy.polygonscan.com/tx/${verificationResult.metadata.txHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1"
                           >
-                            {copiedField === 'ipfsCID' ? (
-                              <Check className="h-3 w-3 text-green-600" />
-                            ) : (
-                              <Copy className="h-3 w-3" />
-                            )}
-                          </Button>
+                            <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center gap-1.5 text-xs h-9">
+                              <LinkIcon className="h-3.5 w-3.5" />
+                              Buka Link Blockchain
+                            </Button>
+                          </a>
+                          <a
+                            href={verificationResult.metadata.ipfsURL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1"
+                          >
+                            <Button
+                              variant="outline"
+                              className="w-full flex items-center justify-center gap-1.5 border-indigo-200 hover:bg-indigo-50 text-indigo-700 text-xs h-9"
+                            >
+                              <FileText className="h-3.5 w-3.5" />
+                              Lihat PDF Asli
+                            </Button>
+                          </a>
                         </div>
                       </div>
-                    </div>
+                    )}
 
-                    {/* PDF Hash */}
-                    <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                      <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
-                        PDF Hash (SHA-256)
-                      </span>
-                      <div className="flex items-center gap-1.5 flex-1 justify-end max-w-full overflow-hidden">
-                        <span className="font-mono text-[11px] text-slate-800 break-all select-all">
-                          {verificationResult.metadata.pdfHash}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-slate-100 flex-shrink-0"
-                          onClick={() =>
-                            handleCopy(
-                              verificationResult.metadata!.pdfHash,
-                              'pdfHash',
-                            )
-                          }
-                        >
-                          {copiedField === 'pdfHash' ? (
-                            <Check className="h-3 w-3 text-green-600" />
-                          ) : (
-                            <Copy className="h-3 w-3" />
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Created At */}
-                    <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                      <span className="text-xs font-semibold text-muted-foreground min-w-[140px]">
-                        Waktu Dibuat
-                      </span>
-                      <div className="flex items-center gap-1.5 text-slate-700 justify-end">
-                        <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span className="text-xs font-medium">
-                          {getFormattedDate(
-                            verificationResult.metadata.createdAt,
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-2 pt-3">
-                    <a
-                      href={`https://amoy.polygonscan.com/tx/${verificationResult.metadata.txHash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                  <div className="flex gap-3 pt-2">
+                    <Button
+                      variant="outline"
+                      onClick={resetVerification}
                       className="flex-1"
                     >
-                      <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center gap-1.5 text-xs h-9">
-                        <LinkIcon className="h-3.5 w-3.5" />
-                        Buka Link Blockchain
-                      </Button>
-                    </a>
-                    <a
-                      href={verificationResult.metadata.ipfsURL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1"
-                    >
-                      <Button
-                        variant="outline"
-                        className="w-full flex items-center justify-center gap-1.5 border-indigo-200 hover:bg-indigo-50 text-indigo-700 text-xs h-9"
-                      >
-                        <FileText className="h-3.5 w-3.5" />
-                        Lihat PDF Asli
-                      </Button>
-                    </a>
+                      Verifikasi Lagi
+                    </Button>
                   </div>
-                </div>
-              )}
-
-              <div className="flex gap-3 pt-2">
-                <Button
-                  variant="outline"
-                  onClick={resetVerification}
-                  className="flex-1"
-                >
-                  Verifikasi Lagi
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-          </motion.div>
-        )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* Info Section */}
         <motion.div {...scaleIn}>
           <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              Tentang Verifikasi Sertifikat
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground space-y-2">
-            <p>
-              Setiap sertifikat yang diterbitkan oleh Kredly disimpan di
-              blockchain untuk memastikan keaslian dan transparansi.
-            </p>
-            <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>Upload file PDF sertifikat untuk verifikasi otomatis</li>
-              <li>
-                Gunakan hash blockchain yang tertera di sertifikat untuk
-                verifikasi manual
-              </li>
-              <li>
-                Sertifikat yang valid akan menampilkan detail lengkap dan status
-                verifikasi
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
+            <CardHeader>
+              <CardTitle className="text-base">
+                Tentang Verifikasi Sertifikat
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground space-y-2">
+              <p>
+                Setiap sertifikat yang diterbitkan oleh Kredly disimpan di
+                blockchain untuk memastikan keaslian dan transparansi.
+              </p>
+              <ul className="list-disc list-inside space-y-1 ml-2">
+                <li>Upload file PDF sertifikat untuk verifikasi otomatis</li>
+                <li>
+                  Gunakan hash blockchain yang tertera di sertifikat untuk
+                  verifikasi manual
+                </li>
+                <li>
+                  Sertifikat yang valid akan menampilkan detail lengkap dan
+                  status verifikasi
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
         </motion.div>
       </div>
     </main>

@@ -13,7 +13,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { getUnreadActivities, markNotificationsAsSeen, getLastSeenTimestamp } from '@/lib/notification-utils';
+import {
+  getUnreadActivities,
+  markNotificationsAsSeen,
+  getLastSeenTimestamp,
+} from '@/lib/notification-utils';
 
 interface NotificationDropdownProps {
   notifications: Activity[];
@@ -27,7 +31,9 @@ export function NotificationDropdown({
   onRefresh,
 }: NotificationDropdownProps) {
   const [open, setOpen] = useState(false);
-  const [lastSeen, setLastSeen] = useState<number | null>(getLastSeenTimestamp());
+  const [lastSeen, setLastSeen] = useState<number | null>(
+    getLastSeenTimestamp(),
+  );
   const unreadCount = getUnreadActivities(notifications, lastSeen).length;
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -50,16 +56,17 @@ export function NotificationDropdown({
         >
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
-            <div
-              className="absolute -top-2 -right-2 h-5 min-w-5 flex items-center justify-center px-1 text-xs rounded-full bg-primary"
-            >
+            <div className="absolute -top-2 -right-2 h-5 min-w-5 flex items-center justify-center px-1 text-xs rounded-full bg-primary">
               {unreadCount > 9 ? '9+' : unreadCount}
             </div>
           )}
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] sm:w-96 max-w-96">
+      <DropdownMenuContent
+        align="end"
+        className="w-[calc(100vw-2rem)] sm:w-96 max-w-96"
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-2 sm:p-3 border-b gap-2">
           <DropdownMenuLabel className="p-0 text-sm truncate">

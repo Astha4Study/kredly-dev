@@ -15,7 +15,7 @@ export const fadeInUp = {
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true },
   transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
-}
+};
 
 /**
  * Fade-in slide-up with custom delay
@@ -25,7 +25,7 @@ export const fadeInUpDelayed = (delay: number) => ({
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true },
   transition: { duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] as const },
-})
+});
 
 /**
  * Scale-in animation for cards and containers
@@ -35,7 +35,7 @@ export const scaleIn = {
   whileInView: { opacity: 1, scale: 1 },
   viewport: { once: true },
   transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
-}
+};
 
 /**
  * Slide in from left
@@ -45,7 +45,7 @@ export const slideInLeft = {
   whileInView: { opacity: 1, x: 0 },
   viewport: { once: true },
   transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
-}
+};
 
 /**
  * Slide in from right
@@ -55,7 +55,7 @@ export const slideInRight = {
   whileInView: { opacity: 1, x: 0 },
   viewport: { once: true },
   transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
-}
+};
 
 /**
  * Blur transition for AnimatePresence (carousels, modals)
@@ -65,7 +65,7 @@ export const blurTransition = {
   animate: { opacity: 1, scale: 1, filter: 'blur(0px)' },
   exit: { opacity: 0, scale: 1.05, filter: 'blur(10px)' },
   transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] as const },
-}
+};
 
 /**
  * Container for staggered children animations
@@ -76,7 +76,7 @@ export const staggerContainer = {
       staggerChildren: 0.08,
     },
   },
-}
+};
 
 /**
  * Individual stagger item (use with staggerContainer parent)
@@ -85,7 +85,7 @@ export const staggerItem = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const },
-}
+};
 
 // ============================================================================
 // TIMING CONSTANTS
@@ -96,19 +96,19 @@ export const ANIMATION_DURATION = {
   normal: 0.5,
   slow: 0.7,
   verySlow: 1.0,
-} as const
+} as const;
 
 export const ANIMATION_EASE = {
   smooth: [0.22, 1, 0.36, 1] as const,
   snappy: [0.4, 0, 0.2, 1] as const,
   bounce: [0.68, -0.55, 0.265, 1.55] as const,
-}
+};
 
 export const STAGGER_DELAY = {
   fast: 0.05,
   normal: 0.08,
   slow: 0.1,
-} as const
+} as const;
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -121,7 +121,7 @@ export const STAGGER_DELAY = {
  */
 export const createStaggerAnimation = (
   index: number,
-  delay: number = STAGGER_DELAY.normal
+  delay: number = STAGGER_DELAY.normal,
 ) => ({
   initial: { opacity: 0, y: 20 },
   whileInView: { opacity: 1, y: 0 },
@@ -131,19 +131,19 @@ export const createStaggerAnimation = (
     delay: index * delay,
     ease: ANIMATION_EASE.smooth,
   },
-})
+});
 
 /**
  * Respect user's reduced motion preference
  * Returns animation props or instant transition based on preference
  */
 export const respectReducedMotion = <T extends Record<string, any>>(
-  variants: T
+  variants: T,
 ): T => {
   if (typeof window !== 'undefined') {
     const prefersReducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)'
-    ).matches
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
 
     if (prefersReducedMotion) {
       return {
@@ -152,12 +152,12 @@ export const respectReducedMotion = <T extends Record<string, any>>(
         whileInView: variants.whileInView || variants.animate,
         animate: variants.whileInView || variants.animate,
         transition: { duration: 0 },
-      } as T
+      } as T;
     }
   }
 
-  return variants
-}
+  return variants;
+};
 
 /**
  * Default viewport configuration
@@ -166,7 +166,7 @@ export const respectReducedMotion = <T extends Record<string, any>>(
 export const defaultViewport = {
   once: true,
   margin: '0px 0px -50px 0px',
-} as const
+} as const;
 
 /**
  * Spring animation configuration (for smooth, bouncy transitions)
@@ -175,4 +175,4 @@ export const springConfig = {
   type: 'spring' as const,
   stiffness: 300,
   damping: 30,
-}
+};

@@ -44,7 +44,9 @@ function RouteComponent() {
   const [retryAttempt, setRetryAttempt] = React.useState(0);
   const [loadingMessage, setLoadingMessage] = React.useState('Memuat soal...');
   const [submitRetryAttempt, setSubmitRetryAttempt] = React.useState(0);
-  const [submitLoadingMessage, setSubmitLoadingMessage] = React.useState('Mengirim jawaban...');
+  const [submitLoadingMessage, setSubmitLoadingMessage] = React.useState(
+    'Mengirim jawaban...',
+  );
 
   // Countdown timer: 0 means no time limit
   const [estimatedSeconds, setEstimatedSeconds] = React.useState(0);
@@ -107,10 +109,16 @@ function RouteComponent() {
     const tryFetch = async (): Promise<void> => {
       try {
         if (attempt > 0) {
-          setLoadingMessage(`Menghubungkan ke server Kredly${'.'.repeat((attempt % 3) + 1)}`);
+          setLoadingMessage(
+            `Menghubungkan ke server Kredly${'.'.repeat((attempt % 3) + 1)}`,
+          );
         }
-        
-        const res = await sessionService.getNextItem(sessionId, attempt, maxRetries);
+
+        const res = await sessionService.getNextItem(
+          sessionId,
+          attempt,
+          maxRetries,
+        );
         setCurrentItem(res.item);
         setQuestionNumber(res.question_number);
         if (res.max_questions !== undefined) setMaxQuestions(res.max_questions);
@@ -119,11 +127,13 @@ function RouteComponent() {
       } catch (err: any) {
         attempt++;
         setRetryAttempt(attempt);
-        
+
         if (attempt <= maxRetries) {
           const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
-          setLoadingMessage(`Menghubungkan ke server Kredly, mencoba kembali...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
+          setLoadingMessage(
+            `Menghubungkan ke server Kredly, mencoba kembali...`,
+          );
+          await new Promise((resolve) => setTimeout(resolve, delay));
           return tryFetch();
         } else {
           console.error(err);
@@ -210,7 +220,9 @@ function RouteComponent() {
     const trySubmit = async (): Promise<void> => {
       try {
         if (attempt > 0) {
-          setSubmitLoadingMessage(`Menghubungkan ke server Kredly${'.'.repeat((attempt % 3) + 1)}`);
+          setSubmitLoadingMessage(
+            `Menghubungkan ke server Kredly${'.'.repeat((attempt % 3) + 1)}`,
+          );
         }
 
         const res = await sessionService.submitAnswer(
@@ -219,7 +231,7 @@ function RouteComponent() {
           attempt,
           maxRetries,
         );
-        
+
         setFeedback(res);
         setShowResult(true);
 
@@ -237,11 +249,13 @@ function RouteComponent() {
       } catch (err: any) {
         attempt++;
         setSubmitRetryAttempt(attempt);
-        
+
         if (attempt <= maxRetries) {
           const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
-          setSubmitLoadingMessage(`Menghubungkan ke server Kredly, mencoba kembali...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
+          setSubmitLoadingMessage(
+            `Menghubungkan ke server Kredly, mencoba kembali...`,
+          );
+          await new Promise((resolve) => setTimeout(resolve, delay));
           return trySubmit();
         } else {
           console.error(err);
@@ -280,7 +294,13 @@ function RouteComponent() {
   }
 
   if (error && !currentItem) {
-    return <QuizErrorView error={error} onRetry={loadNextQuestion} retryAttempt={retryAttempt} />;
+    return (
+      <QuizErrorView
+        error={error}
+        onRetry={loadNextQuestion}
+        retryAttempt={retryAttempt}
+      />
+    );
   }
 
   return (

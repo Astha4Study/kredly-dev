@@ -2,7 +2,15 @@ import Kredly from '@/assets/logo.png';
 import UserAvatar from '@/components/UserAvatar';
 import CreditTopup from '@/components/CreditTopup';
 import { NotificationDropdown } from '@/components/NotificationDropdown';
-import { Coins, Home, Award, FileText, History, Briefcase, Shield } from 'lucide-react';
+import {
+  Coins,
+  Home,
+  Award,
+  FileText,
+  History,
+  Briefcase,
+  Shield,
+} from 'lucide-react';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import {

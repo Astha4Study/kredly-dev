@@ -93,12 +93,18 @@ export function markNotificationsAsSeen(): void {
 /**
  * Filter activities to only those that are unread (newer than last seen)
  */
-export function getUnreadActivities(activities: Activity[], lastSeenOverride?: number | null): Activity[] {
-  const lastSeen = lastSeenOverride !== undefined ? lastSeenOverride : getLastSeenTimestamp();
+export function getUnreadActivities(
+  activities: Activity[],
+  lastSeenOverride?: number | null,
+): Activity[] {
+  const lastSeen =
+    lastSeenOverride !== undefined ? lastSeenOverride : getLastSeenTimestamp();
   if (!lastSeen) return activities;
 
   return activities.filter((activity) => {
-    const activityTime = new Date(activity.date + ' ' + activity.time).getTime();
+    const activityTime = new Date(
+      activity.date + ' ' + activity.time,
+    ).getTime();
     return activityTime > lastSeen;
   });
 }

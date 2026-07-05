@@ -5,7 +5,11 @@ import { Link } from '@tanstack/react-router';
 import { ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'motion/react';
-import { fadeInUp, fadeInUpDelayed, createStaggerAnimation } from '@/lib/animations';
+import {
+  fadeInUp,
+  fadeInUpDelayed,
+  createStaggerAnimation,
+} from '@/lib/animations';
 
 export default function HeroSection() {
   return (

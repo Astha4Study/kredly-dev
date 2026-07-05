@@ -39,7 +39,8 @@ export default function QuizActions({
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 size-4 animate-spin" /> {submitLoadingMessage}
+                <Loader2 className="mr-2 size-4 animate-spin" />{' '}
+                {submitLoadingMessage}
               </>
             ) : (
               <>

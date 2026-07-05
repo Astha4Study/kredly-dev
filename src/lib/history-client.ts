@@ -1,5 +1,4 @@
-const API_BASE_URL =
-  import.meta.env.PUBLIC_AUTH_SERVER_URL || 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.PUBLIC_AUTH_SERVER_URL || '';
 
 export interface Activity {
   id: string;

@@ -90,16 +90,13 @@ export const sessionService = {
     maxRetries = 3,
   ): Promise<AnswerResponse> {
     try {
-      const response = await fetch(
-        `${API_BASE}/sessions/${sessionId}/answer`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ answer }),
+      const response = await fetch(`${API_BASE}/sessions/${sessionId}/answer`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
+        body: JSON.stringify({ answer }),
+      });
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
@@ -111,7 +108,12 @@ export const sessionService = {
         ) {
           const delay = Math.min(1000 * Math.pow(2, retryCount), 5000);
           await new Promise((resolve) => setTimeout(resolve, delay));
-          return this.submitAnswer(sessionId, answer, retryCount + 1, maxRetries);
+          return this.submitAnswer(
+            sessionId,
+            answer,
+            retryCount + 1,
+            maxRetries,
+          );
         }
 
         throw new Error(

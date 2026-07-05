@@ -11,7 +11,12 @@ interface QuizErrorViewProps {
   autoRetrying?: boolean;
 }
 
-export default function QuizErrorView({ error, onRetry, retryAttempt = 0, autoRetrying = false }: QuizErrorViewProps) {
+export default function QuizErrorView({
+  error,
+  onRetry,
+  retryAttempt = 0,
+  autoRetrying = false,
+}: QuizErrorViewProps) {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col justify-center items-center p-6">
       <Card className="max-w-md w-full border-rose-500/20 bg-rose-500/5 backdrop-blur-md">

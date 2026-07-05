@@ -6,7 +6,11 @@ import { Check, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import GridBorder from '@/components/GridBorder';
 import { motion } from 'motion/react';
-import { fadeInUp, fadeInUpDelayed, createStaggerAnimation } from '@/lib/animations';
+import {
+  fadeInUp,
+  fadeInUpDelayed,
+  createStaggerAnimation,
+} from '@/lib/animations';
 
 export const Route = createFileRoute('/_public/(landing)/pricing/')({
   component: RouteComponent,
@@ -92,29 +96,29 @@ function RouteComponent() {
         >
           <div className="mx-auto flex  flex-col items-center text-center">
             <div className="max-w-6xl">
-            <motion.div {...fadeInUp}>
-              <Badge variant="default" className="shadow-sm">
-                <Coins />
-                Paket Kredit
-              </Badge>
-            </motion.div>
+              <motion.div {...fadeInUp}>
+                <Badge variant="default" className="shadow-sm">
+                  <Coins />
+                  Paket Kredit
+                </Badge>
+              </motion.div>
 
-            <div className="mt-4 max-w-3xl space-y-4 md:space-y-8">
-              <motion.h2
-                {...fadeInUpDelayed(0.1)}
-                className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight"
-              >
-                Pilih paket yang sesuai dengan{' '}
-                <span className="text-primary">kebutuhanmu</span>
-              </motion.h2>
+              <div className="mt-4 max-w-3xl space-y-4 md:space-y-8">
+                <motion.h2
+                  {...fadeInUpDelayed(0.1)}
+                  className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight"
+                >
+                  Pilih paket yang sesuai dengan{' '}
+                  <span className="text-primary">kebutuhanmu</span>
+                </motion.h2>
 
-              <motion.p
-                {...fadeInUpDelayed(0.2)}
-                className="mx-auto max-w-2xl text-muted-foreground"
-              >
-                Dapatkan kredit untuk mengakses assessment berbasis AI dan
-                dapatkan sertifikat terverifikasi blockchain
-              </motion.p>
+                <motion.p
+                  {...fadeInUpDelayed(0.2)}
+                  className="mx-auto max-w-2xl text-muted-foreground"
+                >
+                  Dapatkan kredit untuk mengakses assessment berbasis AI dan
+                  dapatkan sertifikat terverifikasi blockchain
+                </motion.p>
               </div>
             </div>
 

@@ -160,7 +160,9 @@ export default function ProfileTab() {
           : null,
       );
 
-      toast.success('CV berhasil diupload dan diparse. Role, skills, dan assessments telah diperbarui!');
+      toast.success(
+        'CV berhasil diupload dan diparse. Role, skills, dan assessments telah diperbarui!',
+      );
 
       // Reset file input
       if (fileInputRef.current) {
