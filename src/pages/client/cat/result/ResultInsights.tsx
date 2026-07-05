@@ -51,9 +51,7 @@ export default function ResultInsights({
               key={idx}
               className="text-xs md:text-sm flex items-start gap-2 text-foreground/80"
             >
-              <span className="text-rose-400 font-bold shrink-0 mt-0.5">
-                !
-              </span>
+              <span className="text-rose-400 font-bold shrink-0 mt-0.5">!</span>
               <span>{item}</span>
             </li>
           ))}

@@ -250,7 +250,7 @@ function RouteComponent() {
         console.error('Blockchain verification error:', err);
         setError(
           err.message ||
-          'Gagal menerbitkan sertifikat ke blockchain. Silakan coba lagi.',
+            'Gagal menerbitkan sertifikat ke blockchain. Silakan coba lagi.',
         );
         setIsLoading(false);
       }
@@ -360,7 +360,6 @@ function RouteComponent() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-start p-4 md:p-8">
       <div className="w-full max-w-4xl space-y-8">
-
         <ResultHeader role={result.role} level={result.level} />
         {/* Score & Evaluation Summary Card */}
         <ResultScoreCard
@@ -381,7 +380,9 @@ function RouteComponent() {
           {/* Top Gradient Accent Line */}
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-primary to-amber-300" />
           <div className="flex justify-between items-center">
-            <h1 className="text-xl md:text-2xl font-medium text-foreground leading-normal select-none">Analisa mendalam dari sesi ujianmu</h1>
+            <h1 className="text-xl md:text-2xl font-medium text-foreground leading-normal select-none">
+              Analisa mendalam dari sesi ujianmu
+            </h1>
             <SparkleIcon className="text-primary size-5" />
           </div>
           <p className="text-sm md:text-base text-muted-foreground mt-3 leading-relaxed font-normal text-justify">

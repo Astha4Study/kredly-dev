@@ -13,8 +13,8 @@ export default function ResultHeader({ role, level }: ResultHeaderProps) {
         Luar biasa, kamu {level} di {role}!
       </h1>
       <p className="text-sm md:text-base text-muted-foreground">
-        Unduh dan bagikan bukti kompetensimu yang
-        sudah terverifikasi blockchain.
+        Unduh dan bagikan bukti kompetensimu yang sudah terverifikasi
+        blockchain.
       </p>
       <img
         src={pialaImg}

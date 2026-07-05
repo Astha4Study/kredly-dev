@@ -62,8 +62,6 @@ export default function ResultScoreCard({
     return `${remainingSeconds} detik`;
   };
 
-
-
   // Circular progress calculations for 280-degree arc
   const radius = 84;
   const strokeWidth = 7;

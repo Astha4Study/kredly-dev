@@ -113,7 +113,8 @@ function RouteComponent() {
               Profil tidak ditemukan
             </p>
             <p className="text-sm text-muted-foreground mb-8">
-              User @{profileId} tidak ada atau profil belum diatur sebagai publik
+              User @{profileId} tidak ada atau profil belum diatur sebagai
+              publik
             </p>
             <Button asChild>
               <a href="/">Kembali ke Beranda</a>
@@ -229,116 +230,126 @@ function RouteComponent() {
 
               <Separator />
 
-
-
               <Separator />
 
               {/* Assessments */}
-              {profile.assessments && profile.assessments.length > 0 && profile.displaySettings?.showAssessments && (
-                <>
-                  <div className="p-5">
-                    <div className="flex items-center gap-2 mb-4">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                      <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                        Assessment Selesai
-                      </h3>
-                    </div>
-                    <div className="space-y-2">
-                      {profile.assessments.map((assessment: any) => (
-                        <div
-                          key={assessment.id}
-                          className="flex items-center justify-between p-3 border rounded-lg hover:border-primary/50 transition-colors"
-                        >
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <div className="h-9 w-9 bg-primary/10 flex items-center justify-center rounded shrink-0">
-                              <FileText className="h-4 w-4 text-primary" />
+              {profile.assessments &&
+                profile.assessments.length > 0 &&
+                profile.displaySettings?.showAssessments && (
+                  <>
+                    <div className="p-5">
+                      <div className="flex items-center gap-2 mb-4">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                          Assessment Selesai
+                        </h3>
+                      </div>
+                      <div className="space-y-2">
+                        {profile.assessments.map((assessment: any) => (
+                          <div
+                            key={assessment.id}
+                            className="flex items-center justify-between p-3 border rounded-lg hover:border-primary/50 transition-colors"
+                          >
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                              <div className="h-9 w-9 bg-primary/10 flex items-center justify-center rounded shrink-0">
+                                <FileText className="h-4 w-4 text-primary" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-medium truncate">
+                                  {assessment.title}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {new Date(
+                                    assessment.completedAt,
+                                  ).toLocaleDateString('id-ID', {
+                                    day: 'numeric',
+                                    month: 'short',
+                                    year: 'numeric',
+                                  })}
+                                </p>
+                              </div>
                             </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium truncate">
-                                {assessment.title}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {new Date(
-                                  assessment.completedAt,
-                                ).toLocaleDateString('id-ID', {
-                                  day: 'numeric',
-                                  month: 'short',
-                                  year: 'numeric',
-                                })}
-                              </p>
-                            </div>
+                            {assessment.score !== undefined && (
+                              <Badge
+                                variant="default"
+                                className="ml-2 shrink-0"
+                              >
+                                {assessment.score}%
+                              </Badge>
+                            )}
                           </div>
-                          {assessment.score !== undefined && (
-                            <Badge variant="default" className="ml-2 shrink-0">
-                              {assessment.score}%
-                            </Badge>
-                          )}
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  <Separator />
-                </>
-              )}
+                    <Separator />
+                  </>
+                )}
 
               {/* Professional Info */}
-              {(profile.cvRole || profile.cvLevel) && profile.displaySettings?.showCVData && (
-                <>
-                  <div className="p-5">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Briefcase className="h-4 w-4 text-muted-foreground" />
-                      <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                        Profile
-                      </h3>
+              {(profile.cvRole || profile.cvLevel) &&
+                profile.displaySettings?.showCVData && (
+                  <>
+                    <div className="p-5">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Briefcase className="h-4 w-4 text-muted-foreground" />
+                        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                          Profile
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {profile.cvRole && (
+                          <div className="p-3 bg-muted/30 rounded-lg">
+                            <p className="text-xs text-muted-foreground mb-1 font-medium">
+                              Role
+                            </p>
+                            <p className="text-sm font-semibold">
+                              {profile.cvRole}
+                            </p>
+                          </div>
+                        )}
+                        {profile.cvLevel && (
+                          <div className="p-3 bg-muted/30 rounded-lg">
+                            <p className="text-xs text-muted-foreground mb-1 font-medium">
+                              Level
+                            </p>
+                            <p className="text-sm font-semibold">
+                              {profile.cvLevel}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {profile.cvRole && (
-                        <div className="p-3 bg-muted/30 rounded-lg">
-                          <p className="text-xs text-muted-foreground mb-1 font-medium">
-                            Role
-                          </p>
-                          <p className="text-sm font-semibold">
-                            {profile.cvRole}
-                          </p>
-                        </div>
-                      )}
-                      {profile.cvLevel && (
-                        <div className="p-3 bg-muted/30 rounded-lg">
-                          <p className="text-xs text-muted-foreground mb-1 font-medium">
-                            Level
-                          </p>
-                          <p className="text-sm font-semibold">
-                            {profile.cvLevel}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <Separator />
-                </>
-              )}
+                    <Separator />
+                  </>
+                )}
 
               {/* Skills */}
-              {profile.cvSkills && profile.cvSkills.length > 0 && profile.displaySettings?.showSkills && (
-                <>
-                  <div className="p-5">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Target className="h-4 w-4 text-muted-foreground" />
-                      <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                        Skills
-                      </h3>
+              {profile.cvSkills &&
+                profile.cvSkills.length > 0 &&
+                profile.displaySettings?.showSkills && (
+                  <>
+                    <div className="p-5">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Target className="h-4 w-4 text-muted-foreground" />
+                        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                          Skills
+                        </h3>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {profile.cvSkills.map((skill, idx) => (
+                          <Badge
+                            key={idx}
+                            variant="default"
+                            className="text-sm"
+                          >
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {profile.cvSkills.map((skill, idx) => (
-                        <Badge key={idx} variant="default" className="text-sm">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                  <Separator />
-                </>
-              )}
+                    <Separator />
+                  </>
+                )}
 
               {/* Certificates */}
               {profile.certificates &&
@@ -354,7 +365,12 @@ function RouteComponent() {
                       </div>
                       {profile.certificates.length > certificatesPerPage && (
                         <span className="text-xs text-muted-foreground">
-                          Menampilkan {Math.min(certificatesPage * certificatesPerPage, profile.certificates.length)} dari {profile.certificates.length}
+                          Menampilkan{' '}
+                          {Math.min(
+                            certificatesPage * certificatesPerPage,
+                            profile.certificates.length,
+                          )}{' '}
+                          dari {profile.certificates.length}
                         </span>
                       )}
                     </div>
@@ -369,13 +385,19 @@ function RouteComponent() {
                           />
                         ))}
                     </div>
-                    {profile.certificates.length > certificatesPage * certificatesPerPage && (
+                    {profile.certificates.length >
+                      certificatesPage * certificatesPerPage && (
                       <div className="mt-4 text-center">
                         <Button
                           variant="outline"
-                          onClick={() => setCertificatesPage(prev => prev + 1)}
+                          onClick={() =>
+                            setCertificatesPage((prev) => prev + 1)
+                          }
                         >
-                          Lihat Lebih Banyak ({profile.certificates.length - (certificatesPage * certificatesPerPage)} lagi)
+                          Lihat Lebih Banyak (
+                          {profile.certificates.length -
+                            certificatesPage * certificatesPerPage}{' '}
+                          lagi)
                         </Button>
                       </div>
                     )}

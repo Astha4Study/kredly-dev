@@ -41,7 +41,8 @@ export default defineConfig({
   html: {
     title: 'Kredly ',
     meta: {
-      description: 'Kredly adalah platform sertifikasi keahlian profesional yang tervalidasi secara aman dan transparan di jaringan blockchain.',
+      description:
+        'Kredly adalah platform sertifikasi keahlian profesional yang tervalidasi secara aman dan transparan di jaringan blockchain.',
     },
   },
   server: {

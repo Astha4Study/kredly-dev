@@ -29,13 +29,15 @@ export default function PublicCertificateCard({
 
   return (
     <div
-      className={`overflow-hidden rounded-xl border border-foreground/10 bg-card/40 backdrop-blur-md transition-all duration-300 hover:border-primary/40 hover:shadow-md ${viewMode === 'list' ? 'flex flex-row' : ''
-        }`}
+      className={`overflow-hidden rounded-xl border border-foreground/10 bg-card/40 backdrop-blur-md transition-all duration-300 hover:border-primary/40 hover:shadow-md ${
+        viewMode === 'list' ? 'flex flex-row' : ''
+      }`}
     >
       {/* Header Image with Verified Badge */}
       <div
-        className={`relative flex items-center justify-center overflow-hidden bg-muted/10 ${viewMode === 'list' ? 'w-48 shrink-0 aspect-4/3' : 'w-full aspect-4/3'
-          }`}
+        className={`relative flex items-center justify-center overflow-hidden bg-muted/10 ${
+          viewMode === 'list' ? 'w-48 shrink-0 aspect-4/3' : 'w-full aspect-4/3'
+        }`}
       >
         <img
           src={certPlaceholder}
@@ -46,7 +48,10 @@ export default function PublicCertificateCard({
 
         {/* Verified Badge - Absolute Top Right */}
         <div className="absolute top-3 right-3 z-20">
-          <Badge variant="default" className="bg-primary text-primary-foreground hover:bg-primary/95">
+          <Badge
+            variant="default"
+            className="bg-primary text-primary-foreground hover:bg-primary/95"
+          >
             Verified
           </Badge>
         </div>
@@ -68,7 +73,9 @@ export default function PublicCertificateCard({
           {/* Score Display */}
           {certificate.score !== undefined && (
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-muted-foreground">Score</span>
+              <span className="text-sm font-medium text-muted-foreground">
+                Score
+              </span>
               <span className="text-2xl font-bold text-foreground">
                 {certificate.score}
                 <span className="text-sm text-muted-foreground font-normal">

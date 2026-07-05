@@ -266,7 +266,8 @@ export default function ProfileTab() {
         <CardHeader>
           <CardTitle>Foto Profil</CardTitle>
           <CardDescription>
-            Update foto profil Anda yang akan ditampilkan di kredensial dan profil publik
+            Update foto profil Anda yang akan ditampilkan di kredensial dan
+            profil publik
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

@@ -26,7 +26,6 @@ export default function ResultActions({
           <Download className="mr-2 size-4" /> Unduh Sertifikat
         </Button>
       )}
-
     </div>
   );
 }
