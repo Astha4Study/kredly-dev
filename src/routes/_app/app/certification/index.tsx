@@ -33,45 +33,54 @@ function RouteComponent() {
   const [credentials, setCredentials] = useState<Credential[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch completed assessments on mount
+  // Fetch certificates on mount
   useEffect(() => {
-    async function fetchCompletedAssessments() {
+    async function fetchUserCertificates() {
       try {
-        const response = await fetch('/api/profile', {
+        const response = await fetch('/api/certificates/user', {
           credentials: 'include',
         });
         if (response.ok) {
           const data = await response.json();
-          if (data.profile && data.profile.cvAssessments) {
-            const completed = data.profile.cvAssessments.filter(
-              (a: any) => a.status === 'completed',
-            );
-            const mapped = completed.map((a: any) => {
-              const hash = a.sessionId
-                ? `0x${a.sessionId.replace(/-/g, '').slice(0, 40)}`
-                : '0x0000000000000000000000000000000000000000';
+          if (data.certificates) {
+            const mapped = data.certificates.map((cert: any) => {
+              const dateObj = cert.createdAt ? new Date(cert.createdAt) : null;
+              const dateEarned =
+                dateObj && !isNaN(dateObj.getTime())
+                  ? dateObj.toLocaleDateString('id-ID', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })
+                  : 'Selesai';
+
+              const hash =
+                cert.txHash ||
+                (cert.sessionId
+                  ? `0x${cert.sessionId.replace(/-/g, '').slice(0, 40)}`
+                  : '0x0000000000000000000000000000000000000000');
 
               return {
-                id: a.id,
-                skillName: a.title,
-                score: a.score || 0,
-                dateEarned: 'Selesai',
+                id: cert.id,
+                skillName: cert.assessmentName,
+                score: cert.score || 0,
+                dateEarned: dateEarned,
                 blockchainTxHash: hash,
                 status: 'verified' as const,
-                sessionId: a.sessionId,
-                level: a.level || 'Intermediate',
+                sessionId: cert.sessionId,
+                level: 'Intermediate',
               };
             });
             setCredentials(mapped);
           }
         }
       } catch (err) {
-        console.error('Failed to fetch completed assessments:', err);
+        console.error('Failed to fetch certificates:', err);
       } finally {
         setIsLoading(false);
       }
     }
-    fetchCompletedAssessments();
+    fetchUserCertificates();
   }, []);
 
   // Filter and sort credentials

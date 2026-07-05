@@ -91,6 +91,38 @@ func (h *BlockchainHandler) HandleGetCertificateMetadata(c *gin.Context) {
 	})
 }
 
+// HandleGetUserCertificates retrieves all certificates for the authenticated user
+func (h *BlockchainHandler) HandleGetUserCertificates(c *gin.Context) {
+	if h.metadataService == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Metadata service not available"})
+		return
+	}
+
+	var userID string
+	if userInterface, exists := c.Get("user"); exists {
+		if userMap, ok := userInterface.(gin.H); ok {
+			if id, ok := userMap["id"].(string); ok {
+				userID = id
+			}
+		}
+	}
+
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	certificates, err := h.metadataService.GetByUserID(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"certificates": certificates,
+	})
+}
+
 // Request/Response structs for verification
 type VerifyResponse struct {
 	IsValid  bool                        `json:"isValid"`

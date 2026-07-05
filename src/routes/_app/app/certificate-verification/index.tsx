@@ -185,7 +185,6 @@ function RouteComponent() {
             Verifikasi keaslian sertifikat dengan mengupload file PDF
           </p>
         </div>
-
         {/* Verification Form */}
         <Card>
           <CardHeader>
@@ -215,7 +214,7 @@ function RouteComponent() {
                   <div>
                     <p
                       className="text-sm font-medium truncate max-w-[200px] sm:max-w-xs md:max-w-md mx-auto"
-                      title={selectedFile ? selectedFile.name : ""}
+                      title={selectedFile ? selectedFile.name : ''}
                     >
                       {selectedFile
                         ? selectedFile.name
@@ -261,7 +260,6 @@ function RouteComponent() {
             </div>
           </CardContent>
         </Card>
-
         {/* Verification Result */}
         {verificationResult && (
           <div
@@ -269,10 +267,11 @@ function RouteComponent() {
           >
             {/* Top Gradient Accent Line */}
             <div
-              className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${verificationResult.isValid
-                ? 'from-emerald-500 via-teal-500 to-emerald-300'
-                : 'from-rose-500 via-red-500 to-rose-300'
-                }`}
+              className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
+                verificationResult.isValid
+                  ? 'from-emerald-500 via-teal-500 to-emerald-300'
+                  : 'from-rose-500 via-red-500 to-rose-300'
+              }`}
             />
 
             <div className="flex items-start gap-3 mb-6">
@@ -283,10 +282,11 @@ function RouteComponent() {
               )}
               <div className="flex-1">
                 <h3
-                  className={`text-lg font-bold ${verificationResult.isValid
-                    ? 'text-emerald-900 dark:text-emerald-400'
-                    : 'text-rose-900 dark:text-rose-400'
-                    }`}
+                  className={`text-lg font-bold ${
+                    verificationResult.isValid
+                      ? 'text-emerald-900 dark:text-emerald-400'
+                      : 'text-rose-900 dark:text-rose-400'
+                  }`}
                 >
                   {verificationResult.isValid
                     ? 'Sertifikat Valid ✓'
@@ -295,7 +295,13 @@ function RouteComponent() {
               </div>
             </div>
 
-            <div className={verificationResult.isValid && verificationResult.metadata ? "grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start" : "space-y-6"}>
+            <div
+              className={
+                verificationResult.isValid && verificationResult.metadata
+                  ? 'grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start'
+                  : 'space-y-6'
+              }
+            >
               {/* Left Column: Visual Certificate Card Preview */}
               {verificationResult.isValid && verificationResult.metadata && (
                 <div className="lg:col-span-5 flex flex-col justify-start">
@@ -352,7 +358,13 @@ function RouteComponent() {
               )}
 
               {/* Right Column: Status and Metadata */}
-              <div className={verificationResult.isValid && verificationResult.metadata ? "lg:col-span-7 space-y-6" : "space-y-6"}>
+              <div
+                className={
+                  verificationResult.isValid && verificationResult.metadata
+                    ? 'lg:col-span-7 space-y-6'
+                    : 'space-y-6'
+                }
+              >
                 <div className="rounded-xl border border-foreground/10 bg-card/20 p-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -601,7 +613,6 @@ function RouteComponent() {
             </div>
           </div>
         )}
-
         \
       </div>
     </main>
