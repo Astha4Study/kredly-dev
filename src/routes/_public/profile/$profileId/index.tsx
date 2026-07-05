@@ -13,8 +13,11 @@ import {
   Target,
 } from 'lucide-react';
 import { ProfileSkeleton } from '@/components/skeletons/ProfileSkeleton';
+import PublicCertificateCard from '@/components/PublicCertificateCard';
+import { Navbar } from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
-export const Route = createFileRoute('/_app/app/profile/$profileId/')({
+export const Route = createFileRoute('/_public/profile/$profileId/')({
   component: RouteComponent,
 });
 
@@ -28,7 +31,14 @@ interface PublicProfile {
   cvRole?: string;
   cvLevel?: string;
   cvSkills?: string[];
-  certificates?: any[];
+  certificates?: Array<{
+    id: string;
+    sessionId?: string;
+    title: string;
+    score?: number;
+    issuedAt: string;
+    verificationUrl?: string;
+  }>;
   assessments?: any[];
   socialLinks?: {
     linkedin?: string;
@@ -36,13 +46,21 @@ interface PublicProfile {
     portfolio?: string;
     twitter?: string;
   };
+  displaySettings?: {
+    showCertificates: boolean;
+    showAssessments: boolean;
+    showSkills: boolean;
+    showCVData: boolean;
+  };
 }
 
 function RouteComponent() {
-  const { profileId } = useParams({ from: '/_app/app/profile/$profileId/' });
+  const { profileId } = useParams({ from: '/_public/profile/$profileId/' });
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [certificatesPage, setCertificatesPage] = useState(1);
+  const certificatesPerPage = 6;
 
   useEffect(() => {
     async function fetchProfile() {
@@ -81,25 +99,35 @@ function RouteComponent() {
   };
 
   if (loading) {
-    return <ProfileSkeleton />;
+    return (
+      <>
+        <Navbar />
+        <ProfileSkeleton />
+        <Footer />
+      </>
+    );
   }
 
   if (notFound || !profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="text-center max-w-md">
-          <h1 className="text-4xl font-bold mb-4">404</h1>
-          <p className="text-xl text-muted-foreground mb-6">
-            Profil tidak ditemukan
-          </p>
-          <p className="text-sm text-muted-foreground mb-8">
-            User @{profileId} tidak ada atau profil belum diatur sebagai publik
-          </p>
-          <Button asChild>
-            <a href="/app">Kembali ke Dashboard</a>
-          </Button>
+      <>
+        <Navbar />
+        <div className="min-h-screen flex items-center justify-center px-4">
+          <div className="text-center max-w-md">
+            <h1 className="text-4xl font-bold mb-4">404</h1>
+            <p className="text-xl text-muted-foreground mb-6">
+              Profil tidak ditemukan
+            </p>
+            <p className="text-sm text-muted-foreground mb-8">
+              User @{profileId} tidak ada atau profil belum diatur sebagai publik
+            </p>
+            <Button asChild>
+              <a href="/">Kembali ke Beranda</a>
+            </Button>
+          </div>
         </div>
-      </div>
+        <Footer />
+      </>
     );
   }
 
@@ -108,10 +136,12 @@ function RouteComponent() {
   const skillCount = profile.cvSkills?.length || 0;
 
   return (
-    <div className="p-6 md:p-8">
-      <div className="mx-auto max-w-5xl">
-        <Card className="overflow-hidden">
-          <CardContent className="p-0">
+    <>
+      <Navbar />
+      <div className="p-6 md:p-8">
+        <div className="mx-auto max-w-5xl">
+          <Card className="overflow-hidden">
+            <CardContent className="p-0">
             {/* Header Section */}
             <div className="p-6 bg-gradient-to-br from-background to-muted/20">
               <div className="flex flex-col sm:flex-row items-start gap-6">
@@ -326,25 +356,72 @@ function RouteComponent() {
 
             {/* Skills */}
             {profile.cvSkills && profile.cvSkills.length > 0 && profile.displaySettings?.showSkills && (
+              <>
+                <div className="p-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Target className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                      Skills
+                    </h3>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {profile.cvSkills.map((skill, idx) => (
+                      <Badge key={idx} variant="default" className="text-sm">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                <Separator />
+              </>
+            )}
+
+            {/* Certificates */}
+            {profile.certificates && 
+             profile.certificates.length > 0 && 
+             profile.displaySettings?.showCertificates && (
               <div className="p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <Target className="h-4 w-4 text-muted-foreground" />
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                    Skills
-                  </h3>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Award className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                      Sertifikat Terverifikasi
+                    </h3>
+                  </div>
+                  {profile.certificates.length > certificatesPerPage && (
+                    <span className="text-xs text-muted-foreground">
+                      Menampilkan {Math.min(certificatesPage * certificatesPerPage, profile.certificates.length)} dari {profile.certificates.length}
+                    </span>
+                  )}
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {profile.cvSkills.map((skill, idx) => (
-                    <Badge key={idx} variant="default" className="text-sm">
-                      {skill}
-                    </Badge>
-                  ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {profile.certificates
+                    .slice(0, certificatesPage * certificatesPerPage)
+                    .map((cert) => (
+                      <PublicCertificateCard
+                        key={cert.id}
+                        certificate={cert}
+                        viewMode="grid"
+                      />
+                    ))}
                 </div>
+                {profile.certificates.length > certificatesPage * certificatesPerPage && (
+                  <div className="mt-4 text-center">
+                    <Button
+                      variant="outline"
+                      onClick={() => setCertificatesPage(prev => prev + 1)}
+                    >
+                      Lihat Lebih Banyak ({profile.certificates.length - (certificatesPage * certificatesPerPage)} lagi)
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
         </Card>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }

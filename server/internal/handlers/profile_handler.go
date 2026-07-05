@@ -731,6 +731,7 @@ func (h *ProfileHandler) HandleGetPublicProfileByUsername(c *gin.Context) {
 			}
 		}
 	}
+	log.Printf("[DEBUG] User %s (%s) has %d completed sessions", user.Name, user.ID, len(sessionIDs))
 
 	certs := []map[string]interface{}{}
 	if settings.ShowCertificates && len(sessionIDs) > 0 {
@@ -743,14 +744,19 @@ func (h *ProfileHandler) HandleGetPublicProfileByUsername(c *gin.Context) {
 				if err := certCursor.Decode(&cert); err == nil {
 					certs = append(certs, map[string]interface{}{
 						"id":              cert.CertificateID,
+						"sessionId":       cert.SessionID,
 						"title":           cert.AssessmentName,
+						"score":           cert.Score,
 						"issuedAt":        cert.CreatedAt.Format(time.RFC3339),
 						"verificationUrl": cert.IpfsURL,
 					})
 				}
 			}
+		} else {
+			log.Printf("[DEBUG] Error fetching certificates: %v", err)
 		}
 	}
+	log.Printf("[DEBUG] ShowCertificates=%v, SessionIDs=%d, Certificates=%d", settings.ShowCertificates, len(sessionIDs), len(certs))
 
 	var completedAssessments []map[string]interface{}
 	if settings.ShowAssessments {
