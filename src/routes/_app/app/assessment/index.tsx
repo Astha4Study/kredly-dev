@@ -209,7 +209,9 @@ function RouteComponent() {
             (a: CVAssessmentFromAPI) =>
               a.type === 'general' && a.status !== 'completed',
           );
-          setRoleAssessmentCompleted(!hasUncompletedGeneral);
+          setRoleAssessmentCompleted(
+            !!data.profile.roleAssessmentCompleted || !hasUncompletedGeneral,
+          );
 
           setProfileExists(true);
           setIsLoadingProfile(false);
