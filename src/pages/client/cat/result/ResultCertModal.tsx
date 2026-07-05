@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'motion/react';
 import certificationTemplate from '@/assets/certification/certification-template.png';

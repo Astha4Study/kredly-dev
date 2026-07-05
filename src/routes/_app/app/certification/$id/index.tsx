@@ -12,13 +12,11 @@ import { useAuth } from '@/contexts/auth';
 
 // Section components - reuse dari result page
 import ResultErrorView from '@/pages/client/cat/result/ResultErrorView';
-import ResultHeader from '@/pages/client/cat/result/ResultHeader';
 import ResultScoreCard from '@/pages/client/cat/result/ResultScoreCard';
-import ResultSummaryCard from '@/pages/client/cat/result/ResultSummaryCard';
 import ResultInsights from '@/pages/client/cat/result/ResultInsights';
-import ResultMethodology from '@/pages/client/cat/result/ResultMethodology';
-import ResultActions from '@/pages/client/cat/result/ResultActions';
 import ResultCertModal from '@/pages/client/cat/result/ResultCertModal';
+import ResultHeader from '@/pages/client/cat/result/ResultHeader';
+import { SparkleIcon } from 'lucide-react';
 
 export const Route = createFileRoute('/_app/app/certification/$id/')({
   component: RouteComponent,
@@ -37,7 +35,6 @@ function RouteComponent() {
     'Memuat data sertifikat...',
   );
   const [error, setError] = React.useState<string | null>(null);
-  const [copied, setCopied] = React.useState(false);
   const [showCertModal, setShowCertModal] = React.useState(false);
   const [certificateMetadata, setCertificateMetadata] = React.useState<
     any | null
@@ -249,7 +246,7 @@ function RouteComponent() {
         console.error('Blockchain verification error:', err);
         setError(
           err.message ||
-            'Gagal menerbitkan sertifikat ke blockchain. Silakan coba lagi.',
+          'Gagal menerbitkan sertifikat ke blockchain. Silakan coba lagi.',
         );
         setIsLoading(false);
       }
@@ -304,13 +301,6 @@ function RouteComponent() {
     requestAnimationFrame(animate);
   }, [result]);
 
-  const handleCopyVerificationId = () => {
-    if (!result) return;
-    navigator.clipboard.writeText(result.verification_id);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   const handleDownloadCertificate = async () => {
     if (!result) return;
 
@@ -353,22 +343,32 @@ function RouteComponent() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-start p-4 md:p-8">
       <div className="w-full max-w-4xl space-y-8">
-        {/* Title Block */}
-        <ResultHeader role={result.role} />
 
-        {/* Top Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <ResultScoreCard
-            displayedScore={displayedScore}
-            level={result.level}
-          />
+        <ResultHeader role={result.role} level={result.level} />
+        {/* Score & Evaluation Summary Card */}
+        <ResultScoreCard
+          displayedScore={displayedScore}
+          level={result.level}
+          feedback={result.feedback}
+          verificationId={result.verification_id}
+          totalItems={result.total_items}
+          durationSeconds={result.duration_seconds}
+          role={result.role}
+          onDownload={handleDownloadCertificate}
+          onNewTest={() => navigate({ to: '/app/assessment' })}
+          onHome={() => navigate({ to: '/app' })}
+        />
 
-          <ResultSummaryCard
-            feedback={result.feedback}
-            verificationId={result.verification_id}
-            totalItems={result.total_items}
-            durationSeconds={result.duration_seconds}
-          />
+        <div className="relative border border-foreground/10 p-6 rounded-2xl overflow-hidden bg-card/40 backdrop-blur-md">
+          {/* Top Gradient Accent Line */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-primary to-amber-300" />
+          <div className="flex justify-between items-center">
+            <h1 className="text-xl md:text-2xl font-medium text-foreground leading-normal select-none">Analisa mendalam dari sesi ujianmu</h1>
+            <SparkleIcon className="text-primary size-5" />
+          </div>
+          <p className="text-sm md:text-base text-muted-foreground mt-3 leading-relaxed font-normal text-justify">
+            {result.feedback}
+          </p>
         </div>
 
         {/* AI Recommendations & Detailed Insights */}
@@ -376,20 +376,6 @@ function RouteComponent() {
           strengths={result.strengths}
           weaknesses={result.weaknesses}
           recommendations={result.recommendations}
-        />
-
-        {/* Academic / IRT Methodology Note */}
-        <ResultMethodology
-          verificationId={result.verification_id}
-          onCopy={handleCopyVerificationId}
-          copied={copied}
-        />
-
-        {/* Action Buttons */}
-        <ResultActions
-          onDownload={handleDownloadCertificate}
-          onNewTest={() => navigate({ to: '/app/assessment' })}
-          onHome={() => navigate({ to: '/app' })}
         />
       </div>
 

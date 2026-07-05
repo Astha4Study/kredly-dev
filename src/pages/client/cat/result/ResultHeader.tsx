@@ -1,29 +1,26 @@
 import * as React from 'react';
-import { Award } from 'lucide-react';
-import { motion } from 'motion/react';
+import pialaImg from '@/assets/images/piala.png';
 
 interface ResultHeaderProps {
   role: string;
+  level: string;
 }
 
-export default function ResultHeader({ role }: ResultHeaderProps) {
+export default function ResultHeader({ role, level }: ResultHeaderProps) {
   return (
-    <div className="text-center space-y-3">
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="inline-flex items-center justify-center size-14 rounded-2xl bg-primary/10 border border-primary/20 text-primary mb-2"
-      >
-        <Award className="size-8" />
-      </motion.div>
-      <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground via-foreground/90 to-muted-foreground bg-clip-text text-transparent">
-        Assessment CAT Selesai
+    <div className="relative text-left space-y-2 borer-t-4 border-t-primary border border-foreground/10 p-6 rounded-2xl overflow-hidden bg-card/40 backdrop-blur-md pr-24 select-none">
+      <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground via-foreground/90 to-muted-foreground bg-clip-text text-transparent">
+        Luar biasa, kamu {level} di {role}!
       </h1>
-      <p className="text-sm text-muted-foreground max-w-md mx-auto">
-        Hasil evaluasi adaptif komprehensif Anda untuk posisi{' '}
-        <strong className="text-foreground">{role}</strong>.
+      <p className="text-sm md:text-base text-muted-foreground">
+        Unduh dan bagikan bukti kompetensimu yang
+        sudah terverifikasi blockchain.
       </p>
+      <img
+        src={pialaImg}
+        alt="Piala"
+        className="absolute -right-6 -bottom-4 size-43 md:size-40  object-contain pointer-events-none select-none"
+      />
     </div>
   );
 }
