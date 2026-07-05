@@ -39,12 +39,16 @@ function RouteComponent() {
   const [certificateMetadata, setCertificateMetadata] = React.useState<
     any | null
   >(null);
+  const [sessionUserId, setSessionUserId] = React.useState<string | null>(null);
 
   // Animated displayed score
   const [displayedScore, setDisplayedScore] = React.useState(0);
 
   // Ref to prevent duplicate calls in React StrictMode (dev mode)
   const isInitialized = React.useRef(false);
+
+  // Check ownership: user owns this certificate if their ID matches session's userId
+  const isOwner = user?.id && sessionUserId && user.id === sessionUserId;
 
   React.useEffect(() => {
     // Skip if already initialized (prevents duplicate in StrictMode)
@@ -257,6 +261,19 @@ function RouteComponent() {
         setLoadingMessage('Memuat data sertifikat...');
         const data = await sessionService.getResult(certId);
         setResult(data);
+
+        // Fetch session to get userId for ownership check
+        try {
+          const sessionResponse = await fetch(`/api/sessions/${certId}`, {
+            credentials: 'include',
+          });
+          if (sessionResponse.ok) {
+            const sessionData = await sessionResponse.json();
+            setSessionUserId(sessionData.user_id);
+          }
+        } catch (err) {
+          console.warn('Could not fetch session userId:', err);
+        }
 
         // Check if certificate metadata already exists
         const metadataExists = await checkMetadata();
