@@ -22,9 +22,9 @@ const KredlyCertificateABI = `[{"inputs":[],"stateMutability":"nonpayable","type
 type VerifyStatus uint8
 
 const (
-	VerifyStatusValid       VerifyStatus = 0
-	VerifyStatusNotFound    VerifyStatus = 1
-	VerifyStatusRevoked     VerifyStatus = 2
+	VerifyStatusValid        VerifyStatus = 0
+	VerifyStatusNotFound     VerifyStatus = 1
+	VerifyStatusRevoked      VerifyStatus = 2
 	VerifyStatusHashMismatch VerifyStatus = 3
 )
 

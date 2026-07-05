@@ -40,6 +40,7 @@ func (s *AuthService) HandleGoogleUser(ctx context.Context, email, name, picture
 				Email:         email,
 				EmailVerified: true,
 				Image:         &picture,
+				TokenBalance:  &models.TokenBalance{Current: 50, TotalEarned: 50, TotalSpent: 0},
 				CreatedAt:     now,
 				UpdatedAt:     now,
 			}

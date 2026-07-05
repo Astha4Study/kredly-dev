@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
 

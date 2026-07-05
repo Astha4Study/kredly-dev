@@ -1,4 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
@@ -9,6 +15,7 @@ interface AsideAssessmentActionCardProps {
   sessionError: string | null;
   isCreatingSession: boolean;
   onStartExam: () => void;
+  tokenBalance: { current: number } | null;
 }
 
 export const AsideAssessmentActionCard = ({
@@ -18,6 +25,7 @@ export const AsideAssessmentActionCard = ({
   sessionError,
   isCreatingSession,
   onStartExam,
+  tokenBalance,
 }: AsideAssessmentActionCardProps) => {
   return (
     <Card className="border-border/50 sticky top-20">
@@ -34,9 +42,7 @@ export const AsideAssessmentActionCard = ({
         <div className="space-y-3 p-4 rounded-lg bg-muted/30 border border-border/50">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Role</span>
-            <span className="font-medium text-foreground">
-              {role || 'N/A'}
-            </span>
+            <span className="font-medium text-foreground">{role || 'N/A'}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Level</span>
@@ -57,10 +63,21 @@ export const AsideAssessmentActionCard = ({
           </div>
         )}
 
+        {tokenBalance && tokenBalance.current < 1 && (
+          <div className="flex items-center justify-center gap-1.5 text-xs text-rose-500 font-semibold text-center">
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+            <span>Kredit tidak cukup</span>
+          </div>
+        )}
+
         <Button
           size="lg"
           onClick={onStartExam}
-          disabled={skills.length === 0 || isCreatingSession}
+          disabled={
+            skills.length === 0 ||
+            isCreatingSession ||
+            (tokenBalance !== null && tokenBalance.current < 1)
+          }
           className="w-full group cursor-pointer"
         >
           {isCreatingSession ? (

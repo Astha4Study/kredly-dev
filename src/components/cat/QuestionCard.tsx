@@ -24,11 +24,7 @@ export default function QuestionCard({
             Soal #{questionNumber}
           </span>
         </div>
-        <Badge
-          variant="default"
-        >
-          {topic}
-        </Badge>
+        <Badge variant="default">{topic}</Badge>
       </CardHeader>
 
       <CardContent className="pt-2 pb-6">
@@ -40,9 +36,7 @@ export default function QuestionCard({
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           >
-            <p
-              className="select-none text-lg font-medium leading-relaxed text-foreground antialiased md:text-xl"
-            >
+            <p className="select-none text-lg font-medium leading-relaxed text-foreground antialiased md:text-xl">
               {question}
             </p>
           </motion.div>

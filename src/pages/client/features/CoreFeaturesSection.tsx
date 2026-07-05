@@ -1,7 +1,8 @@
 import { motion } from 'motion/react';
 import GridBorder from '@/components/GridBorder';
-import { Brain, Shield, Zap, Eye, Target, Cpu } from 'lucide-react';
+import { Brain, Shield, Zap, Eye, Target, Cpu, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { createStaggerAnimation } from '@/lib/animations';
 
 const FEATURES = [
   {
@@ -47,6 +48,7 @@ export default function CoreFeaturesSection() {
       <GridBorder className="mx-auto w-full max-w-7xl" paddingY="py-6 sm:py-8">
         <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
           <Badge variant="default" className="shadow-sm">
+            <Sparkles />
             Fitur Utama
           </Badge>
 
@@ -68,13 +70,7 @@ export default function CoreFeaturesSection() {
               return (
                 <motion.div
                   key={feature.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{
-                    duration: 0.4,
-                    delay: index * 0.08,
-                  }}
+                  {...createStaggerAnimation(index)}
                   className="
                   group
                   relative

@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"kredly/internal/config"
 	"kredly/internal/database" // Tambahan import database
@@ -32,12 +35,18 @@ func main() {
 	// ==========================================
 
 	// 2. Initialize Groq API Client
-	groqClient := groq.NewClient(cfg.GroqAPIKey, cfg.GroqBaseURL)
+	groqClient := groq.NewClient(cfg.GroqAPIKeys, cfg.GroqBaseURL)
 
 	// 3. Initialize CAT system
 	sessionStore := store.NewSessionStore(database.DB)
 	catService := service.NewCATService(sessionStore, groqClient)
 	sessionHandler := handlers.NewSessionHandler(catService)
+
+	// Start background session expiration job
+	// Runs every hour; marks in-progress sessions as expired when ExpiresAt < now.
+	jobCtx, jobCancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer jobCancel()
+	go catService.RunExpirationJob(jobCtx)
 
 	// 4. Initialize Auth system
 	authService := service.NewAuthService()
@@ -61,6 +70,12 @@ func main() {
 
 	// 10. Initialize Activity Handler
 	activityHandler := handlers.NewActivityHandler(database.DB)
+
+	// 11. Initialize Token Handler
+	tokenHandler := handlers.NewTokenHandler()
+
+	// 12. Initialize Chat Handler
+	chatHandler := handlers.NewChatHandler(groqClient)
 
 	// Set Gin mode
 	if cfg.Environment == "production" {
@@ -89,11 +104,12 @@ func main() {
 			c.JSON(http.StatusOK, gin.H{
 				"status":      "ok",
 				"environment": cfg.Environment,
-				"groq_loaded": cfg.GroqAPIKey != "",
+				"groq_loaded": len(cfg.GroqAPIKeys) > 0,
 			})
 		})
 
 		api.POST("/parse-cv", middleware.AuthMiddleware(cfg, authService), cvHandler.HandleParseCV)
+		api.POST("/profile/custom-assessment", middleware.AuthMiddleware(cfg, authService), cvHandler.HandleCreateCustomAssessment)
 
 		// Blockchain verification and issuance
 		api.POST("/blockchain/verify-by-hash", blockchainHandler.HandleVerifyByHashOnly) // Verify with hash only (search DB first)
@@ -144,16 +160,21 @@ func main() {
 		// Username check (public, used by onboarding step 1)
 		api.GET("/check-username", profileHandler.HandleCheckUsername)
 
-		// Profile endpoints - Protected
+		// Profile endpoints - Protected/Public
 		api.GET("/profile", middleware.AuthMiddleware(cfg, authService), profileHandler.HandleGetProfile)
+		api.GET("/profile/public/:username", profileHandler.HandleGetPublicProfileByUsername)
 
 		// User account management - Protected
 		user := api.Group("/user")
 		user.Use(middleware.AuthMiddleware(cfg, authService))
 		{
+			user.GET("/me/token-balance", tokenHandler.HandleGetTokenBalance)
+			user.POST("/me/topup", tokenHandler.HandleSimulateTopup)
 			user.PUT("/update-profile", profileHandler.HandleUpdateProfile)
 			user.POST("/upload-cv", profileHandler.HandleUploadCV)
 			user.DELETE("/delete-account", profileHandler.HandleDeleteAccount)
+			user.GET("/public-profile-settings", profileHandler.HandleGetPublicProfileSettings)
+			user.PUT("/public-profile-settings", profileHandler.HandleUpdatePublicProfileSettings)
 		}
 
 		// Job endpoints - Protected
@@ -166,6 +187,9 @@ func main() {
 
 		// Activity endpoints - Protected
 		api.GET("/activities", middleware.AuthMiddleware(cfg, authService), activityHandler.GetUserActivities)
+
+		// Chat endpoint - Public for now (add auth if needed)
+		api.POST("/chat", chatHandler.HandleChat)
 	}
 
 	// 9. Start Server

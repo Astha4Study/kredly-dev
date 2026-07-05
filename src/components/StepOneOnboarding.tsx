@@ -33,7 +33,9 @@ export function StepOneOnboarding({
     setUsernameStatus('checking');
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`);
+        const res = await fetch(
+          `/api/check-username?username=${encodeURIComponent(username)}`,
+        );
         setUsernameStatus(res.status === 409 ? 'taken' : 'available');
       } catch {
         setUsernameStatus('idle');
@@ -53,7 +55,9 @@ export function StepOneOnboarding({
     }
 
     if (usernameStatus !== 'available') {
-      const res = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`);
+      const res = await fetch(
+        `/api/check-username?username=${encodeURIComponent(username)}`,
+      );
       if (res.status === 409) {
         setUsernameStatus('taken');
         toast.error('Username sudah digunakan');
@@ -83,6 +87,7 @@ export function StepOneOnboarding({
 
           <Input
             id="fullName"
+            className="bg-white"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Masukkan nama lengkap"
@@ -111,7 +116,7 @@ export function StepOneOnboarding({
                 usernameStatus === 'taken'
                   ? 'border-destructive pr-10'
                   : usernameStatus === 'available'
-                    ? 'border-green-500 pr-10'
+                    ? 'border-green-500 pr-10 bg-white'
                     : undefined
               }
             />
@@ -134,7 +139,7 @@ export function StepOneOnboarding({
             <p className="text-xs text-destructive">Username sudah digunakan</p>
           )}
 
-          <div className="rounded-lg border border-dashed border-border px-3 py-3">
+          <div className="rounded-lg border border-dashed border-border px-3 py-3 bg-white">
             <p className="text-xs text-muted-foreground">Public profile URL</p>
 
             <p className="mt-1 text-sm font-medium">

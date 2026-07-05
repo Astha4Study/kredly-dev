@@ -51,9 +51,39 @@ func (h *JobHandler) FetchAndStoreJobs(c *gin.Context) {
 		return
 	}
 
+	// Pengecekan token balance
+	userColl := h.db.Collection("user")
+	var dbUser models.User
+	err := userColl.FindOne(c.Request.Context(), bson.M{"_id": userID}).Decode(&dbUser)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "User tidak ditemukan"})
+		return
+	}
+
+	// Validasi saldo token
+	if dbUser.TokenBalance == nil || dbUser.TokenBalance.Current < 1 {
+		c.JSON(http.StatusPaymentRequired, gin.H{
+			"error": "Saldo kredit Anda tidak mencukupi untuk melakukan pencarian pekerjaan baru. Silakan top up kredit terlebih dahulu.",
+		})
+		return
+	}
+
+	// Kurangi token (current - 1, totalSpent + 1)
+	update := bson.M{
+		"$inc": bson.M{
+			"tokenBalance.current":    -1,
+			"tokenBalance.totalSpent": 1,
+		},
+	}
+	_, err = userColl.UpdateOne(c.Request.Context(), bson.M{"_id": userID}, update)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal memotong saldo token"})
+		return
+	}
+
 	// Get user's CV role from userProfile to use as search query
 	var userProfile models.UserProfile
-	err := h.db.Collection("userProfile").FindOne(
+	err = h.db.Collection("userProfile").FindOne(
 		context.Background(),
 		bson.M{"userId": userID},
 	).Decode(&userProfile)

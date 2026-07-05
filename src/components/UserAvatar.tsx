@@ -9,6 +9,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Settings, LogOut } from 'lucide-react';
 import { useState } from 'react';
@@ -16,6 +26,7 @@ import { useState } from 'react';
 export default function UserAvatar() {
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const { user, signOut } = useAuth();
 
   async function handleLogout() {
@@ -40,52 +51,75 @@ export default function UserAvatar() {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-white/20">
-          <Avatar className="size-8">
-            {!imageError && user?.image ? (
-              <AvatarImage
-                src={user.image}
-                alt={user.name || 'User'}
-                onError={() => setImageError(true)}
-              />
-            ) : null}
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-white/20">
+            <Avatar className="size-8">
+              {!imageError && user?.image ? (
+                <AvatarImage
+                  src={user.image}
+                  alt={user.name || 'User'}
+                  onError={() => setImageError(true)}
+                />
+              ) : null}
 
-            <AvatarFallback className="bg-muted text-foreground">
-              {getInitials(user?.name)}
-            </AvatarFallback>
-          </Avatar>
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">
-              {user?.name || 'User'}
-            </p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {user?.email}
-            </p>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => navigate({ to: '/app/account-settings' })}
-        >
-          <User className="mr-2 h-4 w-4" />
-          <span>Profil</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate({ to: '/app/settings' })}>
-          <Settings className="mr-2 h-4 w-4" />
-          <span>Pengaturan</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Keluar</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+              <AvatarFallback className="bg-muted text-foreground">
+                {getInitials(user?.name)}
+              </AvatarFallback>
+            </Avatar>
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuLabel>
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium leading-none">
+                {user?.name || 'User'}
+              </p>
+              <p className="text-xs leading-none text-muted-foreground">
+                {user?.email}
+              </p>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => navigate({ to: '/app/profile' })}>
+            <User className="mr-2 h-4 w-4" />
+            <span>Profil</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate({ to: '/app/settings' })}>
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Pengaturan</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => setShowLogoutDialog(true)}
+            className="text-red-600"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Keluar</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Yakin ingin keluar?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Anda akan keluar dari akun Anda dan kembali ke halaman login.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleLogout}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Keluar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"kredly/internal/blockchain"
+	"kredly/internal/database"
 	"kredly/internal/models"
 	"kredly/internal/service"
 
@@ -222,7 +223,7 @@ type IssueCertificateRequest struct {
 	CertificateID  string `json:"certificateId" binding:"required"`
 	SessionID      string `json:"sessionId" binding:"required"`
 	PdfBuffer      string `json:"pdfBuffer" binding:"required"` // Base64 encoded PDF
-	PdfHash        string `json:"pdfHash" binding:"required"`    // SHA256 hash from frontend
+	PdfHash        string `json:"pdfHash" binding:"required"`   // SHA256 hash from frontend
 	RecipientName  string `json:"recipientName"`
 	AssessmentName string `json:"assessmentName"`
 	Score          int    `json:"score"`
@@ -272,7 +273,7 @@ func (h *BlockchainHandler) HandleIssueCertificate(c *gin.Context) {
 		// Check if certificate already exists
 		if strings.Contains(err.Error(), "CertificateAlreadyExists") {
 			fmt.Printf("[Issue] Certificate already exists on blockchain, saving to DB...\n")
-			
+
 			// Save metadata to database even if certificate exists on blockchain
 			// This prevents re-trying on every reload
 			if h.metadataService != nil {
@@ -294,7 +295,7 @@ func (h *BlockchainHandler) HandleIssueCertificate(c *gin.Context) {
 					fmt.Printf("[Issue] Metadata saved to DB for existing certificate\n")
 				}
 			}
-			
+
 			c.JSON(http.StatusOK, gin.H{
 				"success":       true,
 				"certificateId": req.CertificateID,
@@ -328,6 +329,25 @@ func (h *BlockchainHandler) HandleIssueCertificate(c *gin.Context) {
 		if err := h.metadataService.Save(metadata); err != nil {
 			// Log error but don't fail request (metadata save is optional)
 			fmt.Printf("Warning: Failed to save certificate metadata: %v\n", err)
+		}
+	}
+
+	// Log blockchain issued activity (get userID from context)
+	if userInterface, exists := c.Get("user"); exists {
+		if userMap, ok := userInterface.(gin.H); ok {
+			if userID, ok := userMap["id"].(string); ok {
+				models.LogActivityAsync(
+					database.DB,
+					userID,
+					models.ActivityBlockchainIssued,
+					fmt.Sprintf("Sertifikat %s Diterbitkan ke Blockchain", req.AssessmentName),
+					fmt.Sprintf("Sertifikat Anda untuk %s telah diterbitkan ke blockchain dan tersimpan di IPFS", req.AssessmentName),
+					&models.ActivityMetadata{
+						TxHash: &txHash,
+						Score:  &req.Score,
+					},
+				)
+			}
 		}
 	}
 

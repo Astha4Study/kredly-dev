@@ -45,6 +45,22 @@ export default function AsideProfile() {
     fetchProfile();
   }, []);
 
+  // Map experience values to readable labels
+  const getExperienceLabel = (experience?: string) => {
+    if (!experience) return 'Belum diatur';
+
+    const experienceMap: Record<string, string> = {
+      'not-working': 'Belum Bekerja',
+      'below-1': '< 1 Tahun',
+      '1-2': '1-2 Tahun',
+      '3-5': '3-5 Tahun',
+      '5+': '5+ Tahun',
+      'not-specified': 'Belum diatur',
+    };
+
+    return experienceMap[experience] || experience;
+  };
+
   return (
     <aside className="sticky top-20 w-64 shrink-0">
       <div className="flex flex-col gap-4">
@@ -132,7 +148,7 @@ export default function AsideProfile() {
                 <p className="mt-1.5 text-sm font-medium">
                   {profileLoading
                     ? '—'
-                    : userProfile?.experience || 'Belum diatur'}
+                    : getExperienceLabel(userProfile?.experience)}
                 </p>
               </div>
 

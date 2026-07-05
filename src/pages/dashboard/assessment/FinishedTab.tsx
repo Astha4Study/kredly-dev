@@ -1,6 +1,12 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { TabsContent } from '@/components/ui/tabs';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
 import { ClipboardCheck } from 'lucide-react';
 import { AssessmentCard } from './AssessmentCard';
 

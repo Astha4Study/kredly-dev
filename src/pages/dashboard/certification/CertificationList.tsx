@@ -1,7 +1,14 @@
 import * as React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
 import { Search, Award } from 'lucide-react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import certPlaceholder from '@/assets/certification/certplaceholder.png';
@@ -230,11 +237,11 @@ export default function CertificationList({
           kredensial akan tersimpan di blockchain dan dapat diverifikasi.
         </EmptyDescription>
       </EmptyHeader>
-        <EmptyContent>
-          <Link to="/app/assessment">
-            <Button size="sm">Mulai Assessment</Button>
-          </Link>
-        </EmptyContent>
+      <EmptyContent>
+        <Link to="/app/assessment">
+          <Button size="sm">Mulai Assessment</Button>
+        </Link>
+      </EmptyContent>
     </Empty>
   );
 }

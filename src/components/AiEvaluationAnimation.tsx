@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
 import { Check, Sparkles, ScanLine } from 'lucide-react';
@@ -402,7 +401,7 @@ function EvaluationContent({ card }: { card: EvaluationCard }) {
               {card.finalScore}
             </motion.span>
             <span className="mt-0.5 text-[7px] sm:text-[8px] uppercase tracking-wide text-zinc-400">
-              /100
+              /1000
             </span>
           </div>
 

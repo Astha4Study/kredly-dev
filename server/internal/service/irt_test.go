@@ -1,8 +1,8 @@
 package service
 
 import (
-	"testing"
 	"kredly/internal/models"
+	"testing"
 )
 
 func TestUpdateTheta_CorrectAnswer(t *testing.T) {

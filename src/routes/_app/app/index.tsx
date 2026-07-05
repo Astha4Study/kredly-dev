@@ -74,11 +74,16 @@ function RouteComponent() {
           if (data.profile?.cvAssessments) {
             const assessments = data.profile.cvAssessments as CVAssessment[];
 
-            // Separate by type
-            const generalAssessments = assessments.filter(
+            // Filter out completed assessments
+            const availableOnly = assessments.filter(
+              (a) => a.status !== 'completed' && a.status !== 'finished',
+            );
+
+            // Separate by type (only from available assessments)
+            const generalAssessments = availableOnly.filter(
               (a) => a.type === 'general',
             );
-            const skillAssessments = assessments.filter(
+            const skillAssessments = availableOnly.filter(
               (a) => a.type === 'skill' || a.type === 'related_skill',
             );
 
@@ -99,7 +104,7 @@ function RouteComponent() {
             setStats({
               totalCredentials: 0,
               averageScore: 0,
-              activeAssessments: assessments.length,
+              activeAssessments: availableOnly.length,
             });
           } else {
             setStats({
@@ -117,6 +122,19 @@ function RouteComponent() {
     }
 
     fetchDashboardData();
+
+    // Refresh data when page becomes visible (e.g., returning from assessment)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchDashboardData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   return (
@@ -161,14 +179,18 @@ function RouteComponent() {
                     <div
                       key={item.label}
                       className={`p-4 sm:p-6 ${
-                        index !== 2 ? 'border-b sm:border-b-0 sm:border-r border-border' : ''
+                        index !== 2
+                          ? 'border-b sm:border-b-0 sm:border-r border-border'
+                          : ''
                       }`}
                     >
                       <p className="text-xs sm:text-sm text-muted-foreground">
                         {item.label}
                       </p>
 
-                      <p className="mt-1.5 sm:mt-2 text-3xl sm:text-4xl font-bold">{item.value}</p>
+                      <p className="mt-1.5 sm:mt-2 text-3xl sm:text-4xl font-bold">
+                        {item.value}
+                      </p>
 
                       <p className="mt-1.5 sm:mt-2 text-xs text-muted-foreground">
                         {item.description}
@@ -182,7 +204,9 @@ function RouteComponent() {
               <section className="border-b border-border">
                 <div className="p-4 sm:p-5 md:p-6">
                   <div className="mb-3 sm:mb-4">
-                    <h2 className="text-base sm:text-lg font-semibold">Asesmen tersedia</h2>
+                    <h2 className="text-base sm:text-lg font-semibold">
+                      Asesmen tersedia
+                    </h2>
                     <p className="text-xs sm:text-sm text-muted-foreground">
                       Pilih asesmen untuk memulai validasi skill Anda
                     </p>
@@ -204,17 +228,17 @@ function RouteComponent() {
                                 {assessment.type === 'general' ? (
                                   <>
                                     <Layers className="h-3 w-3" />
-                                    General
+                                    Umum
                                   </>
                                 ) : assessment.type === 'related_skill' ? (
                                   <>
                                     <Zap className="h-3 w-3" />
-                                    Related Skill
+                                    Keterampilan Terkait
                                   </>
                                 ) : (
                                   <>
                                     <Zap className="h-3 w-3" />
-                                    Skill
+                                    Keterampilan
                                   </>
                                 )}
                               </Badge>
@@ -234,7 +258,9 @@ function RouteComponent() {
                               </h3>
                               <p className="line-clamp-2 text-xs sm:text-sm text-muted-foreground">
                                 {assessment.description ||
-                                  'Uji kemampuan Anda dalam topik ini'}
+                                  (assessment.type === 'general'
+                                    ? 'Menguji kompetensi komprehensif terkait role.'
+                                    : 'Uji kemampuan Anda dalam keterampilan ini')}
                               </p>
                             </div>
 
@@ -243,11 +269,15 @@ function RouteComponent() {
                               <div className="flex items-center gap-3 sm:gap-4 text-xs text-muted-foreground">
                                 <div className="flex items-center gap-1 sm:gap-1.5">
                                   <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                                  <span className="text-xs">{assessment.estimatedTime}</span>
+                                  <span className="text-xs">
+                                    {assessment.estimatedTime}
+                                  </span>
                                 </div>
                                 <div className="flex items-center gap-1 sm:gap-1.5">
                                   <FileText className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                                  <span className="text-xs">{assessment.questionCount} soal</span>
+                                  <span className="text-xs">
+                                    {assessment.questionCount} soal
+                                  </span>
                                 </div>
                               </div>
                               <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
@@ -262,8 +292,13 @@ function RouteComponent() {
                         Unggah CV Anda untuk mendapatkan rekomendasi asesmen
                         yang sesuai dengan profil Anda.
                       </p>
-                      <Link to="/app/parse-cv" className="mt-3 inline-block">
-                        <Button size="sm" className="sm:text-sm">Unggah CV</Button>
+                      <Link
+                        to="/app/new-assessment/upload-cv"
+                        className="mt-3 inline-block"
+                      >
+                        <Button size="sm" className="sm:text-sm">
+                          Unggah CV
+                        </Button>
                       </Link>
                     </div>
                   )}
@@ -284,7 +319,9 @@ function RouteComponent() {
                   </div>
 
                   <Link to="/app/credentials" preload="intent">
-                    <Button variant="ghost" size="sm" className="sm:text-sm">Lihat semua</Button>
+                    <Button variant="ghost" size="sm" className="sm:text-sm">
+                      Lihat semua
+                    </Button>
                   </Link>
                 </div>
 
@@ -322,7 +359,9 @@ function RouteComponent() {
                             </div>
 
                             <div className="text-left sm:text-right">
-                              <p className="text-2xl sm:text-3xl font-bold">{score}</p>
+                              <p className="text-2xl sm:text-3xl font-bold">
+                                {score}
+                              </p>
 
                               <p className="text-xs text-muted-foreground">
                                 skor akhir

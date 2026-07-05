@@ -16,6 +16,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type ProfileHandler struct {
@@ -88,6 +89,18 @@ func (h *ProfileHandler) HandleGetProfile(c *gin.Context) {
 			"userId":  userID, // Return userId for debugging
 		})
 		return
+	}
+
+	// Enrich in-progress assessments with the latest ExpiresAt from cat_sessions
+	catSessionsColl := database.DB.Collection("cat_sessions")
+	for i, ast := range userProfile.CVAssessments {
+		if ast.Status == "in-progress" && ast.SessionID != "" {
+			var sess models.Session
+			err := catSessionsColl.FindOne(c.Request.Context(), bson.M{"_id": ast.SessionID}).Decode(&sess)
+			if err == nil {
+				userProfile.CVAssessments[i].ExpiresAt = &sess.ExpiresAt
+			}
+		}
 	}
 
 	// Debug log
@@ -173,8 +186,8 @@ func (h *ProfileHandler) HandleUpdateProfile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Profil berhasil diperbarui",
-		"name":    req.Name,
+		"message":  "Profil berhasil diperbarui",
+		"name":     req.Name,
 		"username": req.Username,
 	})
 }
@@ -235,52 +248,144 @@ func (h *ProfileHandler) HandleUploadCV(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menyimpan file"})
 		return
 	}
+	ctx := c.Request.Context()
+	userProfileColl := database.DB.Collection("userProfile")
+
+	// Get existing profile to see if there's existing CV data to update/merge
+	var existingProfile models.UserProfile
+	hasExistingProfile := false
+	if err := userProfileColl.FindOne(ctx, bson.M{"userId": userID}).Decode(&existingProfile); err == nil {
+		hasExistingProfile = true
+	}
 
 	// Parse CV - extract text and analyze with Groq
 	var parsedRole, parsedLevel, parsedSummary string
 	var parsedSkills []string
+	var parsedAssessments []models.GeneratedAssessment
 
 	// This parsing is optional - if it fails, we still save the file
 	if text, err := pdf.ReadPDFText(filePath); err == nil && len(text) > 0 {
-		// Build prompt for Groq (simplified version focused on profile data)
-		systemPrompt := `You are an expert CV parser. Extract the following information from the CV text and output as JSON:
+		var existingDataStr string
+		if hasExistingProfile {
+			var role, level, summary string
+			var skills []string
+			if existingProfile.CVRole != nil {
+				role = *existingProfile.CVRole
+			}
+			if existingProfile.CVLevel != nil {
+				level = *existingProfile.CVLevel
+			}
+			if existingProfile.CVSummary != nil {
+				summary = *existingProfile.CVSummary
+			}
+			skills = existingProfile.CVSkills
+
+			existingDataBytes, _ := json.Marshal(map[string]interface{}{
+				"role":        role,
+				"level":       level,
+				"skills":      skills,
+				"summary":     summary,
+				"assessments": existingProfile.CVAssessments,
+			})
+			existingDataStr = string(existingDataBytes)
+		}
+
+		// Use improved system prompt without programming bias
+		systemPrompt := `You are an expert ATS (Applicant Tracking System) CV parser.
+Your PRIMARY TASK is to accurately extract information ONLY from the CV text provided. Do NOT make assumptions or add skills that are not explicitly mentioned in the CV.
+
+CRITICAL RULES:
+1. Extract ONLY skills that are explicitly written in the CV text
+2. Identify the candidate's actual field/domain from their education, experience, and listed skills
+3. Do NOT assume programming/software development unless clearly stated in the CV
+4. Match the role and category to the candidate's actual domain (e.g., Data Analyst, Mathematician, Marketing, Finance, etc.)
+`
+
+		if existingDataStr != "" {
+			systemPrompt += fmt.Sprintf(`Here is the user's existing parsed CV profile data and assessments:
+%s
+
+Please review the new CV text, merge/update the fields accordingly while preserving completed/in-progress assessments.
+`, existingDataStr)
+		}
+
+		systemPrompt += `Extract all information and output a structured JSON object following this exact schema:
 {
-  "role": "Primary role or job title",
-  "level": "Seniority level (Junior, Mid, Senior, Lead)",
-  "skills": ["skill1", "skill2", ...],
-  "summary": "Brief 2-3 sentence professional summary"
+  "role": "Candidate's PRIMARY role based on their education, experience, and skills (e.g., Data Analyst, Software Engineer, Marketing Manager, Financial Analyst, Mathematician)",
+  "level": "Candidate's seniority level based on experience (e.g., Entry Level, Junior, Mid, Senior, Lead)",
+  "skills": ["ONLY skills explicitly mentioned in the CV - do NOT add programming skills if not present"],
+  "summary": "A concise summary of the candidate's ACTUAL profile based on CV content. Keep it brief (2-3 sentences max) as plain paragraph.",
+  "assessments": [
+    {
+      "id": "unique-slug-based-on-actual-domain",
+      "type": "general", "skill", or "related_skill",
+      "title": "Assessment title matching candidate's ACTUAL domain",
+      "description": "What is tested in this assessment",
+      "difficulty": "Beginner", "Intermediate", or "Advanced" based on candidate level,
+      "estimatedTime": "90 menit for general, 45 menit for skill/related_skill",
+      "questionCount": 50 for general, 30 for skill/related_skill,
+      "topics": ["relevant topics from candidate's domain"] (only for "general" type),
+      "isRecommended": true,
+      "category": "Match candidate's actual domain (e.g., Data Analysis, Mathematics, Marketing, Finance, Software Development, Design, etc.)",
+      "status": "available"
+    }
+  ]
 }
-Return ONLY the JSON object, no markdown or extra text.`
+
+ASSESSMENT GENERATION RULES:
+1. Generate 1 "general" assessment matching the candidate's ACTUAL overall domain. questionCount=50, estimatedTime="90 menit"
+2. Generate 3-5 skill assessments based on ACTUAL skills from the CV:
+   - 2-3 assessments matching their TOP extracted skills (type="skill")
+   - 1-2 complementary skills within their ACTUAL domain (type="related_skill")
+   - questionCount=30, estimatedTime="45 menit"
+3. If existing data has completed/in-progress assessments, PRESERVE them in the output
+4. Use appropriate category based on ACTUAL domain
+
+Return ONLY valid JSON object without markdown tags.`
 
 		groqReq := groq.ChatCompletionRequest{
 			Messages: []groq.Message{
 				{Role: "system", Content: systemPrompt},
 				{Role: "user", Content: text},
 			},
-			Model: "llama-3.3-70b-versatile",
+			Model: "qwen/qwen3-32b",
 			ResponseFormat: &groq.ResponseFormat{
 				Type: "json_object",
 			},
 		}
 
-		if resp, err := h.groqClient.CreateChatCompletion(groqReq); err == nil && len(resp.Choices) > 0 {
+		resp, err := h.groqClient.CreateChatCompletion(groqReq)
+		if err != nil {
+			println("❌ [DEBUG] Groq CreateChatCompletion error:", err.Error())
+		} else if len(resp.Choices) == 0 {
+			println("❌ [DEBUG] Groq returned 0 choices")
+		} else {
 			var parsed struct {
-				Role    string   `json:"role"`
-				Level   string   `json:"level"`
-				Skills  []string `json:"skills"`
-				Summary string   `json:"summary"`
+				Role        string                       `json:"role"`
+				Level       string                       `json:"level"`
+				Skills      []string                     `json:"skills"`
+				Summary     string                       `json:"summary"`
+				Assessments []models.GeneratedAssessment `json:"assessments"`
 			}
-			if json.Unmarshal([]byte(resp.Choices[0].Message.Content), &parsed) == nil {
+			unmarshalErr := json.Unmarshal([]byte(resp.Choices[0].Message.Content), &parsed)
+			if unmarshalErr != nil {
+				println("❌ [DEBUG] Groq JSON unmarshal error:", unmarshalErr.Error(), "content:", resp.Choices[0].Message.Content)
+			} else {
 				parsedRole = parsed.Role
 				parsedLevel = parsed.Level
 				parsedSkills = parsed.Skills
 				parsedSummary = parsed.Summary
+				parsedAssessments = parsed.Assessments
+				println("✅ [DEBUG] Groq successfully parsed CV data - Role:", parsedRole, "Level:", parsedLevel, "Assessments:", len(parsedAssessments))
 			}
 		}
+	} else {
+		if err != nil {
+			println("❌ [DEBUG] ReadPDFText error:", err.Error())
+		} else {
+			println("❌ [DEBUG] ReadPDFText returned empty text")
+		}
 	}
-
-	ctx := c.Request.Context()
-	userProfileColl := database.DB.Collection("userProfile")
 
 	// Prepare update document
 	updateDoc := bson.M{
@@ -302,15 +407,19 @@ Return ONLY the JSON object, no markdown or extra text.`
 	if parsedSummary != "" {
 		updateDoc["cvSummary"] = parsedSummary
 	}
+	if len(parsedAssessments) > 0 {
+		updateDoc["cvAssessments"] = parsedAssessments
+	}
 
-	// Update or insert UserProfile
+	// Update or insert UserProfile with upsert
 	filter := bson.M{"userId": userID}
 	update := bson.M{"$set": updateDoc}
+	opts := options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After)
 
-	var userProfile models.UserProfile
-	err = userProfileColl.FindOneAndUpdate(ctx, filter, update).Decode(&userProfile)
+	var updatedProfile models.UserProfile
+	err = userProfileColl.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedProfile)
 
-	// If profile doesn't exist, create new one
+	// If still error after upsert, try manual insert
 	if err != nil {
 		newProfile := models.UserProfile{
 			ID:         uuid.New().String(),
@@ -335,32 +444,28 @@ Return ONLY the JSON object, no markdown or extra text.`
 		if parsedSummary != "" {
 			newProfile.CVSummary = &parsedSummary
 		}
+		if len(parsedAssessments) > 0 {
+			newProfile.CVAssessments = parsedAssessments
+		}
 
 		_, err = userProfileColl.InsertOne(ctx, newProfile)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menyimpan profil"})
 			return
 		}
+		updatedProfile = newProfile
 	}
 
-	// Return response
+	// Return response with assessments
 	response := gin.H{
-		"message":    "CV berhasil diupload",
+		"message":    "CV berhasil diupload dan diparse",
 		"cvFileName": file.Filename,
 		"cvFilePath": filePath,
-	}
-
-	if parsedRole != "" {
-		response["cvRole"] = parsedRole
-	}
-	if parsedLevel != "" {
-		response["cvLevel"] = parsedLevel
-	}
-	if len(parsedSkills) > 0 {
-		response["cvSkills"] = parsedSkills
-	}
-	if parsedSummary != "" {
-		response["cvSummary"] = parsedSummary
+		"role":       parsedRole,
+		"level":      parsedLevel,
+		"skills":     parsedSkills,
+		"summary":    parsedSummary,
+		"assessments": parsedAssessments,
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -445,5 +550,276 @@ func (h *ProfileHandler) HandleDeleteAccount(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Account successfully deleted",
+	})
+}
+
+// HandleGetPublicProfileSettings returns public profile settings for authenticated user
+func (h *ProfileHandler) HandleGetPublicProfileSettings(c *gin.Context) {
+	userInterface, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userMap, ok := userInterface.(gin.H)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user data"})
+		return
+	}
+
+	userID, ok := userMap["id"].(string)
+	if !ok || userID == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	settingsColl := database.DB.Collection("publicProfileSettings")
+
+	var settings models.PublicProfileSettings
+	err := settingsColl.FindOne(ctx, bson.M{"userId": userID}).Decode(&settings)
+	if err != nil {
+		// Return default settings if not found
+		defaultSettings := models.PublicProfileSettings{
+			ID:               uuid.New().String(),
+			UserID:           userID,
+			IsPublic:         false,
+			Headline:         "",
+			Bio:              "",
+			ShowCertificates: true,
+			ShowAssessments:  true,
+			ShowSkills:       true,
+			ShowCVData:       false,
+			SocialLinks: models.SocialLinks{
+				Linkedin:  "",
+				Github:    "",
+				Portfolio: "",
+				Twitter:   "",
+			},
+			CreatedAt:        time.Now(),
+			UpdatedAt:        time.Now(),
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"settings": defaultSettings,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"settings": settings,
+	})
+}
+
+// HandleUpdatePublicProfileSettings updates public profile settings for authenticated user
+func (h *ProfileHandler) HandleUpdatePublicProfileSettings(c *gin.Context) {
+	userInterface, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userMap, ok := userInterface.(gin.H)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user data"})
+		return
+	}
+
+	userID, ok := userMap["id"].(string)
+	if !ok || userID == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	var req struct {
+		IsPublic         bool               `json:"isPublic"`
+		Headline         string             `json:"headline"`
+		Bio              string             `json:"bio"`
+		ShowCertificates bool               `json:"showCertificates"`
+		ShowAssessments  bool               `json:"showAssessments"`
+		ShowSkills       bool               `json:"showSkills"`
+		ShowCVData       bool               `json:"showCVData"`
+		SocialLinks      models.SocialLinks `json:"socialLinks"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	settingsColl := database.DB.Collection("publicProfileSettings")
+
+	filter := bson.M{"userId": userID}
+	update := bson.M{
+		"$set": bson.M{
+			"isPublic":         req.IsPublic,
+			"headline":         req.Headline,
+			"bio":              req.Bio,
+			"showCertificates": req.ShowCertificates,
+			"showAssessments":  req.ShowAssessments,
+			"showSkills":       req.ShowSkills,
+			"showCVData":       req.ShowCVData,
+			"socialLinks":      req.SocialLinks,
+			"updatedAt":        time.Now(),
+		},
+	}
+
+	opts := options.Update().SetUpsert(true)
+	_, err := settingsColl.UpdateOne(ctx, filter, update, opts)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menyimpan pengaturan"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Pengaturan profil publik berhasil disimpan",
+	})
+}
+
+// HandleGetPublicProfileByUsername returns public profile data by username
+func (h *ProfileHandler) HandleGetPublicProfileByUsername(c *gin.Context) {
+	username := c.Param("username")
+	if username == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Username is required"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	userColl := database.DB.Collection("user")
+
+	var user models.User
+	err := userColl.FindOne(ctx, bson.M{"username": username}).Decode(&user)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User tidak ditemukan"})
+		return
+	}
+
+	userProfileColl := database.DB.Collection("userProfile")
+	var userProfile models.UserProfile
+	_ = userProfileColl.FindOne(ctx, bson.M{"userId": user.ID}).Decode(&userProfile)
+
+	settingsColl := database.DB.Collection("publicProfileSettings")
+	var settings models.PublicProfileSettings
+	err = settingsColl.FindOne(ctx, bson.M{"userId": user.ID}).Decode(&settings)
+	if err != nil {
+		settings = models.PublicProfileSettings{
+			ShowCertificates: true,
+			ShowAssessments:  true,
+			ShowSkills:       true,
+			ShowCVData:       false,
+			IsPublic:         false,
+		}
+	}
+
+	// Check if profile is public
+	if !settings.IsPublic {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Profil tidak ditemukan atau tidak publik"})
+		return
+	}
+
+	var sessionIDs []string
+	sessionColl := database.DB.Collection("session")
+	cursor, err := sessionColl.Find(ctx, bson.M{"userId": user.ID, "completed": true})
+	if err == nil {
+		defer cursor.Close(ctx)
+		for cursor.Next(ctx) {
+			var sess models.Session
+			if err := cursor.Decode(&sess); err == nil {
+				sessionIDs = append(sessionIDs, sess.ID)
+			}
+		}
+	}
+
+	var certs []map[string]interface{}
+	if settings.ShowCertificates && len(sessionIDs) > 0 {
+		certColl := database.DB.Collection("certificate_metadata")
+		certCursor, err := certColl.Find(ctx, bson.M{"session_id": bson.M{"$in": sessionIDs}})
+		if err == nil {
+			defer certCursor.Close(ctx)
+			for certCursor.Next(ctx) {
+				var cert models.CertificateMetadata
+				if err := certCursor.Decode(&cert); err == nil {
+					certs = append(certs, map[string]interface{}{
+						"id":              cert.CertificateID,
+						"title":           cert.AssessmentName,
+						"issuedAt":        cert.CreatedAt.Format(time.RFC3339),
+						"verificationUrl": cert.IpfsURL,
+					})
+				}
+			}
+		}
+	}
+
+	var completedAssessments []map[string]interface{}
+	if settings.ShowAssessments {
+		cursor, err := sessionColl.Find(ctx, bson.M{
+			"userId":    user.ID,
+			"completed": true,
+			"result":    bson.M{"$exists": true},
+		})
+		if err == nil {
+			defer cursor.Close(ctx)
+			for cursor.Next(ctx) {
+				var sess models.Session
+				if err := cursor.Decode(&sess); err == nil {
+					completedAt := sess.CreatedAt
+					if sess.CompletedAt != nil {
+						completedAt = *sess.CompletedAt
+					}
+					score := 0
+					if sess.Result != nil {
+						score = sess.Result.Score
+					}
+					completedAssessments = append(completedAssessments, map[string]interface{}{
+						"id":          sess.ID,
+						"title":       fmt.Sprintf("%s Assessment (%s)", sess.Role, sess.Level),
+						"score":       score,
+						"completedAt": completedAt.Format(time.RFC3339),
+						"status":      "completed",
+					})
+				}
+			}
+		}
+	}
+
+	var cvSkills []string
+	if settings.ShowSkills {
+		cvSkills = userProfile.CVSkills
+	}
+
+	var emailVal string
+	if user.Email != "" {
+		emailVal = user.Email
+	}
+
+	var imageVal string
+	if user.Image != nil {
+		imageVal = *user.Image
+	}
+
+	profileResponse := gin.H{
+		"id":           user.ID,
+		"name":         user.Name,
+		"username":     username,
+		"email":        emailVal,
+		"image":        imageVal,
+		"headline":     settings.Headline,
+		"bio":          settings.Bio,
+		"cvRole":       userProfile.CVRole,
+		"cvLevel":      userProfile.CVLevel,
+		"cvSkills":     cvSkills,
+		"certificates": certs,
+		"assessments":  completedAssessments,
+		"socialLinks":  settings.SocialLinks,
+		"displaySettings": gin.H{
+			"showCertificates": settings.ShowCertificates,
+			"showAssessments":  settings.ShowAssessments,
+			"showSkills":       settings.ShowSkills,
+			"showCVData":       settings.ShowCVData,
+		},
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"profile": profileResponse,
 	})
 }

@@ -186,7 +186,7 @@ function RouteComponent() {
       <div className="pointer-events-none absolute -right-24 top-1/2 hidden h-96 w-96 -translate-y-1/2 rounded-full bg-primary/5 blur-3xl md:block" />
 
       {/* Illustration */}
-      <div className="pointer-events-none absolute bottom-0 -left-3 hidden lg:block">
+      <div className="pointer-events-none absolute -bottom-10 -left-3 hidden lg:block">
         <img
           src={Illustration1}
           alt="Illustration"
@@ -205,7 +205,7 @@ function RouteComponent() {
           {currentStep > 1 && (
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={() => {
                 if (currentStep > 1) {

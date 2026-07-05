@@ -1,15 +1,15 @@
 package service
 
 import (
-	"math"
 	"kredly/internal/models"
+	"math"
 )
 
 // UpdateTheta calculates the new theta (ability) estimate based on Newton-Raphson method
 func UpdateTheta(thetaOld, b float64, score float64) float64 {
 	p := 1.0 / (1.0 + math.Exp(-(thetaOld - b)))
 	denom := p * (1.0 - p)
-	
+
 	// Avoid division by zero or extremely small values
 	if denom < 0.01 {
 		denom = 0.01
@@ -104,4 +104,3 @@ func ThetaToLevel(theta float64) string {
 	}
 	return "Expert"
 }
-

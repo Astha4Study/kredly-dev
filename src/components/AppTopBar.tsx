@@ -1,16 +1,8 @@
 import Kredly from '@/assets/logo.png';
 import UserAvatar from '@/components/UserAvatar';
 import CreditTopup from '@/components/CreditTopup';
-import {
-  BellIcon,
-  Coins,
-  Home,
-  Award,
-  FileText,
-  History,
-  ShieldCheck,
-  Briefcase,
-} from 'lucide-react';
+import { NotificationDropdown } from '@/components/NotificationDropdown';
+import { Coins, Home, Award, FileText, History, Briefcase, Shield } from 'lucide-react';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import {
@@ -20,12 +12,68 @@ import {
 import { Link } from '@tanstack/react-router';
 import AppTopbarItem from './AppTopbarItem';
 import { AppMobileNav } from './AppMobileNav';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { getUserActivities, type Activity } from '@/lib/history-client';
+import {
+  getImportantActivities,
+  getRecentActivities,
+} from '@/lib/notification-utils';
 
 export default function AppTopBar() {
-  // TODO: Fetch kredit dari API
-  const kredit = 150;
+  const [kredit, setKredit] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
+  // Notification states
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [notifLoading, setNotifLoading] = useState(true);
+  const [lastFetched, setLastFetched] = useState<Date | null>(null);
+
+  useEffect(() => {
+    fetch('/api/user/me/token-balance', { credentials: 'include' })
+      .then((res) => res.json())
+      .then((data) => setKredit(data.current ?? 0))
+      .catch(() => setKredit(0));
+  }, []);
+
+  // Fetch notifications function
+  const fetchNotifications = async () => {
+    setNotifLoading(true);
+    try {
+      const data = await getUserActivities();
+      setActivities(data);
+      setLastFetched(new Date());
+    } catch (error) {
+      console.error('Failed to load notifications:', error);
+    } finally {
+      setNotifLoading(false);
+    }
+  };
+
+  // Fetch notifications on mount
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  // Re-fetch on window focus (if stale > 5 minutes)
+  useEffect(() => {
+    const handleFocus = () => {
+      const now = new Date();
+      if (
+        !lastFetched ||
+        now.getTime() - lastFetched.getTime() > 5 * 60 * 1000
+      ) {
+        fetchNotifications();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [lastFetched]);
+
+  // Filter notifications: recent (24h) + important types only
+  const notifications = getImportantActivities(
+    getRecentActivities(activities, 24),
+  );
 
   const navItems = [
     { path: '/app', label: 'Beranda', icon: Home },
@@ -42,14 +90,14 @@ export default function AppTopBar() {
     //   icon: BarChart3,
     // },
     {
-      path: '/app/certificate-verification',
-      label: 'Verifikasi',
-      icon: ShieldCheck,
-    },
-    {
       path: '/app/history',
       label: 'Riwayat',
       icon: History,
+    },
+    {
+      path: '/app/certificate-verification',
+      label: 'Verifikasi',
+      icon: Shield,
     },
   ];
 
@@ -103,29 +151,28 @@ export default function AppTopBar() {
                   aria-label="Kredit"
                 >
                   <Coins className="h-4 w-4" />
-                  <span className="font-semibold">{kredit} Kredit</span>
+                  <span className="font-semibold">
+                    {kredit !== null ? kredit : '--'} Kredit
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
-              <CreditTopup kredit={kredit} />
+              <CreditTopup kredit={kredit ?? 0} />
             </DropdownMenu>
             <Button variant="default" asChild className="hidden md:flex">
-              <Link to="/app/pricing" preload="intent">
+              <Link to="/pricing" preload="intent">
                 Daftar Harga
               </Link>
             </Button>
             <Separator orientation="vertical" className="hidden md:block" />
-            <Button
-              aria-label="Notifications"
-              size="icon"
-              variant="outline"
-              className="hidden md:flex"
-            >
-              <BellIcon />
-            </Button>
+            <NotificationDropdown
+              notifications={notifications}
+              loading={notifLoading}
+              onRefresh={fetchNotifications}
+            />
             <Separator orientation="vertical" className="hidden md:block" />
             <UserAvatar />
             <AppMobileNav
-              kredit={kredit}
+              kredit={kredit ?? 0}
               open={mobileMenuOpen}
               setOpen={setMobileMenuOpen}
             />

@@ -5,7 +5,7 @@ import CTASection from '@/pages/client/landing-page/CTASection';
 import CoreFeaturesSection from '@/pages/client/features/CoreFeaturesSection';
 import HeroSection from '@/pages/client/features/HeroSection';
 
-export const Route = createFileRoute('/_public/features/')({
+export const Route = createFileRoute('/_public/(landing)/features/')({
   component: RouteComponent,
 });
 

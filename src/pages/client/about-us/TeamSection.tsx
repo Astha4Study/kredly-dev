@@ -1,6 +1,6 @@
 import { GithubIcon } from '@/components/GithubIcon';
 import GridBorder from '@/components/GridBorder';
-import { ArrowUpRight, Mail } from 'lucide-react';
+import { ArrowUpRight, Mail, Users } from 'lucide-react';
 import { FaLinkedin } from 'react-icons/fa';
 import { motion } from 'motion/react';
 import { Badge } from '@/components/ui/badge';
@@ -54,7 +54,10 @@ export default function TeamSection() {
             transition={{ duration: 0.5 }}
             className="mx-auto flex max-w-6xl flex-col items-center text-center"
           >
-            <Badge variant="default">Tim Kami</Badge>
+            <Badge variant="default">
+              <Users />
+              Tim Kami
+            </Badge>
 
             <div className="mt-4 max-w-3xl space-y-4 md:space-y-8">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
@@ -112,7 +115,7 @@ export default function TeamSection() {
                   transition-all
                   duration-500
                   group-hover:scale-105
-                  group-hover:grayscale-0 
+                  group-hover:grayscale-0
                 "
                 />
                 {/* Expertise Badge */}

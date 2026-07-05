@@ -17,6 +17,12 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+// ErrNoPendingQuestion is returned when SubmitAnswer is called but there is no
+// active question in the session. This typically happens due to a duplicate
+// submit request (double-click / network retry). The caller should treat this
+// as a no-op and not show it as a fatal error to the user.
+var ErrNoPendingQuestion = errors.New("no active pending question to answer")
+
 type CATService struct {
 	sessions *store.SessionStore
 	groq     *groq.Client
@@ -76,9 +82,32 @@ func (s *CATService) CreateSession(ctx context.Context, req CreateSessionReq) (*
 	// Fetch dynamic question count from UserProfile if UserID is provided
 	var resolvedAssessmentID string
 	if req.UserID != "" {
+		userColl := database.DB.Collection("user")
+		var u models.User
+		err := userColl.FindOne(ctx, bson.M{"_id": req.UserID}).Decode(&u)
+		if err != nil {
+			return nil, fmt.Errorf("user tidak ditemukan")
+		}
+
+		if u.TokenBalance == nil || u.TokenBalance.Current < 1 {
+			return nil, errors.New("insufficient_tokens")
+		}
+
+		// Deduct token (current - 1, totalSpent + 1)
+		update := bson.M{
+			"$inc": bson.M{
+				"tokenBalance.current":    -1,
+				"tokenBalance.totalSpent": 1,
+			},
+		}
+		_, err = userColl.UpdateOne(ctx, bson.M{"_id": req.UserID}, update)
+		if err != nil {
+			return nil, fmt.Errorf("gagal memotong saldo token: %w", err)
+		}
+
 		userProfileColl := database.DB.Collection("userProfile")
 		var userProfile models.UserProfile
-		err := userProfileColl.FindOne(ctx, bson.M{"userId": req.UserID}).Decode(&userProfile)
+		err = userProfileColl.FindOne(ctx, bson.M{"userId": req.UserID}).Decode(&userProfile)
 		if err == nil {
 			found := false
 			// 1. Try matching by AssessmentID if provided
@@ -130,6 +159,7 @@ func (s *CATService) CreateSession(ctx context.Context, req CreateSessionReq) (*
 	}
 
 	sessionID := uuid.New().String()
+	now := time.Now()
 	sess := &models.Session{
 		ID:              sessionID,
 		UserID:          req.UserID,
@@ -148,11 +178,38 @@ func (s *CATService) CreateSession(ctx context.Context, req CreateSessionReq) (*
 		SeenItemIDs:     make([]string, 0),
 		SeenTopics:      make([]string, 0),
 		History:         make([]models.AnswerHistory, 0),
-		CreatedAt:       time.Now(),
+		CreatedAt:       now,
+		LastActiveAt:    &now,
+		ExpiresAt:       now.Add(24 * time.Hour),
 	}
 
 	if err := s.sessions.Set(sess); err != nil {
 		return nil, fmt.Errorf("failed to save session to database: %w", err)
+	}
+
+	// Update assessment status in UserProfile to "in-progress" and store sessionId
+	if sess.UserID != "" && sess.AssessmentID != "" {
+		go func() {
+			userProfileColl := database.DB.Collection("userProfile")
+			bgCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+
+			filter := bson.M{
+				"userId":           sess.UserID,
+				"cvAssessments.id": sess.AssessmentID,
+			}
+			update := bson.M{
+				"$set": bson.M{
+					"cvAssessments.$.status":    "in-progress",
+					"cvAssessments.$.sessionId": sessionID,
+					"cvAssessments.$.expiresAt": sess.ExpiresAt,
+				},
+			}
+			_, updateErr := userProfileColl.UpdateOne(bgCtx, filter, update)
+			if updateErr != nil {
+				log.Printf("[CAT] Failed to update assessment status in UserProfile to in-progress: %v\n", updateErr)
+			}
+		}()
 	}
 
 	// Async prefetch first batch of questions
@@ -275,8 +332,13 @@ func (s *CATService) SubmitAnswer(ctx context.Context, sessionID, answer string)
 		return nil, errors.New("session already completed")
 	}
 
+	// Guard: PendingItem == nil paling sering disebabkan oleh double-submit
+	// (frontend mengirim request kedua sebelum response pertama selesai).
+	// Kembalikan sentinel error agar handler HTTP bisa merespons dengan 409 Conflict
+	// daripada 500 Internal Server Error.
 	if sess.PendingItem == nil {
-		return nil, errors.New("no active pending question to answer")
+		log.Printf("[CAT] SubmitAnswer called with no PendingItem for session %s (possible double-submit). TotalItems: %d", sessionID, sess.TotalItems)
+		return nil, ErrNoPendingQuestion
 	}
 
 	var correct bool
@@ -299,7 +361,7 @@ func (s *CATService) SubmitAnswer(ctx context.Context, sessionID, answer string)
 		} else {
 			score = float64(gradeRes.Score) / 100.0
 			correct = score >= 0.6
-			explanation = fmt.Sprintf("Skor Jawaban: %d/100. %s\n\n**Contoh Jawaban Acuan:**\n%s", gradeRes.Score, gradeRes.Explanation, sess.PendingItem.Penjelasan)
+			explanation = fmt.Sprintf("Skor Jawaban: %d/1000. %s\n\n**Contoh Jawaban Acuan:**\n%s", gradeRes.Score, gradeRes.Explanation, sess.PendingItem.Penjelasan)
 		}
 		correctAnswer = "Sesuai Rubrik"
 		savedAnswer = answer
@@ -337,14 +399,17 @@ func (s *CATService) SubmitAnswer(ctx context.Context, sessionID, answer string)
 	var result AnswerResult
 
 	err = s.sessions.Update(sessionID, func(sess *models.Session) {
+		now := time.Now()
 		sess.ThetaCurrent = thetaNew
 		sess.History = newHistory
 		sess.TotalItems = len(newHistory)
 		sess.PendingItem = nil // Clear active question
+		// Refresh resume TTL on every successful answer (sliding window)
+		sess.LastActiveAt = &now
+		sess.ExpiresAt = now.Add(24 * time.Hour)
 		if completed {
 			sess.Completed = true
 			sess.StopReason = stopReason
-			now := time.Now()
 			sess.CompletedAt = &now
 			sess.DurationSeconds = int(now.Sub(sess.CreatedAt).Seconds())
 		}
@@ -361,6 +426,26 @@ func (s *CATService) SubmitAnswer(ctx context.Context, sessionID, answer string)
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	// Update assessment expiresAt in UserProfile if not completed (sliding window refresh)
+	if !completed && sess.UserID != "" && sess.AssessmentID != "" {
+		go func() {
+			userProfileColl := database.DB.Collection("userProfile")
+			bgCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+
+			filter := bson.M{
+				"userId":           sess.UserID,
+				"cvAssessments.id": sess.AssessmentID,
+			}
+			update := bson.M{
+				"$set": bson.M{
+					"cvAssessments.$.expiresAt": time.Now().Add(24 * time.Hour),
+				},
+			}
+			_, _ = userProfileColl.UpdateOne(bgCtx, filter, update)
+		}()
 	}
 
 	// Trigger prefetch if exam is not completed and queue is low
@@ -595,16 +680,150 @@ func (s *CATService) triggerBackgroundPrefetch(sessionID string) {
 
 // AbandonSession marks a session as completed with reason "abandoned"
 func (s *CATService) AbandonSession(ctx context.Context, sessionID string) error {
-	return s.sessions.Update(sessionID, func(sess *models.Session) {
+	sess, err := s.sessions.Get(sessionID)
+	if err != nil {
+		return err
+	}
+
+	err = s.sessions.Update(sessionID, func(sess *models.Session) {
 		sess.Completed = true
 		sess.StopReason = "abandoned"
 		now := time.Now()
 		sess.CompletedAt = &now
 		sess.DurationSeconds = int(now.Sub(sess.CreatedAt).Seconds())
 	})
+	if err != nil {
+		return err
+	}
+
+	// Reset assessment status in UserProfile to "available"
+	if sess.UserID != "" && sess.AssessmentID != "" {
+		go func() {
+			userProfileColl := database.DB.Collection("userProfile")
+			bgCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+
+			filter := bson.M{
+				"userId":           sess.UserID,
+				"cvAssessments.id": sess.AssessmentID,
+			}
+			update := bson.M{
+				"$set": bson.M{
+					"cvAssessments.$.status": "available",
+				},
+				"$unset": bson.M{
+					"cvAssessments.$.sessionId": "",
+					"cvAssessments.$.expiresAt": "",
+				},
+			}
+			_, updateErr := userProfileColl.UpdateOne(bgCtx, filter, update)
+			if updateErr != nil {
+				log.Printf("[CAT] Failed to reset assessment status to available on abandon: %v\n", updateErr)
+			}
+		}()
+	}
+
+	return nil
 }
 
 // GetSession retrieves the session state directly from the store
 func (s *CATService) GetSession(ctx context.Context, sessionID string) (*models.Session, error) {
 	return s.sessions.Get(sessionID)
+}
+
+// IsSessionResumable returns true if the session is still within the 24-hour
+// resume window and has not been completed or abandoned.
+func (s *CATService) IsSessionResumable(sess *models.Session) bool {
+	if sess.Completed {
+		return false
+	}
+	return time.Now().Before(sess.ExpiresAt)
+}
+
+// RunExpirationJob scans for stale in-progress sessions every hour and marks
+// them as expired. It runs until ctx is cancelled (call from main with a
+// context tied to server shutdown).
+func (s *CATService) RunExpirationJob(ctx context.Context) {
+	ticker := time.NewTicker(1 * time.Hour)
+	defer ticker.Stop()
+	log.Println("[CAT] Session expiration job started (interval: 1h)")
+	for {
+		select {
+		case <-ctx.Done():
+			log.Println("[CAT] Session expiration job stopped")
+			return
+		case <-ticker.C:
+			s.expireStaleSessionsInDB()
+		}
+	}
+}
+
+// expireStaleSessionsInDB updates all in-progress sessions whose ExpiresAt
+// has passed, setting them to completed with stop_reason="expired", and
+// resets their corresponding assessment status in UserProfile to "available".
+func (s *CATService) expireStaleSessionsInDB() {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	collection := database.DB.Collection("cat_sessions")
+	now := time.Now()
+
+	filter := bson.M{
+		"completed": false,
+		"expiresAt": bson.M{"$lt": now},
+	}
+
+	cursor, err := collection.Find(ctx, filter)
+	if err != nil {
+		log.Printf("[CAT] Expiration job find error: %v\n", err)
+		return
+	}
+	defer cursor.Close(ctx)
+
+	var expiredSessions []models.Session
+	if err := cursor.All(ctx, &expiredSessions); err != nil {
+		log.Printf("[CAT] Expiration job decode error: %v\n", err)
+		return
+	}
+
+	if len(expiredSessions) == 0 {
+		return
+	}
+
+	userProfileColl := database.DB.Collection("userProfile")
+	for _, sess := range expiredSessions {
+		// 1. Mark session as completed / expired
+		err := s.sessions.Update(sess.ID, func(currentSess *models.Session) {
+			currentSess.Completed = true
+			currentSess.StopReason = "expired"
+			currentSess.CompletedAt = &now
+		})
+		if err != nil {
+			log.Printf("[CAT] Expiration job failed to update session %s: %v\n", sess.ID, err)
+			continue
+		}
+
+		// 2. Reset assessment status in UserProfile back to "available"
+		if sess.UserID != "" && sess.AssessmentID != "" {
+			profFilter := bson.M{
+				"userId":           sess.UserID,
+				"cvAssessments.id": sess.AssessmentID,
+			}
+			profUpdate := bson.M{
+				"$set": bson.M{
+					"cvAssessments.$.status": "available",
+				},
+				"$unset": bson.M{
+					"cvAssessments.$.sessionId": "",
+					"cvAssessments.$.expiresAt": "",
+				},
+			}
+			_, updateErr := userProfileColl.UpdateOne(ctx, profFilter, profUpdate)
+			if updateErr != nil {
+				log.Printf("[CAT] Expiration job failed to reset UserProfile assessment for session %s: %v\n", sess.ID, updateErr)
+			}
+		}
+	}
+
+	log.Printf("[CAT] Expiration job: marked %d stale session(s) as expired and reset their statuses\n", len(expiredSessions))
 }

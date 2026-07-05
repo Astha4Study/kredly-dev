@@ -7,9 +7,11 @@ import { getFriendlyErrorMessage } from '@/lib/utils';
 interface QuizErrorViewProps {
   error: string;
   onRetry: () => void;
+  retryAttempt?: number;
+  autoRetrying?: boolean;
 }
 
-export default function QuizErrorView({ error, onRetry }: QuizErrorViewProps) {
+export default function QuizErrorView({ error, onRetry, retryAttempt = 0, autoRetrying = false }: QuizErrorViewProps) {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col justify-center items-center p-6">
       <Card className="max-w-md w-full border-rose-500/20 bg-rose-500/5 backdrop-blur-md">
@@ -24,13 +26,24 @@ export default function QuizErrorView({ error, onRetry }: QuizErrorViewProps) {
             <p className="text-sm text-muted-foreground">
               {getFriendlyErrorMessage(error)}
             </p>
+            {retryAttempt > 0 && !autoRetrying && (
+              <p className="text-xs text-muted-foreground mt-2">
+                Percobaan ke-{retryAttempt} gagal
+              </p>
+            )}
+            {autoRetrying && (
+              <p className="text-xs text-primary mt-2 animate-pulse">
+                Mencoba menghubungkan kembali...
+              </p>
+            )}
           </div>
           <Button
             onClick={onRetry}
             variant="outline"
             className="w-full border-rose-500/30 hover:bg-rose-500/10"
+            disabled={autoRetrying}
           >
-            Coba Lagi
+            {autoRetrying ? 'Menghubungkan...' : 'Coba Lagi'}
           </Button>
         </CardContent>
       </Card>

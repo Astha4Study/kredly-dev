@@ -1,7 +1,11 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export default function QuizSkeleton() {
+interface QuizSkeletonProps {
+  loadingMessage?: string;
+}
+
+export default function QuizSkeleton({ loadingMessage }: QuizSkeletonProps) {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* AppTopbarAssessment Skeleton */}
@@ -75,6 +79,15 @@ export default function QuizSkeleton() {
               </div>
             </div>
           </div>
+
+          {/* Loading Message */}
+          {loadingMessage && (
+            <div className="mt-6 text-center">
+              <p className="text-sm text-muted-foreground animate-pulse">
+                {loadingMessage}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

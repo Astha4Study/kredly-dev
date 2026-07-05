@@ -1,5 +1,6 @@
 import GridBorder from '@/components/GridBorder';
 import { motion } from 'motion/react';
+import { createStaggerAnimation } from '@/lib/animations';
 
 const PILLARS = [
   {
@@ -33,13 +34,7 @@ export default function MissionSection() {
           {PILLARS.map((pillar, index) => (
             <motion.div
               key={pillar.title}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{
-                duration: 0.5,
-                delay: index * 0.1,
-              }}
+              {...createStaggerAnimation(index, 0.1)}
               className="
                 group
                 relative

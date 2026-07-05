@@ -15,10 +15,8 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Plus,
   BookOpen,
   Clock,
   Award,
@@ -26,6 +24,7 @@ import {
   X,
   CheckCircle2,
   Shield,
+  Coins,
 } from 'lucide-react';
 import { sessionService } from '@/services/sessionService';
 import { toast } from 'sonner';
@@ -65,11 +64,15 @@ function TestOverviewPage() {
     () => user?.cvSkills || [],
   );
   const [summary, setSummary] = React.useState(() => user?.cvSummary || '');
-  const [newSkill, setNewSkill] = React.useState('');
+
   const [isCreatingSession, setIsCreatingSession] = React.useState(false);
   const [sessionError, setSessionError] = React.useState<string | null>(null);
   const [profileLoading, setProfileLoading] = React.useState(true);
   const [assessment, setAssessment] = React.useState<CVAssessment | null>(null);
+  const [tokenLoading, setTokenLoading] = React.useState(true);
+  const [tokenBalance, setTokenBalance] = React.useState<{
+    current: number;
+  } | null>(null);
 
   React.useEffect(() => {
     async function fetchProfile() {
@@ -116,10 +119,28 @@ function TestOverviewPage() {
         setProfileLoading(false);
       }
     }
+
+    async function fetchTokenBalance() {
+      try {
+        const response = await fetch('/api/user/me/token-balance', {
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setTokenBalance(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch token balance:', error);
+      } finally {
+        setTokenLoading(false);
+      }
+    }
+
     fetchProfile();
+    fetchTokenBalance();
   }, [assessmentId]);
 
-  if (isLoading || profileLoading) {
+  if (isLoading || profileLoading || tokenLoading) {
     return <AssessmentDetailSkeleton />;
   }
 
@@ -179,7 +200,7 @@ function TestOverviewPage() {
             <Link to="/app/assessment">
               <Button variant="outline">Kembali ke Asesmen</Button>
             </Link>
-            <Link to="/app/parse-cv">
+            <Link to="/app/new-assessment/upload-cv">
               <Button>Unggah CV</Button>
             </Link>
           </CardContent>
@@ -203,29 +224,6 @@ function TestOverviewPage() {
 
   const removeSkill = (skill: string) => {
     setSkills((prev) => prev.filter((s) => s !== skill));
-  };
-
-  const handleAddCustomSkill = (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmed = newSkill.trim();
-    if (!trimmed) return;
-
-    if (allSkills.map((s) => s.toLowerCase()).includes(trimmed.toLowerCase())) {
-      toast.info('Skill sudah ada di daftar');
-      setNewSkill('');
-      return;
-    }
-
-    if (skills.length >= 5) {
-      toast.warning(
-        'Maksimal 5 skill. Hapus salah satu skill untuk menambahkan skill baru.',
-      );
-      return;
-    }
-
-    setAllSkills((prev) => [...prev, trimmed]);
-    setSkills((prev) => [...prev, trimmed]);
-    setNewSkill('');
   };
 
   const handleStartExam = async () => {
@@ -268,6 +266,38 @@ function TestOverviewPage() {
     <div className="min-h-screen">
       <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-10 max-w-5xl">
         <div className="space-y-6">
+          {/* Token Insufficient Alert Card */}
+          {tokenBalance && tokenBalance.current < 1 && (
+            <Card className="border-rose-500/20 bg-rose-500/5 backdrop-blur-sm">
+              <CardContent className="">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500 shrink-0 mt-0.5 sm:mt-0">
+                      <Coins className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-base font-semibold text-rose-500">
+                        Saldo Kredit Tidak Mencukupi
+                      </h4>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Anda membutuhkan minimal 1 kredit untuk memulai asesmen
+                        baru. Saldo kredit Anda saat ini adalah{' '}
+                        <strong>0</strong>.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    asChild
+                    variant="default"
+                    className="w-full sm:w-auto shrink-0 bg-rose-600 hover:bg-rose-700 text-white border-0"
+                  >
+                    <Link to="/app/pricing">Top Up Kredit</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Assessment Info Card */}
           {assessment && (
             <Card className="border-border/50 bg-linear-to-br from-card/50 to-card/30 backdrop-blur-sm">
@@ -419,27 +449,6 @@ function TestOverviewPage() {
                             })}
                         </div>
                       </div>
-
-                      {/* Add Custom Skill */}
-                      <form
-                        onSubmit={handleAddCustomSkill}
-                        className="flex gap-2 pt-2 border-t border-border/40"
-                      >
-                        <Input
-                          placeholder="Tambahkan skill kustom..."
-                          value={newSkill}
-                          onChange={(e) => setNewSkill(e.target.value)}
-                          className="bg-background border-border text-sm flex-1"
-                        />
-                        <Button
-                          type="submit"
-                          size="icon"
-                          disabled={skills.length >= 5}
-                          className="shrink-0"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </form>
                     </>
                   )}
                 </CardContent>
@@ -514,6 +523,7 @@ function TestOverviewPage() {
                 sessionError={sessionError}
                 isCreatingSession={isCreatingSession}
                 onStartExam={handleStartExam}
+                tokenBalance={tokenBalance}
               />
             </div>
           </div>

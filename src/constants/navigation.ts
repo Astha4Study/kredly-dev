@@ -11,4 +11,8 @@ export const navLinks = [
     label: 'Tentang Kami',
     href: '/about-us',
   },
+  {
+    label: 'Verifikasi',
+    href: '/certificate-verification',
+  },
 ];

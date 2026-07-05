@@ -31,6 +31,7 @@ interface Assessment {
   passed?: boolean;
   sessionId?: string;
   level?: string;
+  expiresAt?: string;
 }
 
 interface GeneralAssessment {
@@ -63,6 +64,8 @@ interface CVAssessmentFromAPI {
   sessionId?: string;
   score?: number;
   level?: string;
+  expiresAt?: string;
+  progress?: number;
 }
 
 function RouteComponent() {
@@ -72,139 +75,165 @@ function RouteComponent() {
   const [relatedAssessments, setRelatedAssessments] = React.useState<
     Assessment[]
   >([]);
+  const [inProgressAssessments, setInProgressAssessments] = React.useState<
+    Assessment[]
+  >([]);
   const [completedAssessments, setCompletedAssessments] = React.useState<
     Assessment[]
   >([]);
   const [generalAssessments, setGeneralAssessments] = React.useState<
     GeneralAssessment[]
   >([]);
-  const [allSkillsCompleted, setAllSkillsCompleted] = React.useState(false);
+  const [roleAssessmentCompleted, setRoleAssessmentCompleted] =
+    React.useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = React.useState(true);
   const [profileExists, setProfileExists] = React.useState(true);
 
-  React.useEffect(() => {
-    async function fetchAssessments() {
-      try {
-        const response = await fetch('/api/profile', {
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          if (
-            data.profile &&
-            data.profile.cvAssessments &&
-            data.profile.cvAssessments.length > 0
-          ) {
-            const allAssessments = data.profile
-              .cvAssessments as CVAssessmentFromAPI[];
+  const fetchAssessments = React.useCallback(async () => {
+    try {
+      const response = await fetch('/api/profile', {
+        credentials: 'include',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (
+          data.profile &&
+          data.profile.cvAssessments &&
+          data.profile.cvAssessments.length > 0
+        ) {
+          const allAssessments = data.profile
+            .cvAssessments as CVAssessmentFromAPI[];
 
-            const gen = allAssessments.filter(
-              (a: CVAssessmentFromAPI) =>
-                a.type === 'general' &&
-                a.status !== 'completed' &&
-                a.status !== 'in-progress',
-            );
-            const availableSkills = allAssessments.filter(
-              (a: CVAssessmentFromAPI) =>
-                a.type === 'skill' && (a.status === 'available' || !a.status),
-            );
-            const relatedSkills = allAssessments.filter(
-              (a: CVAssessmentFromAPI) =>
-                a.type === 'related_skill' &&
-                (a.status === 'available' || !a.status),
-            );
-            const completed = allAssessments.filter(
-              (a: CVAssessmentFromAPI) => a.status === 'completed',
-            );
+          const gen = allAssessments.filter(
+            (a: CVAssessmentFromAPI) =>
+              a.type === 'general' &&
+              a.status !== 'completed' &&
+              a.status !== 'in-progress',
+          );
+          const availableSkills = allAssessments.filter(
+            (a: CVAssessmentFromAPI) =>
+              a.type === 'skill' && (a.status === 'available' || !a.status),
+          );
+          const relatedSkills = allAssessments.filter(
+            (a: CVAssessmentFromAPI) =>
+              a.type === 'related_skill' &&
+              (a.status === 'available' || !a.status),
+          );
+          const completed = allAssessments.filter(
+            (a: CVAssessmentFromAPI) => a.status === 'completed',
+          );
+          const inProgress = allAssessments.filter(
+            (a: CVAssessmentFromAPI) => a.status === 'in-progress',
+          );
 
-            setGeneralAssessments(
-              gen.map((a: CVAssessmentFromAPI) => ({
-                id: a.id,
-                title: a.title,
-                description:
-                  a.description ||
-                  'Menguji kompetensi komprehensif terkait role.',
-                difficulty: a.difficulty || 'Intermediate',
-                estimatedTime: a.estimatedTime || '90 menit',
-                questionCount: a.questionCount || 50,
-                topics: a.topics || [],
-                isRecommended: a.isRecommended,
-                status: a.status,
-                sessionId: a.sessionId,
-                score: a.score,
-                level: a.level,
-              })),
-            );
+          setGeneralAssessments(
+            gen.map((a: CVAssessmentFromAPI) => ({
+              id: a.id,
+              title: a.title,
+              description:
+                a.description ||
+                'Menguji kompetensi komprehensif terkait role.',
+              difficulty: a.difficulty || 'Intermediate',
+              estimatedTime: a.estimatedTime || '90 menit',
+              questionCount: a.questionCount || 50,
+              topics: a.topics || [],
+              isRecommended: a.isRecommended,
+              status: a.status,
+              sessionId: a.sessionId,
+              score: a.score,
+              level: a.level,
+            })),
+          );
 
-            setAvailableAssessments(
-              availableSkills.map((a: CVAssessmentFromAPI) => ({
-                id: a.id,
-                skillName: a.title,
-                difficulty: a.difficulty || 'Intermediate',
-                estimatedTime: a.estimatedTime || '45 menit',
-                questionCount: a.questionCount || 30,
-                isRecommended: a.isRecommended,
-                category: a.category || 'General',
-                status: 'available',
-              })),
-            );
+          setAvailableAssessments(
+            availableSkills.map((a: CVAssessmentFromAPI) => ({
+              id: a.id,
+              skillName: a.title,
+              difficulty: a.difficulty || 'Intermediate',
+              estimatedTime: a.estimatedTime || '45 menit',
+              questionCount: a.questionCount || 30,
+              isRecommended: a.isRecommended,
+              category: a.category || 'General',
+              status: 'available',
+            })),
+          );
 
-            setRelatedAssessments(
-              relatedSkills.map((a: CVAssessmentFromAPI) => ({
-                id: a.id,
-                skillName: a.title,
-                difficulty: a.difficulty || 'Intermediate',
-                estimatedTime: a.estimatedTime || '45 menit',
-                questionCount: a.questionCount || 30,
-                isRecommended: a.isRecommended,
-                category: a.category || 'General',
-                status: 'available',
-              })),
-            );
+          setRelatedAssessments(
+            relatedSkills.map((a: CVAssessmentFromAPI) => ({
+              id: a.id,
+              skillName: a.title,
+              difficulty: a.difficulty || 'Intermediate',
+              estimatedTime: a.estimatedTime || '45 menit',
+              questionCount: a.questionCount || 30,
+              isRecommended: a.isRecommended,
+              category: a.category || 'General',
+              status: 'available',
+            })),
+          );
 
-            setCompletedAssessments(
-              completed.map((a: CVAssessmentFromAPI) => ({
-                id: a.id,
-                skillName: a.title,
-                difficulty: a.difficulty || 'Intermediate',
-                estimatedTime: a.estimatedTime || '45 menit',
-                questionCount: a.questionCount || 30,
-                isRecommended: a.isRecommended,
-                category:
-                  a.category || (a.type === 'general' ? 'General' : 'Skill'),
-                status: 'completed',
-                sessionId: a.sessionId,
-                score: a.score,
-                level: a.level,
-              })),
-            );
+          setInProgressAssessments(
+            inProgress.map((a: CVAssessmentFromAPI) => ({
+              id: a.id,
+              skillName: a.title,
+              difficulty: a.difficulty || 'Intermediate',
+              estimatedTime: a.estimatedTime || '45 menit',
+              questionCount: a.questionCount || 30,
+              isRecommended: a.isRecommended,
+              category:
+                a.category || (a.type === 'general' ? 'General Role' : 'Skill'),
+              status: 'in-progress',
+              sessionId: a.sessionId,
+              expiresAt: a.expiresAt,
+              progress: a.progress,
+            })),
+          );
 
-            const hasUncompletedSkills = allAssessments.some(
-              (a: CVAssessmentFromAPI) =>
-                a.type === 'skill' && a.status !== 'completed',
-            );
-            setAllSkillsCompleted(!hasUncompletedSkills);
+          setCompletedAssessments(
+            completed.map((a: CVAssessmentFromAPI) => ({
+              id: a.id,
+              skillName: a.title,
+              difficulty: a.difficulty || 'Intermediate',
+              estimatedTime: a.estimatedTime || '45 menit',
+              questionCount: a.questionCount || 30,
+              isRecommended: a.isRecommended,
+              category:
+                a.category || (a.type === 'general' ? 'General' : 'Skill'),
+              status: 'completed',
+              sessionId: a.sessionId,
+              score: a.score,
+              level: a.level,
+            })),
+          );
 
-            setProfileExists(true);
-            setIsLoadingProfile(false);
-            return;
-          }
+          const hasUncompletedGeneral = allAssessments.some(
+            (a: CVAssessmentFromAPI) =>
+              a.type === 'general' && a.status !== 'completed',
+          );
+          setRoleAssessmentCompleted(!hasUncompletedGeneral);
+
+          setProfileExists(true);
+          setIsLoadingProfile(false);
+          return;
         }
-      } catch (e) {
-        console.error('Failed to load profile assessments', e);
       }
-
-      // No mock data if user profile or cvAssessments does not exist in MongoDB
-      setAvailableAssessments([]);
-      setRelatedAssessments([]);
-      setCompletedAssessments([]);
-      setGeneralAssessments([]);
-      setAllSkillsCompleted(false);
-      setProfileExists(false);
-      setIsLoadingProfile(false);
+    } catch (e) {
+      console.error('Failed to load profile assessments', e);
     }
-    fetchAssessments();
+
+    // No mock data if user profile or cvAssessments does not exist in MongoDB
+    setAvailableAssessments([]);
+    setRelatedAssessments([]);
+    setInProgressAssessments([]);
+    setCompletedAssessments([]);
+    setGeneralAssessments([]);
+    setRoleAssessmentCompleted(false);
+    setProfileExists(false);
+    setIsLoadingProfile(false);
   }, []);
+
+  React.useEffect(() => {
+    fetchAssessments();
+  }, [fetchAssessments]);
 
   if (isLoadingProfile) {
     return (
@@ -285,18 +314,34 @@ function RouteComponent() {
 
         {/* Tabs */}
         <Tabs defaultValue="available" className="w-full space-y-4">
-          <TabsList className="grid w-full grid-cols-2 bg-muted p-1 h-auto">
+          <TabsList
+            className={`grid w-full bg-muted p-1 h-auto ${
+              inProgressAssessments.length > 0 ? 'grid-cols-3' : 'grid-cols-2'
+            }`}
+          >
             <TabsTrigger
               value="available"
               className="flex items-center gap-2 transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm hover:bg-background/50"
             >
               <span>Tersedia</span>
-              <span className="rounded-full border px-2 py-0.5 text-xs bg-background data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full border text-xs bg-background data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 {availableAssessments.length +
                   generalAssessments.length +
                   relatedAssessments.length}
               </span>
             </TabsTrigger>
+
+            {inProgressAssessments.length > 0 && (
+              <TabsTrigger
+                value="in-progress"
+                className="flex items-center gap-2 transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm hover:bg-background/50"
+              >
+                <span>Berjalan</span>
+                <span className="rounded-full border bg-background px-2 py-0.5 text-xs">
+                  {inProgressAssessments.length}
+                </span>
+              </TabsTrigger>
+            )}
 
             <TabsTrigger
               value="completed"
@@ -393,16 +438,41 @@ function RouteComponent() {
                 {/* Related Skill Assessments Section */}
                 <RelatedSkilAsessmentsSection
                   relatedAssessments={relatedAssessments}
-                  allSkillsCompleted={allSkillsCompleted}
+                  roleAssessmentCompleted={roleAssessmentCompleted}
                 />
 
                 {/* Customization & Re-upload Section */}
                 <CustomizationAndReuploadSection
-                  allSkillsCompleted={allSkillsCompleted}
+                  roleAssessmentCompleted={roleAssessmentCompleted}
+                  onRefresh={fetchAssessments}
                 />
               </>
             )}
           </TabsContent>
+
+          {/* Tab: Berjalan */}
+          {inProgressAssessments.length > 0 && (
+            <TabsContent value="in-progress" className="space-y-3">
+              {!profileExists ? (
+                <Card className="py-12 border">
+                  <CardContent className="text-center">
+                    <p className="text-muted-foreground text-sm">
+                      Silakan unggah CV Anda terlebih dahulu.
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {inProgressAssessments.map((assessment) => (
+                    <AssessmentCard
+                      key={assessment.id}
+                      assessment={assessment}
+                    />
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          )}
 
           {/* Tab: Selesai */}
           <FinishedTab

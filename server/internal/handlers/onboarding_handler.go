@@ -233,6 +233,25 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 	}
 	// -------------------------
 
+	// Fetch existing user to preserve pre-existing CV data
+	userColl := database.DB.Collection("user")
+	var existingUser models.User
+	if err := userColl.FindOne(context.Background(), bson.M{"_id": userID}).Decode(&existingUser); err == nil {
+		// Use existing CV data as fallback if new parsing didn't provide it
+		if parsedRole == nil && existingUser.CVRole != nil {
+			parsedRole = existingUser.CVRole
+		}
+		if parsedLevel == nil && existingUser.CVLevel != nil {
+			parsedLevel = existingUser.CVLevel
+		}
+		if len(parsedSkills) == 0 && len(existingUser.CVSkills) > 0 {
+			parsedSkills = existingUser.CVSkills
+		}
+		if cvSummary == nil && existingUser.CVSummary != nil {
+			cvSummary = existingUser.CVSummary
+		}
+	}
+
 	// VALIDASI: Jangan save ke database jika parsing gagal
 	// Check apakah CV berhasil di-parse dengan baik
 	hasValidSkills := len(parsedSkills) > 0
@@ -250,9 +269,8 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 	}
 
 	// Cek duplicate username sebelum update
-	userColl := database.DB.Collection("user")
-	var existingUser models.User
-	if err := userColl.FindOne(context.Background(), bson.M{"username": username, "_id": bson.M{"$ne": userID}}).Decode(&existingUser); err == nil {
+	var duplicateUser models.User
+	if err := userColl.FindOne(context.Background(), bson.M{"username": username, "_id": bson.M{"$ne": userID}}).Decode(&duplicateUser); err == nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "Username sudah digunakan"})
 		return
 	}
@@ -301,6 +319,20 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 		return
 	}
 
+	// Log onboarding completed activity
+	skillsCount := len(parsedSkills)
+	models.LogActivityAsync(
+		database.DB,
+		userID,
+		models.ActivityOnboardingCompleted,
+		"Onboarding Selesai",
+		"Anda telah menyelesaikan proses onboarding dan mengunggah CV",
+		&models.ActivityMetadata{
+			FileName: &cvFileName,
+			Skills:   parsedSkills[:min(5, skillsCount)], // Top 5 skills
+		},
+	)
+
 	// Return parsed data untuk validasi di frontend
 	response := gin.H{
 		"success": true,
@@ -314,4 +346,12 @@ Ensure all fields are populated as accurately as possible based on the text. If 
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+// Helper function to get minimum of two integers
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
