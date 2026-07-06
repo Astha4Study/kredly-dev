@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"kredly/internal/blockchain"
@@ -14,6 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 )
+
 
 type BlockchainHandler struct {
 	client          *blockchain.CertificateClient
@@ -291,6 +293,11 @@ func (h *BlockchainHandler) HandleIssueCertificate(c *gin.Context) {
 	}
 
 	// Upload PDF to Pinata IPFS
+	jwt := os.Getenv("PINATA_JWT")
+	fmt.Printf("[DEBUG] HandleIssueCertificate - Loaded PINATA_JWT length: %d\n", len(jwt))
+	if len(jwt) > 30 {
+		fmt.Printf("[DEBUG] HandleIssueCertificate - Loaded PINATA_JWT prefix: %s\n", jwt[:30])
+	}
 	pinataClient := blockchain.NewPinataClient()
 	if pinataClient == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Pinata service not available - check PINATA_JWT"})

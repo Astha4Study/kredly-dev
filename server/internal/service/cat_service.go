@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/rand"
 	"strings"
 	"time"
 
@@ -512,6 +513,21 @@ func (s *CATService) GetResult(ctx context.Context, sessionID string) (*SessionR
 	}
 
 	score := ThetaToScore(sess.ThetaCurrent)
+
+	// Tolerance check: if the user got at least one answer correct,
+	// ensure the minimum score is in the range of 50 to 70 (inclusive)
+	// to avoid a score of 0.
+	hasCorrect := false
+	for _, h := range sess.History {
+		if h.Correct {
+			hasCorrect = true
+			break
+		}
+	}
+	if hasCorrect && score < 50 {
+		score = rand.Intn(21) + 50
+	}
+
 	level := ThetaToLevel(sess.ThetaCurrent)
 
 	// Convert history to evaluate payload format
