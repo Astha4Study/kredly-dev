@@ -21,9 +21,13 @@ import {
   Clock,
   Database,
   Link as LinkIcon,
+  QrCode,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { fadeInUp, scaleIn, blurTransition } from '@/lib/animations';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { QrScanner } from '@/components/QrScanner';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export const Route = createFileRoute(
   '/_public/(landing)/certificate-verification/',
@@ -60,6 +64,7 @@ function RouteComponent() {
     useState<VerificationResult | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [qrScanned, setQrScanned] = useState(false);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -196,9 +201,49 @@ function RouteComponent() {
     }
   };
 
+  const verifyByCertificateId = async (certificateId: string) => {
+    setQrScanned(true);
+    setIsVerifying(true);
+    setVerificationResult(null);
+
+    try {
+      const response = await fetch(
+        '/api/blockchain/verify-by-certificate-id',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ certificateId }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to verify certificate');
+      }
+
+      const data = await response.json();
+
+      setVerificationResult({
+        isValid: data.isValid,
+        status: data.status,
+        message: data.message,
+        metadata: data.metadata,
+      });
+    } catch (error) {
+      setVerificationResult({
+        isValid: false,
+        status: 'Error',
+        message: `Gagal memverifikasi sertifikat: ${error instanceof Error ? error.message : 'Silakan coba lagi.'}`,
+      });
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
   const resetVerification = () => {
     setSelectedFile(null);
     setVerificationResult(null);
+    setQrScanned(false);
   };
 
   return (
@@ -210,96 +255,157 @@ function RouteComponent() {
             Verifikasi Sertifikat
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Verifikasi keaslian sertifikat dengan mengupload file PDF
+            Verifikasi keaslian sertifikat melalui blockchain
           </p>
         </motion.div>
 
-        {/* Verification Form */}
+        {/* Verification Methods */}
         <motion.div {...scaleIn}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Upload Sertifikat</CardTitle>
-              <CardDescription>
-                Upload file PDF sertifikat untuk memverifikasi keasliannya
-                melalui blockchain
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${isDragging
-                      ? 'border-indigo-500 bg-indigo-50/50 scale-[1.01]'
-                      : 'border-muted-foreground/20 hover:border-primary/50'
-                    }`}
-                >
-                  <input
-                    type="file"
-                    accept="application/pdf"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="file-upload"
-                  />
-                  <label
-                    htmlFor="file-upload"
-                    className="cursor-pointer flex flex-col items-center gap-3"
-                  >
-                    <div className="rounded-full bg-primary/10 p-4">
-                      <FileText className="h-8 w-8 text-primary" />
-                    </div>
-                    <div>
-                      <p
-                        className="text-sm font-medium truncate max-w-[200px] sm:max-w-xs md:max-w-md mx-auto"
-                        title={selectedFile ? selectedFile.name : ''}
-                      >
-                        {selectedFile
-                          ? selectedFile.name
-                          : isDragging
-                            ? 'Lepaskan file di sini...'
-                            : 'Klik atau seret file sertifikat PDF ke sini'}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Format: PDF, Maksimal 5MB
-                      </p>
-                    </div>
-                  </label>
-                </div>
+          <Tabs defaultValue="upload" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="upload" className="gap-2">
+                <FileText className="h-4 w-4" />
+                Upload PDF
+              </TabsTrigger>
+              <TabsTrigger value="qr" className="gap-2">
+                <QrCode className="h-4 w-4" />
+                Scan QR
+              </TabsTrigger>
+            </TabsList>
 
-                {selectedFile && (
-                  <>
-                    <div className="flex gap-3">
-                      <Button
-                        onClick={verifyByFile}
-                        disabled={isVerifying}
-                        className="flex-1"
+            <TabsContent value="upload">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Upload Sertifikat</CardTitle>
+                  <CardDescription>
+                    Upload file PDF sertifikat untuk memverifikasi keasliannya
+                    melalui blockchain
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${isDragging
+                          ? 'border-indigo-500 bg-indigo-50/50 scale-[1.01]'
+                          : 'border-muted-foreground/20 hover:border-primary/50'
+                        }`}
+                    >
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                        id="file-upload"
+                      />
+                      <label
+                        htmlFor="file-upload"
+                        className="cursor-pointer flex flex-col items-center gap-3"
                       >
-                        {isVerifying ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Memverifikasi...
-                          </>
-                        ) : (
-                          <>
-                            <Shield className="mr-2 h-4 w-4" />
-                            Verifikasi Sertifikat
-                          </>
-                        )}
-                      </Button>
+                        <div className="rounded-full bg-primary/10 p-4">
+                          <FileText className="h-8 w-8 text-primary" />
+                        </div>
+                        <div>
+                          <p
+                            className="text-sm font-medium truncate max-w-[200px] sm:max-w-xs md:max-w-md mx-auto"
+                            title={selectedFile ? selectedFile.name : ''}
+                          >
+                            {selectedFile
+                              ? selectedFile.name
+                              : isDragging
+                                ? 'Lepaskan file di sini...'
+                                : 'Klik atau seret file sertifikat PDF ke sini'}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Format: PDF, Maksimal 5MB
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+
+                    {selectedFile && (
+                      <>
+                        <div className="flex gap-3">
+                          <Button
+                            onClick={verifyByFile}
+                            disabled={isVerifying}
+                            className="flex-1"
+                          >
+                            {isVerifying ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Memverifikasi...
+                              </>
+                            ) : (
+                              <>
+                                <Shield className="mr-2 h-4 w-4" />
+                                Verifikasi Sertifikat
+                              </>
+                            )}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={resetVerification}
+                            disabled={isVerifying}
+                          >
+                            Reset
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="qr">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Scan QR Code</CardTitle>
+                  <CardDescription>
+                    Scan QR Code yang terdapat pada sertifikat untuk
+                    memverifikasi keasliannya melalui blockchain
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {qrScanned ? (
+                    <div className="flex flex-col items-center gap-4 py-4">
+                      <p className="text-sm text-muted-foreground">
+                        QR Code berhasil discan
+                      </p>
                       <Button
                         variant="outline"
                         onClick={resetVerification}
-                        disabled={isVerifying}
+                        className="gap-2"
                       >
-                        Reset
+                        <QrCode className="h-4 w-4" />
+                        Scan Ulang
                       </Button>
                     </div>
-                  </>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                  ) : isVerifying ? (
+                    <div className="space-y-4">
+                      <Skeleton className="h-[300px] w-full rounded-lg" />
+                      <div className="flex items-center gap-2 justify-center">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span className="text-sm text-muted-foreground">
+                          Memverifikasi...
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <QrScanner
+                      onScan={verifyByCertificateId}
+                      onError={(err) =>
+                        console.error('QR Scanner error:', err)
+                      }
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </motion.div>
 
         {/* Verification Result */}

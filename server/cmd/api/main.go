@@ -113,6 +113,7 @@ func main() {
 
 		// Blockchain verification and issuance
 		api.POST("/blockchain/verify-by-hash", blockchainHandler.HandleVerifyByHashOnly) // Verify with hash only (search DB first)
+		api.POST("/blockchain/verify-by-certificate-id", blockchainHandler.HandleVerifyByCertificateId) // Verify with certificate ID only
 		api.GET("/blockchain/verify", blockchainHandler.HandleCheckCertificate)
 		api.POST("/blockchain/issue", middleware.AuthMiddleware(cfg, authService), blockchainHandler.HandleIssueCertificate)
 		api.GET("/certificates/user", middleware.AuthMiddleware(cfg, authService), blockchainHandler.HandleGetUserCertificates)
