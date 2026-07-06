@@ -230,11 +230,10 @@ function RouteComponent() {
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${
-                    isDragging
+                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${isDragging
                       ? 'border-indigo-500 bg-indigo-50/50 scale-[1.01]'
                       : 'border-muted-foreground/20 hover:border-primary/50'
-                  }`}
+                    }`}
                 >
                   <input
                     type="file"
@@ -312,11 +311,10 @@ function RouteComponent() {
               >
                 {/* Top Gradient Accent Line */}
                 <div
-                  className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
-                    verificationResult.isValid
+                  className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${verificationResult.isValid
                       ? 'from-emerald-500 via-teal-500 to-emerald-300'
                       : 'from-rose-500 via-red-500 to-rose-300'
-                  }`}
+                    }`}
                 />
 
                 <div className="flex items-start gap-3 mb-6">
@@ -327,11 +325,10 @@ function RouteComponent() {
                   )}
                   <div className="flex-1">
                     <h3
-                      className={`text-lg font-bold ${
-                        verificationResult.isValid
+                      className={`text-lg font-bold ${verificationResult.isValid
                           ? 'text-emerald-900 dark:text-emerald-400'
                           : 'text-rose-900 dark:text-rose-400'
-                      }`}
+                        }`}
                     >
                       {verificationResult.isValid
                         ? 'Sertifikat Valid '
@@ -649,16 +646,6 @@ function RouteComponent() {
                           </div>
                         </div>
                       )}
-
-                    <div className="flex gap-3 pt-2">
-                      <Button
-                        variant="outline"
-                        onClick={resetVerification}
-                        className="flex-1"
-                      >
-                        Verifikasi Lagi
-                      </Button>
-                    </div>
                   </div>
                 </div>
               </div>

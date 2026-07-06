@@ -55,6 +55,28 @@ function RouteComponent() {
   const [verificationResult, setVerificationResult] =
     useState<VerificationResult | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type === 'application/pdf') {
+      setSelectedFile(file);
+      setVerificationResult(null);
+    }
+  };
 
   const handleCopy = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -196,7 +218,15 @@ function RouteComponent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="border-2 border-dashed rounded-lg p-8 text-center">
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${isDragging
+                    ? 'border-indigo-500 bg-indigo-50/50 scale-[1.01]'
+                    : 'border-muted-foreground/20 hover:border-primary/50'
+                  }`}
+              >
                 <input
                   type="file"
                   accept="application/pdf"
@@ -218,7 +248,9 @@ function RouteComponent() {
                     >
                       {selectedFile
                         ? selectedFile.name
-                        : 'Klik untuk upload sertifikat PDF'}
+                        : isDragging
+                          ? 'Lepaskan file di sini...'
+                          : 'Klik atau seret file sertifikat PDF ke sini'}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
                       Format: PDF, Maksimal 5MB
@@ -267,11 +299,10 @@ function RouteComponent() {
           >
             {/* Top Gradient Accent Line */}
             <div
-              className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
-                verificationResult.isValid
+              className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${verificationResult.isValid
                   ? 'from-emerald-500 via-teal-500 to-emerald-300'
                   : 'from-rose-500 via-red-500 to-rose-300'
-              }`}
+                }`}
             />
 
             <div className="flex items-start gap-3 mb-6">
@@ -282,11 +313,10 @@ function RouteComponent() {
               )}
               <div className="flex-1">
                 <h3
-                  className={`text-lg font-bold ${
-                    verificationResult.isValid
+                  className={`text-lg font-bold ${verificationResult.isValid
                       ? 'text-emerald-900 dark:text-emerald-400'
                       : 'text-rose-900 dark:text-rose-400'
-                  }`}
+                    }`}
                 >
                   {verificationResult.isValid
                     ? 'Sertifikat Valid ✓'
@@ -600,20 +630,10 @@ function RouteComponent() {
                   </div>
                 )}
 
-                <div className="flex gap-3 pt-2">
-                  <Button
-                    variant="outline"
-                    onClick={resetVerification}
-                    className="flex-1"
-                  >
-                    Verifikasi Lagi
-                  </Button>
-                </div>
               </div>
             </div>
           </div>
         )}
-        \
       </div>
     </main>
   );
