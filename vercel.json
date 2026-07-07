@@ -1,5 +1,4 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
   "services": {
     "api": {
       "root": "server/",
@@ -7,8 +6,7 @@
     },
     "web": {
       "root": ".",
-      "framework": "vite",
-      "outputDirectory": "dist"
+      "framework": "vite"
     }
   },
   "rewrites": [
@@ -17,8 +15,8 @@
       "destination": { "service": "api" }
     },
     {
-      "source": "/(.*)",
-      "destination": "/dist/index.html"
-    }
+          "source": "/((?!api/|static/|assets/|favicon.ico).*)",
+          "destination": "/index.html"
+        }
   ]
 }
