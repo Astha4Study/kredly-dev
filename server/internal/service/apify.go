@@ -77,15 +77,23 @@ func (s *ApifyService) SearchAllJobs(
 		{"upwork", s.searchUpwork, 3, limits[3]},
 	}
 
+	fmt.Printf("\n=== Starting job search ===\n")
+	fmt.Printf("Query: %s, Location: %s\n", query, location)
+	fmt.Printf("Limits: LinkedIn=%d, Indeed=%d, Glassdoor=%d, Upwork=%d\n",
+		limits[0], limits[1], limits[2], limits[3])
+
 	for _, scraper := range scrapers {
 		wg.Add(1)
 		go func(name string, fn func(string, string, string, int, *CVData) ([]JobResult, error), idx int, limit int) {
 			defer wg.Done()
+			fmt.Printf("[%s] Starting scrape (limit: %d)...\n", name, limit)
 			jobs, err := fn(token, query, location, limit, cvData)
 			if err != nil {
+				fmt.Printf("[%s] ERROR: %v\n", name, err)
 				errors[idx] = err
 				return
 			}
+			fmt.Printf("[%s] SUCCESS: %d jobs fetched\n", name, len(jobs))
 			results[idx] = jobs
 		}(scraper.name, scraper.fn, scraper.index, scraper.limit)
 	}
@@ -93,15 +101,26 @@ func (s *ApifyService) SearchAllJobs(
 	wg.Wait()
 
 	allJobs := []JobResult{}
+	fmt.Printf("\n=== Results Summary ===\n")
 	for i, jobs := range results {
+		scraperName := scrapers[i].name
 		if errors[i] != nil {
+			fmt.Printf("[%s] FAILED: %v\n", scraperName, errors[i])
 			continue
 		}
+		fmt.Printf("[%s] %d jobs\n", scraperName, len(jobs))
 		allJobs = append(allJobs, jobs...)
 	}
+	fmt.Printf("Total jobs: %d\n\n", len(allJobs))
 
 	if len(allJobs) == 0 {
-		return nil, fmt.Errorf("all scrapers failed")
+		errorMessages := ""
+		for i, err := range errors {
+			if err != nil {
+				errorMessages += fmt.Sprintf("%s: %v; ", scrapers[i].name, err)
+			}
+		}
+		return nil, fmt.Errorf("all scrapers failed: %s", errorMessages)
 	}
 
 	return allJobs, nil
@@ -169,10 +188,16 @@ func (s *ApifyService) searchLinkedIn(
 		location,
 	)
 
+	// LinkedIn requires minimum count of 10
+	linkedinCount := limit
+	if linkedinCount < 10 {
+		linkedinCount = 10
+	}
+
 	payload := map[string]interface{}{
 		"urls":            []string{linkedinSearchURL},
 		"scrapeCompany":   true,
-		"count":           limit,
+		"count":           linkedinCount,
 		"splitByLocation": false,
 	}
 
@@ -188,6 +213,12 @@ func (s *ApifyService) searchLinkedIn(
 			Title:    getStringField(item, "title"),
 			Company:  getStringField(item, "companyName"),
 			Location: getStringField(item, "location"),
+		}
+
+		// Skip jobs without required fields
+		if job.Title == "" || job.Company == "" {
+			fmt.Printf("[linkedin] ⚠️  Skipping incomplete job - missing title or company\n")
+			continue
 		}
 
 		if id := getStringField(item, "id"); id != "" {
@@ -291,49 +322,67 @@ func (s *ApifyService) searchIndeed(
 			Location: getStringField(item, "location"),
 		}
 
+		fmt.Printf("[Indeed] Parsing job - Title: %s, Company: %s, Location: %s\n",
+			job.Title, job.Company, job.Location)
+
+		// Skip jobs without required fields
+		if job.Title == "" || job.Company == "" {
+			fmt.Printf("[Indeed] ⚠️  Skipping incomplete job - missing title or company\n")
+			continue
+		}
+
 		// Extract ID
 		if id := getStringField(item, "id"); id != "" {
 			job.ID = &id
+			fmt.Printf("[Indeed] - ID: %s\n", id)
 		}
 
 		// Extract logo
 		if logo := getStringField(item, "companyLogo"); logo != "" {
 			job.Logo = &logo
+			fmt.Printf("[Indeed] - Logo: %s\n", logo)
 		}
 
 		// Extract salary
 		if salary := getStringField(item, "salary"); salary != "" {
 			job.Salary = &salary
+			fmt.Printf("[Indeed] - Salary: %s\n", salary)
 		}
 
 		// Extract job type from jobType array
 		if jobTypes, ok := item["jobType"].([]interface{}); ok && len(jobTypes) > 0 {
 			if jobTypeStr, ok := jobTypes[0].(string); ok {
 				job.JobType = &jobTypeStr
+				fmt.Printf("[Indeed] - JobType: %s\n", jobTypeStr)
 			}
 		}
 
 		// Extract URL
 		if jobUrl := getStringField(item, "url"); jobUrl != "" {
 			job.URL = &jobUrl
+			fmt.Printf("[Indeed] - URL: %s\n", jobUrl)
 		}
 
 		// Extract description
 		if description := getStringField(item, "description"); description != "" {
 			job.Description = &description
+			fmt.Printf("[Indeed] - Description length: %d chars\n", len(description))
 		}
 		if descriptionHTML := getStringField(item, "descriptionHTML"); descriptionHTML != "" {
 			job.DescriptionHTML = &descriptionHTML
+			fmt.Printf("[Indeed] - DescriptionHTML length: %d chars\n", len(descriptionHTML))
 		}
 
 		// Extract posted date
 		if postedAt := getStringField(item, "postedAt"); postedAt != "" {
 			job.Posted = &postedAt
+			fmt.Printf("[Indeed] - PostedAt: %s\n", postedAt)
 		}
 
 		// Extract scraped date as fallback for posted date
 		if scrapedAt := getStringField(item, "scrapedAt"); scrapedAt != "" && job.PostedDate == nil {
 			job.PostedDate = &scrapedAt
+			fmt.Printf("[Indeed] - ScrapedAt: %s\n", scrapedAt)
 		}
 
 		jobs = append(jobs, job)
@@ -424,6 +473,12 @@ func (s *ApifyService) searchGlassdoor(
 			Location:  locationStr,
 			CompanyURL: companyURL,
 			Logo:      logo,
+		}
+
+		// Skip jobs without required fields
+		if job.Title == "" || job.Company == "" {
+			fmt.Printf("[glassdoor] ⚠️  Skipping incomplete job - missing title or company\n")
+			continue
 		}
 
 		// Extract ID from key field
@@ -592,8 +647,8 @@ func (s *ApifyService) searchUpwork(
 		"addons.enableClientDetails":         false,
 		"addons.enableClientActivity":        false,
 		"addons.enableJobAttachments":        false,
-		"notifications.shouldSendRunMetadata": false,
-		"notifications.limit":                 0,
+		"notifications.shouldSendRunMetadata": true,
+		"notifications.limit":                 3,
 	}
 
 	items, err := s.callApify(url, payload)
@@ -616,6 +671,12 @@ func (s *ApifyService) searchUpwork(
 			Title:    getStringField(item, "title"),
 			Company:  clientCountry,
 			Location: "Remote",
+		}
+
+		// Skip jobs without required fields
+		if job.Title == "" || job.Company == "" {
+			fmt.Printf("[upwork] ⚠️  Skipping incomplete job - missing title or company\n")
+			continue
 		}
 
 		// Extract ID from uid
@@ -764,8 +825,13 @@ func (s *ApifyService) callApify(
 ) ([]map[string]interface{}, error) {
 	bodyBytes, _ := json.Marshal(payload)
 
+	fmt.Printf("\n--- Apify API Call ---\n")
+	fmt.Printf("URL: %s\n", url)
+	fmt.Printf("Payload: %s\n", string(bodyBytes))
+
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(bodyBytes))
 	if err != nil {
+		fmt.Printf("ERROR creating request: %v\n", err)
 		return nil, err
 	}
 
@@ -774,23 +840,41 @@ func (s *ApifyService) callApify(
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
+		fmt.Printf("ERROR making request: %v\n", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
+	fmt.Printf("HTTP Status: %d\n", resp.StatusCode)
+
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
-		return nil, fmt.Errorf("apify returned status %d", resp.StatusCode)
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Printf("ERROR Response Body: %s\n", string(body))
+		return nil, fmt.Errorf("apify returned status %d: %s", resp.StatusCode, string(body))
 	}
 
 	body, _ := io.ReadAll(resp.Body)
+	fmt.Printf("Response size: %d bytes\n", len(body))
 
 	var items []map[string]interface{}
 	err = json.Unmarshal(body, &items)
 	if err != nil {
+		fmt.Printf("ERROR parsing JSON: %v\n", err)
+		fmt.Printf("Response body (first 500 chars): %s\n", string(body[:min(500, len(body))]))
 		return nil, err
 	}
 
+	fmt.Printf("Items returned: %d\n", len(items))
+	fmt.Printf("--- End API Call ---\n\n")
+
 	return items, nil
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func getStringField(data map[string]interface{}, key string) string {
