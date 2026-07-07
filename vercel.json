@@ -1,13 +1,22 @@
 {
   "services": {
     "api": {
-      "entrypoint": "server/cmd/api/main.go",
-      "routePrefix": "/api"
+      "root": "server/",
+      "entrypoint": "cmd/api/main.go"
     },
     "web": {
-      "entrypoint": ".",
-      "routePrefix": "/",
+      "root": ".",
       "framework": "vite"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": { "service": "api" }
+    },
+    {
+      "source": "/(.*)",
+      "destination": { "service": "web" }
+    }
+  ]
 }
