@@ -91,12 +91,12 @@ func main() {
 	// 8. Define Routes
 	// Detect jika deploy di Vercel, gunakan base path "/", jika tidak gunakan "/api"
 	basePath := "/api"
-	if os.Getenv("VERCEL") == "1" || os.Getenv("VERCEL_ENV") != "" {
-		basePath = "/"
-		log.Println("Running on Vercel, using base path: /")
-	} else {
-		log.Printf("Running locally, using base path: %s", basePath)
-	}
+	// if os.Getenv("VERCEL") == "1" || os.Getenv("VERCEL_ENV") != "" {
+	// 	basePath = "/"
+	// 	log.Println("Running on Vercel, using base path: /")
+	// } else {
+	// 	log.Printf("Running locally, using base path: %s", basePath)
+	// }
 
 	api := r.Group(basePath)
 	{
